@@ -1,0 +1,59 @@
+body {
+  background-color: #2a3648;
+  color: #d7d7db;
+  font-family: "Roboto", sans-serif;
+}
+a,
+.MuiLink-underlineHover:hover {
+  text-decoration: none;
+}
+
+/* .MuiSvgIcon-root {
+  color: #d7d7db;
+} */
+
+* {
+  box-sizing: border-box;
+}
+
+*::-webkit-scrollbar {
+  width: 18px;
+}
+*::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #55657d;
+  border: 6px solid transparent;
+  border-radius: 18px;
+  background-clip: padding-box;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* NOTE: hide input type="number" indicator increase/decrease */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* NOTE: START disabled chrome autofill background */
+input:-webkit-autofill {
+  transition: background-color 600000s 0s, color 600000s 0s !important;
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+  -webkit-appearance: none;
+}
+
+input:-webkit-autofill:focus {
+  transition: background-color 600000s 0s, color 600000s 0s !important;
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+}
+
+input:-webkit-autofill:active {
+  transition: background-color 600000s 0s, color 600000s 0s !important;
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+}
+/* END disabled chrome autofill background */
