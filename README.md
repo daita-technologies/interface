@@ -51,7 +51,7 @@ The repository should be setup in the future in such a way that changes to the b
 The merge flow for changes should be as follows:
 
 ```bash
-<feature_branch> -> <develop> -> <master> -> <release-staging> -> <release-production>
+<feature_branch> -> <develop> -> <main> -> <release-staging> -> <release-production>
 ```
 
 ![Git Merge Flow](./docs/img/git_merge_flow.svg)
