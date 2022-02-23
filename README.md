@@ -44,3 +44,14 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+## A Note on Releases
+The repository should be setup in the future in such a way that changes to the branch `release-staging` and `release-production` will trigger a rebuild of the Staging and the Production application, respectively.
+
+The merge flow for changes should be as follows:
+
+```bash
+<feature_branch> -> <develop> -> <master> -> <release-staging> -> <release-production>
+```
+
+![Git Merge Flow](./docs/img/git_merge_flow.svg)
