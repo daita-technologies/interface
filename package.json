@@ -1,22 +1,23 @@
 {
-  "name": "daita-web",
+  "name": "daita-interface",
   "version": "0.1.0",
   "private": true,
-  "description": "DAITA's React-based web interface.",
+  "description": "React-based user interface for the DAITA platform.",
   "author": "DAITA Technologies",
   "license": "All Rights Reserved.",
   "keywords": [
-    "frontend",
-    "dashboard",
     "react",
-    "typescript"
+    "typescript",
+    "dashboard",
+    "frontend",
+    "interfact"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/daita-technologies/mvp.git"
+    "url": "https://github.com/daita-technologies/interface.git"
   },
   "bugs": {
-    "url": "https://github.com/daita-technologies/mvp/issues"
+    "url": "https://github.com/daita-technologies/interface/issues"
   },
   "scripts": {
     "env": "cross-env DISABLE_ESLINT_PLUGIN=true",
