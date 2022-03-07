@@ -1,16 +1,16 @@
-## DAITA platform front end
+## DAITA Platform User Interface
 React-based user interface for the DAITA platform.
 
-## Main Used Libraries
-1. UI: https://mui.com/
-2. State management: https://redux.js.org/
-3. Redux side effect manager: https://redux-saga.js.org/
-4. AWS Client: [@aws-sdk/client-s3](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html)
-5. HTTP Client: https://www.npmjs.com/package/axios
- 
+## Libraries
+- UI: [MUI(https://mui.com)
+- State management: [Redux](https://redux.js.org)
+- Redux side effect manager: [Redux-Saga](https://redux-saga.js.org)
+- S3 client - AWS SDK for JavaScript v3: [@aws-sdk/client-s3](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html)
+- HTTP client: [axios](https://www.npmjs.com/package/axios)
+
 ## Folder Structure
 
-```
+```bash
 public/
   ...
 src/
@@ -46,13 +46,14 @@ src/
   utils/
     .ts
 ```
+
 All files and directories should be **camelCase** to separate words.
 
 **public/**
-Contains static files such as index. html, javascript library files, images, and other assets, etc.
+Contains static files such as `index.html`, JavaScript library files, images, and other assets, etc.
 
 **src/components/**
-Contains components share between pages.
+Contains components that are shared between pages.
 
 **src/config/**
 Contains configurations of the app.
@@ -61,7 +62,7 @@ Contains configurations of the app.
 Contains all constants of the app.
 
 **src/hooks/**
-Contains shared react hook.
+Contains shared React hooks.
 
 **src/reduxes/**
 Contains redux's reducer of each app feature. Folder name base on feature's name.
@@ -79,32 +80,51 @@ Contains API endpoints.
 Contains custom styles for general sections.
 
 **src/utils/**
-Contains functions shared between app.
+Contains functions shared between the app.
 
+## Installation
 
-## Run & Build
+It is recommended to install [Yarn](https://classic.yarnpkg.com) through the `npm` package manager, which comes bundled with [Node.js](https://nodejs.org) when you install it on your system. It is recommended to use a Node.js version `>= 16.0.0`.
 
-*****You will need a `.env` file to run successfully. Contact administrator to get more information.***
+Once you have `npm` installed, you can run the following both to install and upgrade Yarn:
+
+```bash
+npm install --global yarn
+```
+
+After having installed Yarn, simply run:
+
+```bash
+yarn install
+```
+
+## Serving the Application
+
+> You need an `.env` file for successful running. Contact the administrator for more information.
 
 In the project directory, you can run:
 
-### `yarn start`
+```bash
+yarn start
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Runs the app in the development mode. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+The page will reload if you make edits. You will also see any lint errors in the console.
 
+## Building the Application
 
-### `yarn build`
+In the project directory, you can run:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+yarn build
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Builds the app for production to the `build` folder. It correctly bundles React in production mode and optimises the build for the best performance.
 
+The build is minified and the filenames include the hashes. Your app is ready to be deployed!
+
+---
 
 ## A Note on Releases
 
