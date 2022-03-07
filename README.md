@@ -2,7 +2,7 @@
 React-based user interface for the DAITA platform.
 
 ## Libraries
-- UI: [MUI(https://mui.com)
+- UI: [MUI](https://mui.com)
 - State management: [Redux](https://redux.js.org)
 - Redux side effect manager: [Redux-Saga](https://redux-saga.js.org)
 - S3 client - AWS SDK for JavaScript v3: [@aws-sdk/client-s3](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html)
