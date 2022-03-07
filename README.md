@@ -50,36 +50,47 @@ src/
 All files and directories should be **camelCase** to separate words.
 
 **public/**
+
 Contains static files such as `index.html`, JavaScript library files, images, and other assets, etc.
 
 **src/components/**
+
 Contains components that are shared between pages.
 
 **src/config/**
+
 Contains configurations of the app.
 
 **src/contants/**
+
 Contains all constants of the app.
 
 **src/hooks/**
+
 Contains shared React hooks.
 
 **src/reduxes/**
+
 Contains redux's reducer of each app feature. Folder name base on feature's name.
 
 **src/routes/**
+
 Contains pages of the app. Filename base on page's name.
 
 **src/sagas/**
+
 Contains saga files of corresponding redux reducer.
 
 **src/services/**
+
 Contains API endpoints.
 
 **src/styles/**
+
 Contains custom styles for general sections.
 
 **src/utils/**
+
 Contains functions shared between the app.
 
 ## Installation
