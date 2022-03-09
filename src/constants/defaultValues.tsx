@@ -1,4 +1,5 @@
 import { getLocalToken } from "utils/general";
+import { encode } from "js-base64";
 
 export const apiURL = process.env.REACT_APP_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
@@ -6,6 +7,16 @@ export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
 
 export const RECAPTCHA_SITE_KEY =
   process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
+export const LOGIN_SOCIAL_CALLBACK_URL = encode(
+  `${window.location.protocol}//${window.location.host}/login`
+);
+export const API_AMAZON_COGNITO = process.env.REACT_APP_API_AMAZON_COGNITO;
+export const COGNITO_REDIRECT_URI = process.env.REACT_APP_COGNITO_REDIRECT_URI;
+export const COGNITO_CLIENT_ID = process.env.REACT_APP_COGNITO_CLIENTID;
+export const apiWebHookSlack =
+  process.env.REACT_APP_API_WEBHOOK_SLACK_FEEDBACK || "";
+export const channelSlackFeedback =
+  process.env.REACT_APP_CHANNEL_SLACK_FEEDBACK || "";
 
 export const TOKEN_NAME = "token";
 export const TOKEN_EXPIRE_NAME = "token_expires_in";
@@ -16,6 +27,8 @@ export const ACCESS_KEY_NAME = "access_key";
 export const SECRET_KEY_NAME = "secret_key";
 export const SESSION_TOKEN_NAME = "session_key";
 export const IDENTITY_ID_NAME = "identity_id";
+export const USER_NAME_BOT_DEFAULT = "FeedbackBot";
+export const ICON_EMOJI_DEFAULT = ":ghost:";
 
 export const TOKEN_LIST = [
   TOKEN_NAME,
@@ -96,4 +109,4 @@ export const FINISH_DOWRUNNING_DOWNLOAD_EC2_ZIP_PROGRESS_TYPENLOAD_TYPE =
   "FINISH";
 
 export const ERROR_MESSAGE_ACCOUNT_NOT_VERIFY =
-  "User needs to verify confirmation code";
+  "User need to verify confirmation code";

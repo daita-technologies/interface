@@ -4,6 +4,7 @@ import {
 } from "constants/defaultValues";
 import { toast } from "react-toastify";
 import { call, put, takeLatest } from "redux-saga/effects";
+import { loginAccountNotVerify } from "reduxes/auth/actions";
 import {
   FORGOT_PASSWORD_CHANGE,
   FORGOT_PASSWORD_REQUEST,
@@ -22,7 +23,7 @@ import {
   LoginPayload,
   RegisterPayload,
 } from "reduxes/auth/type";
-import { setIsCheckingApp } from "reduxes/general/action";
+import { reloadCaptcha, setIsCheckingApp } from "reduxes/general/action";
 import {
   GENERATE_S3_CLIENT,
   SET_PAGE_LOADING,
@@ -82,10 +83,12 @@ function* handleLogin(action: { type: string; payload: LoginPayload }): any {
         toast.error(loginResponse.message || "Auth service is not available.");
       }
     } else {
-      if (loginResponse.message === ERROR_MESSAGE_ACCOUNT_NOT_VERIFY)
-        yield put({
-          type: LOGIN_ACCOUNT_NOT_VERIFY,
-        });
+      if (loginResponse.message === ERROR_MESSAGE_ACCOUNT_NOT_VERIFY) {
+        yield put(loginAccountNotVerify());
+      }
+      yield put({
+        type: LOGIN.FAILED,
+      });
       toast.error(loginResponse.message || "Login failed.");
     }
   } catch (e: any) {
@@ -314,7 +317,9 @@ function* handleForgotPasswordChange(action: {
     toast.error(e.message);
   }
 }
-
+function* handleReloadCaptcha() {
+  yield put(reloadCaptcha());
+}
 function* authSaga() {
   yield takeLatest(LOGIN.REQUESTED, handleLogin);
   yield takeLatest(REFRESH_TOKEN.REQUESTED, handleRefreshToken);
@@ -331,6 +336,9 @@ function* authSaga() {
     FORGOT_PASSWORD_CHANGE.REQUESTED,
     handleForgotPasswordChange
   );
+  yield takeLatest(LOGIN.FAILED, handleReloadCaptcha);
+  yield takeLatest(REGISTER_USER.FAILED, handleReloadCaptcha);
+  yield takeLatest(FORGOT_PASSWORD_REQUEST.FAILED, handleReloadCaptcha);
 }
 
 export default authSaga;

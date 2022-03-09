@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import {
@@ -18,10 +19,18 @@ import { lightTheme } from "styles/theme";
 
 import Link from "components/common/Link";
 import { ReCaptchaInput, MyButton } from "components";
-import { useState } from "react";
+
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { loginAction } from "reduxes/auth/actions";
+import {
+  API_AMAZON_COGNITO,
+  COGNITO_CLIENT_ID,
+  COGNITO_REDIRECT_URI,
+  LOGIN_SOCIAL_CALLBACK_URL,
+} from "constants/defaultValues";
+import ReCAPTCHA from "react-google-recaptcha";
+import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
 import { RESET_LOGIN_ACCOUNT_NOT_VERIFY } from "reduxes/auth/constants";
 
 type LoginFormFields = {
@@ -35,9 +44,19 @@ const LoginForm = function () {
   const location = useLocation<any>();
   const history = useHistory();
   const [isShowPassword, setIsShowPassword] = useState(false);
+  // const [refreshIndex, setRefreshIndex] = useState(1);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
-  const { register, control, handleSubmit, getValues } =
+  const { register, control, handleSubmit, setValue, getValues } =
     useForm<LoginFormFields>();
+
+  const reloadRecaptchaTrigger = useSelector(selectorReloadRecaptchaTrigger);
+
+  useEffect(() => {
+    recaptchaRef.current?.reset();
+    setValue("captcha", "");
+  }, [reloadRecaptchaTrigger]);
+
   const isLoginAccountVerified = useSelector(
     (state: RootState) => state.authReducer.isLoginAccountVerified
   );
@@ -52,8 +71,9 @@ const LoginForm = function () {
   const isLogging = useSelector(
     (state: RootState) => state.authReducer.isLogging
   );
+
   const goToVerifyAccount = () => {
-    history.push("/verify", { username: getValues("username") });
+    history.push("/verify", { username: getValues("username"), retry: true });
     dispatch({ type: RESET_LOGIN_ACCOUNT_NOT_VERIFY });
   };
 
@@ -102,7 +122,6 @@ const LoginForm = function () {
               defaultValue={location.state?.username || ""}
             />
             {/* {errors.username && <span>This field is required</span>} */}
-
             <TextField
               type={isShowPassword ? "text" : "password"}
               variant="outlined"
@@ -124,14 +143,17 @@ const LoginForm = function () {
               }}
             />
 
-            <ReCaptchaInput control={control} register={register} />
+            <ReCaptchaInput
+              recaptchaRef={recaptchaRef}
+              control={control}
+              register={register}
+            />
 
             <Box mt={2}>
               <Link to="/forgot-password" variant="body2">
                 Forgot password?
               </Link>
             </Box>
-
             <MyButton
               sx={{ mt: 3, mb: 2 }}
               fullWidth
@@ -143,6 +165,19 @@ const LoginForm = function () {
             >
               Log In
             </MyButton>
+            <a
+              className="login-link"
+              href={`${API_AMAZON_COGNITO}?identity_provider=Google&redirect_uri=${COGNITO_REDIRECT_URI}&response_type=CODE&client_id=${COGNITO_CLIENT_ID}&scope=email openid phone profile&state=${LOGIN_SOCIAL_CALLBACK_URL}`}
+              onClick={() => {}}
+            >
+              <MyButton
+                style={{ backgroundColor: "#cc3e2f" }}
+                variant="contained"
+                fullWidth
+              >
+                Login with Google
+              </MyButton>
+            </a>
             {!isLoginAccountVerified && (
               <MyButton
                 sx={{ mt: 3, mb: 2 }}

@@ -3,14 +3,24 @@ import { Box, FormHelperText } from "@mui/material";
 import ReCAPTCHA from "react-google-recaptcha";
 import { RECAPTCHA_SITE_KEY } from "constants/defaultValues";
 import { ReCaptchaInputProps } from "./type";
+import { useEffect } from "react";
 
-const ReCaptchaInput = function ({ control, register }: ReCaptchaInputProps) {
+const ReCaptchaInput = function ({
+  recaptchaRef,
+  control,
+  register,
+}: ReCaptchaInputProps) {
+  useEffect(() => {
+    register("captcha", {
+      required: {
+        value: true,
+        message: "You need to verify the captcha.",
+      },
+    });
+  }, []);
   return (
     <Controller
       control={control}
-      {...register("captcha", {
-        required: { value: true, message: "You need to verify the captcha." },
-      })}
       name="captcha"
       render={({ field, fieldState: { error } }) => (
         <Box
@@ -21,6 +31,7 @@ const ReCaptchaInput = function ({ control, register }: ReCaptchaInputProps) {
           my={2}
         >
           <ReCAPTCHA
+            ref={recaptchaRef}
             sitekey={RECAPTCHA_SITE_KEY}
             onChange={(token: any) => field.onChange(token)}
           />

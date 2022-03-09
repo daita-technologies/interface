@@ -89,7 +89,6 @@ const UpdateProjectInfoDialog = function () {
             disabled={updateProjectInfoDialog.isProcessing}
           />
           <TextField
-            required
             {...register("description", {
               required: false,
             })}

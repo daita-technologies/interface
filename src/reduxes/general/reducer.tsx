@@ -6,6 +6,7 @@ import {
   GENERATE_S3_CLIENT,
   EMPTY_S3_CLIENT,
   SET_IS_CHECKING_APP,
+  RELOAD_CAPTCHA,
 } from "./constants";
 import { GeneralReducer, SetIsCheckingAppPayload } from "./type";
 
@@ -13,6 +14,7 @@ const inititalState: GeneralReducer = {
   isShow: false,
   s3: generateS3Client(),
   isCheckingApp: true,
+  reloadRecaptchaTrigger: 0,
 };
 
 const generalReducer = (state = inititalState, action: any): GeneralReducer => {
@@ -36,7 +38,12 @@ const generalReducer = (state = inititalState, action: any): GeneralReducer => {
       const { isChecking } = payload as SetIsCheckingAppPayload;
       return { ...state, isCheckingApp: isChecking };
     }
-
+    case RELOAD_CAPTCHA: {
+      return {
+        ...state,
+        reloadRecaptchaTrigger: state.reloadRecaptchaTrigger + 1,
+      };
+    }
     default:
       return state;
   }

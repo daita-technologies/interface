@@ -35,6 +35,8 @@ import {
 
 import { registerAction } from "reduxes/auth/actions";
 import { CheckCaseTextProps, UserInfoFormProps } from "./type";
+import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
+import ReCAPTCHA from "react-google-recaptcha";
 
 type RegisterFormFields = {
   username: string;
@@ -96,6 +98,13 @@ const UserInfoForm = function ({
 
   const password = useRef({});
   password.current = watch("password", "");
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const reloadRecaptchaTrigger = useSelector(selectorReloadRecaptchaTrigger);
+
+  useEffect(() => {
+    recaptchaRef.current?.reset();
+    setValue("captcha", "");
+  }, [reloadRecaptchaTrigger]);
 
   const onSubmit: SubmitHandler<RegisterFormFields> = (data) => {
     const { username, email, password: passwordValue, captcha } = data;
@@ -179,6 +188,8 @@ const UserInfoForm = function ({
           disabled={isFormRequesting || editMode}
           autoComplete={autoCompleteString}
           defaultValue={(userInfo && editMode && userInfo.username) || null}
+          error={!!errors.username}
+          helperText={(errors.username && errors.username.message) || ""}
         />
 
         <TextField
@@ -322,7 +333,11 @@ const UserInfoForm = function ({
           </FormControl>
         )}
 
-        <ReCaptchaInput control={control} register={register} />
+        <ReCaptchaInput
+          recaptchaRef={recaptchaRef}
+          control={control}
+          register={register}
+        />
 
         <Box
           sx={{
