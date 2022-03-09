@@ -6,6 +6,7 @@ import {
 } from "constants/defaultValues";
 import { FetchImagesParams, ImageSourceType } from "reduxes/album/type";
 import { GenerateImagePayload } from "reduxes/generate/type";
+import { UpdateProjectInfoPayload } from "reduxes/project/type";
 
 export interface UploadUpdateListObjectInfo {
   // NOTE: <bucket>/<identity_id>/<project_id>/<data_name>
@@ -241,6 +242,21 @@ const projectApi = {
         id_token: idToken,
         project_id: projectId,
         ls_object_info: listObjectInfo,
+      },
+      { headers: getAuthHeader() }
+    ),
+  updateProjectInfo: ({
+    idToken,
+    projectName,
+    updateInfo,
+  }: UpdateProjectInfoPayload) =>
+    axios.post(
+      `${projectApiUrl}/projects/update_info`,
+      {
+        id_token: idToken,
+        cur_project_name: projectName,
+        new_project_name: updateInfo.projectName,
+        new_description: updateInfo.description,
       },
       { headers: getAuthHeader() }
     ),
