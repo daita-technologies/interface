@@ -145,7 +145,7 @@ const VerifyAccountPage = function () {
             </Button>
           </form>
           <Typography>
-            An email has been sent to {email ? `"${email}` : "your email"} with
+            An email has been sent to {email ? `"${email}"` : "your email"} with
             a link to verify your account. <br /> If you have not received the
             email after a few minutes, please check your spam folder. <br />{" "}
             Please note that your code will expire after 1 hour.

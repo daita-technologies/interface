@@ -166,16 +166,29 @@ const ProjectDetail = function () {
       return (
         <>
           <Box flex={1} mr={1}>
-            <Typography fontSize={14}>Dataset Size</Typography>
-            <Typography fontWeight="bold" fontSize={18}>
-              {separateNumber(totalOriginalImage.toString())} Images
+            <Typography fontSize={18} fontWeight="bold">
+              Data
+            </Typography>
+            <Typography fontSize={14}>Original:</Typography>
+            <Typography fontSize={14}>Preprocessing:</Typography>
+            <Typography fontSize={14}>Augmentation:</Typography>
+            <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
+            <Typography fontSize={14}>Total:</Typography>
+          </Box>
+          <Box flex={1} mr={1}>
+            <Typography fontSize={18} fontWeight="bold">
+              No of images
             </Typography>
             <Typography fontSize={14}>
-              {separateNumber(totalPreprocessImage.toString())} Preprocessing
+              {separateNumber(totalOriginalImage.toString())}
             </Typography>
             <Typography fontSize={14}>
-              {separateNumber(totalAugmentImage.toString())} Augmentation
+              {separateNumber(totalPreprocessImage.toString())}
             </Typography>
+            <Typography fontSize={14}>
+              {separateNumber(totalAugmentImage.toString())}
+            </Typography>
+            <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
             <Typography fontSize={14}>
               {separateNumber(
                 (
@@ -183,14 +196,15 @@ const ProjectDetail = function () {
                   totalPreprocessImage +
                   totalAugmentImage
                 ).toString()
-              )}{" "}
-              Total
+              )}
             </Typography>
           </Box>
 
           <Box flex={1} ml={1}>
-            <Typography fontSize={14}>Dataset Storage</Typography>
-            <Typography fontWeight="bold">
+            <Typography fontSize={18} fontWeight="bold">
+              Dataset Storage
+            </Typography>
+            <Typography fontSize={14}>
               {formatBytes(totalOriginalSize)}
             </Typography>
             <Typography fontSize={14}>
@@ -199,6 +213,7 @@ const ProjectDetail = function () {
             <Typography fontSize={14}>
               {formatBytes(totalAugmentSize)}
             </Typography>
+            <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
             <Typography fontSize={14}>
               {formatBytes(
                 totalOriginalSize + totalPreprocessSize + totalAugmentSize
