@@ -30,6 +30,7 @@ import {
   // PASSWORD_STRENGTH_REGEX,
   SYSTEM_DATE_FORMAT,
   SYSTEM_DATE_TIME_FORMAT,
+  USERNAME_REGEX,
 } from "constants/defaultValues";
 
 import { registerAction } from "reduxes/auth/actions";
@@ -63,6 +64,8 @@ const upperCase = (value: string) => /(?=.*[A-Z])/.test(value);
 const oneDigit = (value: string) => /(?=.*\d)/.test(value);
 const specialChar = (value: string) =>
   /(?=.*[!@#$%^&*()\\[\]{}\-_+=~`|:;"'<>,./?])/.test(value);
+const MAX_USERNAME_LENGTH = 20;
+const MIN_USERNAME_LENGTH = 3;
 
 const UserInfoForm = function ({
   autoComplete = false,
@@ -156,7 +159,22 @@ const UserInfoForm = function ({
           fullWidth
           margin="normal"
           label="Username"
-          {...register("username", { required: true })}
+          {...register("username", {
+            required: true,
+            maxLength: {
+              value: MAX_USERNAME_LENGTH,
+              message: `Username should not exceed ${MAX_USERNAME_LENGTH} characters`,
+            },
+            minLength: {
+              value: MIN_USERNAME_LENGTH,
+              message: `Username must exceed ${MIN_USERNAME_LENGTH} characters`,
+            },
+            pattern: {
+              value: USERNAME_REGEX,
+              message:
+                "User name accepts Alphanumeric characters, @^$.!`-#+'~_",
+            },
+          })}
           autoFocus
           disabled={isFormRequesting || editMode}
           autoComplete={autoCompleteString}
