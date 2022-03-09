@@ -203,7 +203,7 @@ export interface LoadProjectThumbnailImageSucceedPayload {
 }
 export interface UpdateProjectInfo {
   projectName: string;
-  description: string;
+  description?: string;
 }
 export interface UpdateProjectInfoPayload {
   idToken: string;
@@ -214,6 +214,7 @@ export interface UpdateProjectInfoPayload {
 
 export interface SetIsOpenUpdateProjectInfoPayload {
   isOpen: boolean;
+  isProcessing: boolean;
   projectId?: string;
   projectName?: string;
   updateInfo?: UpdateProjectInfo;

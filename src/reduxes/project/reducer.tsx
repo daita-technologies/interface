@@ -447,6 +447,24 @@ const projectReducer = (
         updateProjectInfoDialog: payload as SetIsOpenUpdateProjectInfoPayload,
       };
     }
+    case UPDATE_PROJECT_INFO.REQUESTED: {
+      return {
+        ...state,
+        updateProjectInfoDialog: {
+          ...state.updateProjectInfoDialog,
+          isProcessing: true,
+        } as SetIsOpenUpdateProjectInfoPayload,
+      };
+    }
+    case UPDATE_PROJECT_INFO.REQUESTED: {
+      return {
+        ...state,
+        updateProjectInfoDialog: {
+          ...state.updateProjectInfoDialog,
+          isProcessing: false,
+        } as SetIsOpenUpdateProjectInfoPayload,
+      };
+    }
     case UPDATE_PROJECT_INFO.SUCCEEDED: {
       const { project_id, project_name, description } =
         payload as ApiUpdateProjectsInfo;
@@ -461,6 +479,7 @@ const projectReducer = (
         listProjects: newListProject,
         updateProjectInfoDialog: {
           isOpen: false,
+          isProcessing: false,
         },
       };
     }

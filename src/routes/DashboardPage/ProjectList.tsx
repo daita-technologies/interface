@@ -55,6 +55,20 @@ const ProjectItemMenu = React.forwardRef<
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const handleEditClick = (event: React.MouseEvent<HTMLElement>) => {
+    const isOpenUpdateProjectInfoPayload: SetIsOpenUpdateProjectInfoPayload = {
+      isOpen: true,
+      isProcessing: false,
+      projectId,
+      projectName,
+      updateInfo: {
+        projectName,
+        description,
+      },
+    };
+    dispatch(setIsOpenUpdateProjectInfo(isOpenUpdateProjectInfoPayload));
+    event.stopPropagation();
+  };
 
   return (
     <>
@@ -79,24 +93,7 @@ const ProjectItemMenu = React.forwardRef<
         >
           <ListItemText>Delete</ListItemText>
         </MenuItem>
-        <MenuItem
-          onClick={(event) => {
-            const isOpenUpdateProjectInfoPayload: SetIsOpenUpdateProjectInfoPayload =
-              {
-                isOpen: true,
-                projectId,
-                projectName,
-                updateInfo: {
-                  projectName,
-                  description,
-                },
-              };
-            dispatch(
-              setIsOpenUpdateProjectInfo(isOpenUpdateProjectInfoPayload)
-            );
-            event.stopPropagation();
-          }}
-        >
+        <MenuItem onClick={handleEditClick}>
           <ListItemText>Edit</ListItemText>
         </MenuItem>
       </Menu>

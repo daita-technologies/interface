@@ -35,13 +35,13 @@ const UpdateProjectInfoDialog = function () {
   }
   const { isOpen, projectId, projectName, updateInfo } =
     updateProjectInfoDialog;
-  const onSubmitUpdateProjectInfo = (updateInfo: UpdateProjectInfo) => {
+  const onSubmitUpdateProjectInfo = (updateInfoParam: UpdateProjectInfo) => {
     dispatch(
       updateProjectInfo({
         idToken: getLocalStorage(ID_TOKEN_NAME) || "",
         projectId: projectId as string,
         projectName: projectName as string,
-        updateInfo,
+        updateInfo: updateInfoParam,
       })
     );
   };
@@ -50,6 +50,7 @@ const UpdateProjectInfoDialog = function () {
     dispatch(
       setIsOpenUpdateProjectInfo({
         isOpen: false,
+        isProcessing: false,
       })
     );
   };
@@ -85,6 +86,7 @@ const UpdateProjectInfoDialog = function () {
             fullWidth
             autoFocus
             inputProps={{ maxLength: 100 }}
+            disabled={updateProjectInfoDialog.isProcessing}
           />
           <TextField
             required
@@ -102,6 +104,7 @@ const UpdateProjectInfoDialog = function () {
             fullWidth
             autoFocus
             inputProps={{ maxLength: 75 }}
+            disabled={updateProjectInfoDialog.isProcessing}
           />
           <Button sx={{ display: "none" }} type="submit" />
         </Box>
@@ -112,6 +115,7 @@ const UpdateProjectInfoDialog = function () {
             variant="contained"
             color="primary"
             onClick={handleSubmit(onSubmitUpdateProjectInfo)}
+            isLoading={updateProjectInfoDialog.isProcessing}
           >
             Update
           </MyButton>
