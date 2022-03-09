@@ -25,5 +25,6 @@ export { default as InviteFriendModal } from "./InviteFriendModal";
 export { default as CheckingApp } from "./CheckingApp";
 export { default as BeforeUnload } from "./BeforeUnload";
 export { default as InfoTooltip } from "./InfoTooltip";
+export { default as FeedbackComponent } from "./FeedbackComponent";
 
 export { default as Footer } from "./Footer";
