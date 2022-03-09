@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import {
@@ -9,24 +10,27 @@ import {
   InputAdornment,
   IconButton,
   ThemeProvider,
-  FormHelperText,
 } from "@mui/material";
 
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 
 import { RootState } from "reduxes";
 import { lightTheme } from "styles/theme";
 
 import Link from "components/common/Link";
 import { ReCaptchaInput, MyButton } from "components";
-import { useReducer, useState, useRef, useEffect } from "react";
+
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { loginAction } from "reduxes/auth/actions";
-import React from "react";
+import {
+  API_AMAZON_COGNITO,
+  COGNITO_CLIENT_ID,
+  COGNITO_REDIRECT_URI,
+  LOGIN_SOCIAL_CALLBACK_URL,
+} from "constants/defaultValues";
 import ReCAPTCHA from "react-google-recaptcha";
 import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
-import { RECAPTCHA_SITE_KEY } from "constants/defaultValues";
 import { RESET_LOGIN_ACCOUNT_NOT_VERIFY } from "reduxes/auth/constants";
 
 type LoginFormFields = {
@@ -161,6 +165,19 @@ const LoginForm = function () {
             >
               Log In
             </MyButton>
+            <a
+              className="login-link"
+              href={`${API_AMAZON_COGNITO}?identity_provider=Google&redirect_uri=${COGNITO_REDIRECT_URI}&response_type=CODE&client_id=${COGNITO_CLIENT_ID}&scope=email openid phone profile&state=${LOGIN_SOCIAL_CALLBACK_URL}`}
+              onClick={() => {}}
+            >
+              <MyButton
+                style={{ backgroundColor: "#cc3e2f" }}
+                variant="contained"
+                fullWidth
+              >
+                Login with Google
+              </MyButton>
+            </a>
             {!isLoginAccountVerified && (
               <MyButton
                 sx={{ mt: 3, mb: 2 }}

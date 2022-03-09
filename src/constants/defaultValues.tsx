@@ -1,4 +1,5 @@
 import { getLocalToken } from "utils/general";
+import { encode } from "js-base64";
 
 export const apiURL = process.env.REACT_APP_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
@@ -6,6 +7,12 @@ export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
 
 export const RECAPTCHA_SITE_KEY =
   process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
+export const LOGIN_SOCIAL_CALLBACK_URL = encode(
+  `${window.location.protocol}//${window.location.host}/login`
+);
+export const API_AMAZON_COGNITO = process.env.REACT_APP_API_AMAZON_COGNITO;
+export const COGNITO_REDIRECT_URI = process.env.REACT_APP_COGNITO_REDIRECT_URI;
+export const COGNITO_CLIENT_ID = process.env.REACT_APP_COGNITO_CLIENTID;
 export const apiWebHookSlack =
   process.env.REACT_APP_API_WEBHOOK_SLACK_FEEDBACK || "";
 export const channelSlackFeedback =
