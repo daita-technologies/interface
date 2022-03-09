@@ -18,11 +18,12 @@ import { lightTheme } from "styles/theme";
 
 import Link from "components/common/Link";
 import { ReCaptchaInput, MyButton } from "components";
-import { useState } from "react";
+import { useReducer, useState, useRef, useEffect } from "react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { loginAction } from "reduxes/auth/actions";
 import { RESET_LOGIN_ACCOUNT_NOT_VERIFY } from "reduxes/auth/constants";
+import ReCAPTCHA from "react-google-recaptcha";
 
 type LoginFormFields = {
   username: string;
@@ -35,12 +36,23 @@ const LoginForm = function () {
   const location = useLocation<any>();
   const history = useHistory();
   const [isShowPassword, setIsShowPassword] = useState(false);
+  // const [refreshIndex, setRefreshIndex] = useState(1);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const { register, control, handleSubmit, getValues } =
     useForm<LoginFormFields>();
   const isLoginAccountVerified = useSelector(
     (state: RootState) => state.authReducer.isLoginAccountVerified
   );
+  const isLoginFail = useSelector(
+    (state: RootState) => state.authReducer.isLoginFail
+  );
+  useEffect(() => {
+    if (isLoginFail == true) {
+      recaptchaRef.current?.reset();
+    }
+  }, [isLoginFail]);
+
   const onSubmit: SubmitHandler<LoginFormFields> = (data) => {
     dispatch(loginAction(data));
   };
@@ -124,7 +136,11 @@ const LoginForm = function () {
               }}
             />
 
-            <ReCaptchaInput control={control} register={register} />
+            <ReCaptchaInput
+              recaptchaRef={recaptchaRef}
+              control={control}
+              register={register}
+            />
 
             <Box mt={2}>
               <Link to="/forgot-password" variant="body2">

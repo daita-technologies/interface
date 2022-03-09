@@ -4,7 +4,11 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { RECAPTCHA_SITE_KEY } from "constants/defaultValues";
 import { ReCaptchaInputProps } from "./type";
 
-const ReCaptchaInput = function ({ control, register }: ReCaptchaInputProps) {
+const ReCaptchaInput = function ({
+  recaptchaRef,
+  control,
+  register,
+}: ReCaptchaInputProps) {
   return (
     <Controller
       control={control}
@@ -21,6 +25,7 @@ const ReCaptchaInput = function ({ control, register }: ReCaptchaInputProps) {
           my={2}
         >
           <ReCAPTCHA
+            ref={recaptchaRef}
             sitekey={RECAPTCHA_SITE_KEY}
             onChange={(token: any) => field.onChange(token)}
           />
