@@ -8,25 +8,25 @@ import {
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { refreshTokenRequest } from "reduxes/auth/actions";
-import { selectorIsLogged } from "reduxes/auth/selector";
 import { setIsCheckingApp } from "reduxes/general/action";
 import { selectorIsCheckingApp } from "reduxes/general/selector";
-import { getLocalStorage } from "utils/general";
+import { getLocalStorage, getLocalToken } from "utils/general";
 import { TokenCheckingProps } from "./type";
 
 const CheckingApp = function ({ children }: TokenCheckingProps) {
   const freshTimeOutRef = useRef<any>();
   const dispatch = useDispatch();
-  const isLogged = useSelector(selectorIsLogged);
-  const tokenExpireIn = Number(getLocalStorage(TOKEN_EXPIRE_NAME) || "");
-  const credentialTokenExpireIn = Number(
-    getLocalStorage(CREDENTIAL_TOKEN_EXPIRE_NAME) || ""
-  );
-  const nowInMiliseconds = new Date().getTime();
 
   const isCheckingApp = useSelector(selectorIsCheckingApp);
 
   const handleRefreshToken = (isRefocus = false) => {
+    const isLogged = !!getLocalToken();
+    const tokenExpireIn = Number(getLocalStorage(TOKEN_EXPIRE_NAME) || "");
+    const credentialTokenExpireIn = Number(
+      getLocalStorage(CREDENTIAL_TOKEN_EXPIRE_NAME) || ""
+    );
+    const nowInMiliseconds = new Date().getTime();
+
     if (isLogged) {
       if (
         nowInMiliseconds >= tokenExpireIn ||

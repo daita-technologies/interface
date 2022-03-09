@@ -24,7 +24,6 @@ const LoginPage = function () {
 
   const search = useLocation().search;
   useEffect(() => {
-    console.log(location);
     const urlSearch = new URLSearchParams(search);
     const access_key = urlSearch.get("access_key");
     const credential_token_expires_in = urlSearch.get(
@@ -37,7 +36,7 @@ const LoginPage = function () {
     const token = urlSearch.get("token");
     const token_expires_in = urlSearch.get("token_expires_in");
     const secret_key = urlSearch.get("secret_key");
-    console.log("secret_key", secret_key);
+
     if (
       !access_key ||
       !credential_token_expires_in ||
