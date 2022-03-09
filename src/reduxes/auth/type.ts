@@ -19,7 +19,6 @@ export interface AuthReducer {
   token: string | null;
   isLogged: boolean;
   isLogging: boolean;
-  isLoginFail: boolean;
   isFormRequesting: boolean;
   isVerifying: boolean;
   isForgotRequestStep: boolean;

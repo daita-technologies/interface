@@ -9,9 +9,10 @@ import {
   InputAdornment,
   IconButton,
   ThemeProvider,
+  FormHelperText,
 } from "@mui/material";
 
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 
 import { RootState } from "reduxes";
 import { lightTheme } from "styles/theme";
@@ -22,8 +23,11 @@ import { useReducer, useState, useRef, useEffect } from "react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { loginAction } from "reduxes/auth/actions";
-import { RESET_LOGIN_ACCOUNT_NOT_VERIFY } from "reduxes/auth/constants";
+import React from "react";
 import ReCAPTCHA from "react-google-recaptcha";
+import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
+import { RECAPTCHA_SITE_KEY } from "constants/defaultValues";
+import { RESET_LOGIN_ACCOUNT_NOT_VERIFY } from "reduxes/auth/constants";
 
 type LoginFormFields = {
   username: string;
@@ -39,20 +43,19 @@ const LoginForm = function () {
   // const [refreshIndex, setRefreshIndex] = useState(1);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
 
-  const { register, control, handleSubmit, getValues } =
+  const { register, control, handleSubmit, setValue, getValues } =
     useForm<LoginFormFields>();
+
+  const reloadRecaptchaTrigger = useSelector(selectorReloadRecaptchaTrigger);
+
+  useEffect(() => {
+    recaptchaRef.current?.reset();
+    setValue("captcha", "");
+  }, [reloadRecaptchaTrigger]);
+
   const isLoginAccountVerified = useSelector(
     (state: RootState) => state.authReducer.isLoginAccountVerified
   );
-  const isLoginFail = useSelector(
-    (state: RootState) => state.authReducer.isLoginFail
-  );
-  useEffect(() => {
-    if (isLoginFail == true) {
-      recaptchaRef.current?.reset();
-    }
-  }, [isLoginFail]);
-
   const onSubmit: SubmitHandler<LoginFormFields> = (data) => {
     dispatch(loginAction(data));
   };
@@ -64,8 +67,9 @@ const LoginForm = function () {
   const isLogging = useSelector(
     (state: RootState) => state.authReducer.isLogging
   );
+
   const goToVerifyAccount = () => {
-    history.push("/verify", { username: getValues("username") });
+    history.push("/verify", { username: getValues("username"), retry: true });
     dispatch({ type: RESET_LOGIN_ACCOUNT_NOT_VERIFY });
   };
 
@@ -114,7 +118,6 @@ const LoginForm = function () {
               defaultValue={location.state?.username || ""}
             />
             {/* {errors.username && <span>This field is required</span>} */}
-
             <TextField
               type={isShowPassword ? "text" : "password"}
               variant="outlined"
@@ -147,7 +150,6 @@ const LoginForm = function () {
                 Forgot password?
               </Link>
             </Box>
-
             <MyButton
               sx={{ mt: 3, mb: 2 }}
               fullWidth

@@ -27,7 +27,6 @@ const inititalState: AuthReducer = {
   isVerifying: false,
   isForgotRequestStep: true,
   isLoginAccountVerified: true,
-  isLoginFail: false,
 };
 
 const authReducer = (state = inititalState, action: any) => {
@@ -46,14 +45,13 @@ const authReducer = (state = inititalState, action: any) => {
         isLogging: false,
         isLogged: true,
         userInfo: { username: username || inititalState.userInfo.username },
-        isLoginFail: false,
       };
     }
     case LOG_OUT.SUCCEEDED:
       return { ...state, userInfo: null, token: null, isLogged: false };
 
     case LOGIN.FAILED:
-      return { ...state, isLogging: false, isLoginFail: true };
+      return { ...state, isLogging: false };
 
     case GET_USER_INFO.SUCCEEDED:
       return { ...state, userInfo: payload.userInfo };

@@ -10,7 +10,9 @@ export interface ResponseSubmitType {
 }
 export interface FeedbackFormProps {
   style: React.CSSProperties;
+  feedback: FeedbackFields;
   onSubmit: (content: FeedbackFields) => Promise<ResponseSubmitType>;
+  onContentChange?: (content: FeedbackFields) => void;
 }
 
 export interface FeedbackSlackParam {
@@ -23,4 +25,5 @@ export interface FeedbackWidgetParam {
   style: React.CSSProperties;
   children: React.ReactNode;
   isShow: boolean;
+  onClose?: () => void;
 }

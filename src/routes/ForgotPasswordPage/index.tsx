@@ -39,6 +39,8 @@ import {
 } from "reduxes/auth/selector";
 import { lightTheme } from "styles/theme";
 import { ForgotPasswordRequestFields } from "./type";
+import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const ForgotPasswordPage = function () {
   const history = useHistory();
@@ -50,10 +52,18 @@ const ForgotPasswordPage = function () {
     watch,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<ForgotPasswordRequestFields>();
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const isFormRequesting = useSelector(selectorIsFormRequesting);
   const isForgotRequestStep = useSelector(selectorIsForgotRequestStep);
+  const reloadRecaptchaTrigger = useSelector(selectorReloadRecaptchaTrigger);
+
+  useEffect(() => {
+    recaptchaRef.current?.reset();
+    setValue("captcha", "");
+  }, [reloadRecaptchaTrigger]);
 
   const onSubmit: SubmitHandler<ForgotPasswordRequestFields> = (data) => {
     const { username, password: passwordValue, confirmCode, captcha } = data;
@@ -273,7 +283,11 @@ const ForgotPasswordPage = function () {
                   />
                 )}
                 {isForgotRequestStep && (
-                  <ReCaptchaInput control={control} register={register} />
+                  <ReCaptchaInput
+                    recaptchaRef={recaptchaRef}
+                    control={control}
+                    register={register}
+                  />
                 )}
                 <Box textAlign="center" mt={2}>
                   <MyButton

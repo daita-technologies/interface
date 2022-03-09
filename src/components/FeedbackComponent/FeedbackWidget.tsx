@@ -10,6 +10,7 @@ const FeedbackWidget = function ({
   style,
   children,
   isShow,
+  onClose,
 }: FeedbackWidgetParam) {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
@@ -20,12 +21,17 @@ const FeedbackWidget = function ({
   const open = Boolean(anchorEl);
   const id = open ? "popover" : undefined;
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    console.log("event.currentTargethandleClick", event.currentTarget.id);
     if (open) {
       setAnchorEl(null);
     } else {
       setAnchorEl(event.currentTarget);
     }
+  };
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    }
+    setAnchorEl(null);
   };
 
   return (
@@ -43,6 +49,7 @@ const FeedbackWidget = function ({
         id={id}
         open={open}
         anchorEl={anchorEl}
+        onClose={handleClose}
         anchorOrigin={{
           vertical: "top",
           horizontal: "left",

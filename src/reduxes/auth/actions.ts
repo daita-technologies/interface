@@ -3,6 +3,7 @@ import {
   FORGOT_PASSWORD_CHANGE,
   FORGOT_PASSWORD_REQUEST,
   LOGIN,
+  LOGIN_ACCOUNT_NOT_VERIFY,
   REFRESH_TOKEN,
   REGISTER_USER,
   SET_IS_FORGOT_REQUEST_STEP,
@@ -46,4 +47,8 @@ export const setIsForgotRequestStep = (payload: {
 export const refreshTokenRequest = (payload: RefreshTokenParams) => ({
   type: REFRESH_TOKEN.REQUESTED,
   payload,
+});
+
+export const loginAccountNotVerify = () => ({
+  type: LOGIN_ACCOUNT_NOT_VERIFY,
 });

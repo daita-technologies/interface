@@ -1,6 +1,6 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { MyButton } from "components";
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import feedbackApi from "services/feedbackApi";
 import {
@@ -11,7 +11,12 @@ import {
   ResponseSubmitType,
 } from "./type";
 
-export const FeedbackForm = function ({ style, onSubmit }: FeedbackFormProps) {
+export const FeedbackForm = function ({
+  style,
+  feedback = { content: "" },
+  onSubmit,
+  onContentChange,
+}: FeedbackFormProps) {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const {
     register,
@@ -22,13 +27,17 @@ export const FeedbackForm = function ({ style, onSubmit }: FeedbackFormProps) {
   const onSubmitFeedback = (data: FeedbackFields) => {
     setIsProcessing(true);
     onSubmit(data).then((resp: ResponseSubmitType) => {
-      console.log("resp", resp);
-      if (resp.action == ACTION_FEEDBACK_FORM.NO_ACTION) {
+      if (resp.action === ACTION_FEEDBACK_FORM.NO_ACTION) {
         setIsProcessing(false);
-      } else if (resp.action == ACTION_FEEDBACK_FORM.PROCESSING) {
+      } else if (resp.action === ACTION_FEEDBACK_FORM.PROCESSING) {
         setIsProcessing(true);
       }
     });
+  };
+  const handleFeedbackContentChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (onContentChange) {
+      onContentChange({ content: e.target.value });
+    }
   };
   return (
     <Box
@@ -55,13 +64,14 @@ export const FeedbackForm = function ({ style, onSubmit }: FeedbackFormProps) {
           })}
           error={!!errors.content}
           helperText={(errors.content && errors.content.message) || ""}
-          defaultValue=""
+          defaultValue={feedback.content}
           margin="normal"
           fullWidth
           autoFocus
           multiline
           rows={9}
           inputProps={{ maxLength: 500 }}
+          onChange={handleFeedbackContentChange}
           disabled={isProcessing}
         />
 
@@ -85,22 +95,24 @@ export const FeedbackForm = function ({ style, onSubmit }: FeedbackFormProps) {
 export const FeedbackFormSlack = function ({
   style,
   feedbackSlackParam,
+  onContentChange,
   onSendSuccess,
   onSendFail,
 }: {
   style: React.CSSProperties;
-  feedbackSlackParam: Omit<FeedbackSlackParam, "text">;
+  feedbackSlackParam: Partial<FeedbackSlackParam>;
+  onContentChange?: (feedbackFields: FeedbackFields) => void;
   onSendSuccess?: () => void;
   onSendFail?: () => void;
 }) {
   const handleOnSubmit = (
     data: FeedbackFields
   ): Promise<ResponseSubmitType> => {
-    return new Promise<ResponseSubmitType>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       feedbackApi
         .sendFeedbackToSlack({ ...feedbackSlackParam, text: data.content })
         .then((resp: any) => {
-          if (resp.status == 200) {
+          if (resp.status === 200) {
             if (onSendSuccess) onSendSuccess();
           } else {
             if (onSendFail) onSendFail();
@@ -113,5 +125,14 @@ export const FeedbackFormSlack = function ({
         });
     });
   };
-  return <FeedbackForm onSubmit={handleOnSubmit} style={style} />;
+  return (
+    <FeedbackForm
+      onSubmit={handleOnSubmit}
+      feedback={{
+        content: feedbackSlackParam.text ? feedbackSlackParam.text : "",
+      }}
+      onContentChange={onContentChange}
+      style={style}
+    />
+  );
 };
