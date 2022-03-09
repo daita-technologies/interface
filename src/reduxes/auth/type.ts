@@ -22,6 +22,7 @@ export interface AuthReducer {
   isFormRequesting: boolean;
   isVerifying: boolean;
   isForgotRequestStep: boolean;
+  isLoginAccountVerified: boolean;
 }
 
 export interface ForgotPasswordRequestPayload {

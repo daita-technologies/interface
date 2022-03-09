@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import {
   Container,
   TextField,
@@ -22,6 +22,7 @@ import { useState } from "react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { loginAction } from "reduxes/auth/actions";
+import { RESET_LOGIN_ACCOUNT_NOT_VERIFY } from "reduxes/auth/constants";
 
 type LoginFormFields = {
   username: string;
@@ -32,10 +33,14 @@ type LoginFormFields = {
 const LoginForm = function () {
   const dispatch = useDispatch();
   const location = useLocation<any>();
+  const history = useHistory();
   const [isShowPassword, setIsShowPassword] = useState(false);
 
-  const { register, control, handleSubmit } = useForm<LoginFormFields>();
-
+  const { register, control, handleSubmit, getValues } =
+    useForm<LoginFormFields>();
+  const isLoginAccountVerified = useSelector(
+    (state: RootState) => state.authReducer.isLoginAccountVerified
+  );
   const onSubmit: SubmitHandler<LoginFormFields> = (data) => {
     dispatch(loginAction(data));
   };
@@ -47,6 +52,11 @@ const LoginForm = function () {
   const isLogging = useSelector(
     (state: RootState) => state.authReducer.isLogging
   );
+  const goToVerifyAccount = () => {
+    history.push("/verify", { username: getValues("username") });
+    dispatch({ type: RESET_LOGIN_ACCOUNT_NOT_VERIFY });
+  };
+
   return (
     <ThemeProvider theme={lightTheme}>
       <Container
@@ -133,7 +143,18 @@ const LoginForm = function () {
             >
               Log In
             </MyButton>
-
+            {!isLoginAccountVerified && (
+              <MyButton
+                sx={{ mt: 3, mb: 2 }}
+                fullWidth
+                variant="contained"
+                type="submit"
+                color="warning"
+                onClick={goToVerifyAccount}
+              >
+                Verify account now
+              </MyButton>
+            )}
             <Box textAlign="right" mt={3} mb={3}>
               <Link to={isLogging ? "#" : "/register"}>
                 Don't have an account? Register
