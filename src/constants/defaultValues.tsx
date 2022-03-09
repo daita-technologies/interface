@@ -36,6 +36,7 @@ export const getAuthHeader = () => ({
 export const EMAIL_REGEX = /^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
 export const PHONE_VI_REGEX =
   /(^((0[3|5|7|8|9])+([0-9]{8})\b)\/?$)|(^(((\+)?84)+([0-9]{9})\b)\/?$)/;
+export const USERNAME_REGEX = /^([a-z0-9@^$.!`\-#+'~_]+)$/;
 export const PASSWORD_STRENGTH_REGEX =
   /(?=(.*[0-9]))(?=.*[!@#$%^&*()\\[\]{}\-_+=~`|:;"'<>,./?])(?=.*[a-z])(?=(.*[A-Z]))(?=(.*)).{8,}/;
 
