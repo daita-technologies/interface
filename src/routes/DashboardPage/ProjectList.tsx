@@ -24,26 +24,33 @@ import {
   selectorProjectThumbnail,
 } from "reduxes/project/selector";
 import { SET_IS_OPEN_CREATE_PROJECT_MODAL } from "reduxes/project/constants";
-import { ApiListProjectsItem } from "reduxes/project/type";
+import {
+  ApiListProjectsItem,
+  SetIsOpenUpdateProjectInfoPayload,
+} from "reduxes/project/type";
 import {
   loadProjectThumbnailImage,
   setIsOpenDeleteProject,
+  setIsOpenUpdateProjectInfo,
 } from "reduxes/project/action";
 import { ProjectItemProps } from "./type";
+import UpdateProjectInfoDialog from "./UpdateProjectInfoDialog";
 
 const ProjectItemMenu = React.forwardRef<
   HTMLDivElement,
   {
     projectId: string;
     projectName: string;
+    description: string;
   }
->(({ projectId, projectName }, menuRef) => {
+>(({ projectId, projectName, description }, menuRef) => {
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
+    event.stopPropagation();
   };
   const handleClose = () => {
     setAnchorEl(null);
@@ -72,6 +79,26 @@ const ProjectItemMenu = React.forwardRef<
         >
           <ListItemText>Delete</ListItemText>
         </MenuItem>
+        <MenuItem
+          onClick={(event) => {
+            const isOpenUpdateProjectInfoPayload: SetIsOpenUpdateProjectInfoPayload =
+              {
+                isOpen: true,
+                projectId,
+                projectName,
+                updateInfo: {
+                  projectName,
+                  description,
+                },
+              };
+            dispatch(
+              setIsOpenUpdateProjectInfo(isOpenUpdateProjectInfoPayload)
+            );
+            event.stopPropagation();
+          }}
+        >
+          <ListItemText>Edit</ListItemText>
+        </MenuItem>
       </Menu>
     </>
   );
@@ -83,7 +110,8 @@ const ProjectItem = function ({ projectInfo }: ProjectItemProps) {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const { groups, project_name, project_id, thum_key } = projectInfo;
+  const { groups, project_name, project_id, thum_key, description } =
+    projectInfo;
 
   const projectThumbnailUrl = useSelector(selectorProjectThumbnail(project_id));
 
@@ -185,6 +213,7 @@ const ProjectItem = function ({ projectInfo }: ProjectItemProps) {
             ref={optionMenuRef}
             projectId={project_id}
             projectName={project_name}
+            description={description}
           />
         </Box>
       </Box>
@@ -270,30 +299,33 @@ const ProjectList = function () {
 
   if (listProjects.length > 0) {
     return (
-      <Box
-        sx={{
-          ":after": {
-            content: " ",
-            flex: "auto",
-          },
-        }}
-        display="flex"
-        gap={6}
-        flexWrap="wrap"
-      >
-        {listProjects.map((project: ApiListProjectsItem) => (
-          <ProjectItem key={project.project_id} projectInfo={project} />
-        ))}
+      <>
+        <UpdateProjectInfoDialog />
         <Box
-          flexBasis="calc(33.33% - 6*8px + 6/3*8px)"
+          sx={{
+            ":after": {
+              content: " ",
+              flex: "auto",
+            },
+          }}
           display="flex"
-          alignItems="center"
-          justifyContent="center"
-          minHeight={300}
+          gap={6}
+          flexWrap="wrap"
         >
-          {renderCreateNewProjectButton()}
+          {listProjects.map((project: ApiListProjectsItem) => (
+            <ProjectItem key={project.project_id} projectInfo={project} />
+          ))}
+          <Box
+            flexBasis="calc(33.33% - 6*8px + 6/3*8px)"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            minHeight={300}
+          >
+            {renderCreateNewProjectButton()}
+          </Box>
         </Box>
-      </Box>
+      </>
     );
   }
 
