@@ -467,22 +467,6 @@ const AlbumViewer = function (props: AlbumViewerProps) {
                   <CircularProgress size={20} />
                 </Box>
               }
-              endMessage={
-                <Box
-                  mt={2}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Typography
-                    fontStyle="italic"
-                    color="text.secondary"
-                    fontSize={14}
-                  >
-                    No more data to load.
-                  </Typography>
-                </Box>
-              }
               scrollableTarget={IMAGE_LIST_HTML_ID}
             >
               {imagesFileNameArrayGrouped.map(
