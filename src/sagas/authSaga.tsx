@@ -1,4 +1,7 @@
-import { TEMP_LOCAL_USERNAME } from "constants/defaultValues";
+import {
+  ERROR_MESSAGE_ACCOUNT_NOT_VERIFY,
+  TEMP_LOCAL_USERNAME,
+} from "constants/defaultValues";
 import { toast } from "react-toastify";
 import { call, put, takeLatest } from "redux-saga/effects";
 import {
@@ -6,6 +9,7 @@ import {
   FORGOT_PASSWORD_REQUEST,
   // GET_USER_INFO,
   LOGIN,
+  LOGIN_ACCOUNT_NOT_VERIFY,
   LOG_OUT,
   REFRESH_TOKEN,
   REGISTER_USER,
@@ -78,9 +82,10 @@ function* handleLogin(action: { type: string; payload: LoginPayload }): any {
         toast.error(loginResponse.message || "Auth service is not available.");
       }
     } else {
-      yield put({
-        type: LOGIN.FAILED,
-      });
+      if (loginResponse.message === ERROR_MESSAGE_ACCOUNT_NOT_VERIFY)
+        yield put({
+          type: LOGIN_ACCOUNT_NOT_VERIFY,
+        });
       toast.error(loginResponse.message || "Login failed.");
     }
   } catch (e: any) {
