@@ -96,4 +96,4 @@ export const FINISH_DOWRUNNING_DOWNLOAD_EC2_ZIP_PROGRESS_TYPENLOAD_TYPE =
   "FINISH";
 
 export const ERROR_MESSAGE_ACCOUNT_NOT_VERIFY =
-  "User need to verify confirmation code";
+  "User needs to verify confirmation code";

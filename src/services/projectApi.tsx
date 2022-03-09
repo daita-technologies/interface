@@ -255,7 +255,8 @@ const projectApi = {
       {
         id_token: idToken,
         cur_project_name: projectName,
-        new_project_name: updateInfo.projectName,
+        new_project_name:
+          projectName === updateInfo.projectName ? "" : updateInfo.projectName,
         new_description: updateInfo.description,
       },
       { headers: getAuthHeader() }
