@@ -49,7 +49,7 @@ src/
     .ts
 ```
 
-Files and directories relate to React Component should be **PascalCase** to separate words and file extension should be **".tsx"** for TypeScript React.
+Files and directories related to React components should be **PascalCase** to separate words and file extension should be `.tsx` for TypeScript React.
 All other files and directories should be **camelCase** to separate words.
 
 **public/**
