@@ -1,7 +1,9 @@
 ## DAITA Platform User Interface
+
 React-based user interface for the DAITA platform.
 
 ## Libraries
+
 - UI: [MUI](https://mui.com)
 - State management: [Redux](https://redux.js.org)
 - Redux side effect manager: [Redux-Saga](https://redux-saga.js.org)
@@ -47,7 +49,8 @@ src/
     .ts
 ```
 
-All files and directories should be **camelCase** to separate words.
+Files and directories relate to React Component should be **PascalCase** to separate words and file extension should be **".tsx"** for TypeScript React.
+All other files and directories should be **camelCase** to separate words.
 
 **public/**
 
