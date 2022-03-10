@@ -23,7 +23,7 @@ const FeedbackComponent = function () {
     dispath(resetFeedBack());
   };
   const handleSendFeedbackFail = () => {
-    toast.error("Feedback messages fail to send");
+    toast.error("Feedback message failed to send");
   };
   const handleContentChange = (content: FeedbackFields) => {
     dispath(setFeedBack(content));
