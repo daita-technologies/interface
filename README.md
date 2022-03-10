@@ -1,4 +1,4 @@
-## DAITA Platform User Interface
+# DAITA Platform User Interface
 
 React-based user interface for the DAITA platform.
 
