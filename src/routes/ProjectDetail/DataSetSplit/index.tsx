@@ -9,6 +9,7 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  Stack,
   Typography,
 } from "@mui/material";
 import {
@@ -35,7 +36,12 @@ import {
 } from "reduxes/project/selector";
 import { SPLIT_DATA_NUMBER_SOURCE_TYPE } from "reduxes/project/type";
 import SplitDataNumberBox from "./SplitDataNumberBox";
-import { DataSetSplitProps, SplitDataFormFields } from "./type";
+import {
+  DataSetSplitProps,
+  SplitDataFormFields,
+  SPLIT_DATA_TYPE,
+} from "./type";
+import SliderInput from "./SliderInput";
 
 const DATA_SOURCE_SELECT_ID = "data-source-select";
 
@@ -94,6 +100,7 @@ const DataSetSplit = function (props: DataSetSplitProps) {
     watch,
     reset,
     formState: { errors },
+    getValues,
   } = useForm<SplitDataFormFields>({
     defaultValues: {
       training: splitDataNumberBySource[TRAINING_DATA_NUMBER_INDEX],
@@ -205,48 +212,62 @@ const DataSetSplit = function (props: DataSetSplitProps) {
       </Typography>
     );
   };
-
+  const mSplitDataInfo: Record<
+    "TRAINING" | "VALIDATION" | "TEST",
+    { name: "training" | "validation" | "test"; splitDataType: SPLIT_DATA_TYPE }
+  > = {
+    TRAINING: {
+      name: "training",
+      splitDataType: TRAINING_DATA_NUMBER_INDEX,
+    },
+    VALIDATION: {
+      name: "validation",
+      splitDataType: VALIDATION_DATA_NUMBER_INDEX,
+    },
+    TEST: {
+      name: "test",
+      splitDataType: TEST_DATA_NUMBER_INDEX,
+    },
+  };
   const renderSplitDataNumberBar = () => {
-    const isInitialSplit = !!splitDataNumber[selectedDataSource];
-
-    // const totalSplitDataSet = splitDataNumberBySource.reduce(
-    //   (accumulator, value) => accumulator + value,
-    //   0
-    // );
+    const isInitialSplit = !!splitDataNumber["ORIGINAL"];
+    const handleChange = (dataForm: SplitDataFormFields) => {
+      Object.entries(mSplitDataInfo).map(([key, value]) =>
+        setValue(value.name, dataForm[value.name])
+      );
+    };
 
     return (
-      <>
-        <SplitDataNumberBox
-          splitDataType={TRAINING_DATA_NUMBER_INDEX}
-          splitValue={splitDataNumberBySource[TRAINING_DATA_NUMBER_INDEX]}
-          total={totalImagesByDataSource}
-          isEditing={isEditing}
-          control={control}
-          name="training"
-          setValue={setValue}
-          isInitialSplit={isInitialSplit}
-        />
-        <SplitDataNumberBox
-          splitDataType={VALIDATION_DATA_NUMBER_INDEX}
-          splitValue={splitDataNumberBySource[VALIDATION_DATA_NUMBER_INDEX]}
-          total={totalImagesByDataSource}
-          isEditing={isEditing}
-          control={control}
-          name="validation"
-          setValue={setValue}
-          isInitialSplit={isInitialSplit}
-        />
-        <SplitDataNumberBox
-          splitDataType={TEST_DATA_NUMBER_INDEX}
-          splitValue={splitDataNumberBySource[TEST_DATA_NUMBER_INDEX]}
-          total={totalImagesByDataSource}
-          isEditing={isEditing}
-          control={control}
-          name="test"
-          setValue={setValue}
-          isInitialSplit={isInitialSplit}
-        />
-      </>
+      <Stack sx={{ width: "100%" }}>
+        <Stack direction="row">
+          {Object.entries(mSplitDataInfo).map(([key, value]) => (
+            <SplitDataNumberBox
+              key={key}
+              splitDataType={value.splitDataType as SPLIT_DATA_TYPE}
+              splitValue={splitDataNumberBySource[value.splitDataType]}
+              total={totalImagesByDataSource}
+              isEditing={isEditing}
+              control={control}
+              getValues={getValues}
+              name={value.name}
+              setValue={setValue}
+              isInitialSplit={isInitialSplit}
+            />
+          ))}
+        </Stack>
+
+        {isEditing && (
+          <SliderInput
+            dataForm={{
+              training: splitDataNumberBySource[TRAINING_DATA_NUMBER_INDEX],
+              validation: splitDataNumberBySource[VALIDATION_DATA_NUMBER_INDEX],
+              test: splitDataNumberBySource[TEST_DATA_NUMBER_INDEX],
+            }}
+            total={totalImagesByDataSource}
+            onChange={handleChange}
+          ></SliderInput>
+        )}
+      </Stack>
     );
   };
 
