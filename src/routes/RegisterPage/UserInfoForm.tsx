@@ -180,8 +180,7 @@ const UserInfoForm = function ({
             },
             pattern: {
               value: USERNAME_REGEX,
-              message:
-                "User name accepts Alphanumeric characters, @^$.!`-#+'~_",
+              message: "Username accepts Alphanumeric characters, @^$.!`-#+'~_",
             },
           })}
           autoFocus
@@ -190,6 +189,7 @@ const UserInfoForm = function ({
           defaultValue={(userInfo && editMode && userInfo.username) || null}
           error={!!errors.username}
           helperText={(errors.username && errors.username.message) || ""}
+          inputProps={{ style: { textTransform: "lowercase" } }}
         />
 
         <TextField
