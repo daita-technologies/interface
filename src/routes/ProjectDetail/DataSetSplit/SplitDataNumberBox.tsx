@@ -46,11 +46,14 @@ const SplitDataNumberBox = function ({
   name,
   isInitialSplit,
   setValue,
+  getValues,
 }: SplitDataNumberBoxProps) {
   const bgColor = useMemo(() => getBgColor(splitDataType), [splitDataType]);
   const splitType = useMemo(() => getName(splitDataType), [splitDataType]);
-  const percent = total === 0 ? 0 : ((splitValue / total) * 100).toFixed(0);
-
+  const percent =
+    total === 0
+      ? 0
+      : (((isEditing ? getValues(name) : splitValue) / total) * 100).toFixed(0);
   useEffect(() => {
     if (setValue) {
       setValue(name, splitValue);
