@@ -105,6 +105,16 @@ const UpdateProjectInfoDialog = function () {
             inputProps={{ maxLength: 75 }}
             disabled={updateProjectInfoDialog.isProcessing}
           />
+          <Typography
+            sx={{ mt: 2, mb: 1 }}
+            variant="caption"
+            component="p"
+            fontStyle="italic"
+            color="text.secondary"
+          >
+            * The maximum number of characters for Project name and Description
+            is 75.
+          </Typography>
           <Button sx={{ display: "none" }} type="submit" />
         </Box>
 

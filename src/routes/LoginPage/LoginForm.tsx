@@ -10,10 +10,13 @@ import {
   InputAdornment,
   IconButton,
   ThemeProvider,
+  Button,
+  Stack,
 } from "@mui/material";
-
+import Divider from "@mui/material/Divider";
+import GoogleIcon from "@mui/icons-material/Google";
 import { useForm, SubmitHandler } from "react-hook-form";
-
+import GitHubIcon from "@mui/icons-material/GitHub";
 import { RootState } from "reduxes";
 import { lightTheme } from "styles/theme";
 
@@ -71,11 +74,45 @@ const LoginForm = function () {
   const isLogging = useSelector(
     (state: RootState) => state.authReducer.isLogging
   );
-
+  useEffect(() => {
+    if (!isLoginAccountVerified) {
+      goToVerifyAccount();
+    }
+  }, [isLoginAccountVerified]);
   const goToVerifyAccount = () => {
     history.push("/verify", { username: getValues("username"), retry: true });
     dispatch({ type: RESET_LOGIN_ACCOUNT_NOT_VERIFY });
   };
+  const renderSocialLoginButton = (label: string, icon: React.ReactNode) => (
+    <Button
+      sx={{
+        textTransform: "none",
+        color: "text.secondary",
+        justifyContent: "flex-start",
+        fontWeight: 400,
+      }}
+      variant="outlined"
+      fullWidth
+      startIcon={icon}
+    >
+      {label}
+    </Button>
+  );
+  const renderGoogleLogin = renderSocialLoginButton(
+    "Continue with Google",
+
+    <Avatar
+      sx={{ width: 35, height: 35 }}
+      src={"/assets/images/google-icon.svg"}
+    />
+  );
+  const renderGitHubLogin = renderSocialLoginButton(
+    "Continue with Github",
+    <Avatar
+      sx={{ width: 35, height: 35 }}
+      src={"/assets/images/github-icon.svg"}
+    />
+  );
 
   return (
     <ThemeProvider theme={lightTheme}>
@@ -165,31 +202,36 @@ const LoginForm = function () {
             >
               Log In
             </MyButton>
-            <a
-              className="login-link"
-              href={`${API_AMAZON_COGNITO}?identity_provider=Google&redirect_uri=${COGNITO_REDIRECT_URI}&response_type=CODE&client_id=${COGNITO_CLIENT_ID}&scope=email openid phone profile&state=${LOGIN_SOCIAL_CALLBACK_URL}`}
-              onClick={() => {}}
+            <Divider
+              sx={{
+                mt: 1,
+                mb: 3,
+                borderWidth: 3,
+                fontSize: 12,
+                color: "text.secondary",
+              }}
             >
-              <MyButton
-                style={{ backgroundColor: "#cc3e2f" }}
-                variant="contained"
-                fullWidth
+              OR
+            </Divider>
+            <Stack
+              direction="column"
+              justifyContent="center"
+              alignItems="center"
+              spacing={1}
+            >
+              <a
+                className="login-link"
+                style={{ width: "100%" }}
+                href={`${API_AMAZON_COGNITO}?identity_provider=Google&redirect_uri=${COGNITO_REDIRECT_URI}&response_type=CODE&client_id=${COGNITO_CLIENT_ID}&scope=email openid phone profile&state=${LOGIN_SOCIAL_CALLBACK_URL}`}
+                onClick={() => {}}
               >
-                Login with Google
-              </MyButton>
-            </a>
-            {!isLoginAccountVerified && (
-              <MyButton
-                sx={{ mt: 3, mb: 2 }}
-                fullWidth
-                variant="contained"
-                type="submit"
-                color="warning"
-                onClick={goToVerifyAccount}
-              >
-                Verify account now
-              </MyButton>
-            )}
+                {renderGoogleLogin}
+              </a>
+
+              <a className="login-link" style={{ width: "100%" }}>
+                {renderGitHubLogin}
+              </a>
+            </Stack>
             <Box textAlign="right" mt={3} mb={3}>
               <Link to={isLogging ? "#" : "/register"}>
                 Don't have an account? Register

@@ -26,6 +26,7 @@ export const CREDENTIAL_TOKEN_EXPIRE_NAME = "credential_token_expires_in";
 export const ACCESS_KEY_NAME = "access_key";
 export const SECRET_KEY_NAME = "secret_key";
 export const SESSION_TOKEN_NAME = "session_key";
+export const USERNAME_NAME = "username";
 export const IDENTITY_ID_NAME = "identity_id";
 export const USER_NAME_BOT_DEFAULT = "FeedbackBot";
 export const ICON_EMOJI_DEFAULT = ":ghost:";

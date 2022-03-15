@@ -34,7 +34,7 @@ const EmptyDashboardMessage = function ({
   };
 
   return (
-    <Box mt={4} textAlign="center">
+    <Box mt={projectCount <= 0 ? 12 : 4} textAlign="center">
       {projectCount <= 0 && (
         <Typography variant="h4" component="h1">
           👋 Welcome to DAITA, let's get started.
