@@ -37,7 +37,6 @@ const FeedbackComponent = function () {
       <FeedbackFormSlack
         style={{ height: 500, width: 400 }}
         feedbackSlackParam={{
-          username: userInfo.username,
           text: contentFeedback.content,
         }}
         onContentChange={handleContentChange}

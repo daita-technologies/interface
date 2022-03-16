@@ -1,28 +1,15 @@
 import axios from "axios";
 import { FeedbackSlackParam } from "components/FeedbackComponent/type";
-import {
-  apiWebHookSlack,
-  channelSlackFeedback,
-  ICON_EMOJI_DEFAULT,
-  USER_NAME_BOT_DEFAULT,
-} from "constants/defaultValues";
+import { getAuthHeader, projectApiUrl } from "constants/defaultValues";
 
 const uninterceptedAxiosInstance = axios.create();
 
 const feedbackApi = {
-  sendFeedbackToSlack: ({
-    channel = channelSlackFeedback,
-    text,
-    username = USER_NAME_BOT_DEFAULT,
-    icon_emoji = ICON_EMOJI_DEFAULT,
-  }: FeedbackSlackParam) => {
+  sendFeedbackToSlack: ({ text }: FeedbackSlackParam) => {
     return uninterceptedAxiosInstance.post(
-      apiWebHookSlack,
+      `${projectApiUrl}/webhook/client-feedback`,
       JSON.stringify({
-        channel,
-        username,
         text,
-        icon_emoji,
       }),
       {
         withCredentials: false,
@@ -32,6 +19,7 @@ const feedbackApi = {
             return data;
           },
         ],
+        headers: getAuthHeader(),
       }
     );
   },
