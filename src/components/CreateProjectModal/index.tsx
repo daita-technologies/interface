@@ -52,9 +52,6 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
         <Typography variant="h4" component="h2">
           Create New Project
         </Typography>
-        <Typography mt={6} fontStyle="italic" variant="body2">
-          Please note that the project name cannot be changed later.
-        </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmitCreateProject)}>
           <Input {...register("accessToken")} type="hidden" />
           <Input {...register("idToken")} type="hidden" />

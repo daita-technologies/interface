@@ -17,9 +17,6 @@ export interface FeedbackFormProps {
 
 export interface FeedbackSlackParam {
   text: string;
-  channel?: string;
-  username?: string;
-  icon_emoji?: String;
 }
 export interface FeedbackWidgetParam {
   style: React.CSSProperties;

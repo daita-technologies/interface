@@ -13,10 +13,6 @@ export const LOGIN_SOCIAL_CALLBACK_URL = encode(
 export const API_AMAZON_COGNITO = process.env.REACT_APP_API_AMAZON_COGNITO;
 export const COGNITO_REDIRECT_URI = process.env.REACT_APP_COGNITO_REDIRECT_URI;
 export const COGNITO_CLIENT_ID = process.env.REACT_APP_COGNITO_CLIENTID;
-export const apiWebHookSlack =
-  process.env.REACT_APP_API_WEBHOOK_SLACK_FEEDBACK || "";
-export const channelSlackFeedback =
-  process.env.REACT_APP_CHANNEL_SLACK_FEEDBACK || "";
 
 export const TOKEN_NAME = "token";
 export const TOKEN_EXPIRE_NAME = "token_expires_in";
@@ -28,8 +24,6 @@ export const SECRET_KEY_NAME = "secret_key";
 export const SESSION_TOKEN_NAME = "session_key";
 export const USERNAME_NAME = "username";
 export const IDENTITY_ID_NAME = "identity_id";
-export const USER_NAME_BOT_DEFAULT = "FeedbackBot";
-export const ICON_EMOJI_DEFAULT = ":ghost:";
 
 export const TOKEN_LIST = [
   TOKEN_NAME,

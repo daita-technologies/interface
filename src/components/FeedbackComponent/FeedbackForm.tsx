@@ -112,7 +112,7 @@ export const FeedbackFormSlack = function ({
       feedbackApi
         .sendFeedbackToSlack({ ...feedbackSlackParam, text: data.content })
         .then((resp: any) => {
-          if (resp.status === 200) {
+          if (resp.status === 200 && resp.data?.error === false) {
             if (onSendSuccess) onSendSuccess();
           } else {
             if (onSendFail) onSendFail();
