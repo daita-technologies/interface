@@ -1,8 +1,6 @@
 import {
   Box,
-  Button,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
@@ -42,7 +40,7 @@ const UploadGuideDialog = function ({
                   border: "1px solid",
                   borderColor: "text.secondary",
                 }}
-                fontFamily={"Consolas,monaco,monospace"}
+                fontFamily="Consolas,monaco,monospace"
                 fontSize={14}
               >
                 <p style={commentStyle}>
@@ -50,19 +48,23 @@ const UploadGuideDialog = function ({
                   Python environment
                 </p>
                 <p style={generalStyle}>pip install daita </p>
-                <br></br>
+                <br />
                 <p style={commentStyle}>
                   # upload your dataset using the following command
                 </p>
                 <p style={commentStyle}>
-                  # (don't forget to set `path_to_your_dataset`)
+                  # (don&quot;t forget to set `path_to_your_dataset`)
                 </p>
                 <p style={{ ...generalStyle, whiteSpace: "nowrap" }}>
-                  daita api-token=
-                  <span style={colorStringStyle}>'d478a...'</span>
+                  daita token=
+                  <span style={colorStringStyle}>
+                    &apos;d478a...&apos;
+                  </span>{" "}
                   dataset_id=
-                  <span style={colorStringStyle}>'6225d1...'</span>
-                  input_dir='path_to_your_dataset'
+                  <span style={colorStringStyle}>
+                    &apos;6225d1...&apos;
+                  </span>{" "}
+                  input_dir=&apos;path_to_your_dataset&apos;
                 </p>
               </Box>
             </Typography>
