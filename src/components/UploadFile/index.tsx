@@ -44,14 +44,14 @@ import {
   selectorHaveTaskRunning,
 } from "reduxes/project/selector";
 import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
-import { MousePosition, UploadFileProps } from "./type";
-import UploadFileItem from "./UploadFileItem";
-
-import UploadFromMenu from "./UploadFromMenu";
 import {
   selectorIsGenerateImagesAugmenting,
   selectorIsGenerateImagesPreprocessing,
 } from "reduxes/generate/selector";
+import { MousePosition, UploadFileProps } from "./type";
+import UploadFileItem from "./UploadFileItem";
+
+import UploadFromMenu from "./UploadFromMenu";
 import UploadGuideDialog from "./UploadGuideDialog";
 
 interface HandleFileType {
@@ -368,22 +368,20 @@ const UploadFile = function (props: UploadFileProps) {
           </Box>
           <Typography mt={1} fontStyle="italic" variant="body2" fontSize={14}>
             * If you would like to upload your dataset programmatically,{" "}
-            <a
-              style={{
-                cursor: "pointer",
-                fontWeight: "bold",
-                color: "#1c68dc",
-              }}
+            <Typography
+              component="span"
+              sx={{ cursor: "pointer", fontWeight: "bold", color: "#1c68dc" }}
               onClick={handleClickShowUploadGuideDialog}
+              fontSize={14}
             >
-              click here
-            </a>{" "}
+              click here{" "}
+            </Typography>
             for more information.
           </Typography>
           <UploadGuideDialog
             onClose={handleCloseUploadGuideDialog}
             isOpen={isOpenUploadGuideDialog}
-          ></UploadGuideDialog>
+          />
         </Box>
 
         <Box flex={2} ml={2}>
