@@ -53,7 +53,7 @@ const UploadGuideDialog = function ({
                   # upload your dataset using the following command
                 </p>
                 <p style={commentStyle}>
-                  # (don&quot;t forget to set `path_to_your_dataset`)
+                  # (don&apos;t forget to set `path_to_your_dataset`)
                 </p>
                 <p style={{ ...generalStyle, whiteSpace: "nowrap" }}>
                   daita token=
