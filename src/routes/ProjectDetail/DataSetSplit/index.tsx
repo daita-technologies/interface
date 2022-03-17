@@ -230,9 +230,15 @@ const DataSetSplit = function (props: DataSetSplitProps) {
     },
   };
   const renderSplitDataNumberBar = () => {
-    const isInitialSplit = !!splitDataNumber["ORIGINAL"];
+    const splitDataInputValues = watch();
+
+    const isInitialSplit =
+      splitDataInputValues.test !== 0 ||
+      splitDataInputValues.training !== 0 ||
+      splitDataInputValues.test !== 0;
+
     const handleChange = (dataForm: SplitDataFormFields) => {
-      Object.entries(mSplitDataInfo).map(([key, value]) =>
+      Object.entries(mSplitDataInfo).map(([, value]) =>
         setValue(value.name, dataForm[value.name])
       );
     };
@@ -258,14 +264,10 @@ const DataSetSplit = function (props: DataSetSplitProps) {
 
         {isEditing && (
           <SliderInput
-            dataForm={{
-              training: splitDataNumberBySource[TRAINING_DATA_NUMBER_INDEX],
-              validation: splitDataNumberBySource[VALIDATION_DATA_NUMBER_INDEX],
-              test: splitDataNumberBySource[TEST_DATA_NUMBER_INDEX],
-            }}
+            dataForm={splitDataInputValues}
             total={totalImagesByDataSource}
             onChange={handleChange}
-          ></SliderInput>
+          />
         )}
       </Stack>
     );

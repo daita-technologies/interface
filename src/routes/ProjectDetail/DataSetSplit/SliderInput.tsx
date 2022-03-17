@@ -4,15 +4,20 @@ import Slider from "@mui/material/Slider";
 import { SliderInputProps } from "./type";
 
 const SliderInput = function ({ dataForm, total, onChange }: SliderInputProps) {
-  const { training, validation, test } = dataForm;
+  const { training, validation } = dataForm;
   const [value, setValue] = React.useState<number[]>([
     training,
     training + validation,
   ]);
-
+  React.useEffect(() => {
+    const preTraining = value[0];
+    const preValidation = value[1] - value[0];
+    if (training !== preTraining || validation !== preValidation) {
+      setValue([training, training + validation]);
+    }
+  }, [dataForm]);
   const handleChange = (event: Event, newValue: number | number[]) => {
-    if (typeof newValue === "number") {
-    } else {
+    if (typeof newValue !== "number") {
       onChange({
         training: newValue[0],
         validation: newValue[1] - newValue[0],
