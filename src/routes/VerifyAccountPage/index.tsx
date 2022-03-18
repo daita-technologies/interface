@@ -71,7 +71,7 @@ const VerifyAccountPage = function () {
           toast.error(`Can not send request.`);
         });
     };
-    if (retry == true) {
+    if (retry === true) {
       sendCode();
       location.state = { ...location.state, retry: false };
     }
