@@ -14,6 +14,7 @@ import {
 export const FeedbackForm = function ({
   style,
   feedback = { content: "" },
+  note,
   onSubmit,
   onContentChange,
 }: FeedbackFormProps) {
@@ -22,7 +23,6 @@ export const FeedbackForm = function ({
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<FeedbackFields>();
   const onSubmitFeedback = (data: FeedbackFields) => {
     setIsProcessing(true);
@@ -48,8 +48,8 @@ export const FeedbackForm = function ({
         ...style,
       }}
     >
-      <Typography variant="h4" component="h2">
-        Feedback
+      <Typography variant="h6" component="h2">
+        YOUR FEEDBACK
       </Typography>
       <Box
         marginTop={1}
@@ -74,11 +74,13 @@ export const FeedbackForm = function ({
           onChange={handleFeedbackContentChange}
           disabled={isProcessing}
         />
-
+        <Typography fontStyle="italic" variant="body2" fontSize={15}>
+          {note}
+        </Typography>
         <Button sx={{ display: "none" }} type="submit" />
       </Box>
 
-      <Box display="flex" justifyContent="flex-end" marginTop={6}>
+      <Box display="flex" justifyContent="flex-end" marginTop={2}>
         <MyButton
           type="button"
           variant="contained"
@@ -101,33 +103,30 @@ export const FeedbackFormSlack = function ({
 }: {
   style: React.CSSProperties;
   feedbackSlackParam: Partial<FeedbackSlackParam>;
-  onContentChange?: (feedbackFields: FeedbackFields) => void;
-  onSendSuccess?: () => void;
-  onSendFail?: () => void;
+  onContentChange: (feedbackFields: FeedbackFields) => void;
+  onSendSuccess: () => void;
+  onSendFail: () => void;
 }) {
-  const handleOnSubmit = (
-    data: FeedbackFields
-  ): Promise<ResponseSubmitType> => {
-    return new Promise((resolve, reject) => {
+  const handleOnSubmit = (data: FeedbackFields): Promise<ResponseSubmitType> =>
+    new Promise((resolve) => {
       feedbackApi
         .sendFeedbackToSlack({ ...feedbackSlackParam, text: data.content })
         .then((resp: any) => {
           if (resp.status === 200 && resp.data?.error === false) {
             if (onSendSuccess) onSendSuccess();
-          } else {
-            if (onSendFail) onSendFail();
-          }
+          } else if (onSendFail) onSendFail();
           resolve({ action: ACTION_FEEDBACK_FORM.NO_ACTION });
         })
-        .catch((e) => {
+        .catch(() => {
           if (onSendFail) onSendFail();
           resolve({ action: ACTION_FEEDBACK_FORM.NO_ACTION });
         });
     });
-  };
+
   return (
     <FeedbackForm
       onSubmit={handleOnSubmit}
+      note="* Your highly appreciated input will be sent directly to our Slack channel and please be assured that all your feedback will find its way into our product backlog."
       feedback={{
         content: feedbackSlackParam.text ? feedbackSlackParam.text : "",
       }}
