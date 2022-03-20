@@ -28,7 +28,6 @@ const UpdateProjectInfoDialog = function () {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<UpdateProjectInfo>();
   if (!updateProjectInfoDialog) {
     return null;
@@ -73,7 +72,10 @@ const UpdateProjectInfoDialog = function () {
             required
             {...register("projectName", {
               required: true,
-              maxLength: 75,
+              maxLength: {
+                value: 75,
+                message: `Your project name cannot exceed 75 characters.`,
+              },
             })}
             error={!!errors.projectName}
             helperText={
@@ -85,12 +87,15 @@ const UpdateProjectInfoDialog = function () {
             placeholder="Project name"
             fullWidth
             autoFocus
-            inputProps={{ maxLength: 100 }}
             disabled={updateProjectInfoDialog.isProcessing}
           />
           <TextField
             {...register("description", {
               required: false,
+              maxLength: {
+                value: 75,
+                message: `Your project description cannot exceed 75 characters.`,
+              },
             })}
             error={!!errors.description}
             helperText={
@@ -102,7 +107,6 @@ const UpdateProjectInfoDialog = function () {
             placeholder="Description"
             fullWidth
             autoFocus
-            inputProps={{ maxLength: 75 }}
             disabled={updateProjectInfoDialog.isProcessing}
           />
           <Typography
