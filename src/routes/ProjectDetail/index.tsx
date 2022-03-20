@@ -169,15 +169,17 @@ const ProjectDetail = function () {
             <Typography fontSize={18} fontWeight="bold">
               Data
             </Typography>
-            <Typography fontSize={14}>Original:</Typography>
-            <Typography fontSize={14}>Preprocessing:</Typography>
-            <Typography fontSize={14}>Augmentation:</Typography>
+            <Typography fontSize={14}>Original</Typography>
+            <Typography fontSize={14}>Preprocessing</Typography>
+            <Typography fontSize={14}>Augmentation</Typography>
             <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
-            <Typography fontSize={14}>Total:</Typography>
+            <Typography fontSize={18} fontWeight="bold">
+              Total
+            </Typography>
           </Box>
           <Box flex={1} mr={1}>
             <Typography fontSize={18} fontWeight="bold">
-              No of images
+              Number of Images
             </Typography>
             <Typography fontSize={14}>
               {separateNumber(totalOriginalImage.toString())}
@@ -189,7 +191,7 @@ const ProjectDetail = function () {
               {separateNumber(totalAugmentImage.toString())}
             </Typography>
             <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
-            <Typography fontSize={14}>
+            <Typography fontSize={18} fontWeight="bold">
               {separateNumber(
                 (
                   totalOriginalImage +
@@ -214,7 +216,7 @@ const ProjectDetail = function () {
               {formatBytes(totalAugmentSize)}
             </Typography>
             <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
-            <Typography fontSize={14}>
+            <Typography fontSize={18} fontWeight="bold">
               {formatBytes(
                 totalOriginalSize + totalPreprocessSize + totalAugmentSize
               )}
