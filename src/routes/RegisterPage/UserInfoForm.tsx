@@ -172,11 +172,11 @@ const UserInfoForm = function ({
             required: true,
             maxLength: {
               value: MAX_USERNAME_LENGTH,
-              message: `Username should not exceed ${MAX_USERNAME_LENGTH} characters`,
+              message: `Your username must be at the most ${MAX_USERNAME_LENGTH} characters long.`,
             },
             minLength: {
               value: MIN_USERNAME_LENGTH,
-              message: `Username must exceed ${MIN_USERNAME_LENGTH} characters`,
+              message: `Your username must be at least ${MIN_USERNAME_LENGTH} characters long.`,
             },
             pattern: {
               value: USERNAME_REGEX,
@@ -205,7 +205,7 @@ const UserInfoForm = function ({
             required: true,
             pattern: {
               value: EMAIL_REGEX,
-              message: "Email formatting is not correct.",
+              message: "Please enter a valid email address.",
             },
           })}
           disabled={isFormRequesting || (editMode && userInfo.email)}
