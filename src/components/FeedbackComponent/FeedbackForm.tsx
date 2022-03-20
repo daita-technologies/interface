@@ -88,7 +88,7 @@ export const FeedbackForm = function ({
           onClick={handleSubmit(onSubmitFeedback)}
           isLoading={isProcessing}
         >
-          Send us feedback
+          Send us your feedback
         </MyButton>
       </Box>
     </Box>
