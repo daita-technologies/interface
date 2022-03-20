@@ -29,6 +29,7 @@ import {
 } from "reduxes/project/type";
 import { TaskStatus } from "./type";
 import { ListItemText, Menu, MenuItem } from "@mui/material";
+import { CircularProgressWithLabel } from "components";
 
 // interface Data {
 //   calories: number;
@@ -267,32 +268,6 @@ const getProcessColor = (value: number): string => {
   }
   return "success.dark";
 };
-function LinearProgressWithLabel(
-  props: LinearProgressProps & { value: number }
-) {
-  const { value } = props;
-  return (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
-      <Box sx={{ width: "100%" }}>
-        <LinearProgress
-          variant="determinate"
-          {...props}
-          sx={{
-            // backgroundColor: "",
-            "& .MuiLinearProgress-barColorPrimary": {
-              backgroundColor: getProcessColor(value),
-            },
-          }}
-        />
-      </Box>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" fontSize={15}>{`${Math.round(
-          value
-        )}%`}</Typography>
-      </Box>
-    </Box>
-  );
-}
 function EnhancedTableHead(props: EnhancedTableProps) {
   const { order, orderBy, onRequestSort } = props;
   const createSortHandler =
@@ -511,7 +486,21 @@ const TaskViewer = function ({
                       </TableCell>
 
                       <TableCell align="right">
-                        <LinearProgressWithLabel
+                        {/* <LinearProgressWithLabel
+                          value={
+                            (row.number_finished * 100) / row.number_gen_images
+                          }
+                        /> */}
+                        <CircularProgressWithLabel
+                          sx={{
+                            // backgroundColor: "",
+                            "& 	.MuiCircularProgress-colorPrimary": {
+                              backgroundColor: getProcessColor(
+                                (row.number_finished * 100) /
+                                  row.number_gen_images
+                              ),
+                            },
+                          }}
                           value={
                             (row.number_finished * 100) / row.number_gen_images
                           }
