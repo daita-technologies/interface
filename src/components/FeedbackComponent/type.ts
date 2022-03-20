@@ -10,6 +10,7 @@ export interface ResponseSubmitType {
 }
 export interface FeedbackFormProps {
   style: React.CSSProperties;
+  note?: string;
   feedback: FeedbackFields;
   onSubmit: (content: FeedbackFields) => Promise<ResponseSubmitType>;
   onContentChange?: (content: FeedbackFields) => void;

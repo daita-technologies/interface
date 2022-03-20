@@ -122,7 +122,7 @@ const NavProjectItem = function (props: NavProjectItemProps) {
       return (
         <Box display="flex" justifyContent="center">
           <Typography variant="caption" fontStyle="italic">
-            No Project
+            No Project Yet
           </Typography>
         </Box>
       );
