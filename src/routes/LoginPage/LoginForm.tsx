@@ -108,7 +108,7 @@ const LoginForm = function () {
     />
   );
   const renderGitHubLogin = renderSocialLoginButton(
-    "Continue with Github",
+    "Continue with GitHub",
     <Avatar
       sx={{ width: 35, height: 35 }}
       src="/assets/images/github-icon.svg"
@@ -197,7 +197,7 @@ const LoginForm = function () {
               </Link>
             </Box>
             <MyButton
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3 }}
               fullWidth
               variant="contained"
               type="submit"
