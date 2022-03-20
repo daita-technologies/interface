@@ -74,13 +74,19 @@ export const FeedbackForm = function ({
           onChange={handleFeedbackContentChange}
           disabled={isProcessing}
         />
-        <Typography fontStyle="italic" variant="body2" fontSize={15}>
+        <Typography
+          fontStyle="italic"
+          sx={{ mt: 1 }}
+          variant="body2"
+          fontSize={14}
+          color="text.secondary"
+        >
           {note}
         </Typography>
         <Button sx={{ display: "none" }} type="submit" />
       </Box>
 
-      <Box display="flex" justifyContent="flex-end" marginTop={2}>
+      <Box display="flex" justifyContent="flex-end" marginTop={3}>
         <MyButton
           type="button"
           variant="contained"
