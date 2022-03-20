@@ -16,7 +16,9 @@ import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { visuallyHidden } from "@mui/utils";
-
+import LinearProgress, {
+  LinearProgressProps,
+} from "@mui/material/LinearProgress";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import * as React from "react";
 import { ImageSourceType } from "reduxes/album/type";
@@ -35,7 +37,7 @@ import { ListItemText, Menu, MenuItem } from "@mui/material";
 //   name: string;
 //   protein: number;
 // }
-const getStatusType = (status: TaskStatusType): TaskStatus | "" => {
+const getStatusType = (status: TaskStatusType): TaskStatus => {
   if (
     status === "PENDING" ||
     status === "PREPARING_HARDWARE" ||
@@ -55,7 +57,14 @@ const getStatusType = (status: TaskStatusType): TaskStatus | "" => {
   if (status === "ERROR") {
     return "Error";
   }
-  return "";
+  return "Error";
+};
+const getStyledStatus = (taskStatus: TaskStatus) => {
+  if (taskStatus === "Preparing") return "warning";
+  if (taskStatus === "Running") return "info";
+  if (taskStatus === "Done") return "success";
+  if (taskStatus === "Done with warning") return "warning";
+  if (taskStatus === "Error") return "error";
 };
 function createData(
   identity_id: string,
@@ -106,11 +115,20 @@ const dataRows: TaskInfoApiFields[] = [
     3
   ),
   createData(
+    "us-east-2:23eeb335-20d0-4098-b344-9d34e4c5751a",
+    "a111d83b-06da-4302-9365-b246ae10b11p",
+    "FINISH",
+    "PREPROCESS",
+    1,
+    "test2_0fab2ca9ddba40dd8281eabe51839b41",
+    3
+  ),
+  createData(
     "us-east-2:23eeb335-20d0-4098-b344-9d34e4c5750d",
     "a111d83b-06da-4302-1265-b246ae82b31c",
     "ERROR",
     "PREPROCESS",
-    1,
+    3,
     "test_107dbb2002cd4374a81e62c5793a97f9",
     3
   ),
@@ -222,7 +240,59 @@ interface EnhancedTableProps {
   order: Order;
   orderBy: string;
 }
-
+const getProcessColor = (value: number): string => {
+  if (value <= 10) {
+    return "error.dark";
+  }
+  if (value <= 20) {
+    return "error";
+  }
+  if (value <= 30) {
+    return "error.light";
+  }
+  if (value <= 40) {
+    return "warning.dark";
+  }
+  if (value <= 50) {
+    return "warning";
+  }
+  if (value <= 60) {
+    return "warning.light";
+  }
+  if (value <= 70) {
+    return "success.light";
+  }
+  if (value <= 80) {
+    return "success";
+  }
+  return "success.dark";
+};
+function LinearProgressWithLabel(
+  props: LinearProgressProps & { value: number }
+) {
+  const { value } = props;
+  return (
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Box sx={{ width: "100%" }}>
+        <LinearProgress
+          variant="determinate"
+          {...props}
+          sx={{
+            // backgroundColor: "",
+            "& .MuiLinearProgress-barColorPrimary": {
+              backgroundColor: getProcessColor(value),
+            },
+          }}
+        />
+      </Box>
+      <Box sx={{ minWidth: 35 }}>
+        <Typography variant="body2" fontSize={15}>{`${Math.round(
+          value
+        )}%`}</Typography>
+      </Box>
+    </Box>
+  );
+}
 function EnhancedTableHead(props: EnhancedTableProps) {
   const { order, orderBy, onRequestSort } = props;
   const createSortHandler =
@@ -336,16 +406,10 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
           {tableName}
         </Typography>
       )}
-      {numSelected > 0 ? (
+      {numSelected > 0 && (
         <Tooltip title="Delete">
           <IconButton>
             <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
           </IconButton>
         </Tooltip>
       )}
@@ -406,10 +470,9 @@ const TaskViewer = function ({
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
-
   return (
     <Box sx={{ width: "100%" }}>
-      <Paper sx={{ width: "100%", mb: 2 }}>
+      <Paper sx={{ width: "100%", mt: 2, mb: 5 }}>
         <EnhancedTableToolbar
           tableName={
             imageSourceType === "PREPROCESS" ? "Preprocessing" : "Augmentation"
@@ -448,14 +511,22 @@ const TaskViewer = function ({
                       </TableCell>
 
                       <TableCell align="right">
-                        {(
-                          (row.number_finished * 100) /
-                          row.number_gen_images
-                        ).toFixed(2)}
-                        %
+                        <LinearProgressWithLabel
+                          value={
+                            (row.number_finished * 100) / row.number_gen_images
+                          }
+                        />
                       </TableCell>
                       <TableCell align="right">
-                        {getStatusType(row.status)}
+                        <Typography
+                          variant="body2"
+                          color={`${getStyledStatus(
+                            getStatusType(row.status)
+                          )}.dark`}
+                          // color="success.first = (second) => {third}"
+                        >
+                          {getStatusType(row.status)}
+                        </Typography>
                       </TableCell>
                       <TableCell align="right">
                         <TableAction row={row} />

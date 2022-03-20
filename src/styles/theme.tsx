@@ -67,11 +67,23 @@ export const darkTheme = createTheme({
     },
     success: {
       main: "#29caab",
-      light: "#eafaf7",
+      light: "#4caf50",
+      dark: "#1b5e20",
+    },
+    info: {
+      main: "#29caab",
+      light: "#0288d1",
+      dark: "#01579b",
+    },
+    warning: {
+      main: "#ed6c02",
+      light: "#ff9800",
+      dark: "#e65100",
     },
     error: {
       main: "#f4324c",
-      light: "#fff3f5",
+      light: "#ef5350",
+      dark: "#c62828",
     },
     background: {
       default: "#2a3648",
