@@ -105,3 +105,5 @@ export const FINISH_DOWRUNNING_DOWNLOAD_EC2_ZIP_PROGRESS_TYPENLOAD_TYPE =
 
 export const ERROR_MESSAGE_ACCOUNT_NOT_VERIFY =
   "User need to verify confirmation code";
+
+export const DEFAULT_SPLIT_DATASET_PERCENT_RATE = [70, 20, 10];

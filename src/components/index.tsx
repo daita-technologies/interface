@@ -28,3 +28,5 @@ export { default as InfoTooltip } from "./InfoTooltip";
 export { default as FeedbackComponent } from "./FeedbackComponent";
 
 export { default as Footer } from "./Footer";
+
+export { ConfirmDialogProvider } from "./ConfirmDialog";
