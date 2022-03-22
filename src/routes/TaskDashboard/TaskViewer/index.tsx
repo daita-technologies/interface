@@ -1,5 +1,12 @@
 import DeleteIcon from "@mui/icons-material/Delete";
-import FilterListIcon from "@mui/icons-material/FilterList";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import {
+  Autocomplete,
+  ListItemText,
+  Menu,
+  MenuItem,
+  TextField,
+} from "@mui/material";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
@@ -16,10 +23,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { visuallyHidden } from "@mui/utils";
-import LinearProgress, {
-  LinearProgressProps,
-} from "@mui/material/LinearProgress";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { CircularProgressWithLabel } from "components";
 import * as React from "react";
 import { ImageSourceType } from "reduxes/album/type";
 import {
@@ -27,17 +31,15 @@ import {
   TaskInfoApiFields,
   TaskStatusType,
 } from "reduxes/project/type";
-import { TaskStatus } from "./type";
-import { ListItemText, Menu, MenuItem } from "@mui/material";
-import { CircularProgressWithLabel } from "components";
+import {
+  EnhancedTableToolbarProps,
+  HeadCell,
+  TableFilterOption,
+  TableFilterProps,
+  TableFilterType,
+  TaskStatus,
+} from "./type";
 
-// interface Data {
-//   calories: number;
-//   carbs: number;
-//   fat: number;
-//   name: string;
-//   protein: number;
-// }
 const getStatusType = (status: TaskStatusType): TaskStatus => {
   if (
     status === "PENDING" ||
@@ -199,13 +201,6 @@ function stableSort<T>(
   return stabilizedThis.map((el) => el[0]);
 }
 
-interface HeadCell {
-  disablePadding: boolean;
-  id: keyof TaskInfoApiFields;
-  label: string;
-  align: "left" | "center" | "right";
-}
-
 const headCells: readonly HeadCell[] = [
   {
     id: "task_id",
@@ -306,11 +301,6 @@ function EnhancedTableHead(props: EnhancedTableProps) {
   );
 }
 
-interface EnhancedTableToolbarProps {
-  numSelected: number;
-  tableName: string;
-}
-
 function TableAction({ row }: { row: TaskInfoApiFields }) {
   const [open, setOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -391,7 +381,35 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
     </Toolbar>
   );
 }
-
+function TableFilter(props: TableFilterProps) {
+  const { filters, onChange } = props;
+  const handleOnChange = (
+    key: keyof TaskInfoApiFields,
+    value: string | null
+  ) => {
+    onChange({ key, value });
+  };
+  return (
+    <>
+      {filters.map((t) => (
+        <Paper key={t.label} sx={{ padding: "5px 0px" }}>
+          <Autocomplete
+            disablePortal
+            id="combo-box-demo"
+            options={t.options}
+            sx={{ width: 300 }}
+            onChange={(e, value) => {
+              handleOnChange(t.key, value);
+            }}
+            renderInput={(params) => (
+              <TextField {...params} label={t.label} size="small" />
+            )}
+          />
+        </Paper>
+      ))}
+    </>
+  );
+}
 const TaskViewer = function ({
   projectName,
   imageSourceType,
@@ -407,6 +425,7 @@ const TaskViewer = function ({
   const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [filters, setFilters] = React.useState<TableFilterType[]>([]);
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
     property: keyof TaskInfoApiFields
@@ -421,13 +440,13 @@ const TaskViewer = function ({
         [project.project_id, project] as [string, ApiListProjectsItem]
     )
   );
-  let rowsTmp = dataRows;
+  let originalRows = dataRows;
   if (projectName) {
     const project = listProject.find((t) => t.project_name === projectName);
-    rowsTmp = dataRows.filter((t) => t.project_id === project?.project_id);
+    originalRows = dataRows.filter((t) => t.project_id === project?.project_id);
   }
-  rowsTmp = rowsTmp.filter((t) => imageSourceType === t.process_type);
-  const [rows, setRows] = React.useState(rowsTmp);
+  originalRows = originalRows.filter((t) => imageSourceType === t.process_type);
+  const [rows, setRows] = React.useState(originalRows);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -441,8 +460,39 @@ const TaskViewer = function ({
   };
 
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
-
-  // Avoid a layout jump when reaching the last page with empty rows.
+  const tableFilterOptions: TableFilterOption[] = [
+    {
+      label: "Status",
+      key: "status",
+      options: ["Preparing", "Running", "Done", "Done with warning", "Error"],
+    },
+  ];
+  const handleFilter = (tableFilterType: TableFilterType) => {
+    const { key, value } = tableFilterType;
+    const indexOf = filters.findIndex((t) => t.key === key);
+    if (value == null) {
+      if (indexOf !== -1) {
+        filters.splice(indexOf, 1);
+      }
+    } else if (indexOf === -1) {
+      filters.push(tableFilterType);
+    } else {
+      filters[indexOf] = tableFilterType;
+    }
+    setFilters([...filters]);
+  };
+  React.useEffect(() => {
+    let originalRowsTmp = [...originalRows];
+    filters.forEach((filter) => {
+      originalRowsTmp = originalRowsTmp.filter((t) => {
+        if (filter.key === "status") {
+          return getStatusType(t[filter.key]) === filter.value;
+        }
+        return false;
+      });
+    });
+    setRows(originalRowsTmp);
+  }, [filters]);
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
   return (
@@ -455,6 +505,8 @@ const TaskViewer = function ({
           numSelected={selected.length}
         />
         <TableContainer sx={{ padding: "0px 10px" }}>
+          <TableFilter filters={tableFilterOptions} onChange={handleFilter} />
+
           <Table
             sx={{ minWidth: 750 }}
             aria-labelledby="tableTitle"
