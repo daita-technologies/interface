@@ -62,9 +62,20 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
             })}
             margin="normal"
             label="Project name"
-            placeholder="Project name..."
+            placeholder="Project name"
             fullWidth
             autoFocus
+            disabled={isLoading}
+          />
+          <TextField
+            required
+            {...register("description", {
+              required: true,
+            })}
+            margin="normal"
+            label="Description"
+            placeholder="Description"
+            fullWidth
             disabled={isLoading}
           />
           <Box display="flex" justifyContent="flex-end" marginTop={6}>
