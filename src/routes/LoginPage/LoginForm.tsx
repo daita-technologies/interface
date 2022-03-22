@@ -245,7 +245,12 @@ const LoginForm = function () {
                 {renderGoogleLogin}
               </a>
 
-              <a className="login-link" style={{ width: "100%" }}>
+              <a
+                className="login-link"
+                style={{ width: "100%" }}
+                href={`${API_AMAZON_COGNITO}?identity_provider=Github&redirect_uri=${COGNITO_REDIRECT_URI}&response_type=CODE&client_id=${COGNITO_CLIENT_ID}&scope=email openid phone profile&state=${LOGIN_SOCIAL_CALLBACK_URL}`}
+                onClick={() => {}}
+              >
                 {renderGitHubLogin}
               </a>
             </Stack>
