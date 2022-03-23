@@ -126,108 +126,118 @@ function* handleUploadFile(action: {
       fileName,
     });
 
-    const uploadParams = {
-      Bucket: S3_BUCKET_NAME,
-      Key: photoKey,
-      Body: uploadFiles[fileName].file,
-    };
-
     try {
-      yield put(
-        updateFile({
-          fileName,
-          updateInfo: {
-            error: "",
-            status: UPLOADING_UPLOAD_FILE_STATUS,
-          },
-        })
-      );
+      if (uploadFiles[fileName]) {
+        const uploadParams = {
+          Bucket: S3_BUCKET_NAME,
+          Key: photoKey,
+          Body: uploadFiles[fileName].file,
+        };
 
-      const parallelUploads3 = new Upload({
-        client: s3,
-        queueSize: 4,
-        params: uploadParams,
-      });
-      parallelUploads3.on("httpUploadProgress", (progress) => {
-        uploadProgressChannel.put(
+        yield put(
           updateFile({
             fileName,
             updateInfo: {
-              uploadProgress: Number(
-                Number(
-                  ((progress.loaded || 0) / (progress.total || 1)) * 100
-                ).toFixed(0) || "0"
-              ),
+              error: "",
+              status: UPLOADING_UPLOAD_FILE_STATUS,
             },
           })
         );
-      });
-      yield parallelUploads3.done();
 
-      // yield put(
-      //   clearFileArray({
-      //     fileNameArray: [fileName],
-      //   })
-      // );
-      yield put(
-        updateFile({
-          fileName,
-          updateInfo: {
-            error: "",
-            status: UPLOADED_UPLOAD_FILE_STATUS,
-          },
-        })
-      );
+        const parallelUploads3 = new Upload({
+          client: s3,
+          queueSize: 4,
+          params: uploadParams,
+        });
+        parallelUploads3.on("httpUploadProgress", (progress) => {
+          uploadProgressChannel.put(
+            updateFile({
+              fileName,
+              updateInfo: {
+                uploadProgress: Number(
+                  Number(
+                    ((progress.loaded || 0) / (progress.total || 1)) * 100
+                  ).toFixed(0) || "0"
+                ),
+              },
+            })
+          );
+        });
+        yield parallelUploads3.done();
 
-      // TODO: MOVE ADD TO ALBUM TO ABOVE UPDATE BACKEND
-      yield put(
-        addImageToAlbumFromFile({
-          filename: fileName,
-          typeOfImage: ORIGINAL_SOURCE,
-          url: window.URL.createObjectURL(uploadFiles[fileName].file),
-          size: uploadFiles[fileName].file.size,
-          s3_key: `${S3_BUCKET_NAME}/${photoKey}`,
-          photoKey,
-        })
-      );
-
-      yield put(
-        updateCurrentProjectStatistic({
-          projectId,
-          updateInfo: {
-            typeMethod: ORIGINAL_SOURCE,
-            fileInfo: {
-              isExist: !!isReplace,
-              size: uploadFiles[fileName].file.size,
-              sizeOld: Number(uploadFiles[fileName].sizeOld),
+        // yield put(
+        //   clearFileArray({
+        //     fileNameArray: [fileName],
+        //   })
+        // );
+        yield put(
+          updateFile({
+            fileName,
+            updateInfo: {
+              error: "",
+              status: UPLOADED_UPLOAD_FILE_STATUS,
             },
+          })
+        );
+
+        // TODO: MOVE ADD TO ALBUM TO ABOVE UPDATE BACKEND
+        yield put(
+          addImageToAlbumFromFile({
+            filename: fileName,
+            typeOfImage: ORIGINAL_SOURCE,
+            url: window.URL.createObjectURL(uploadFiles[fileName].file),
+            size: uploadFiles[fileName].file.size,
+            s3_key: `${S3_BUCKET_NAME}/${photoKey}`,
+            photoKey,
+          })
+        );
+
+        yield put(
+          updateCurrentProjectStatistic({
+            projectId,
+            updateInfo: {
+              typeMethod: ORIGINAL_SOURCE,
+              fileInfo: {
+                isExist: !!isReplace,
+                size: uploadFiles[fileName].file.size,
+                sizeOld: Number(uploadFiles[fileName].sizeOld),
+              },
+            },
+          })
+        );
+
+        yield put({
+          type: UPDATE_UPLOAD_TO_BACKEND.REQUESTED,
+          payload: {
+            fileName,
+            projectId,
+            projectName,
+            isReplace,
           },
-        })
-      );
-
-      yield put({
-        type: UPDATE_UPLOAD_TO_BACKEND.REQUESTED,
-        payload: {
-          fileName,
-          projectId,
-          projectName,
-          isReplace,
-        },
-      });
-
+        });
+      }
       const uploadedFile = yield select(selectorUploadedFileCount);
       const totalUploadFile = yield select(selectorTotalUploadFileQuantity);
-
+      let totalAdjustUploadFile = totalUploadFile;
+      if (!uploadFiles[fileName]) {
+        totalAdjustUploadFile = totalUploadFile - 1;
+      }
       if (isReplaceSingle) {
         yield put(clearFileArray({ fileNameArray: [fileName] }));
         yield put(
           setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
         );
-      } else if (uploadedFile >= totalUploadFile) {
+      } else if (uploadedFile >= totalAdjustUploadFile) {
         yield toast.success("Images are successfully uploaded");
         yield put(clearFileArray({ fileNameArray: Object.keys(uploadFiles) }));
         yield put(
           setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
+        );
+      } else if (totalAdjustUploadFile !== totalUploadFile) {
+        yield put(
+          setTotalUploadFileQuantity({
+            totalUploadFileQuantity: totalAdjustUploadFile,
+          })
         );
       }
     } catch (err) {

@@ -164,31 +164,30 @@ const UploadFile = function (props: UploadFileProps) {
           </p>
         );
       }
-      dispatch(addFile({ files: convertArrayToObjectKeyFile(acceptedFiles) }));
+      const formatedFiles = convertArrayToObjectKeyFile(acceptedFiles);
+      const files = { ...uploadFiles, ...formatedFiles };
+      dispatch(addFile({ files: formatedFiles }));
+
+      if (files && Object.keys(files).length > 0) {
+        const filesNeedCheck: Array<string> = [];
+
+        Object.keys(files).forEach((fileName: string) => {
+          if (files[fileName].status !== UPLOADED_UPLOAD_FILE_STATUS) {
+            filesNeedCheck.push(fileName);
+          }
+        });
+
+        dispatch(
+          checkFileUpload({
+            idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+            projectId,
+            projectName,
+            listFileName: filesNeedCheck,
+          })
+        );
+      }
     }
   }, []);
-
-  const onClickUpload = async () => {
-    if (uploadFiles && Object.keys(uploadFiles).length > 0) {
-      const filesNeedCheck: Array<string> = [];
-
-      Object.keys(uploadFiles).forEach((fileName: string) => {
-        if (uploadFiles[fileName].status !== UPLOADED_UPLOAD_FILE_STATUS) {
-          filesNeedCheck.push(fileName);
-        }
-      });
-
-      dispatch(
-        checkFileUpload({
-          idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-          projectId,
-          projectName,
-          listFileName: filesNeedCheck,
-        })
-      );
-    }
-  };
-
   const onClickClearAll = () => {
     dispatch(clearAllFile());
   };
@@ -402,17 +401,6 @@ const UploadFile = function (props: UploadFileProps) {
               onClick={onClickClearAll}
             >
               Clear All
-            </Button>
-            <Button
-              sx={{ ml: "auto" }}
-              variant="contained"
-              color="primary"
-              onClick={onClickUpload}
-              disabled={
-                uploadFilesLength <= 0 || isUploading || isUploadChecking
-              }
-            >
-              Upload
             </Button>
           </Box>
 
