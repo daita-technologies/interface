@@ -178,8 +178,6 @@ const AlbumViewer = function (props: AlbumViewerProps) {
 
   const listMethod = useSelector(selectorMethodList);
 
-  const currentTaskListInfo = useSelector(selectorCurrentTaskListInfo);
-
   const { projectId } = props;
 
   useEffect(() => {
@@ -197,22 +195,6 @@ const AlbumViewer = function (props: AlbumViewerProps) {
     }
   }, [s3]);
 
-  useEffect(() => {
-    let allFinsh = true;
-    let isTheSameTab = false;
-    const source = switchTabIdToSource(activeImagesTabId);
-    Object.entries(currentTaskListInfo).forEach(([, value]) => {
-      if (value.process_type === source) {
-        isTheSameTab = true;
-      }
-      if (value.status !== "FINISH") {
-        allFinsh = false;
-      }
-    });
-    if (allFinsh && isTheSameTab) {
-      dispatch(changeActiveImagesTab({ tabId: activeImagesTabId, projectId }));
-    }
-  }, [currentTaskListInfo]);
   useEffect(
     () => () => {
       dispatch(resetAlbumState());
