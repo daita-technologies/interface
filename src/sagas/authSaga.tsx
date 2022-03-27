@@ -82,14 +82,15 @@ function* handleLogin(action: { type: string; payload: LoginPayload }): any {
         });
         toast.error(loginResponse.message || "Auth service is not available.");
       }
-    } else {
+  } else {
       if (loginResponse.message === ERROR_MESSAGE_ACCOUNT_NOT_VERIFY) {
         yield put(loginAccountNotVerify());
+      } else {
+        toast.error(loginResponse.message || "Login failed.");
       }
       yield put({
         type: LOGIN.FAILED,
       });
-      toast.error(loginResponse.message || "Login failed.");
     }
   } catch (e: any) {
     yield put({ type: LOGIN.FAILED });

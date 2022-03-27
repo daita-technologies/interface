@@ -192,7 +192,7 @@ const ProjectItem = function ({ projectInfo }: ProjectItemProps) {
       py={2}
       onClick={handleOnClickProjectItem}
     >
-      <Box display="flex" alignItems="center" pb={1} px={2}>
+      <Box display="flex" alignItems="center" pb={1} px={2} height={100}>
         {projectThumbnailUrl === null ? (
           <CircularProgress sx={{ mr: 2 }} size={20} />
         ) : (
@@ -202,7 +202,19 @@ const ProjectItem = function ({ projectInfo }: ProjectItemProps) {
         )}
         <Box>
           <Typography variant="h6">{project_name}</Typography>
-          {/* <Typography variant="body2">This is a project description</Typography> */}
+          {description && description !== "" && (
+            <Typography
+              sx={{
+                display: "-webkit-box",
+                WebkitBoxOrient: "vertical",
+                WebkitLineClamp: 2,
+                overflow: "hidden",
+              }}
+              variant="body2"
+            >
+              {description}
+            </Typography>
+          )}
         </Box>
 
         <Box ref={optionMenuWrapperRef} ml="auto">
