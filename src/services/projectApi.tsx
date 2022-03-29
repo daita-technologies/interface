@@ -1,4 +1,5 @@
 import axios from "axios";
+import { CreateProjectFields } from "components/CreateProjectModal/type";
 import {
   projectApiUrl,
   getAuthHeader,
@@ -71,17 +72,15 @@ const projectApi = {
     idToken,
     accessToken,
     projectName,
-  }: {
-    idToken: string;
-    accessToken: string;
-    projectName: string;
-  }) =>
+    description,
+  }: CreateProjectFields) =>
     axios.post(
       `${projectApiUrl}/projects/create`,
       {
         id_token: idToken,
         access_token: accessToken,
         project_name: projectName,
+        project_info: description,
       },
       { headers: getAuthHeader() }
     ),

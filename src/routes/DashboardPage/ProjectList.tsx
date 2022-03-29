@@ -182,7 +182,14 @@ const ProjectItem = function ({ projectInfo }: ProjectItemProps) {
       />
     );
   };
-
+  const limitTooLongLineStyle = {
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 2,
+    overflow: "hidden",
+    maxWidth: 200,
+    lineHeight: 1.3,
+  };
   return (
     <Box
       sx={{ cursor: "pointer" }}
@@ -201,17 +208,11 @@ const ProjectItem = function ({ projectInfo }: ProjectItemProps) {
           </Avatar>
         )}
         <Box>
-          <Typography variant="h6">{project_name}</Typography>
+          <Typography sx={limitTooLongLineStyle} variant="h6">
+            {project_name}
+          </Typography>
           {description && description !== "" && (
-            <Typography
-              sx={{
-                display: "-webkit-box",
-                WebkitBoxOrient: "vertical",
-                WebkitLineClamp: 2,
-                overflow: "hidden",
-              }}
-              variant="body2"
-            >
+            <Typography sx={limitTooLongLineStyle} variant="body2">
               {description}
             </Typography>
           )}
