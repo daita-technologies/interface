@@ -9,6 +9,7 @@ import {
   ProjectDetail,
   RegisterPage,
   VerifyAccountPage,
+  TaskDashboard,
 } from "routes";
 import { CustomRouteProps } from "./type";
 
@@ -78,6 +79,18 @@ const routeConfig = [
   {
     path: "/project/:projectName",
     component: ProjectDetail,
+    exact: true,
+    isPrivate: true,
+  },
+  {
+    path: "/task-list",
+    component: TaskDashboard,
+    exact: true,
+    isPrivate: true,
+  },
+  {
+    path: "/task-list/:projectName",
+    component: TaskDashboard,
     exact: true,
     isPrivate: true,
   },
