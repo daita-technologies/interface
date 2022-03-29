@@ -215,30 +215,23 @@ function* handleUploadFile(action: {
             isReplace,
           },
         });
-      }
-      const uploadedFile = yield select(selectorUploadedFileCount);
-      const totalUploadFile = yield select(selectorTotalUploadFileQuantity);
-      let totalAdjustUploadFile = totalUploadFile;
-      if (!uploadFiles[fileName]) {
-        totalAdjustUploadFile = totalUploadFile - 1;
-      }
-      if (isReplaceSingle) {
-        yield put(clearFileArray({ fileNameArray: [fileName] }));
-        yield put(
-          setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
-        );
-      } else if (uploadedFile >= totalAdjustUploadFile) {
-        yield toast.success("Images are successfully uploaded");
-        yield put(clearFileArray({ fileNameArray: Object.keys(uploadFiles) }));
-        yield put(
-          setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
-        );
-      } else if (totalAdjustUploadFile !== totalUploadFile) {
-        yield put(
-          setTotalUploadFileQuantity({
-            totalUploadFileQuantity: totalAdjustUploadFile,
-          })
-        );
+        const uploadedFile = yield select(selectorUploadedFileCount);
+        const totalUploadFile = yield select(selectorTotalUploadFileQuantity);
+
+        if (isReplaceSingle) {
+          yield put(clearFileArray({ fileNameArray: [fileName] }));
+          yield put(
+            setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
+          );
+        } else if (uploadedFile >= totalUploadFile) {
+          yield toast.success("Images are successfully uploaded");
+          yield put(
+            clearFileArray({ fileNameArray: Object.keys(uploadFiles) })
+          );
+          yield put(
+            setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
+          );
+        }
       }
     } catch (err) {
       if (err instanceof Error) {
