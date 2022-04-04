@@ -205,7 +205,7 @@ const LoginForm = function () {
               disabled={isLogging}
               isLoading={isLogging}
             >
-              Log In
+              CONTINUE
             </MyButton>
             <Box mt={3} mb={3}>
               <Typography component="span" variant="body2">
@@ -216,7 +216,7 @@ const LoginForm = function () {
                 sx={{ fontWeight: "bold", textDecoration: "none" }}
                 variant="body2"
               >
-                Signup
+                Sign up
               </Link>
             </Box>
             <Divider
