@@ -107,7 +107,12 @@ const SplitDataNumberBox = function ({
               error={!!fieldState.error}
               inputProps={{ min: 0, max: total || 0 }}
               value={field.value}
-              onChange={field.onChange}
+              onChange={(e) => {
+                field.onChange({
+                  ...e,
+                  target: { ...e.target, value: +e.target.value },
+                });
+              }}
               type="number"
             />
           </Box>
