@@ -353,18 +353,18 @@ function* handleCheckFilesToUpload(action: {
     // yield toast.error(e.message);
   }
 }
-function* handleRequest(requestChan: any) {
+function* handleUploadRequest(requestChannel: any) {
   while (true) {
-    const { payload } = yield take(requestChan);
+    const { payload } = yield take(requestChannel);
     yield call(handleUploadFile, { type: UPLOAD_FILE.REQUESTED, payload });
   }
 }
 
 function* watchUploadFiles() {
   // @ts-ignore
-  const requestChan = yield actionChannel(UPLOAD_FILE.REQUESTED);
+  const uploadRequestChannel = yield actionChannel(UPLOAD_FILE.REQUESTED);
   for (let i = 0; i < 6; i += 1) {
-    yield fork(handleRequest, requestChan);
+    yield fork(handleUploadRequest, uploadRequestChannel);
   }
 }
 
