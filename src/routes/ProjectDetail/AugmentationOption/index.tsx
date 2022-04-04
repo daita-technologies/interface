@@ -141,6 +141,9 @@ const AugmentationOption = function (props: AugmentationOptionProps) {
   const runOpenConfirmDialog = () => {
     const defaultSplitDataset = generateDefaultSplitDataset();
 
+    const typeProcessRun =
+      selectedDataSource === PREPROCESS_SOURCE ? "preprocessed" : "original";
+
     openConfirmDialog({
       content: (
         <Box lineHeight={1.5}>
@@ -152,7 +155,7 @@ const AugmentationOption = function (props: AugmentationOptionProps) {
           <Typography component="span" fontWeight={700}>
             70% (training), 20% (validation), 10% (test)
           </Typography>{" "}
-          is applied, using the preprocessed dataset as a basis.
+          is applied, using the {typeProcessRun} dataset as a basis.
         </Box>
       ),
       negativeText: "Cancel",
