@@ -108,7 +108,23 @@ const DataSetSplit = function (props: DataSetSplitProps) {
       test: splitDataNumberBySource[TEST_DATA_NUMBER_INDEX],
     },
   });
-
+  const splitDataInputValues = watch();
+  const getRemainingData = (values: {
+    training: number;
+    validation: number;
+    test: number;
+  }) => {
+    const splitTotalFromInput =
+      Number(values.training || 0) +
+      Number(values.validation || 0) +
+      Number(values.test || 0);
+    return totalImagesByDataSource - splitTotalFromInput;
+  };
+  useEffect(() => {
+    if (getRemainingData(splitDataInputValues) === 0) {
+      setIsSplitDataMatchTotal(true);
+    }
+  }, [splitDataInputValues]);
   const onDataSourceSelectChange = (event: SelectChangeEvent) => {
     dispatch(
       changeSelectedDataSource({
@@ -196,18 +212,19 @@ const DataSetSplit = function (props: DataSetSplitProps) {
   );
 
   const renderSplitDataRemainText = () => {
-    const splitDataInputValues = watch();
-
     const splitTotalFromInput =
       Number(splitDataInputValues.training || 0) +
       Number(splitDataInputValues.validation || 0) +
       Number(splitDataInputValues.test || 0);
-
+    const remainingData = totalImagesByDataSource - splitTotalFromInput;
     return (
-      <Typography variant="body2">
+      <Typography
+        variant="body2"
+        color={remainingData < 0 ? "error.light" : "text.primary"}
+      >
         Remaining data:{" "}
         <Typography variant="body2" component="span" fontWeight={500}>
-          {totalImagesByDataSource - splitTotalFromInput}
+          {remainingData}
         </Typography>
       </Typography>
     );
@@ -230,8 +247,6 @@ const DataSetSplit = function (props: DataSetSplitProps) {
     },
   };
   const renderSplitDataNumberBar = () => {
-    const splitDataInputValues = watch();
-
     const isInitialSplit =
       splitDataInputValues.test !== 0 ||
       splitDataInputValues.training !== 0 ||
