@@ -24,6 +24,13 @@ const UploadFileItem = function (props: UploadFileItemProps) {
     error,
     isUploading,
   } = props;
+  const deleteButton = (
+    <Box>
+      <IconButton onClick={() => onClickDelete(file.name)} color="error">
+        <DeleteIcon />
+      </IconButton>
+    </Box>
+  );
 
   const returnStatus = () => {
     switch (status) {
@@ -72,16 +79,10 @@ const UploadFileItem = function (props: UploadFileItemProps) {
           </Box>
         );
       case QUEUEING_UPLOAD_FILE_STATUS:
-        return null;
+        return deleteButton;
       case ADDED_UPLOAD_FILE_STATUS:
       default:
-        return (
-          <Box>
-            <IconButton onClick={() => onClickDelete(file.name)} color="error">
-              <DeleteIcon />
-            </IconButton>
-          </Box>
-        );
+        return deleteButton;
     }
   };
 
