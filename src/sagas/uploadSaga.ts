@@ -24,6 +24,7 @@ import {
   takeEvery,
   select,
   actionChannel,
+  fork,
 } from "redux-saga/effects";
 import { selectorS3 } from "reduxes/general/selector";
 import {
@@ -355,13 +356,18 @@ function* handleCheckFilesToUpload(action: {
     // yield toast.error(e.message);
   }
 }
+function* handleUploadRequest(requestChannel: any) {
+  while (true) {
+    const { payload } = yield take(requestChannel);
+    yield call(handleUploadFile, { type: UPLOAD_FILE.REQUESTED, payload });
+  }
+}
 
 function* watchUploadFiles() {
   // @ts-ignore
-  const requestChan = yield actionChannel(UPLOAD_FILE.REQUESTED);
-  while (true) {
-    const { payload } = yield take(requestChan);
-    yield call(handleUploadFile, { type: UPLOAD_FILE.REQUESTED, payload });
+  const uploadRequestChannel = yield actionChannel(UPLOAD_FILE.REQUESTED);
+  for (let i = 0; i < 6; i += 1) {
+    yield fork(handleUploadRequest, uploadRequestChannel);
   }
 }
 
