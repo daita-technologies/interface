@@ -24,6 +24,7 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import ShareIcon from "@mui/icons-material/Share";
 import LogoutIcon from "@mui/icons-material/Logout";
 import EmailIcon from "@mui/icons-material/Email";
+import TaskIcon from "@mui/icons-material/Task";
 
 import CreateProjectModal from "components/CreateProjectModal";
 
@@ -81,6 +82,7 @@ const NavRow = function (props: NavRowProps) {
 
 const NavProjectItem = function (props: NavProjectItemProps) {
   const { name, Icon, to, subNav, onClick } = props;
+  const dispatch = useDispatch();
 
   const currentProjectName = useSelector(
     (state: RootState) => state.projectReducer.currentProjectName
@@ -121,7 +123,7 @@ const NavProjectItem = function (props: NavProjectItemProps) {
       return (
         <Box display="flex" justifyContent="center">
           <Typography variant="caption" fontStyle="italic">
-            No Project
+            No Project Yet
           </Typography>
         </Box>
       );
@@ -134,6 +136,12 @@ const NavProjectItem = function (props: NavProjectItemProps) {
     );
   };
 
+  const handleClickCreateNewProject = () => {
+    dispatch({
+      type: SET_IS_OPEN_CREATE_PROJECT_MODAL,
+      payload: { isOpen: true },
+    });
+  };
   return (
     <Box p={1} onClick={onClick}>
       <NavRow
@@ -147,6 +155,12 @@ const NavProjectItem = function (props: NavProjectItemProps) {
       {subNav && (
         <Collapse in={isOpenCollapse}>
           <List sx={{ pl: 4, maxHeight: 40 * 5, overflowY: "auto" }}>
+            <NavRow
+              name="Create New Project"
+              Icon={AddBoxIcon}
+              triggerToggleCollapse={handleClickCreateNewProject}
+              isSubNav
+            />
             {renderListProjects()}
           </List>
         </Collapse>
@@ -241,16 +255,7 @@ const Sidebar = function () {
               Icon={AssignmentIcon}
               subNav={listProjects}
             />
-            <NavItem
-              name="Create New Project"
-              Icon={AddBoxIcon}
-              onClick={() =>
-                dispatch({
-                  type: SET_IS_OPEN_CREATE_PROJECT_MODAL,
-                  payload: { isOpen: true },
-                })
-              }
-            />
+            <NavItem name="My Tasks" Icon={TaskIcon} to="/task-list" />
             <NavItem
               name="Invite a Friend"
               Icon={ShareIcon}

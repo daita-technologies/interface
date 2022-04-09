@@ -187,3 +187,5 @@ export const selectorIsEditingSplitData = (state: RootState) =>
 export const selectorProjectThumbnail =
   (projectId: string) => (state: RootState) =>
     state.projectReducer.thumbnails[projectId];
+export const selectorUpdateProjectInfoDialog = (state: RootState) =>
+  state.projectReducer.updateProjectInfoDialog;

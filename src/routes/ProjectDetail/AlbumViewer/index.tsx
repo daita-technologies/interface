@@ -65,7 +65,10 @@ import {
   PREPROCESS_IMAGES_TAB,
 } from "constants/defaultValues";
 import { ALBUM_SELECT_MODE } from "reduxes/album/constants";
-import { selectorMethodList } from "reduxes/project/selector";
+import {
+  selectorCurrentTaskListInfo,
+  selectorMethodList,
+} from "reduxes/project/selector";
 import { MethodInfoFields } from "reduxes/project/type";
 import _ from "lodash";
 
@@ -171,7 +174,6 @@ const AlbumViewer = function (props: AlbumViewerProps) {
   const activeImagesTabId = useSelector(selectorActiveImagesTabId);
 
   const s3 = useSelector((state: RootState) => state.generalReducer.s3);
-
   const hasMore = nextToken !== null;
 
   const listMethod = useSelector(selectorMethodList);
@@ -465,22 +467,6 @@ const AlbumViewer = function (props: AlbumViewerProps) {
                   justifyContent="center"
                 >
                   <CircularProgress size={20} />
-                </Box>
-              }
-              endMessage={
-                <Box
-                  mt={2}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Typography
-                    fontStyle="italic"
-                    color="text.secondary"
-                    fontSize={14}
-                  >
-                    No more data to load.
-                  </Typography>
                 </Box>
               }
               scrollableTarget={IMAGE_LIST_HTML_ID}

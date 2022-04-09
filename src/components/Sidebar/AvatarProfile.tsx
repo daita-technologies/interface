@@ -69,6 +69,7 @@ const AvatarProfile = function () {
                 pl: 4,
                 textTransform: "none",
               }}
+              noWrap
             >
               {username}
             </Typography>

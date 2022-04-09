@@ -21,7 +21,11 @@ import { MyButton } from "components";
 const CreateProjectModal = function (props: CreateProjectModalProps) {
   const { isOpen, handleClose } = props;
   const dispatch = useDispatch();
-  const { register, handleSubmit } = useForm<CreateProjectFields>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateProjectFields>({
     defaultValues: {
       accessToken: getLocalStorage(TOKEN_NAME) || "",
       idToken: getLocalStorage(ID_TOKEN_NAME) || "",
@@ -52,9 +56,6 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
         <Typography variant="h4" component="h2">
           Create New Project
         </Typography>
-        <Typography mt={6} fontStyle="italic" variant="body2">
-          Please note that the project name cannot be changed later.
-        </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmitCreateProject)}>
           <Input {...register("accessToken")} type="hidden" />
           <Input {...register("idToken")} type="hidden" />
@@ -62,12 +63,38 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
             required
             {...register("projectName", {
               required: true,
+              maxLength: {
+                value: 75,
+                message: `Your project name cannot exceed 75 characters.`,
+              },
             })}
+            error={!!errors.projectName}
+            helperText={
+              (errors.projectName && errors.projectName.message) || ""
+            }
             margin="normal"
             label="Project name"
-            placeholder="Project name..."
+            placeholder="Project name"
             fullWidth
             autoFocus
+            disabled={isLoading}
+          />
+          <TextField
+            {...register("description", {
+              required: false,
+              maxLength: {
+                value: 75,
+                message: `Your project description cannot exceed 75 characters.`,
+              },
+            })}
+            error={!!errors.description}
+            helperText={
+              (errors.description && errors.description.message) || ""
+            }
+            margin="normal"
+            label="Description"
+            placeholder="Description"
+            fullWidth
             disabled={isLoading}
           />
           <Box display="flex" justifyContent="flex-end" marginTop={6}>

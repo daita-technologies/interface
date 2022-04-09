@@ -6,7 +6,7 @@ import {
   Footer,
 } from "components";
 import { Box, Container } from "@mui/material";
-import { DeleteConfirmDialog } from "components";
+import { DeleteConfirmDialog, FeedbackComponent } from "components";
 import { useSelector } from "react-redux";
 import { selectorIsLogged } from "reduxes/auth/selector";
 
@@ -33,6 +33,7 @@ const Layout = function ({ children }: LayoutProps) {
           <DeleteConfirmDialog />
         </Box>
       </Box>
+      {isLogged && <FeedbackComponent />}
       <Footer />
     </Box>
   );

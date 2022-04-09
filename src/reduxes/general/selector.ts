@@ -6,3 +6,6 @@ export const selectorIsShow = (state: RootState) => state.generalReducer.isShow;
 
 export const selectorIsCheckingApp = (state: RootState) =>
   state.generalReducer.isCheckingApp;
+
+export const selectorReloadRecaptchaTrigger = (state: RootState) =>
+  state.generalReducer.reloadRecaptchaTrigger;

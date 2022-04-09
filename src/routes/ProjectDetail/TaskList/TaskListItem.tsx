@@ -9,6 +9,7 @@ import {
   capitalizeFirstLetter,
   getGenerateMethodLabel,
   getLocalStorage,
+  switchTabIdToSource,
 } from "utils/general";
 import {
   ERROR_TASK_STATUS,
@@ -25,10 +26,13 @@ import {
 import {
   selectorCurrentProjectId,
   selectorCurrentProjectName,
+  selectorCurrentTaskListInfo,
 } from "reduxes/project/selector";
 import { TaskStatusType } from "reduxes/project/type";
 import { toast } from "react-toastify";
+import { selectorActiveImagesTabId } from "reduxes/album/selector";
 import { TaskListItemProps } from "./type";
+import { changeActiveImagesTab } from "reduxes/album/action";
 
 const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
   const dispatch = useDispatch();
@@ -37,7 +41,8 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
   const { task_id, number_finished, number_gen_images, process_type, status } =
     taskInfo;
   const savedTaskStatus = useRef(status);
-
+  const currentTaskListInfo = useSelector(selectorCurrentTaskListInfo);
+  const activeImagesTabId = useSelector(selectorActiveImagesTabId);
   const progress = useMemo(() => {
     if (number_gen_images !== 0) {
       const progressing = ((number_finished * 100) / number_gen_images).toFixed(
@@ -51,6 +56,28 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
     }
     return "100";
   }, [number_finished, number_gen_images]);
+
+  useEffect(() => {
+    let allFinsh = true;
+    let isTheSameTab = false;
+    const source = switchTabIdToSource(activeImagesTabId);
+    Object.entries(currentTaskListInfo).forEach(([, value]) => {
+      if (value.process_type === source) {
+        isTheSameTab = true;
+      }
+      if (value.status !== "FINISH") {
+        allFinsh = false;
+      }
+    });
+    if (allFinsh && isTheSameTab) {
+      dispatch(
+        changeActiveImagesTab({
+          tabId: activeImagesTabId,
+          projectId: currentProjectId,
+        })
+      );
+    }
+  }, [currentTaskListInfo]);
 
   useEffect(() => {
     if (status === ERROR_TASK_STATUS) {

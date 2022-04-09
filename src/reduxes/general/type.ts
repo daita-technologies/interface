@@ -4,6 +4,7 @@ export interface GeneralReducer {
   isShow: boolean;
   s3: S3Client | null;
   isCheckingApp: boolean;
+  reloadRecaptchaTrigger: number;
 }
 
 export interface SetIsCheckingAppPayload {

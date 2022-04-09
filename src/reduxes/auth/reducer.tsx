@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import { TEMP_LOCAL_USERNAME } from "constants/defaultValues";
 import { getLocalStorage, getLocalToken } from "utils/general";
 import {
@@ -5,8 +6,10 @@ import {
   FORGOT_PASSWORD_REQUEST,
   GET_USER_INFO,
   LOGIN,
+  LOGIN_ACCOUNT_NOT_VERIFY,
   LOG_OUT,
   REGISTER_USER,
+  RESET_LOGIN_ACCOUNT_NOT_VERIFY,
   SET_IS_FORGOT_REQUEST_STEP,
   UPDATE_USER_INFO,
   VERIFY_ACCOUNT,
@@ -23,6 +26,7 @@ const inititalState: AuthReducer = {
   isFormRequesting: false,
   isVerifying: false,
   isForgotRequestStep: true,
+  isLoginAccountVerified: true,
 };
 
 const authReducer = (state = inititalState, action: any) => {
@@ -77,6 +81,10 @@ const authReducer = (state = inititalState, action: any) => {
       const { isForgotRequestStep } = payload as SetIsForgotRequestPayload;
       return { ...state, isForgotRequestStep };
     }
+    case LOGIN_ACCOUNT_NOT_VERIFY:
+      return { ...state, isLoginAccountVerified: false, isLogging: false };
+    case RESET_LOGIN_ACCOUNT_NOT_VERIFY:
+      return { ...state, isLoginAccountVerified: true };
     default:
       return state;
   }

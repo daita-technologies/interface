@@ -99,7 +99,7 @@ const authApi = {
     }),
   register: ({ username, password, email, captcha }: RegisterParams) =>
     axios.post(`${apiURL}/user_signup`, {
-      username,
+      username: username.toLowerCase(),
       password,
       email,
       captcha,

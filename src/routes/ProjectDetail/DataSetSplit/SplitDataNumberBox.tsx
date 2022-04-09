@@ -46,16 +46,33 @@ const SplitDataNumberBox = function ({
   name,
   isInitialSplit,
   setValue,
+  getValues,
 }: SplitDataNumberBoxProps) {
   const bgColor = useMemo(() => getBgColor(splitDataType), [splitDataType]);
   const splitType = useMemo(() => getName(splitDataType), [splitDataType]);
-  const percent = total === 0 ? 0 : ((splitValue / total) * 100).toFixed(0);
-
+  const percent =
+    total === 0
+      ? 0
+      : (((isEditing ? getValues(name) : splitValue) / total) * 100).toFixed(0);
   useEffect(() => {
     if (setValue) {
       setValue(name, splitValue);
     }
   }, [splitValue]);
+
+  const calculateDisplayNumber = (value: any) => {
+    const parsedValue = parseInt(value, 10);
+
+    if (Number.isNaN(parsedValue)) {
+      return 0;
+    }
+
+    if (parsedValue !== 0) {
+      return parsedValue.toString().replace(/^0+/, "");
+    }
+
+    return parsedValue;
+  };
 
   return (
     <Box
@@ -103,8 +120,13 @@ const SplitDataNumberBox = function ({
               }}
               error={!!fieldState.error}
               inputProps={{ min: 0, max: total || 0 }}
-              value={field.value}
-              onChange={field.onChange}
+              value={calculateDisplayNumber(field.value)}
+              onChange={(e) => {
+                field.onChange({
+                  ...e,
+                  target: { ...e.target, value: +e.target.value },
+                });
+              }}
               type="number"
             />
           </Box>

@@ -1,4 +1,5 @@
 import { getLocalToken } from "utils/general";
+import { encode } from "js-base64";
 
 export const apiURL = process.env.REACT_APP_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
@@ -6,6 +7,12 @@ export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
 
 export const RECAPTCHA_SITE_KEY =
   process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
+export const LOGIN_SOCIAL_CALLBACK_URL = encode(
+  `${window.location.protocol}//${window.location.host}/login`
+);
+export const API_AMAZON_COGNITO = process.env.REACT_APP_API_AMAZON_COGNITO;
+export const COGNITO_REDIRECT_URI = process.env.REACT_APP_COGNITO_REDIRECT_URI;
+export const COGNITO_CLIENT_ID = process.env.REACT_APP_COGNITO_CLIENTID;
 
 export const TOKEN_NAME = "token";
 export const TOKEN_EXPIRE_NAME = "token_expires_in";
@@ -15,6 +22,7 @@ export const CREDENTIAL_TOKEN_EXPIRE_NAME = "credential_token_expires_in";
 export const ACCESS_KEY_NAME = "access_key";
 export const SECRET_KEY_NAME = "secret_key";
 export const SESSION_TOKEN_NAME = "session_key";
+export const USERNAME_NAME = "username";
 export const IDENTITY_ID_NAME = "identity_id";
 
 export const TOKEN_LIST = [
@@ -36,6 +44,7 @@ export const getAuthHeader = () => ({
 export const EMAIL_REGEX = /^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
 export const PHONE_VI_REGEX =
   /(^((0[3|5|7|8|9])+([0-9]{8})\b)\/?$)|(^(((\+)?84)+([0-9]{9})\b)\/?$)/;
+export const USERNAME_REGEX = /^([a-z0-9@^$.!`\-#+'~_]+)$/;
 export const PASSWORD_STRENGTH_REGEX =
   /(?=(.*[0-9]))(?=.*[!@#$%^&*()\\[\]{}\-_+=~`|:;"'<>,./?])(?=.*[a-z])(?=(.*[A-Z]))(?=(.*)).{8,}/;
 
@@ -93,3 +102,8 @@ export const AUGMENT_DOWNLOAD_TYPE = "AUGMENT";
 export const RUNNING_DOWNLOAD_EC2_ZIP_PROGRESS_TYPE = "RUNNING";
 export const FINISH_DOWRUNNING_DOWNLOAD_EC2_ZIP_PROGRESS_TYPENLOAD_TYPE =
   "FINISH";
+
+export const ERROR_MESSAGE_ACCOUNT_NOT_VERIFY =
+  "User need to verify confirmation code";
+
+export const DEFAULT_SPLIT_DATASET_PERCENT_RATE = [70, 20, 10];

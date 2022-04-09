@@ -66,6 +66,7 @@ export interface ApiListProjectsItem {
   is_sample: boolean;
   gen_status: GENERATE_PROJECT_STATUS_TYPE;
   thum_key: string;
+  description: string;
 }
 
 export interface UpdateProjectStatisticPayload {
@@ -179,6 +180,7 @@ export interface ProjectReducerState {
   tasks: { [taskId: string]: TaskInfoApiFields };
   thumbnails: { [projectId: string]: null | string };
   isEditingSplitData: boolean;
+  updateProjectInfoDialog: null | SetIsOpenUpdateProjectInfoPayload;
 }
 
 export interface SetIsEditingSplitDataPayload {
@@ -198,4 +200,30 @@ export interface LoadProjectThumbnailImagePayload {
 export interface LoadProjectThumbnailImageSucceedPayload {
   thumbnailUrl: string;
   projectId: string;
+}
+export interface UpdateProjectInfo {
+  projectName: string;
+  description?: string;
+}
+export interface UpdateProjectInfoPayload {
+  idToken: string;
+  projectId: string;
+  projectName: string;
+  updateInfo: UpdateProjectInfo;
+}
+
+export interface SetIsOpenUpdateProjectInfoPayload {
+  isOpen: boolean;
+  isProcessing: boolean;
+  projectId?: string;
+  projectName?: string;
+  updateInfo?: UpdateProjectInfo;
+}
+export interface ApiUpdateProjectsInfo {
+  project_id: string;
+  s3_prefix: string;
+  is_sample: boolean;
+  gen_status: GENERATE_PROJECT_STATUS_TYPE;
+  project_name: string;
+  description: string;
 }
