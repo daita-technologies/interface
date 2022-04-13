@@ -2,7 +2,7 @@ import { CircularProgress, Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "reduxes";
 
-const PageLoading = ({ size = 50 }: { size?: number }) => {
+function PageLoading({ size = 50 }: { size?: number }) {
   const isShow = useSelector((state: RootState) => state.generalReducer.isShow);
   if (isShow) {
     return (
@@ -30,6 +30,6 @@ const PageLoading = ({ size = 50 }: { size?: number }) => {
     );
   }
   return null;
-};
+}
 
 export default PageLoading;

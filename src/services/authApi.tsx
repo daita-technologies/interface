@@ -2,7 +2,7 @@
 import axios from "axios";
 // @ts-ignore
 import { Service } from "axios-middleware";
-import { apiURL, getAuthHeader } from "constants/defaultValues";
+import { apiURL, getAuthHeader, projectApiUrl } from "constants/defaultValues";
 import { removeListToken } from "utils/general";
 
 import { VerifyFormInputs } from "routes/VerifyAccountPage/type";
@@ -133,6 +133,9 @@ const authApi = {
       username,
       refresh_token: refreshToken,
     }),
+  loginSocial: (code: string) =>
+    axios.post(`${projectApiUrl}/auth/credential`, {
+      code,
+    }),
 };
-
 export default authApi;

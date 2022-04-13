@@ -10,3 +10,7 @@ export interface GeneralReducer {
 export interface SetIsCheckingAppPayload {
   isChecking: boolean;
 }
+
+export interface SetIsShowPageLoadingPayload {
+  isShow: boolean;
+}
