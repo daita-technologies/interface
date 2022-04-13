@@ -45,7 +45,7 @@ const LoginPage = function () {
     if (!code) {
       return;
     }
-    dispatch(setPageLoading({ isShow: true }));
+    dispatch(setPageLoading({ isShow: true, message: "Logging in..." }));
     authApi
       .loginSocial(code)
       .then((resp: any) => {
