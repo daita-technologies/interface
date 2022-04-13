@@ -27,7 +27,7 @@ const generalReducer = (state = inititalState, action: any): GeneralReducer => {
   switch (actionType) {
     case SET_PAGE_LOADING: {
       const { isShow, message } = payload as SetIsShowPageLoadingPayload;
-      return { ...state, isShow, message };
+      return { ...state, isShow, message: isShow === false ? "" : message };
     }
     case GENERATE_S3_CLIENT:
       return { ...state, s3: generateS3Client() };
