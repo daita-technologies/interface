@@ -194,7 +194,7 @@ const UploadFile = function (props: UploadFileProps) {
 
   const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
     onDrop,
-    accept: "image/png, image/jpeg",
+    accept: "image/png, image/jpeg , .tar, .gz, .bz2, .zip",
     disabled: isDisabledUpload,
   });
 
@@ -266,7 +266,7 @@ const UploadFile = function (props: UploadFileProps) {
           : "Drop your images here or click to upload"}
       </Typography>
       <Typography fontStyle="italic" variant="body2" color="text.secondary">
-        .png, .jpg, .jpeg
+        .png, .jpg, .jpeg, .tar, .gz, .bz2, .zip
       </Typography>
       <Typography
         sx={{ mt: 1 }}

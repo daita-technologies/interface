@@ -4,6 +4,7 @@ import {
   projectApiUrl,
   getAuthHeader,
   VIEW_ALBUM_PAGE_SIZE,
+  uploadZipApiUrl,
 } from "constants/defaultValues";
 import { FetchImagesParams, ImageSourceType } from "reduxes/album/type";
 import { GenerateImagePayload } from "reduxes/generate/type";
@@ -207,6 +208,13 @@ const projectApi = {
       },
       { headers: getAuthHeader() }
     ),
+  getUploadZipTaskInfo: ({ idToken, taskId }: GetTaskProgressRequestBody) =>
+    axios.get(`${uploadZipApiUrl}/dataflow/get_decompress_task`, {
+      params: {
+        id_token: idToken,
+        task_id: taskId,
+      },
+    }),
   deleteProject: ({
     idToken,
     projectId,
@@ -257,6 +265,30 @@ const projectApi = {
         new_project_name:
           projectName === updateInfo.projectName ? "" : updateInfo.projectName,
         new_description: updateInfo.description,
+      },
+      { headers: getAuthHeader() }
+    ),
+  uploadZipFile: ({
+    idToken,
+    projectId,
+    projectName,
+    typeMethod,
+    fileUrl,
+  }: {
+    idToken: string;
+    projectId: string;
+    projectName: string;
+    typeMethod: string;
+    fileUrl: string;
+  }) =>
+    axios.post(
+      `${uploadZipApiUrl}/dataflow/create_decompress_task`,
+      {
+        id_token: idToken,
+        project_id: projectId,
+        project_name: projectName,
+        type_method: typeMethod,
+        file_url: fileUrl,
       },
       { headers: getAuthHeader() }
     ),

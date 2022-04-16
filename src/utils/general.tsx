@@ -136,7 +136,15 @@ export const generatePhotoKey = ({
   projectId: string;
   fileName: string;
 }) => `${indentityId}/${projectId}/${fileName}`;
-
+export const generateZipFileKey = ({
+  indentityId,
+  projectId,
+  fileName,
+}: {
+  indentityId: string;
+  projectId: string;
+  fileName: string;
+}) => `${indentityId}/${projectId}/zip/${fileName}`;
 export const getLocalProjectInfo = (
   listProjects: Array<ApiListProjectsItem>,
   currentProjectName: string

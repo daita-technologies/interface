@@ -1,9 +1,11 @@
 import { Upload } from "@aws-sdk/lib-storage";
 import MD5 from "crypto-js/md5";
 import {
+  COMPRESS_FILE_EXTENSIONS,
   IDENTITY_ID_NAME,
   ID_TOKEN_NAME,
   ORIGINAL_SOURCE,
+  UPLOAD_TASK_TYPE,
 } from "constants/defaultValues";
 import { S3_BUCKET_NAME } from "constants/s3Values";
 import {
@@ -25,6 +27,7 @@ import {
   select,
   actionChannel,
   fork,
+  delay,
 } from "redux-saga/effects";
 import { selectorS3 } from "reduxes/general/selector";
 import {
@@ -50,13 +53,17 @@ import { projectApi } from "services";
 import {
   arrayBufferToWordArray,
   generatePhotoKey,
+  generateZipFileKey,
   getLocalStorage,
   objectIndexOf,
   readAsArrayBuffer,
 } from "utils/general";
 import { CheckFileUploadParams, UploadFileParams } from "reduxes/upload/type";
 import { addImageToAlbumFromFile } from "reduxes/album/action";
-import { updateCurrentProjectStatistic } from "reduxes/project/action";
+import {
+  fetchTaskInfo,
+  updateCurrentProjectStatistic,
+} from "reduxes/project/action";
 
 function* handleUpdateUploadToBackend(action: any): any {
   try {
@@ -107,6 +114,120 @@ function* watchUploadProgressChannel() {
     // @ts-ignore
     const action = yield take(uploadProgressChannel);
     yield put(action);
+  }
+}
+
+function* handleUploadZipFile(action: {
+  type: string;
+  payload: UploadFileParams;
+}): any {
+  try {
+    const { fileName, projectId, projectName } = action.payload;
+    const uploadFiles = yield select(selectorUploadFiles);
+    const s3 = yield select(selectorS3);
+    const IDENTITY_ID = yield getLocalStorage(IDENTITY_ID_NAME) || "";
+
+    const zipFileKey = generateZipFileKey({
+      indentityId: IDENTITY_ID,
+      projectId,
+      fileName,
+    });
+    try {
+      if (uploadFiles[fileName]) {
+        const uploadParams = {
+          Bucket: S3_BUCKET_NAME,
+          Key: zipFileKey,
+          Body: uploadFiles[fileName].file,
+        };
+
+        yield put(
+          updateFile({
+            fileName,
+            updateInfo: {
+              error: "",
+              status: UPLOADING_UPLOAD_FILE_STATUS,
+            },
+          })
+        );
+
+        const parallelUploads3 = new Upload({
+          client: s3,
+          queueSize: 4,
+          params: uploadParams,
+        });
+        parallelUploads3.on("httpUploadProgress", (progress) => {
+          uploadProgressChannel.put(
+            updateFile({
+              fileName,
+              updateInfo: {
+                uploadProgress: Number(
+                  Number(
+                    ((progress.loaded || 0) / (progress.total || 1)) * 100
+                  ).toFixed(0) || "0"
+                ),
+              },
+            })
+          );
+        });
+        yield parallelUploads3.done();
+
+        yield put(
+          updateFile({
+            fileName,
+            updateInfo: {
+              error: "",
+              status: UPLOADED_UPLOAD_FILE_STATUS,
+            },
+          })
+        );
+        const uploadZipFileResponse = yield call(projectApi.uploadZipFile, {
+          idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+          projectId,
+          projectName,
+          typeMethod: "ORIGINAL",
+          fileUrl: `s3://${S3_BUCKET_NAME}/${zipFileKey}`,
+        });
+        if (uploadZipFileResponse.error === false) {
+          yield delay(2000);
+          yield put(
+            fetchTaskInfo({
+              idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+              taskId: uploadZipFileResponse.data.task_id,
+              processType: UPLOAD_TASK_TYPE,
+              isNotify: true,
+              projectId,
+            })
+          );
+        }
+        const uploadedFile = yield select(selectorUploadedFileCount);
+        const totalUploadFile = yield select(selectorTotalUploadFileQuantity);
+        if (uploadedFile >= totalUploadFile) {
+          yield toast.success("Images are successfully uploaded");
+          yield put(
+            clearFileArray({ fileNameArray: Object.keys(uploadFiles) })
+          );
+          yield put(
+            setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
+          );
+        }
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        toast.error(`There was an error uploading your photo: ${err.message}`);
+        yield put(
+          updateFile({
+            fileName,
+            updateInfo: {
+              error: err.message,
+              status: FAILED_UPLOAD_FILE_STATUS,
+            },
+          })
+        );
+      }
+    }
+  } catch (e: any) {
+    yield put({ type: UPLOAD_FILE.FAILED });
+    toast.error(e.message);
   }
 }
 
@@ -359,7 +480,29 @@ function* handleCheckFilesToUpload(action: {
 function* handleUploadRequest(requestChannel: any) {
   while (true) {
     const { payload } = yield take(requestChannel);
-    yield call(handleUploadFile, { type: UPLOAD_FILE.REQUESTED, payload });
+    const { fileName } = payload;
+    let isUploadRequest = false;
+    // eslint-disable-next-line no-restricted-syntax
+    for (const compressFileExtension of COMPRESS_FILE_EXTENSIONS) {
+      if (
+        fileName.indexOf(compressFileExtension) ===
+        fileName.length - compressFileExtension.length
+      ) {
+        isUploadRequest = true;
+        break;
+      }
+    }
+    if (isUploadRequest) {
+      yield call(handleUploadZipFile, {
+        type: UPLOAD_FILE.REQUESTED,
+        payload,
+      });
+    } else {
+      yield call(handleUploadFile, {
+        type: UPLOAD_FILE.REQUESTED,
+        payload,
+      });
+    }
   }
 }
 

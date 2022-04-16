@@ -11,6 +11,7 @@ import {
   PREPROCESS_SOURCE,
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
+  UPLOAD_TASK_TYPE,
 } from "constants/defaultValues";
 import { ImageSourceType } from "reduxes/album/type";
 import { generateMethodType } from "reduxes/generate/type";
@@ -45,14 +46,17 @@ export interface ListTaskItem {
   task_id: string;
   project_id: string;
 }
-
+export interface TaskInfo {
+  task_id: string;
+  process_type: ProcessType;
+}
 export interface ProjectInfo {
   identity_id: string;
   project_name: string;
   project_id: string;
   times_generated: number;
   groups: GroupProjectInfo;
-  ls_task: Array<string>;
+  ls_task: Array<TaskInfo>;
   is_sample: boolean;
   gen_status: GENERATE_PROJECT_STATUS_TYPE;
 }
@@ -115,22 +119,30 @@ export interface TaskInfoApiFields {
   identity_id: string;
   task_id: string;
   status: TaskStatusType;
-  process_type: ImageSourceType;
+  process_type: ProcessType;
   number_finished: number;
   project_id: string;
   number_gen_images: number;
 }
+export type ProcessType = ImageSourceType | typeof UPLOAD_TASK_TYPE;
 
+export type ZipTaskInfoApiFields = Pick<
+  TaskInfoApiFields,
+  "identity_id" | "task_id" | "status" | "process_type" | "project_id"
+>;
+
+export type GeneralTaskInfoApiFields = TaskInfoApiFields | ZipTaskInfoApiFields;
 export interface FetchTaskInfoPayload {
   idToken: string;
   taskId: string;
+  processType: ProcessType;
   projectId: string;
   isNotify?: boolean;
   generateMethod?: generateMethodType;
 }
 
 export interface FetchTaskInfoSucceedPayload {
-  taskInfo: TaskInfoApiFields;
+  taskInfo: GeneralTaskInfoApiFields;
   projectId: string;
 }
 
@@ -177,7 +189,7 @@ export interface ProjectReducerState {
   currentProjectInfo: null | ProjectInfo;
   listMethod: null | ListMethodType;
   selectedDataSource: SPLIT_DATA_NUMBER_SOURCE_TYPE;
-  tasks: { [taskId: string]: TaskInfoApiFields };
+  tasks: { [taskId: string]: GeneralTaskInfoApiFields };
   thumbnails: { [projectId: string]: null | string };
   isEditingSplitData: boolean;
   updateProjectInfoDialog: null | SetIsOpenUpdateProjectInfoPayload;

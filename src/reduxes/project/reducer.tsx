@@ -1,7 +1,7 @@
 import {
-  ORIGINAL_SOURCE,
   AUGMENT_GENERATE_IMAGES_TYPE,
   LATEST_SELECTED_DATA_SOURCE_KEY_NAME,
+  ORIGINAL_SOURCE,
 } from "constants/defaultValues";
 import { GENERATE_IMAGES } from "reduxes/generate/constants";
 import { GenerateImageSucceedPayload } from "reduxes/generate/type";
@@ -41,7 +41,6 @@ import {
   SetIsOpenUpdateProjectInfoPayload,
   SetSplitDataNumberPayload,
   SPLIT_DATA_NUMBER_SOURCE_TYPE,
-  UpdateProjectInfoPayload,
   UpdateProjectStatisticPayload,
 } from "./type";
 
@@ -317,8 +316,9 @@ const projectReducer = (
 
             // NOTE: add fetched task to currentInfo
             const newCurrentProjectInfo = { ...currentProjectInfo };
-            if (ls_task.indexOf(taskInfo.task_id) < 0) {
-              newCurrentProjectInfo.ls_task.push(taskInfo.task_id);
+            const task = ls_task.find((t) => t.task_id === taskInfo.task_id);
+            if (!task) {
+              newCurrentProjectInfo.ls_task.push(taskInfo);
             }
 
             return {
