@@ -1,6 +1,6 @@
 import { EXTENSION_HEALTH_CHECK_FIELD } from "constants/healthCheck";
 
-export function switchHealthCheckFieldTo(fieldName: string) {
+export function getChartTypeFromAttributeName(fieldName: string) {
   switch (fieldName) {
     case EXTENSION_HEALTH_CHECK_FIELD.value:
       return "pie";

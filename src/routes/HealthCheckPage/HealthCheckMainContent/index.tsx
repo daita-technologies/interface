@@ -1,14 +1,18 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getProjectHealthCheckInfoAction } from "reduxes/healthCheck/action";
+import {
+  getProjectHealthCheckInfoAction,
+  runHealthCheckAction,
+} from "reduxes/healthCheck/action";
 import { ORIGINAL_SOURCE } from "constants/defaultValues";
-import { Empty } from "components";
+import { Empty, MyButton } from "components";
 
-import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 
 import {
   selectorActiveDataHealthCheck,
   selectorIsHealthCheckLoading,
+  selectorIsRunningHealthCheck,
 } from "reduxes/healthCheck/selector";
 
 import HealthCheckChart from "../HealthCheckChart";
@@ -21,12 +25,18 @@ const HealthCheckMainContent = function ({
 
   const isHealthCheckLoading = useSelector(selectorIsHealthCheckLoading);
 
+  const isRunningHealthCheck = useSelector(selectorIsRunningHealthCheck);
+
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(
       getProjectHealthCheckInfoAction({ projectId, dataType: ORIGINAL_SOURCE })
     );
   }, [projectId]);
+
+  const onClickRunHealthCheck = () => {
+    dispatch(runHealthCheckAction({ projectId, dataType: ORIGINAL_SOURCE }));
+  };
 
   const renderContent = () => {
     if (isHealthCheckLoading || !activeDataHealthCheck) {
@@ -38,7 +48,14 @@ const HealthCheckMainContent = function ({
     }
 
     if (activeDataHealthCheck && activeDataHealthCheck?.length > 0) {
-      return <HealthCheckChart projectId={projectId} />;
+      return (
+        <Box>
+          <HealthCheckChart
+            projectId={projectId}
+            data={activeDataHealthCheck}
+          />
+        </Box>
+      );
     }
 
     return (
@@ -54,9 +71,14 @@ const HealthCheckMainContent = function ({
             <Typography>
               No information about your data health check yet.
             </Typography>
-            <Button variant="contained" color="primary">
+            <MyButton
+              variant="contained"
+              color="primary"
+              isLoading={isRunningHealthCheck}
+              onClick={onClickRunHealthCheck}
+            >
               Run Data Health Check
-            </Button>
+            </MyButton>
           </Box>
         }
       />

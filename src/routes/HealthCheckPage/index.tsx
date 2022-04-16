@@ -1,4 +1,7 @@
-import { useParams } from "react-router-dom";
+import {
+  // useHistory,
+  useParams,
+} from "react-router-dom";
 import { useState, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -20,6 +23,7 @@ const HealthCheckPage = function () {
   const { projectName } = useParams<{ projectName: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const listProject = useSelector(selectorListProjects);
+  // const history = useHistory();
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   // const dispatch = useDispatch();
@@ -40,6 +44,8 @@ const HealthCheckPage = function () {
           : 0;
         if (indexOf !== -1) {
           setSelectedTabIndex(indexOf + 1);
+          // TODO:
+          // history.push(`/health-check/${listProject[indexOf + 1].project_id}`);
         } else {
           setSelectedTabIndex(-1);
         }
@@ -78,7 +84,7 @@ const HealthCheckPage = function () {
     }
 
     return (
-      <Box sx={{ width: "100%" }}>
+      <Box sx={{ width: "100%", my: 2 }}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs
             value={selectedTabIndex}

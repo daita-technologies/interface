@@ -26,9 +26,9 @@ export interface GetProjectHealthCheckInfoParams {
 }
 
 export interface HealthCheckFields {
-  healthcheck_id: "00729a84-50d1-4f83-bb5a-bdd70b5b57ab";
-  data_type: "ORIGINAL";
-  project_id: "prj1_5be2470b86414756b8169d7a78231756";
+  healthcheck_id: string;
+  data_type: ImageSourceType;
+  project_id: string;
   file_name: string;
   signal_to_noise_green_channel: number;
   signal_to_noise_red_channel: number;
@@ -64,11 +64,11 @@ const healthCheckApi = {
     dataType = ORIGINAL_SOURCE,
   }: RunHealthCheckParams) =>
     axios.post(
-      `${healthCheckApiURL}/send-mail/reference-email`,
+      `${healthCheckApiURL}/health_check/calculate`,
       {
         id_token: getLocalStorage(ID_TOKEN_NAME) || idToken || "",
         project_id: projectId,
-        dataType,
+        data_type: dataType,
       },
       { headers: getAuthHeader() }
     ),
