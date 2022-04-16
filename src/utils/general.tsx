@@ -4,15 +4,6 @@ import {
   TEMP_LOCAL_USERNAME,
   TOKEN_LIST,
   TOKEN_NAME,
-} from "constants/defaultValues";
-import { ApiListProjectsItem } from "reduxes/project/type";
-import {
-  AlbumImagesFields,
-  ImageApiFields,
-  ImageSourceType,
-} from "reduxes/album/type";
-import { S3_BUCKET_NAME } from "constants/s3Values";
-import {
   PREPROCESS_IMAGES_TAB,
   ORIGINAL_IMAGES_TAB,
   AUGMENT_IMAGES_TAB,
@@ -24,8 +15,15 @@ import {
   PREPROCESSING_GENERATE_IMAGES_TYPE,
   PREPROCESSING_GENERATE_IMAGES_TYPE_LABEL,
 } from "constants/defaultValues";
-import { TokenStorageName, TokenStorageTypes } from "./type";
+import { ApiListProjectsItem } from "reduxes/project/type";
+import {
+  AlbumImagesFields,
+  ImageApiFields,
+  ImageSourceType,
+} from "reduxes/album/type";
+import { S3_BUCKET_NAME } from "constants/s3Values";
 import { generateMethodType } from "reduxes/generate/type";
+import { TokenStorageName, TokenStorageTypes } from "./type";
 
 export const asyncAction = (actionName: string) => ({
   REQUESTED: `${actionName}_REQUESTED`,

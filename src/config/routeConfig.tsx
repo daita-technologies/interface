@@ -10,6 +10,7 @@ import {
   RegisterPage,
   VerifyAccountPage,
   TaskDashboard,
+  HealthCheckPage,
 } from "routes";
 import { CustomRouteProps } from "./type";
 
@@ -91,7 +92,19 @@ const routeConfig = [
   {
     path: "/task-list/:projectName",
     component: TaskDashboard,
+    exact: false,
+    isPrivate: true,
+  },
+  {
+    path: "/health-check",
+    component: HealthCheckPage,
     exact: true,
+    isPrivate: true,
+  },
+  {
+    path: "/health-check/:projectName",
+    component: HealthCheckPage,
+    exact: false,
     isPrivate: true,
   },
 ];

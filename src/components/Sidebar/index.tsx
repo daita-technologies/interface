@@ -25,6 +25,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import LogoutIcon from "@mui/icons-material/Logout";
 import EmailIcon from "@mui/icons-material/Email";
 import TaskIcon from "@mui/icons-material/Task";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 
 import CreateProjectModal from "components/CreateProjectModal";
 
@@ -254,6 +255,11 @@ const Sidebar = function () {
               name="My Projects"
               Icon={AssignmentIcon}
               subNav={listProjects}
+            />
+            <NavItem
+              name="Data Health Check"
+              Icon={HealthAndSafetyIcon}
+              to="/health-check"
             />
             <NavItem name="My Tasks" Icon={TaskIcon} to="/task-list" />
             <NavItem

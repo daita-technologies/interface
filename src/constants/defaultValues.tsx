@@ -4,6 +4,7 @@ import { encode } from "js-base64";
 export const apiURL = process.env.REACT_APP_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
 export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
+export const healthCheckApiURL = process.env.REACT_APP_HEALTH_CHECK_API_URL;
 
 export const RECAPTCHA_SITE_KEY =
   process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
