@@ -30,3 +30,5 @@ export { default as FeedbackComponent } from "./FeedbackComponent";
 export { default as Footer } from "./Footer";
 
 export { ConfirmDialogProvider } from "./ConfirmDialog";
+
+export { default as Empty } from "./Empty";
