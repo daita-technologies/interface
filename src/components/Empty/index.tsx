@@ -3,11 +3,7 @@ import { Box, BoxProps, Typography } from "@mui/material";
 import { EmptyProps } from "./type";
 
 const Empty = function ({
-  description = (
-    <Typography mt={2} color="text.secondary">
-      No data
-    </Typography>
-  ),
+  description = <Typography color="text.secondary">No data</Typography>,
   ...otherProps
 }: BoxProps & EmptyProps) {
   return (

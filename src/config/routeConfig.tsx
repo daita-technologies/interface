@@ -104,7 +104,7 @@ const routeConfig = [
   {
     path: "/health-check/:projectName",
     component: HealthCheckPage,
-    exact: false,
+    exact: true,
     isPrivate: true,
   },
 ];

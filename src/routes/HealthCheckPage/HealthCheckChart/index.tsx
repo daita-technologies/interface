@@ -179,6 +179,9 @@ const HealthCheckChart = function ({ data, projectId }: HealthCheckChartProps) {
                     size: 24,
                   },
                   color: darkTheme.palette.text.primary,
+                  padding: {
+                    top: 24,
+                  },
                 },
                 legend: {
                   display: false,
@@ -217,6 +220,9 @@ const HealthCheckChart = function ({ data, projectId }: HealthCheckChartProps) {
                         size: 24,
                       },
                       color: darkTheme.palette.text.primary,
+                      padding: {
+                        top: 24,
+                      },
                     },
                     // legend: {
                     //   display: false,

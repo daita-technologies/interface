@@ -252,3 +252,22 @@ export const getLoadImageContentToDownloadActionName = (index: number) =>
 export function typedKeys<T>(o: T): (keyof T)[] {
   return Object.keys(o) as (keyof T)[];
 }
+
+export const getProjectNameFromProjectId = (
+  listProjects: ApiListProjectsItem[],
+  projectId: string
+) => {
+  if (projectId) {
+    const matchProjectIndex = objectIndexOf(
+      listProjects,
+      projectId,
+      "project_id"
+    );
+    if (matchProjectIndex > 0) {
+      return listProjects[matchProjectIndex].project_name;
+    }
+    return null;
+  }
+
+  return null;
+};
