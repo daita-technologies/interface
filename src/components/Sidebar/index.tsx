@@ -25,6 +25,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import LogoutIcon from "@mui/icons-material/Logout";
 import EmailIcon from "@mui/icons-material/Email";
 import TaskIcon from "@mui/icons-material/Task";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 
 import CreateProjectModal from "components/CreateProjectModal";
 
@@ -170,7 +171,7 @@ const NavProjectItem = function (props: NavProjectItemProps) {
 };
 
 const NavItem = function (props: NavItemProps) {
-  const { name, Icon, to, subNav, onClick } = props;
+  const { name, Icon, to, subNav, onClick, isActive } = props;
 
   const location = useLocation();
   const [isOpenCollapse, setIsOpenCollapse] = useState(false);
@@ -186,7 +187,7 @@ const NavItem = function (props: NavItemProps) {
         Icon={Icon}
         to={to}
         triggerToggleCollapse={toggleCollapse}
-        isActived={to === location.pathname}
+        isActived={isActive || to === location.pathname}
       />
 
       {subNav && (
@@ -219,6 +220,8 @@ const Sidebar = function () {
   const listProjects = useSelector(
     (state: RootState) => state.projectReducer.listProjects
   );
+
+  const { pathname } = useLocation();
 
   useEffect(() => {
     if (isLogged) {
@@ -254,6 +257,12 @@ const Sidebar = function () {
               name="My Projects"
               Icon={AssignmentIcon}
               subNav={listProjects}
+            />
+            <NavItem
+              name="Data Health Check"
+              Icon={HealthAndSafetyIcon}
+              to="/health-check"
+              isActive={pathname.indexOf("/health-check") > -1}
             />
             <NavItem name="My Tasks" Icon={TaskIcon} to="/task-list" />
             <NavItem

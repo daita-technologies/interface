@@ -10,6 +10,7 @@ import downloadReducer from "reduxes/download/reducer";
 import generateReducer from "reduxes/generate/reducer";
 import inviteReducer from "reduxes/invite/reducer";
 import feedbackReducer from "./feedback/reducer";
+import healthCheckReducer from "./healthCheck/reducer";
 
 const rootReducer = combineReducers({
   authReducer,
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   generateReducer,
   inviteReducer,
   feedbackReducer,
+  healthCheckReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
