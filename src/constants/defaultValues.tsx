@@ -1,9 +1,13 @@
 import { getLocalToken } from "utils/general";
 import { encode } from "js-base64";
 
-export const apiURL = process.env.REACT_APP_API_URL;
+export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
 export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
+
+export const reactAppDevEnv = "development";
+export const reactAppProdEnv = "production";
+export const reactAppEnv = process.env.REACT_APP_ENV;
 
 export const RECAPTCHA_SITE_KEY =
   process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
@@ -44,6 +48,8 @@ export const getAuthHeader = () => ({
 });
 
 export const EMAIL_REGEX = /^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
+export const EMAIL_OR_USERNAME_REGEX =
+  /^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})|^([a-z0-9_.+-]+)$/;
 export const PHONE_VI_REGEX =
   /(^((0[3|5|7|8|9])+([0-9]{8})\b)\/?$)|(^(((\+)?84)+([0-9]{9})\b)\/?$)/;
 export const USERNAME_REGEX = /^([a-z0-9@^$.!`\-#+'~_]+)$/;

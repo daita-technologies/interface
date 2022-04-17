@@ -1,5 +1,14 @@
 import axios from "axios";
-import { inviteApiURL, getAuthHeader, apiURL } from "constants/defaultValues";
+import {
+  inviteApiURL,
+  getAuthHeader,
+  reactAppDevEnv,
+  reactAppEnv,
+  authApiURL,
+} from "constants/defaultValues";
+
+const targetAuthApiUrl =
+  reactAppEnv === reactAppDevEnv ? `${authApiURL}/auth` : authApiURL;
 
 export interface InviteFriendParams {
   username: string;
@@ -17,7 +26,7 @@ const inviteApi = {
       { headers: getAuthHeader() }
     ),
   inviteEmailTemplateContent: () =>
-    axios.get(`${apiURL}/template-invite-mail`, {
+    axios.get(`${targetAuthApiUrl}/template-invite-mail`, {
       headers: getAuthHeader(),
     }),
 };
