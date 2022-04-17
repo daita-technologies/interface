@@ -9,3 +9,6 @@ export const selectorIsCheckingApp = (state: RootState) =>
 
 export const selectorReloadRecaptchaTrigger = (state: RootState) =>
   state.generalReducer.reloadRecaptchaTrigger;
+
+export const selectorMessage = (state: RootState) =>
+  state.generalReducer.message;

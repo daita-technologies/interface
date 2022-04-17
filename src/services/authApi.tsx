@@ -150,5 +150,4 @@ const authApi = {
       code,
     }),
 };
-
 export default authApi;

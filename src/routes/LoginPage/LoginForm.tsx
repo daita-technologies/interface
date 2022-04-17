@@ -32,6 +32,7 @@ import { loginAction } from "reduxes/auth/actions";
 import { RESET_LOGIN_ACCOUNT_NOT_VERIFY } from "reduxes/auth/constants";
 import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
 import { lightTheme } from "styles/theme";
+import { setPageLoading } from "reduxes/general/action";
 
 type LoginFormFields = {
   username: string;
@@ -119,7 +120,9 @@ const LoginForm = function () {
       src="/assets/images/github-icon.svg"
     />
   );
-
+  const onClickLoginSocial = () => {
+    dispatch(setPageLoading({ isShow: true }));
+  };
   return (
     <ThemeProvider theme={lightTheme}>
       <Container
@@ -253,7 +256,7 @@ const LoginForm = function () {
                 className="login-link"
                 style={{ width: "100%" }}
                 href={`${API_AMAZON_COGNITO}?identity_provider=Google&redirect_uri=${COGNITO_REDIRECT_URI}&response_type=CODE&client_id=${COGNITO_CLIENT_ID}&scope=email openid phone profile&state=${LOGIN_SOCIAL_CALLBACK_URL}`}
-                onClick={() => {}}
+                onClick={onClickLoginSocial}
               >
                 {renderGoogleLogin}
               </a>
@@ -262,7 +265,7 @@ const LoginForm = function () {
                 className="login-link"
                 style={{ width: "100%" }}
                 href={`${API_AMAZON_COGNITO}?identity_provider=Github&redirect_uri=${COGNITO_REDIRECT_URI}&response_type=CODE&client_id=${COGNITO_CLIENT_ID}&scope=email openid phone profile&state=${LOGIN_SOCIAL_CALLBACK_URL}`}
-                onClick={() => {}}
+                onClick={onClickLoginSocial}
               >
                 {renderGitHubLogin}
               </a>

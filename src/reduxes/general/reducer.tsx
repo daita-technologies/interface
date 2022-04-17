@@ -8,7 +8,11 @@ import {
   SET_IS_CHECKING_APP,
   RELOAD_CAPTCHA,
 } from "./constants";
-import { GeneralReducer, SetIsCheckingAppPayload } from "./type";
+import {
+  GeneralReducer,
+  SetIsCheckingAppPayload,
+  SetIsShowPageLoadingPayload,
+} from "./type";
 
 const inititalState: GeneralReducer = {
   isShow: false,
@@ -21,8 +25,10 @@ const generalReducer = (state = inititalState, action: any): GeneralReducer => {
   const { payload } = action;
   const actionType = action.type;
   switch (actionType) {
-    case SET_PAGE_LOADING:
-      return { ...state, isShow: payload.isShow };
+    case SET_PAGE_LOADING: {
+      const { isShow, message } = payload as SetIsShowPageLoadingPayload;
+      return { ...state, isShow, message: isShow === false ? "" : message };
+    }
     case GENERATE_S3_CLIENT:
       return { ...state, s3: generateS3Client() };
     case LOG_OUT.SUCCEEDED:

@@ -60,6 +60,20 @@ const SplitDataNumberBox = function ({
     }
   }, [splitValue]);
 
+  const calculateDisplayNumber = (value: any) => {
+    const parsedValue = parseInt(value, 10);
+
+    if (Number.isNaN(parsedValue)) {
+      return 0;
+    }
+
+    if (parsedValue !== 0) {
+      return parsedValue.toString().replace(/^0+/, "");
+    }
+
+    return parsedValue;
+  };
+
   return (
     <Box
       sx={{ backgroundColor: bgColor }}
@@ -106,7 +120,7 @@ const SplitDataNumberBox = function ({
               }}
               error={!!fieldState.error}
               inputProps={{ min: 0, max: total || 0 }}
-              value={field.value}
+              value={calculateDisplayNumber(field.value)}
               onChange={(e) => {
                 field.onChange({
                   ...e,
