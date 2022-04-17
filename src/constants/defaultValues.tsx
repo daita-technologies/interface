@@ -1,9 +1,13 @@
 import { getLocalToken } from "utils/general";
 import { encode } from "js-base64";
 
-export const apiURL = process.env.REACT_APP_API_URL;
+export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
 export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
+
+export const reactAppDevEnv = "development";
+export const reactAppProdEnv = "production";
+export const reactAppEnv = process.env.REACT_APP_ENV;
 
 export const RECAPTCHA_SITE_KEY =
   process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
