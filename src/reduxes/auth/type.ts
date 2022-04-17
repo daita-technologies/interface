@@ -13,6 +13,7 @@ export interface RegisterPayload {
 
 export interface UserInfoType {
   username: string;
+  fullname: string;
 }
 export interface AuthReducer {
   userInfo: UserInfoType;
