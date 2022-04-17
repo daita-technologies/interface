@@ -1,5 +1,6 @@
 import {
   ERROR_MESSAGE_ACCOUNT_NOT_VERIFY,
+  TEMP_LOCAL_FULLNAME,
   TEMP_LOCAL_USERNAME,
 } from "constants/defaultValues";
 import { toast } from "react-toastify";
@@ -10,7 +11,6 @@ import {
   FORGOT_PASSWORD_REQUEST,
   // GET_USER_INFO,
   LOGIN,
-  LOGIN_ACCOUNT_NOT_VERIFY,
   LOG_OUT,
   REFRESH_TOKEN,
   REGISTER_USER,
@@ -68,10 +68,15 @@ function* handleLogin(action: { type: string; payload: LoginPayload }): any {
 
     if (loginResponse.error === false) {
       const token = loginResponse.data.token || "";
+      const apiName = loginResponse.data.name;
+      const apiUsername = loginResponse.data.username;
 
       if (token) {
         yield setListToken(loginResponse.data);
-        yield setLocalStorage(TEMP_LOCAL_USERNAME, username);
+        yield setLocalStorage(
+          TEMP_LOCAL_USERNAME,
+          apiName || apiUsername || username
+        );
 
         yield put({ type: LOGIN.SUCCEEDED, payload: loginResponse.data });
         yield put({ type: GENERATE_S3_CLIENT });
@@ -82,7 +87,7 @@ function* handleLogin(action: { type: string; payload: LoginPayload }): any {
         });
         toast.error(loginResponse.message || "Auth service is not available.");
       }
-  } else {
+    } else {
       if (loginResponse.message === ERROR_MESSAGE_ACCOUNT_NOT_VERIFY) {
         yield put(loginAccountNotVerify());
       } else {
@@ -108,10 +113,16 @@ function* handleRefreshToken(action: {
 
     if (refreshResponse.error === false) {
       const token = refreshResponse.data.token || "";
+      const apiName = refreshResponse.data.name;
+      const apiUsername = refreshResponse.data.username;
 
       if (token) {
         yield setListToken(refreshResponse.data);
-        yield setLocalStorage(TEMP_LOCAL_USERNAME, username);
+        yield setLocalStorage(TEMP_LOCAL_USERNAME, apiUsername || username);
+        yield setLocalStorage(
+          TEMP_LOCAL_FULLNAME,
+          apiName || apiUsername || username
+        );
 
         yield put({
           type: REFRESH_TOKEN.SUCCEEDED,

@@ -1,5 +1,7 @@
-import { AxiosResponse } from "axios";
-import { TEMP_LOCAL_USERNAME } from "constants/defaultValues";
+import {
+  TEMP_LOCAL_FULLNAME,
+  TEMP_LOCAL_USERNAME,
+} from "constants/defaultValues";
 import { getLocalStorage, getLocalToken } from "utils/general";
 import {
   FORGOT_PASSWORD_CHANGE,
@@ -18,7 +20,8 @@ import { AuthReducer, SetIsForgotRequestPayload } from "./type";
 
 const inititalState: AuthReducer = {
   userInfo: {
-    username: getLocalStorage(TEMP_LOCAL_USERNAME) || "DAITA User",
+    username: getLocalStorage(TEMP_LOCAL_USERNAME) || "",
+    fullname: getLocalStorage(TEMP_LOCAL_FULLNAME) || "DAITA User",
   },
   token: getLocalToken(),
   isLogged: !!getLocalToken(),
@@ -38,13 +41,17 @@ const authReducer = (state = inititalState, action: any) => {
 
     case LOGIN.SUCCEEDED: {
       const username = getLocalStorage(TEMP_LOCAL_USERNAME) || "";
+      const fullname = getLocalStorage(TEMP_LOCAL_FULLNAME) || "";
 
       return {
         ...state,
         token: payload.token,
         isLogging: false,
         isLogged: true,
-        userInfo: { username: username || inititalState.userInfo.username },
+        userInfo: {
+          username: username || inititalState.userInfo.username,
+          fullname: fullname || inititalState.userInfo.fullname,
+        },
       };
     }
     case LOG_OUT.SUCCEEDED:

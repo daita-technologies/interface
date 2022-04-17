@@ -30,6 +30,7 @@ export const ACCESS_KEY_NAME = "access_key";
 export const SECRET_KEY_NAME = "secret_key";
 export const SESSION_TOKEN_NAME = "session_key";
 export const USERNAME_NAME = "username";
+export const USER_FULL_NAME_NAME = "name";
 export const IDENTITY_ID_NAME = "identity_id";
 
 export const TOKEN_LIST = [
@@ -88,6 +89,7 @@ export const ERROR_TASK_STATUS = "ERROR";
 export const FINISH_ERROR_TASK_STATUS = "FINISH_ERROR";
 
 export const TEMP_LOCAL_USERNAME = "temp_username_key";
+export const TEMP_LOCAL_FULLNAME = "temp_fullname_key";
 
 export const PREPROCESSING_GENERATE_IMAGES_TYPE =
   "PREPROCESSING_GENERATE_IMAGES_TYPE";

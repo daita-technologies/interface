@@ -8,10 +8,12 @@ import {
   REFRESH_TOKEN_NAME,
   SECRET_KEY_NAME,
   SESSION_TOKEN_NAME,
+  TEMP_LOCAL_FULLNAME,
   TEMP_LOCAL_USERNAME,
   TOKEN_EXPIRE_NAME,
   TOKEN_NAME,
   USERNAME_NAME,
+  USER_FULL_NAME_NAME,
 } from "constants/defaultValues";
 import { useEffect } from "react";
 import { Helmet } from "react-helmet";
@@ -22,7 +24,6 @@ import { RootState } from "reduxes";
 import { LOGIN } from "reduxes/auth/constants";
 import { setPageLoading } from "reduxes/general/action";
 import { GENERATE_S3_CLIENT } from "reduxes/general/constants";
-import { selectorIsShow } from "reduxes/general/selector";
 import { authApi } from "services";
 import { setListToken, setLocalStorage } from "utils/general";
 import { TokenStorageTypes } from "utils/type";
@@ -65,6 +66,7 @@ const LoginPage = function () {
         const tokenExpiresIn = data[TOKEN_EXPIRE_NAME];
         const secretKey = data[SECRET_KEY_NAME];
         const username = data[USERNAME_NAME];
+        const name = data[USER_FULL_NAME_NAME];
 
         if (
           !accessKey ||
@@ -76,7 +78,8 @@ const LoginPage = function () {
           !token ||
           !secretKey ||
           !tokenExpiresIn ||
-          !username
+          !username ||
+          !name
         ) {
           return;
         }
@@ -94,6 +97,8 @@ const LoginPage = function () {
         };
         setListToken(tokenStorageTypes);
         setLocalStorage(TEMP_LOCAL_USERNAME, username);
+        setLocalStorage(TEMP_LOCAL_FULLNAME, name || username);
+
         dispatch({ type: LOGIN.SUCCEEDED, payload: tokenStorageTypes });
         dispatch({ type: GENERATE_S3_CLIENT });
         dispatch(setPageLoading({ isShow: false }));
