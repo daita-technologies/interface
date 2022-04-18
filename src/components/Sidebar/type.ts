@@ -1,6 +1,6 @@
-import React from "react";
 import SvgIcon from "@mui/material/SvgIcon";
 import { ApiListProjectsItem } from "reduxes/project/type";
+
 export interface BaseNavItemType {
   name: string;
   // eslint-disable-next-line no-unused-vars
@@ -18,6 +18,7 @@ export interface NavProjectItemType extends BaseNavItemType {
 export interface NavItemProps extends NavItemType {
   key?: string;
   onClick?: () => void;
+  isActive?: boolean;
 }
 
 export interface NavProjectItemProps extends NavProjectItemType {

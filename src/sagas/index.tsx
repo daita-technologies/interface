@@ -7,6 +7,7 @@ import albumSaga from "./albumSaga";
 import downloadSaga from "./downloadSaga";
 import generateSaga from "./generateSaga";
 import inviteSaga from "./inviteSaga";
+import healthCheckSaga from "./healthCheckSaga";
 
 export default function* rootSaga() {
   yield all([
@@ -17,5 +18,6 @@ export default function* rootSaga() {
     downloadSaga(),
     generateSaga(),
     inviteSaga(),
+    healthCheckSaga(),
   ]);
 }

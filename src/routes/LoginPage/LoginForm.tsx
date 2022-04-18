@@ -1,38 +1,37 @@
-import { useState, useRef, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
-import {
-  Container,
-  TextField,
-  Avatar,
-  Typography,
-  Box,
-  InputAdornment,
-  IconButton,
-  ThemeProvider,
-  Button,
-  Stack,
-} from "@mui/material";
-import Divider from "@mui/material/Divider";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { RootState } from "reduxes";
-import { lightTheme } from "styles/theme";
-
-import Link from "components/common/Link";
-import { ReCaptchaInput, MyButton } from "components";
-
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { loginAction } from "reduxes/auth/actions";
+import {
+  Avatar,
+  Box,
+  Button,
+  Container,
+  IconButton,
+  InputAdornment,
+  Stack,
+  TextField,
+  ThemeProvider,
+  Typography,
+} from "@mui/material";
+import Divider from "@mui/material/Divider";
+import { MyButton, ReCaptchaInput } from "components";
+import Link from "components/common/Link";
 import {
   API_AMAZON_COGNITO,
   COGNITO_CLIENT_ID,
   COGNITO_REDIRECT_URI,
+  EMAIL_OR_USERNAME_REGEX,
   LOGIN_SOCIAL_CALLBACK_URL,
 } from "constants/defaultValues";
+import { useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
-import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom";
+import { RootState } from "reduxes";
+import { loginAction } from "reduxes/auth/actions";
 import { RESET_LOGIN_ACCOUNT_NOT_VERIFY } from "reduxes/auth/constants";
+import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
+import { lightTheme } from "styles/theme";
 import { setPageLoading } from "reduxes/general/action";
 
 type LoginFormFields = {
@@ -49,8 +48,14 @@ const LoginForm = function () {
   // const [refreshIndex, setRefreshIndex] = useState(1);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
 
-  const { register, control, handleSubmit, setValue, getValues } =
-    useForm<LoginFormFields>();
+  const {
+    register,
+    control,
+    handleSubmit,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<LoginFormFields>();
 
   const reloadRecaptchaTrigger = useSelector(selectorReloadRecaptchaTrigger);
 
@@ -156,11 +161,19 @@ const LoginForm = function () {
               required
               fullWidth
               margin="normal"
-              label="Username"
-              {...register("username", { required: true })}
+              label="Username or email address"
+              {...register("username", {
+                required: true,
+                pattern: {
+                  value: EMAIL_OR_USERNAME_REGEX,
+                  message: "Please enter a valid username or email address.",
+                },
+              })}
               autoFocus={!location.state?.username}
               disabled={isLogging}
               defaultValue={location.state?.username || ""}
+              error={!!errors.username}
+              helperText={(errors.username && errors.username.message) || ""}
             />
             {/* {errors.username && <span>This field is required</span>} */}
             <TextField

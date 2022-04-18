@@ -1,10 +1,15 @@
 import { getLocalToken } from "utils/general";
 import { encode } from "js-base64";
 
-export const apiURL = process.env.REACT_APP_API_URL;
+export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
 export const uploadZipApiUrl = process.env.REACT_APP_UPLOAD_ZIP_API;
 export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
+export const healthCheckApiURL = process.env.REACT_APP_HEALTH_CHECK_API_URL;
+
+export const reactAppDevEnv = "development";
+export const reactAppProdEnv = "production";
+export const reactAppEnv = process.env.REACT_APP_ENV;
 
 export const RECAPTCHA_SITE_KEY =
   process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
@@ -26,6 +31,7 @@ export const ACCESS_KEY_NAME = "access_key";
 export const SECRET_KEY_NAME = "secret_key";
 export const SESSION_TOKEN_NAME = "session_key";
 export const USERNAME_NAME = "username";
+export const USER_FULL_NAME_NAME = "name";
 export const IDENTITY_ID_NAME = "identity_id";
 
 export const TOKEN_LIST = [
@@ -45,6 +51,8 @@ export const getAuthHeader = () => ({
 });
 
 export const EMAIL_REGEX = /^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
+export const EMAIL_OR_USERNAME_REGEX =
+  /^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})|^([a-z0-9_.+-]+)$/;
 export const PHONE_VI_REGEX =
   /(^((0[3|5|7|8|9])+([0-9]{8})\b)\/?$)|(^(((\+)?84)+([0-9]{9})\b)\/?$)/;
 export const USERNAME_REGEX = /^([a-z0-9@^$.!`\-#+'~_]+)$/;
@@ -84,6 +92,7 @@ export const ERROR_TASK_STATUS = "ERROR";
 export const FINISH_ERROR_TASK_STATUS = "FINISH_ERROR";
 
 export const TEMP_LOCAL_USERNAME = "temp_username_key";
+export const TEMP_LOCAL_FULLNAME = "temp_fullname_key";
 
 export const PREPROCESSING_GENERATE_IMAGES_TYPE =
   "PREPROCESSING_GENERATE_IMAGES_TYPE";
