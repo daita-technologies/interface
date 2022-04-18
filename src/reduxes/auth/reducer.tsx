@@ -40,7 +40,10 @@ const authReducer = (state = inititalState, action: any) => {
       return { ...state, isLogging: true };
 
     case LOGIN.SUCCEEDED: {
-      const username = getLocalStorage(TEMP_LOCAL_USERNAME) || "";
+      const username =
+        getLocalStorage(TEMP_LOCAL_USERNAME) ||
+        inititalState.userInfo.username ||
+        "";
       const fullname = getLocalStorage(TEMP_LOCAL_FULLNAME) || "";
 
       return {
@@ -49,8 +52,8 @@ const authReducer = (state = inititalState, action: any) => {
         isLogging: false,
         isLogged: true,
         userInfo: {
-          username: username || inititalState.userInfo.username,
-          fullname: fullname || inititalState.userInfo.fullname,
+          username,
+          fullname: fullname || username || inititalState.userInfo.fullname,
         },
       };
     }
