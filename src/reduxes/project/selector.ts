@@ -43,6 +43,25 @@ export const selectorCurrentProjectId = (state: RootState) =>
 export const selectorCurrentProjectName = (state: RootState) =>
   state.projectReducer.currentProjectInfo?.project_name || "";
 
+export const selectorProjectNameFromId = (
+  state: RootState,
+  projectId: string
+) => {
+  if (projectId) {
+    const matchProjectIndex = objectIndexOf(
+      state.projectReducer.listProjects,
+      projectId,
+      "project_id"
+    );
+    if (matchProjectIndex > 0) {
+      return state.projectReducer.listProjects[matchProjectIndex].project_name;
+    }
+    return null;
+  }
+
+  return null;
+};
+
 export const selectorCurrentProjectTotalOriginalImage = (state: RootState) => {
   const { currentProjectInfo } = state.projectReducer;
   if (currentProjectInfo) {
@@ -187,3 +206,5 @@ export const selectorIsEditingSplitData = (state: RootState) =>
 export const selectorProjectThumbnail =
   (projectId: string) => (state: RootState) =>
     state.projectReducer.thumbnails[projectId];
+export const selectorUpdateProjectInfoDialog = (state: RootState) =>
+  state.projectReducer.updateProjectInfoDialog;

@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Box, Button, LinearProgress, Typography } from "@mui/material";
@@ -44,14 +44,15 @@ import {
   selectorHaveTaskRunning,
 } from "reduxes/project/selector";
 import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
-import { UploadFileProps } from "./type";
-import UploadFileItem from "./UploadFileItem";
-
-import UploadFromMenu from "./UploadFromMenu";
 import {
   selectorIsGenerateImagesAugmenting,
   selectorIsGenerateImagesPreprocessing,
 } from "reduxes/generate/selector";
+import { MousePosition, UploadFileProps } from "./type";
+import UploadFileItem from "./UploadFileItem";
+
+import UploadFromMenu from "./UploadFromMenu";
+import UploadGuideDialog from "./UploadGuideDialog";
 
 interface HandleFileType {
   name: string;
@@ -124,7 +125,7 @@ const UploadFile = function (props: UploadFileProps) {
   const totalOriginalImage = useSelector(
     selectorCurrentProjectTotalOriginalImage
   );
-
+  const [isOpenUploadGuideDialog, setIsOpenUploadGuideDialog] = useState(false);
   const isDisabledUpload = useMemo(
     () =>
       isUploadChecking ||
@@ -163,31 +164,30 @@ const UploadFile = function (props: UploadFileProps) {
           </p>
         );
       }
-      dispatch(addFile({ files: convertArrayToObjectKeyFile(acceptedFiles) }));
+      const formatedFiles = convertArrayToObjectKeyFile(acceptedFiles);
+      const files = { ...uploadFiles, ...formatedFiles };
+      dispatch(addFile({ files: formatedFiles }));
+
+      if (files && Object.keys(files).length > 0) {
+        const filesNeedCheck: Array<string> = [];
+
+        Object.keys(files).forEach((fileName: string) => {
+          if (files[fileName].status !== UPLOADED_UPLOAD_FILE_STATUS) {
+            filesNeedCheck.push(fileName);
+          }
+        });
+
+        dispatch(
+          checkFileUpload({
+            idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+            projectId,
+            projectName,
+            listFileName: filesNeedCheck,
+          })
+        );
+      }
     }
   }, []);
-
-  const onClickUpload = async () => {
-    if (uploadFiles && Object.keys(uploadFiles).length > 0) {
-      const filesNeedCheck: Array<string> = [];
-
-      Object.keys(uploadFiles).forEach((fileName: string) => {
-        if (uploadFiles[fileName].status !== UPLOADED_UPLOAD_FILE_STATUS) {
-          filesNeedCheck.push(fileName);
-        }
-      });
-
-      dispatch(
-        checkFileUpload({
-          idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-          projectId,
-          projectName,
-          listFileName: filesNeedCheck,
-        })
-      );
-    }
-  };
-
   const onClickClearAll = () => {
     dispatch(clearAllFile());
   };
@@ -231,6 +231,22 @@ const UploadFile = function (props: UploadFileProps) {
     },
     []
   );
+  const [isOpenChooseFileMenu, setIsOpenChooseFileMenu] =
+    useState<boolean>(false);
+  const [relativeMousePosition, setRelativeMousePosition] =
+    useState<MousePosition>({ top: 0, left: 0 });
+  const handleCloseChooseFileMenu = () => {
+    setIsOpenChooseFileMenu(false);
+  };
+  const dropUploadAreaRef = useRef<HTMLElement | null>();
+
+  const handleClickDropUploadArea = (event: React.MouseEvent<HTMLElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    setRelativeMousePosition({ top: y, left: x });
+    setIsOpenChooseFileMenu(true);
+  };
 
   const renderDropzoneContent = () => (
     <Box
@@ -288,6 +304,12 @@ const UploadFile = function (props: UploadFileProps) {
     return null;
   };
 
+  const handleClickShowUploadGuideDialog = () => {
+    setIsOpenUploadGuideDialog(true);
+  };
+  const handleCloseUploadGuideDialog = () => {
+    setIsOpenUploadGuideDialog(false);
+  };
   return (
     <Box my={4}>
       <BeforeUnload
@@ -304,13 +326,18 @@ const UploadFile = function (props: UploadFileProps) {
       )}
 
       <Box display="flex" justifyContent="center" alignItems="stretch">
-        <Box flex={1}>
-          <Box>
-            <UploadFromMenu
-              isDisabledUpload={isDisabledUpload}
-              inputRef={inputRef}
-            />
-          </Box>
+        <Box>
+          <UploadFromMenu
+            isDisabledUpload={isDisabledUpload}
+            inputRef={inputRef}
+            anchorEl={dropUploadAreaRef?.current}
+            relativeMousePosition={relativeMousePosition}
+            isOpen={isOpenChooseFileMenu}
+            onClose={handleCloseChooseFileMenu}
+          />
+        </Box>
+
+        <Box flex={1} ref={dropUploadAreaRef}>
           <Box
             sx={{
               width: "100%",
@@ -326,12 +353,34 @@ const UploadFile = function (props: UploadFileProps) {
             display="flex"
             alignItems="center"
             justifyContent="center"
-            {...getRootProps({ style: dropZoneStyle })}
+            {...getRootProps({
+              onClick: (event) => {
+                handleClickDropUploadArea(event);
+                event.stopPropagation();
+              },
+              style: dropZoneStyle,
+            })}
             mr={2}
           >
             <input {...getInputProps()} multiple />
             {renderDropzoneContent()}
           </Box>
+          <Typography mt={1} fontStyle="italic" variant="body2" fontSize={14}>
+            * If you would like to upload your dataset programmatically,{" "}
+            <Typography
+              component="span"
+              sx={{ cursor: "pointer", fontWeight: "bold", color: "#1c68dc" }}
+              onClick={handleClickShowUploadGuideDialog}
+              fontSize={14}
+            >
+              click here{" "}
+            </Typography>
+            for more information.
+          </Typography>
+          <UploadGuideDialog
+            onClose={handleCloseUploadGuideDialog}
+            isOpen={isOpenUploadGuideDialog}
+          />
         </Box>
 
         <Box flex={2} ml={2}>
@@ -352,17 +401,6 @@ const UploadFile = function (props: UploadFileProps) {
               onClick={onClickClearAll}
             >
               Clear All
-            </Button>
-            <Button
-              sx={{ ml: "auto" }}
-              variant="contained"
-              color="primary"
-              onClick={onClickUpload}
-              disabled={
-                uploadFilesLength <= 0 || isUploading || isUploadChecking
-              }
-            >
-              Upload
             </Button>
           </Box>
 

@@ -10,6 +10,8 @@ import {
   SET_IS_OPEN_DELETE_CONFIRM,
   SET_IS_EDITING_SPLIT_DATA,
   LOAD_PROJECT_THUMBNAIL_IMAGE,
+  UPDATE_PROJECT_INFO,
+  SET_IS_OPEN_UPDATE_PROJECT_INFO,
 } from "./constants";
 import {
   ChangeSelectedDatSourcePayload,
@@ -20,7 +22,9 @@ import {
   LoadProjectThumbnailImagePayload,
   SetIsEditingSplitDataPayload,
   SetIsOpenDeleteConfirmPayload,
+  SetIsOpenUpdateProjectInfoPayload,
   SetSplitDataNumberPayload,
+  UpdateProjectInfoPayload,
   UpdateProjectStatisticPayload,
 } from "./type";
 
@@ -86,5 +90,15 @@ export const loadProjectThumbnailImage = (
   payload: LoadProjectThumbnailImagePayload
 ) => ({
   type: LOAD_PROJECT_THUMBNAIL_IMAGE.REQUESTED,
+  payload,
+});
+export const setIsOpenUpdateProjectInfo = (
+  payload: null | SetIsOpenUpdateProjectInfoPayload
+) => ({
+  type: SET_IS_OPEN_UPDATE_PROJECT_INFO,
+  payload,
+});
+export const updateProjectInfo = (payload: UpdateProjectInfoPayload) => ({
+  type: UPDATE_PROJECT_INFO.REQUESTED,
   payload,
 });

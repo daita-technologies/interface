@@ -23,6 +23,7 @@ import {
   FETCH_TASK_INFO,
   LOAD_PROJECT_THUMBNAIL_IMAGE,
   SET_IS_OPEN_CREATE_PROJECT_MODAL,
+  UPDATE_PROJECT_INFO,
 } from "reduxes/project/constants";
 import {
   selectorCurrentProjectId,
@@ -36,6 +37,7 @@ import {
   FetchProjectTaskListPayload,
   FetchTaskInfoPayload,
   LoadProjectThumbnailImagePayload,
+  UpdateProjectInfoPayload,
 } from "reduxes/project/type";
 import history from "routerHistory";
 import { projectApi } from "services";
@@ -62,6 +64,7 @@ function* handleCreateProject(action: any): any {
         is_sample: createProjectResponse.data.is_sample,
         gen_status: createProjectResponse.data.gen_status,
         thum_key: "",
+        description: "",
       };
       yield put({
         type: CREATE_PROJECT.SUCCEEDED,
@@ -383,6 +386,35 @@ function* handleLoadProjectThumbnailImage(action: {
   }
 }
 
+function* handleUpdateProjectInfo(action: {
+  type: string;
+  payload: UpdateProjectInfoPayload;
+}): any {
+  try {
+    const updateProjectInfoResponse = yield call(
+      projectApi.updateProjectInfo,
+      action.payload
+    );
+    if (!updateProjectInfoResponse.error) {
+      yield put({
+        type: UPDATE_PROJECT_INFO.SUCCEEDED,
+        payload: {
+          ...updateProjectInfoResponse.data,
+        },
+      });
+      yield toast.success(
+        `The project ${action.payload.updateInfo.projectName} was successfully updated.`
+      );
+      yield history.push("/dashboard");
+    } else {
+      yield put({ type: UPDATE_PROJECT_INFO.FAILED });
+      toast.error(updateProjectInfoResponse.message);
+    }
+  } catch (e: any) {
+    yield put({ type: UPDATE_PROJECT_INFO.FAILED });
+    toast.error(e.message);
+  }
+}
 function* createProjectSaga() {
   yield takeLatest(CREATE_PROJECT.REQUESTED, handleCreateProject);
   yield takeLatest(FETCH_LIST_PROJECTS.REQUESTED, handleFetchListProjects);
@@ -399,6 +431,7 @@ function* createProjectSaga() {
     LOAD_PROJECT_THUMBNAIL_IMAGE.REQUESTED,
     handleLoadProjectThumbnailImage
   );
+  yield takeLatest(UPDATE_PROJECT_INFO.REQUESTED, handleUpdateProjectInfo);
 }
 
 export default createProjectSaga;

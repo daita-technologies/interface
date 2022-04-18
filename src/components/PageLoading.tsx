@@ -1,9 +1,11 @@
-import { CircularProgress, Box } from "@mui/material";
+import { CircularProgress, Box, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
-import { RootState } from "reduxes";
+import { selectorIsShow, selectorMessage } from "reduxes/general/selector";
 
-const PageLoading = ({ size = 50 }: { size?: number }) => {
-  const isShow = useSelector((state: RootState) => state.generalReducer.isShow);
+function PageLoading({ size = 50 }: { size?: number }) {
+  const isShow = useSelector(selectorIsShow);
+  const message = useSelector(selectorMessage);
+
   if (isShow) {
     return (
       <Box
@@ -17,19 +19,26 @@ const PageLoading = ({ size = 50 }: { size?: number }) => {
           zIndex: 9998,
         }}
       >
-        <CircularProgress
+        <Box
           sx={{
             position: "absolute",
             top: "50%",
             left: "50%",
             zIndex: 9999,
+            textAlign: "center",
           }}
-          size={size}
-        />
+        >
+          <CircularProgress size={size} />
+          {message && (
+            <Typography variant="body1" component="h1" color="white">
+              {message}
+            </Typography>
+          )}
+        </Box>
       </Box>
     );
   }
   return null;
-};
+}
 
 export default PageLoading;

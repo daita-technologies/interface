@@ -3,6 +3,8 @@ import {
   PREPROCESS_SOURCE,
   AUGMENT_GENERATE_IMAGES_TYPE,
   PREPROCESSING_GENERATE_IMAGES_TYPE,
+  PREPROCESS_GENERATE_TAB,
+  AUGMENTATION_GENERATE_TAB,
 } from "constants/defaultValues";
 import { ImageSourceType } from "reduxes/album/type";
 
@@ -14,6 +16,10 @@ export type GenerateDataType =
 export type generateMethodType =
   | typeof PREPROCESSING_GENERATE_IMAGES_TYPE
   | typeof AUGMENT_GENERATE_IMAGES_TYPE;
+
+export type TabGenerateIdType =
+  | typeof PREPROCESS_GENERATE_TAB
+  | typeof AUGMENTATION_GENERATE_TAB;
 
 export interface GenerateImagePayload {
   idToken: string;
@@ -39,4 +45,9 @@ export interface GenerateReducer {
   isGeneratingImages: boolean | null;
   isGenerateImagesPreprocessing: boolean | null;
   isGenerateImagesAugmenting: boolean | null;
+  activeTabId: TabGenerateIdType;
+}
+
+export interface ChangeActiveGenerateTabIdPayload {
+  tabId: TabGenerateIdType;
 }

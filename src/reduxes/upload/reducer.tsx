@@ -75,6 +75,9 @@ const uploadReducer = (state = inititalState, action: any): UploadState => {
       delete copyFiles[payload.fileName];
       return {
         ...state,
+        totalUploadFileQuantity: state.totalUploadFileQuantity
+          ? state.totalUploadFileQuantity - 1
+          : null,
         files: { ...copyFiles },
       };
     }

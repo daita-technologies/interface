@@ -1,11 +1,25 @@
 import { getLocalToken } from "utils/general";
+import { encode } from "js-base64";
 
-export const apiURL = process.env.REACT_APP_API_URL;
+export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
 export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
+export const healthCheckApiURL = process.env.REACT_APP_HEALTH_CHECK_API_URL;
+
+export const reactAppDevEnv = "development";
+export const reactAppProdEnv = "production";
+export const reactAppEnv = process.env.REACT_APP_ENV;
 
 export const RECAPTCHA_SITE_KEY =
   process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
+export const LOGIN_SOCIAL_CALLBACK_URL = encode(
+  `${window.location.protocol}//${window.location.host}/login`
+);
+export const API_AMAZON_COGNITO = process.env.REACT_APP_API_AMAZON_COGNITO;
+export const COGNITO_REDIRECT_URI = process.env.REACT_APP_COGNITO_REDIRECT_URI;
+export const COGNITO_CLIENT_ID = process.env.REACT_APP_COGNITO_CLIENTID;
+
+export const LOGIN_SOCIAL_CODE_NAME = "code";
 
 export const TOKEN_NAME = "token";
 export const TOKEN_EXPIRE_NAME = "token_expires_in";
@@ -15,6 +29,8 @@ export const CREDENTIAL_TOKEN_EXPIRE_NAME = "credential_token_expires_in";
 export const ACCESS_KEY_NAME = "access_key";
 export const SECRET_KEY_NAME = "secret_key";
 export const SESSION_TOKEN_NAME = "session_key";
+export const USERNAME_NAME = "username";
+export const USER_FULL_NAME_NAME = "name";
 export const IDENTITY_ID_NAME = "identity_id";
 
 export const TOKEN_LIST = [
@@ -34,8 +50,11 @@ export const getAuthHeader = () => ({
 });
 
 export const EMAIL_REGEX = /^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/;
+export const EMAIL_OR_USERNAME_REGEX =
+  /^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})|^([a-z0-9_.+-]+)$/;
 export const PHONE_VI_REGEX =
   /(^((0[3|5|7|8|9])+([0-9]{8})\b)\/?$)|(^(((\+)?84)+([0-9]{9})\b)\/?$)/;
+export const USERNAME_REGEX = /^([a-z0-9@^$.!`\-#+'~_]+)$/;
 export const PASSWORD_STRENGTH_REGEX =
   /(?=(.*[0-9]))(?=.*[!@#$%^&*()\\[\]{}\-_+=~`|:;"'<>,./?])(?=.*[a-z])(?=(.*[A-Z]))(?=(.*)).{8,}/;
 
@@ -49,6 +68,9 @@ export const MAXIMUM_FETCH_IMAGES_AMOUNT = 500;
 export const ORIGINAL_IMAGES_TAB = 0;
 export const PREPROCESS_IMAGES_TAB = 1;
 export const AUGMENT_IMAGES_TAB = 2;
+
+export const PREPROCESS_GENERATE_TAB = 0;
+export const AUGMENTATION_GENERATE_TAB = 1;
 
 export const ORIGINAL_SOURCE = "ORIGINAL";
 export const PREPROCESS_SOURCE = "PREPROCESS";
@@ -70,6 +92,7 @@ export const ERROR_TASK_STATUS = "ERROR";
 export const FINISH_ERROR_TASK_STATUS = "FINISH_ERROR";
 
 export const TEMP_LOCAL_USERNAME = "temp_username_key";
+export const TEMP_LOCAL_FULLNAME = "temp_fullname_key";
 
 export const PREPROCESSING_GENERATE_IMAGES_TYPE =
   "PREPROCESSING_GENERATE_IMAGES_TYPE";
@@ -93,3 +116,8 @@ export const AUGMENT_DOWNLOAD_TYPE = "AUGMENT";
 export const RUNNING_DOWNLOAD_EC2_ZIP_PROGRESS_TYPE = "RUNNING";
 export const FINISH_DOWRUNNING_DOWNLOAD_EC2_ZIP_PROGRESS_TYPENLOAD_TYPE =
   "FINISH";
+
+export const ERROR_MESSAGE_ACCOUNT_NOT_VERIFY =
+  "User need to verify confirmation code";
+
+export const DEFAULT_SPLIT_DATASET_PERCENT_RATE = [70, 20, 10];

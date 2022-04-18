@@ -3,7 +3,7 @@ import {
   TRAINING_DATA_NUMBER_INDEX,
   VALIDATION_DATA_NUMBER_INDEX,
 } from "constants/defaultValues";
-import { Control, UseFormSetValue } from "react-hook-form";
+import { Control, UseFormGetValues, UseFormSetValue } from "react-hook-form";
 
 export interface DataSetSplitProps {
   //
@@ -23,10 +23,16 @@ export interface SplitDataNumberBoxProps {
   name: string;
   isInitialSplit: boolean;
   setValue: UseFormSetValue<any>;
+  getValues: UseFormGetValues<any>;
 }
 
 export interface SplitDataFormFields {
   training: number;
   validation: number;
   test: number;
+}
+export interface SliderInputProps {
+  dataForm: SplitDataFormFields;
+  total: number;
+  onChange: (dataForm: SplitDataFormFields) => void;
 }

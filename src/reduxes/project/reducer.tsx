@@ -21,10 +21,13 @@ import {
   SET_IS_EDITING_SPLIT_DATA,
   SET_IS_OPEN_CREATE_PROJECT_MODAL,
   SET_IS_OPEN_DELETE_CONFIRM,
+  SET_IS_OPEN_UPDATE_PROJECT_INFO,
   SET_SPLIT_DATA_NUMBER,
+  UPDATE_PROJECT_INFO,
   UPDATE_STATISTIC_PROJECT,
 } from "./constants";
 import {
+  ApiUpdateProjectsInfo,
   ChangeSelectedDatSourcePayload,
   CreateSampleSucceedPayload,
   DeleteProjectSucceedPayload,
@@ -35,8 +38,10 @@ import {
   ProjectReducerState,
   SetIsEditingSplitDataPayload,
   SetIsOpenDeleteConfirmPayload,
+  SetIsOpenUpdateProjectInfoPayload,
   SetSplitDataNumberPayload,
   SPLIT_DATA_NUMBER_SOURCE_TYPE,
+  UpdateProjectInfoPayload,
   UpdateProjectStatisticPayload,
 } from "./type";
 
@@ -59,6 +64,7 @@ const inititalState: ProjectReducerState = {
   thumbnails: {},
   deleteConfirmDialogInfo: null,
   isEditingSplitData: false,
+  updateProjectInfoDialog: null,
 };
 
 const projectReducer = (
@@ -364,6 +370,7 @@ const projectReducer = (
             groups: null,
             ls_task: [],
             is_sample: true,
+            description: "",
           },
         ],
       };
@@ -433,6 +440,52 @@ const projectReducer = (
       const newThumbnails = { ...state.thumbnails };
       newThumbnails[projectId] = thumbnailUrl;
       return { ...state, thumbnails: newThumbnails };
+    }
+    case SET_IS_OPEN_UPDATE_PROJECT_INFO: {
+      return {
+        ...state,
+        updateProjectInfoDialog: payload as SetIsOpenUpdateProjectInfoPayload,
+      };
+    }
+    case UPDATE_PROJECT_INFO.REQUESTED: {
+      return {
+        ...state,
+        updateProjectInfoDialog: {
+          ...state.updateProjectInfoDialog,
+          isProcessing: true,
+        } as SetIsOpenUpdateProjectInfoPayload,
+      };
+    }
+    case UPDATE_PROJECT_INFO.REQUESTED: {
+      return {
+        ...state,
+        updateProjectInfoDialog: {
+          ...state.updateProjectInfoDialog,
+          isProcessing: false,
+        } as SetIsOpenUpdateProjectInfoPayload,
+      };
+    }
+    case UPDATE_PROJECT_INFO.SUCCEEDED: {
+      const { project_id, project_name, description } =
+        payload as ApiUpdateProjectsInfo;
+      const newListProject = [...state.listProjects];
+      const project = newListProject.find((pj) => pj.project_id == project_id);
+      if (project) {
+        project.project_name = project_name;
+        project.description = description;
+      }
+      return {
+        ...state,
+        listProjects: newListProject,
+        updateProjectInfoDialog: {
+          isOpen: false,
+          isProcessing: false,
+        },
+      };
+    }
+    case UPDATE_PROJECT_INFO.FAILED: {
+      // const { projectId } = payload as UpdateProjectInfoPayload;
+      return state;
     }
     default:
       return state;

@@ -1,6 +1,11 @@
-import { TEMP_LOCAL_USERNAME } from "constants/defaultValues";
+import {
+  ERROR_MESSAGE_ACCOUNT_NOT_VERIFY,
+  TEMP_LOCAL_FULLNAME,
+  TEMP_LOCAL_USERNAME,
+} from "constants/defaultValues";
 import { toast } from "react-toastify";
 import { call, put, takeLatest } from "redux-saga/effects";
+import { loginAccountNotVerify } from "reduxes/auth/actions";
 import {
   FORGOT_PASSWORD_CHANGE,
   FORGOT_PASSWORD_REQUEST,
@@ -18,7 +23,7 @@ import {
   LoginPayload,
   RegisterPayload,
 } from "reduxes/auth/type";
-import { setIsCheckingApp } from "reduxes/general/action";
+import { reloadCaptcha, setIsCheckingApp } from "reduxes/general/action";
 import {
   GENERATE_S3_CLIENT,
   SET_PAGE_LOADING,
@@ -63,10 +68,15 @@ function* handleLogin(action: { type: string; payload: LoginPayload }): any {
 
     if (loginResponse.error === false) {
       const token = loginResponse.data.token || "";
+      const apiName = loginResponse.data.name;
+      const apiUsername = loginResponse.data.username;
 
       if (token) {
         yield setListToken(loginResponse.data);
-        yield setLocalStorage(TEMP_LOCAL_USERNAME, username);
+        yield setLocalStorage(
+          TEMP_LOCAL_USERNAME,
+          apiName || apiUsername || username
+        );
 
         yield put({ type: LOGIN.SUCCEEDED, payload: loginResponse.data });
         yield put({ type: GENERATE_S3_CLIENT });
@@ -78,10 +88,14 @@ function* handleLogin(action: { type: string; payload: LoginPayload }): any {
         toast.error(loginResponse.message || "Auth service is not available.");
       }
     } else {
+      if (loginResponse.message === ERROR_MESSAGE_ACCOUNT_NOT_VERIFY) {
+        yield put(loginAccountNotVerify());
+      } else {
+        toast.error(loginResponse.message || "Login failed.");
+      }
       yield put({
         type: LOGIN.FAILED,
       });
-      toast.error(loginResponse.message || "Login failed.");
     }
   } catch (e: any) {
     yield put({ type: LOGIN.FAILED });
@@ -99,10 +113,16 @@ function* handleRefreshToken(action: {
 
     if (refreshResponse.error === false) {
       const token = refreshResponse.data.token || "";
+      const apiName = refreshResponse.data.name;
+      const apiUsername = refreshResponse.data.username;
 
       if (token) {
         yield setListToken(refreshResponse.data);
-        yield setLocalStorage(TEMP_LOCAL_USERNAME, username);
+        yield setLocalStorage(TEMP_LOCAL_USERNAME, apiUsername || username);
+        yield setLocalStorage(
+          TEMP_LOCAL_FULLNAME,
+          apiName || apiUsername || username
+        );
 
         yield put({
           type: REFRESH_TOKEN.SUCCEEDED,
@@ -309,7 +329,9 @@ function* handleForgotPasswordChange(action: {
     toast.error(e.message);
   }
 }
-
+function* handleReloadCaptcha() {
+  yield put(reloadCaptcha());
+}
 function* authSaga() {
   yield takeLatest(LOGIN.REQUESTED, handleLogin);
   yield takeLatest(REFRESH_TOKEN.REQUESTED, handleRefreshToken);
@@ -326,6 +348,9 @@ function* authSaga() {
     FORGOT_PASSWORD_CHANGE.REQUESTED,
     handleForgotPasswordChange
   );
+  yield takeLatest(LOGIN.FAILED, handleReloadCaptcha);
+  yield takeLatest(REGISTER_USER.FAILED, handleReloadCaptcha);
+  yield takeLatest(FORGOT_PASSWORD_REQUEST.FAILED, handleReloadCaptcha);
 }
 
 export default authSaga;
