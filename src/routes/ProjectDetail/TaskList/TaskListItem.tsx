@@ -12,10 +12,12 @@ import {
   switchTabIdToSource,
 } from "utils/general";
 import {
+  AUGMENT_SOURCE,
   ERROR_TASK_STATUS,
   FINISH_ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
   ID_TOKEN_NAME,
+  PREPROCESS_SOURCE,
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
   UPLOAD_TASK_TYPE,
@@ -250,11 +252,22 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
             notShowLoading: true,
           },
         });
-        toast.success(
-          `${capitalizeFirstLetter(
-            getGenerateMethodLabel(process_type)
-          )} of the data set has been completed successfully.`
-        );
+        if (
+          process_type === PREPROCESS_SOURCE ||
+          process_type === AUGMENT_SOURCE
+        ) {
+          toast.success(
+            `${capitalizeFirstLetter(
+              getGenerateMethodLabel(process_type)
+            )} of the data set has been completed successfully.`
+          );
+        } else if (process_type === UPLOAD_TASK_TYPE) {
+          toast.success(
+            `${capitalizeFirstLetter(
+              getGenerateMethodLabel(process_type)
+            )} of the data set has been uploaded successfully.`
+          );
+        }
       } else {
         savedTaskStatus.current = taskInfo.status;
       }
@@ -268,6 +281,7 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
   ) {
     return null;
   }
+  console.log("process_type", process_type);
   if (process_type === UPLOAD_TASK_TYPE) {
     return <TaskListUploadItem taskInfo={taskInfo} />;
   }

@@ -184,7 +184,7 @@ function* handleUploadZipFile(action: {
           idToken: getLocalStorage(ID_TOKEN_NAME) || "",
           projectId,
           projectName,
-          typeMethod: "ORIGINAL",
+          typeMethod: ORIGINAL_SOURCE,
           fileUrl: `s3://${S3_BUCKET_NAME}/${zipFileKey}`,
         });
         if (uploadZipFileResponse.error === false) {
@@ -213,7 +213,7 @@ function* handleUploadZipFile(action: {
       }
     } catch (err) {
       if (err instanceof Error) {
-        toast.error(`There was an error uploading your photo: ${err.message}`);
+        toast.error(`There was an error uploading your file: ${err.message}`);
         yield put(
           updateFile({
             fileName,
