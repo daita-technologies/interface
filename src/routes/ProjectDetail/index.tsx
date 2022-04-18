@@ -1,22 +1,29 @@
 import {
-  Typography,
   Box,
-  Divider,
-  CircularProgress,
   Button,
+  CircularProgress,
+  Divider,
   LinearProgress,
+  Tab,
+  Tabs,
+  Typography,
 } from "@mui/material";
-import { BeforeUnload, UploadFile } from "components";
+import { BeforeUnload, TabPanel, UploadFile } from "components";
 import DuplicateFilesModal from "components/DuplicateFilesModal";
 import {
+  AUGMENTATION_GENERATE_TAB,
   GENERATING_SAMPLE_PROJECT_STATUS,
   ID_TOKEN_NAME,
+  PREPROCESS_GENERATE_TAB,
 } from "constants/defaultValues";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useLocation, Prompt } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { RootState } from "reduxes";
 import { selectorIsDownloading } from "reduxes/download/selector";
+import { changeActiveGenerateTab } from "reduxes/generate/action";
+import { selectorActiveGenerateTabId } from "reduxes/generate/selector";
+import { TabGenerateIdType } from "reduxes/generate/type";
 import {
   fetchMethodList,
   setIsOpenDeleteProject,
@@ -31,13 +38,20 @@ import {
   selectorMethodList,
 } from "reduxes/project/selector";
 import { ProjectInfo } from "reduxes/project/type";
-import { formatBytes, getLocalStorage, separateNumber } from "utils/general";
+import {
+  a11yProps,
+  formatBytes,
+  getLocalStorage,
+  separateNumber,
+} from "utils/general";
 import AlbumViewer from "./AlbumViewer";
 import AugmentationOption from "./AugmentationOption";
 // import AugmentationOutput from "./AugmentationOutput";
 import DataSetSplit from "./DataSetSplit";
 import ProcessingOption from "./PreprocessingOption";
 import TaskList from "./TaskList";
+
+const TAB_GENERATE_NAME = "generate_tab";
 
 const ProjectDetail = function () {
   const { projectName } = useParams<{ projectName: string }>();
@@ -52,6 +66,8 @@ const ProjectDetail = function () {
   const methodList = useSelector(selectorMethodList);
 
   const isDownloading = useSelector(selectorIsDownloading);
+
+  const activeGenerateTabId = useSelector(selectorActiveGenerateTabId);
 
   useEffect(() => {
     if (!methodList) {
@@ -291,6 +307,16 @@ const ProjectDetail = function () {
         </Box>
       );
     }
+    const onChangeGenerateTab = (
+      event: React.SyntheticEvent,
+      newActiveTabId: TabGenerateIdType
+    ) => {
+      dispatch(
+        changeActiveGenerateTab({
+          tabId: newActiveTabId,
+        })
+      );
+    };
 
     return (
       <>
@@ -313,20 +339,50 @@ const ProjectDetail = function () {
         ) : (
           renderUploadFile()
         )}
-        <Box mt={2} display="flex" gap={1}>
-          <Box p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
-            <ProcessingOption />
+        <Box mt={2} p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
+          <Box display="flex" alignItems="center">
+            <Typography fontSize={18}>Generate Your Data</Typography>
           </Box>
-          {/* <Box p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
-    <AugmentationOutput />
-  </Box> */}
-        </Box>
-        <Box mt={2} display="flex" gap={1}>
-          <Box p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
-            <DataSetSplit />
-          </Box>
-          <Box p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
-            <AugmentationOption />
+          <Box>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <Tabs
+                value={activeGenerateTabId}
+                onChange={onChangeGenerateTab}
+                aria-label="basic tabs example"
+              >
+                <Tab
+                  label="Preprocess"
+                  {...a11yProps(TAB_GENERATE_NAME, PREPROCESS_GENERATE_TAB)}
+                />
+                <Tab
+                  label="Augmentation"
+                  {...a11yProps(TAB_GENERATE_NAME, AUGMENTATION_GENERATE_TAB)}
+                />
+              </Tabs>
+            </Box>
+            <TabPanel
+              tabName={TAB_GENERATE_NAME}
+              tabId={PREPROCESS_GENERATE_TAB}
+              activeTabId={activeGenerateTabId}
+            >
+              <Box mt={2} display="flex" gap={1}>
+                <ProcessingOption />
+              </Box>
+            </TabPanel>
+            <TabPanel
+              tabName={TAB_GENERATE_NAME}
+              tabId={AUGMENTATION_GENERATE_TAB}
+              activeTabId={activeGenerateTabId}
+            >
+              <Box mt={2} display="flex" gap={1}>
+                <Box p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
+                  <DataSetSplit />
+                </Box>
+                <Box p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
+                  <AugmentationOption />
+                </Box>
+              </Box>
+            </TabPanel>
           </Box>
         </Box>
 

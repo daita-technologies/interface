@@ -69,6 +69,9 @@ export const ORIGINAL_IMAGES_TAB = 0;
 export const PREPROCESS_IMAGES_TAB = 1;
 export const AUGMENT_IMAGES_TAB = 2;
 
+export const PREPROCESS_GENERATE_TAB = 0;
+export const AUGMENTATION_GENERATE_TAB = 1;
+
 export const ORIGINAL_SOURCE = "ORIGINAL";
 export const PREPROCESS_SOURCE = "PREPROCESS";
 export const AUGMENT_SOURCE = "AUGMENT";
