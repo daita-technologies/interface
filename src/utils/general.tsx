@@ -14,6 +14,7 @@ import {
   AUGMENT_GENERATE_IMAGES_TYPE_LABEL,
   PREPROCESSING_GENERATE_IMAGES_TYPE,
   PREPROCESSING_GENERATE_IMAGES_TYPE_LABEL,
+  TEMP_LOCAL_FULLNAME,
 } from "constants/defaultValues";
 import { ApiListProjectsItem } from "reduxes/project/type";
 import {
@@ -69,6 +70,7 @@ export const removeListToken = () => {
     removeLocalStorage(tokenStorageName)
   );
   removeLocalStorage(TEMP_LOCAL_USERNAME);
+  removeLocalStorage(TEMP_LOCAL_FULLNAME);
 };
 
 export const objectIndexOf = (
