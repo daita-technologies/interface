@@ -281,7 +281,6 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
   ) {
     return null;
   }
-  console.log("process_type", process_type);
   if (process_type === UPLOAD_TASK_TYPE) {
     return <TaskListUploadItem taskInfo={taskInfo} />;
   }

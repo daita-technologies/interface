@@ -5,6 +5,7 @@ import {
   getAuthHeader,
   VIEW_ALBUM_PAGE_SIZE,
   uploadZipApiUrl,
+  generateApiUrl,
 } from "constants/defaultValues";
 import { FetchImagesParams, ImageSourceType } from "reduxes/album/type";
 import { GenerateImagePayload } from "reduxes/generate/type";
@@ -170,7 +171,7 @@ const projectApi = {
     ),
   listMethod: ({ idToken }: GetListMethodRequestBody) =>
     axios.post(
-      `${projectApiUrl}/generate/list_method`,
+      `${generateApiUrl}/generate/list_method`,
       {
         id_token: idToken,
       },
@@ -186,7 +187,7 @@ const projectApi = {
     dataNumber,
   }: GenerateImagePayload) =>
     axios.post(
-      `${projectApiUrl}/generate/images`,
+      `${generateApiUrl}/generate/generate_images`,
       {
         id_token: idToken,
         project_id: projectId,
@@ -201,7 +202,7 @@ const projectApi = {
     ),
   getTaskInfo: ({ idToken, taskId }: GetTaskProgressRequestBody) =>
     axios.post(
-      `${projectApiUrl}/generate/task_progress`,
+      `${generateApiUrl}/generate/task_progress`,
       {
         id_token: idToken,
         task_id: taskId,
