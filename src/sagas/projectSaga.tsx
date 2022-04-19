@@ -1,4 +1,4 @@
-import { ID_TOKEN_NAME } from "constants/defaultValues";
+import { ID_TOKEN_NAME, UPLOAD_TASK_TYPE } from "constants/defaultValues";
 import { toast } from "react-toastify";
 import {
   all,
@@ -37,6 +37,7 @@ import {
   FetchProjectTaskListPayload,
   FetchTaskInfoPayload,
   LoadProjectThumbnailImagePayload,
+  TaskInfo,
   UpdateProjectInfoPayload,
 } from "reduxes/project/type";
 import history from "routerHistory";
@@ -178,13 +179,20 @@ function* handleFetchTaskInfo(action: {
   type: string;
   payload: FetchTaskInfoPayload;
 }): any {
-  const { generateMethod, projectId, taskId } = action.payload;
+  const { generateMethod, projectId, taskId, processType } = action.payload;
   try {
-    const fetchTaskInfoResponse = yield call(
-      projectApi.getTaskInfo,
-      action.payload
-    );
-
+    let fetchTaskInfoResponse;
+    if (processType === UPLOAD_TASK_TYPE) {
+      fetchTaskInfoResponse = yield call(
+        projectApi.getUploadZipTaskInfo,
+        action.payload
+      );
+    } else {
+      fetchTaskInfoResponse = yield call(
+        projectApi.getTaskInfo,
+        action.payload
+      );
+    }
     if (fetchTaskInfoResponse.error === false) {
       yield put({
         type: FETCH_TASK_INFO.SUCCEEDED,
@@ -244,12 +252,17 @@ function* handleFetchProjectTaskList(action: {
   const { projectId } = action.payload;
   try {
     const idToken = yield getLocalStorage(ID_TOKEN_NAME);
-    const currentTaskList = yield select(selectorCurrentTaskList);
+    const currentTaskList: TaskInfo[] = yield select(selectorCurrentTaskList);
     yield all(
-      currentTaskList.map((taskId: string) =>
+      currentTaskList.map(({ task_id, process_type }: TaskInfo) =>
         call(handleFetchTaskInfo, {
           type: FETCH_TASK_INFO.REQUESTED,
-          payload: { idToken, taskId, projectId },
+          payload: {
+            idToken,
+            taskId: task_id,
+            projectId,
+            processType: process_type,
+          },
         })
       )
     );

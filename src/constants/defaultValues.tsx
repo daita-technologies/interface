@@ -3,6 +3,8 @@ import { encode } from "js-base64";
 
 export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
+export const generateApiUrl = process.env.REACT_APP_GENERATE_API_URL;
+export const uploadZipApiUrl = process.env.REACT_APP_UPLOAD_ZIP_API;
 export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
 export const healthCheckApiURL = process.env.REACT_APP_HEALTH_CHECK_API_URL;
 
@@ -76,6 +78,8 @@ export const ORIGINAL_SOURCE = "ORIGINAL";
 export const PREPROCESS_SOURCE = "PREPROCESS";
 export const AUGMENT_SOURCE = "AUGMENT";
 
+export const UPLOAD_TASK_TYPE = "UPLOAD";
+
 export const MAX_AUGMENT_FREE_PLAN = 5;
 
 export const TRAINING_DATA_NUMBER_INDEX = 0;
@@ -121,3 +125,5 @@ export const ERROR_MESSAGE_ACCOUNT_NOT_VERIFY =
   "User need to verify confirmation code";
 
 export const DEFAULT_SPLIT_DATASET_PERCENT_RATE = [70, 20, 10];
+
+export const COMPRESS_FILE_EXTENSIONS = [".tar", ".gz", ".bz2", ".zip"];

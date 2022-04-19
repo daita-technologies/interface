@@ -28,7 +28,7 @@ function* handleRunHealthCheck(action: {
     );
 
     if (runHealthCheckResponse.error === false) {
-      const { task_id } =
+      const { task_id, process_type } =
         runHealthCheckResponse.data as RunHealthCheckResponseFields;
       yield put({
         type: RUN_HEALTH_CHECK.SUCCEEDED,
@@ -45,7 +45,7 @@ function* handleRunHealthCheck(action: {
             taskId: task_id,
             // isNotify: true,
             projectId,
-            // generateMethod,
+            processType: process_type,
           })
         );
       }

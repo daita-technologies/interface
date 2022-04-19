@@ -21,6 +21,7 @@ import {
 
 import { getLocalStorage } from "utils/general";
 import {
+  COMPRESS_FILE_EXTENSIONS,
   ID_TOKEN_NAME,
   MAX_ALLOW_UPLOAD_IMAGES,
 } from "constants/defaultValues";
@@ -86,7 +87,12 @@ const dropZoneBaseStyle = {
 const dropZoneDisabledStyle = {
   opacity: 0.5,
 };
-
+const FILE_UPLOAD_EXTENSIONS = [
+  ".jpeg",
+  ".png",
+  ".jpg",
+  ...COMPRESS_FILE_EXTENSIONS,
+];
 const UploadFile = function (props: UploadFileProps) {
   const { projectId, projectName } = props;
 
@@ -194,7 +200,7 @@ const UploadFile = function (props: UploadFileProps) {
 
   const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
     onDrop,
-    accept: "image/png, image/jpeg",
+    accept: FILE_UPLOAD_EXTENSIONS.join(","),
     disabled: isDisabledUpload,
   });
 
@@ -266,7 +272,7 @@ const UploadFile = function (props: UploadFileProps) {
           : "Drop your images here or click to upload"}
       </Typography>
       <Typography fontStyle="italic" variant="body2" color="text.secondary">
-        .png, .jpg, .jpeg
+        {FILE_UPLOAD_EXTENSIONS.join(" ,")}
       </Typography>
       <Typography
         sx={{ mt: 1 }}

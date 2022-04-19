@@ -4,6 +4,8 @@ import {
   projectApiUrl,
   getAuthHeader,
   VIEW_ALBUM_PAGE_SIZE,
+  uploadZipApiUrl,
+  generateApiUrl,
 } from "constants/defaultValues";
 import { FetchImagesParams, ImageSourceType } from "reduxes/album/type";
 import { GenerateImagePayload } from "reduxes/generate/type";
@@ -169,7 +171,7 @@ const projectApi = {
     ),
   listMethod: ({ idToken }: GetListMethodRequestBody) =>
     axios.post(
-      `${projectApiUrl}/generate/list_method`,
+      `${generateApiUrl}/generate/list_method`,
       {
         id_token: idToken,
       },
@@ -185,7 +187,7 @@ const projectApi = {
     dataNumber,
   }: GenerateImagePayload) =>
     axios.post(
-      `${projectApiUrl}/generate/images`,
+      `${generateApiUrl}/generate/generate_images`,
       {
         id_token: idToken,
         project_id: projectId,
@@ -200,13 +202,20 @@ const projectApi = {
     ),
   getTaskInfo: ({ idToken, taskId }: GetTaskProgressRequestBody) =>
     axios.post(
-      `${projectApiUrl}/generate/task_progress`,
+      `${generateApiUrl}/generate/task_progress`,
       {
         id_token: idToken,
         task_id: taskId,
       },
       { headers: getAuthHeader() }
     ),
+  getUploadZipTaskInfo: ({ idToken, taskId }: GetTaskProgressRequestBody) =>
+    axios.get(`${uploadZipApiUrl}/dataflow/get_decompress_task`, {
+      params: {
+        id_token: idToken,
+        task_id: taskId,
+      },
+    }),
   deleteProject: ({
     idToken,
     projectId,
@@ -257,6 +266,30 @@ const projectApi = {
         new_project_name:
           projectName === updateInfo.projectName ? "" : updateInfo.projectName,
         new_description: updateInfo.description,
+      },
+      { headers: getAuthHeader() }
+    ),
+  uploadZipFile: ({
+    idToken,
+    projectId,
+    projectName,
+    typeMethod,
+    fileUrl,
+  }: {
+    idToken: string;
+    projectId: string;
+    projectName: string;
+    typeMethod: string;
+    fileUrl: string;
+  }) =>
+    axios.post(
+      `${uploadZipApiUrl}/dataflow/create_decompress_task`,
+      {
+        id_token: idToken,
+        project_id: projectId,
+        project_name: projectName,
+        type_method: typeMethod,
+        file_url: fileUrl,
       },
       { headers: getAuthHeader() }
     ),
