@@ -1,4 +1,8 @@
-import { ID_TOKEN_NAME, UPLOAD_TASK_TYPE } from "constants/defaultValues";
+import {
+  HEALTHCHECK_TASK_TYPE,
+  ID_TOKEN_NAME,
+  UPLOAD_TASK_TYPE,
+} from "constants/defaultValues";
 import { toast } from "react-toastify";
 import {
   all,
@@ -41,7 +45,7 @@ import {
   UpdateProjectInfoPayload,
 } from "reduxes/project/type";
 import history from "routerHistory";
-import { projectApi } from "services";
+import { healthCheckApi, projectApi } from "services";
 import { getLocalStorage } from "utils/general";
 import { GENERATE_IMAGES } from "reduxes/generate/constants";
 import { selectorS3 } from "reduxes/general/selector";
@@ -179,7 +183,8 @@ function* handleFetchTaskInfo(action: {
   type: string;
   payload: FetchTaskInfoPayload;
 }): any {
-  const { generateMethod, projectId, taskId, processType } = action.payload;
+  const { idToken, generateMethod, projectId, taskId, processType } =
+    action.payload;
   try {
     let fetchTaskInfoResponse;
     if (processType === UPLOAD_TASK_TYPE) {
@@ -187,17 +192,28 @@ function* handleFetchTaskInfo(action: {
         projectApi.getUploadZipTaskInfo,
         action.payload
       );
+    } else if (processType === HEALTHCHECK_TASK_TYPE) {
+      fetchTaskInfoResponse = yield call(
+        healthCheckApi.getRunHealthCheckStatus,
+        { idToken, taskId }
+      );
     } else {
       fetchTaskInfoResponse = yield call(
         projectApi.getTaskInfo,
         action.payload
       );
     }
+
     if (fetchTaskInfoResponse.error === false) {
       yield put({
         type: FETCH_TASK_INFO.SUCCEEDED,
         payload: {
-          taskInfo: fetchTaskInfoResponse.data,
+          taskInfo: {
+            task_id: taskId,
+            project_id: projectId,
+            process_type: processType,
+            ...fetchTaskInfoResponse.data,
+          },
           projectId: fetchTaskInfoResponse.data.project_id,
         },
       });
