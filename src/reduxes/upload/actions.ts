@@ -9,6 +9,7 @@ import {
   SET_IS_OPEN_DUPLICATE_MODAL,
   SET_TOTAL_UPLOAD_FILE,
   UPDATE_FILE,
+  UPDATE_FILES,
   UPDATE_STATUS_FILE_ARRAY,
   UPLOAD_FILE,
 } from "./constants";
@@ -33,6 +34,13 @@ export const updateFile = (payload: {
   updateInfo: { [field: string]: any };
 }) => ({
   type: UPDATE_FILE,
+  payload,
+});
+export const updateFiles = (payload: {
+  fileNames: string[];
+  updateInfo: { [field: string]: any };
+}) => ({
+  type: UPDATE_FILES,
   payload,
 });
 
