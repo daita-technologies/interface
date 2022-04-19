@@ -36,6 +36,7 @@ import {
   setIsOpenDuplicateModal,
   setTotalUploadFileQuantity,
   updateFile,
+  updateFiles,
   updateStatusFileArray,
 } from "reduxes/upload/actions";
 import {
@@ -381,17 +382,13 @@ function* handleCheckFilesToUpload(action: {
 }): any {
   const { idToken, projectName, projectId, listFileName } = action.payload;
   try {
-    yield all(
-      listFileName.map((fileName: string) =>
-        put(
-          updateFile({
-            fileName,
-            updateInfo: {
-              status: CHECKING_UPLOAD_FILE_STATUS,
-            },
-          })
-        )
-      )
+    yield put(
+      updateFiles({
+        fileNames: listFileName,
+        updateInfo: {
+          status: CHECKING_UPLOAD_FILE_STATUS,
+        },
+      })
     );
     const checkedFileResponse = yield call(projectApi.uploadCheck, {
       idToken,

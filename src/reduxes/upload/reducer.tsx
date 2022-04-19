@@ -10,6 +10,7 @@ import {
   SET_IS_OPEN_DUPLICATE_MODAL,
   SET_TOTAL_UPLOAD_FILE,
   UPDATE_FILE,
+  UPDATE_FILES,
   UPDATE_STATUS_FILE_ARRAY,
   UPLOAD_FILE,
 } from "./constants";
@@ -44,17 +45,28 @@ const uploadReducer = (state = inititalState, action: any): UploadState => {
         files: { ...state.files, ...payload.files },
       };
     }
-    case UPDATE_FILE:
+    case UPDATE_FILE: {
+      const { files } = state;
+      files[payload.fileName] = {
+        ...files[payload.fileName],
+        ...payload.updateInfo,
+      };
+      return { ...state, files };
+    }
+    case UPDATE_FILES: {
+      const { fileNames, updateInfo } = payload;
+      const { files } = state;
+      fileNames.forEach((fileName: string) => {
+        files[fileName] = {
+          ...files[fileName],
+          ...updateInfo,
+        };
+      });
       return {
         ...state,
-        files: {
-          ...state.files,
-          [payload.fileName]: {
-            ...state.files[payload.fileName],
-            ...payload.updateInfo,
-          },
-        },
+        files,
       };
+    }
     case UPDATE_STATUS_FILE_ARRAY: {
       const { fileArray, targetStatus, isClearError } =
         payload as UpdateStatusFileArrayPayload;
