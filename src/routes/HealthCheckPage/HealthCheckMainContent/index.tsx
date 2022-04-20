@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getProjectHealthCheckInfoAction,
-  resetDataHealthCheckState,
   runHealthCheckAction,
 } from "reduxes/healthCheck/action";
 import { ID_TOKEN_NAME, ORIGINAL_SOURCE } from "constants/defaultValues";
@@ -35,7 +34,6 @@ import TaskListItem from "routes/ProjectDetail/TaskList/TaskListItem";
 
 import { HEALTH_CHECK_ATTRIBUTES_ARRAY } from "constants/healthCheck";
 import { getLocalStorage } from "utils/general";
-import { getChartTypeFromAttributeName } from "utils/healthCheck";
 
 import HealthCheckChart from "../HealthCheckChart";
 import {
@@ -74,11 +72,6 @@ const HealthCheckMainContent = function ({
     useState<DataHealthCheckSelectedAttribute>(
       HEALTH_CHECK_ATTRIBUTES_ARRAY[0]
     );
-
-  const chartType = useMemo(
-    () => getChartTypeFromAttributeName(selectedAttribue.value),
-    [selectedAttribue]
-  );
 
   const onClickRunHealthCheck = () => {
     dispatch(runHealthCheckAction({ projectId, dataType: ORIGINAL_SOURCE }));
@@ -192,7 +185,6 @@ const HealthCheckMainContent = function ({
               onChange={(_, item) => {
                 if (item) {
                   setSelectedAttribue(item);
-                  dispatch(resetDataHealthCheckState());
                 }
               }}
               renderInput={(params) => (
@@ -203,7 +195,6 @@ const HealthCheckMainContent = function ({
 
           <HealthCheckChart
             data={activeDataHealthCheck}
-            chartType={chartType}
             selectedAttribue={selectedAttribue}
           />
         </Box>
