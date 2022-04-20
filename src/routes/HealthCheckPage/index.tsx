@@ -1,4 +1,5 @@
 import { useHistory, useParams } from "react-router-dom";
+
 import { useState, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -8,9 +9,10 @@ import {
   selectorIsFetchingProjects,
   selectorListProjects,
 } from "reduxes/project/selector";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { CircularProgress } from "@mui/material";
 import { a11yProps } from "utils/general";
+import { resetDataHealthCheckState } from "reduxes/healthCheck/action";
 import { Empty, TabPanel, Link } from "components";
 import HealthCheckMainContent from "./HealthCheckMainContent";
 
@@ -18,6 +20,7 @@ const HEALTH_CHECK_TAB_NAME = "health-check";
 
 const HealthCheckPage = function () {
   const { projectName } = useParams<{ projectName: string }>();
+  const dispatch = useDispatch();
   const [selectedTabIndex, setSelectedTabIndex] = useState(-1);
   const listProject = useSelector(selectorListProjects);
   const isFetchingProjects = useSelector(selectorIsFetchingProjects);
@@ -25,6 +28,7 @@ const HealthCheckPage = function () {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTabIndex(newValue);
+    dispatch(resetDataHealthCheckState());
 
     if (newValue > -1 && listProject[newValue]) {
       history.push(`/health-check/${listProject[newValue].project_name}`);

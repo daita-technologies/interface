@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -6,17 +7,23 @@ import {
   PointElement,
   LineElement,
   Title,
+  SubTitle,
   Tooltip,
   Legend,
 } from "chart.js";
 import { Line, Pie } from "react-chartjs-2";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import zoomPlugin from "chartjs-plugin-zoom";
 
 import { Box } from "@mui/material";
 import { EXTENSION_HEALTH_CHECK_FIELD } from "constants/healthCheck";
 import { darkTheme } from "styles/theme";
 
+import lodash from "lodash";
+
+import { getChartTypeFromAttributeName } from "utils/healthCheck";
 import { HealthCheckFields } from "services/healthCheckApi";
+import { primaryPallateColors } from "styles/color";
 
 import { HealthCheckChartProps } from "./type";
 
@@ -27,9 +34,11 @@ ChartJS.register(
   PointElement,
   LineElement,
   Title,
+  SubTitle,
   Tooltip,
   Legend,
-  zoomPlugin
+  zoomPlugin,
+  ChartDataLabels
 );
 
 const randomColors = () => {
@@ -81,12 +90,16 @@ const getChartData = (
 
 const HealthCheckChart = function ({
   data,
-  chartType,
   selectedAttribue,
 }: HealthCheckChartProps) {
-  const { fileNameArray, dataArray } = getChartData(
-    data,
-    selectedAttribue.value
+  const chartType = useMemo(
+    () => getChartTypeFromAttributeName(selectedAttribue.value),
+    [selectedAttribue]
+  );
+
+  const { fileNameArray, dataArray } = useMemo(
+    () => getChartData(data, selectedAttribue.value),
+    [data, selectedAttribue]
   );
 
   const renderChart = () => {
@@ -125,11 +138,22 @@ const HealthCheckChart = function ({
                     drawBorder: false,
                   },
                   ticks: {
+                    callback: (value) =>
+                      `${
+                        typeof value === "number"
+                          ? Number(parseFloat(`${value}`).toFixed(3))
+                          : value
+                      }${
+                        selectedAttribue.unit ? ` ${selectedAttribue.unit}` : ""
+                      }`,
                     color: `${darkTheme.palette.text.primary}`,
                   },
                 },
               },
               plugins: {
+                datalabels: {
+                  display: false,
+                },
                 zoom: {
                   pan: {
                     enabled: true,
@@ -146,6 +170,20 @@ const HealthCheckChart = function ({
                     mode: "x",
                   },
                 },
+                subtitle: {
+                  display: true,
+                  text: selectedAttribue.description,
+                  color: darkTheme.palette.text.primary,
+                  position: "bottom",
+                  align: "center",
+                  font: {
+                    size: 14,
+                    style: "italic",
+                  },
+                  padding: {
+                    top: 32,
+                  },
+                },
                 title: {
                   display: true,
                   text: selectedAttribue.label,
@@ -156,9 +194,10 @@ const HealthCheckChart = function ({
                   },
                   color: darkTheme.palette.text.primary,
                   padding: {
-                    top: 24,
+                    top: 8,
                   },
                 },
+
                 legend: {
                   display: false,
                 },
@@ -179,7 +218,10 @@ const HealthCheckChart = function ({
                       data: dataArray,
                       backgroundColor: new Array(dataArray.length)
                         .fill(1)
-                        .map(() => randomColors()),
+                        .map(
+                          (_, index: number) =>
+                            primaryPallateColors[index] || randomColors()
+                        ),
                       borderWidth: 0,
                     },
                   ],
@@ -187,6 +229,38 @@ const HealthCheckChart = function ({
                 options={{
                   responsive: true,
                   plugins: {
+                    datalabels: {
+                      formatter: (value, ctx) => {
+                        const { datasets } = ctx.chart.data;
+
+                        if (
+                          datasets.indexOf(ctx.dataset) ===
+                          datasets.length - 1
+                        ) {
+                          const sum = lodash.sum(datasets[0].data) || 0;
+                          if (sum !== 0) {
+                            return `${((value / sum) * 100).toFixed(2)}%`;
+                          }
+                          return "0%";
+                        }
+                        return "0%";
+                      },
+                      color: darkTheme.palette.common.white,
+                    },
+                    subtitle: {
+                      display: true,
+                      text: selectedAttribue.description,
+                      color: darkTheme.palette.text.primary,
+                      position: "bottom",
+                      align: "center",
+                      font: {
+                        size: 14,
+                        style: "italic",
+                      },
+                      padding: {
+                        top: 32,
+                      },
+                    },
                     title: {
                       display: true,
                       text: selectedAttribue.label,
@@ -197,12 +271,14 @@ const HealthCheckChart = function ({
                       },
                       color: darkTheme.palette.text.primary,
                       padding: {
-                        top: 24,
+                        top: 8,
                       },
                     },
-                    // legend: {
-                    //   display: false,
-                    // },
+                    legend: {
+                      labels: {
+                        color: darkTheme.palette.text.primary,
+                      },
+                    },
                   },
                 }}
               />

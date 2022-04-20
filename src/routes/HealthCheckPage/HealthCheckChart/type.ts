@@ -5,6 +5,5 @@ export type DataHealthCheckChartType = "line" | "pie";
 
 export interface HealthCheckChartProps {
   data: HealthCheckFields[];
-  chartType: DataHealthCheckChartType;
   selectedAttribue: DataHealthCheckSelectedAttribute;
 }

@@ -28,7 +28,7 @@ const UploadGuideDialog = function ({
       <DialogContent sx={{ px: 4 }}>
         <DialogContentText pb={2} color="text.primary">
           <Typography variant="body2">
-            Hi {userInfo ? userInfo.username : ""} 👋!
+            Hi {userInfo ? userInfo.fullname : ""} 👋!
             <Typography mt={2} variant="body2">
               Congratulations on using our easy-to-use image upload tool via
               API. Simply use the following command to upload images to your
