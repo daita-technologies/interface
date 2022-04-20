@@ -4,6 +4,7 @@ import {
   FINISH_SAMPLE_PROJECT_STATUS,
   FINISH_TASK_STATUS,
   GENERATING_SAMPLE_PROJECT_STATUS,
+  HEALTHCHECK_TASK_TYPE,
   ORIGINAL_SOURCE,
   PENDING_TASK_STATUS,
   PREPARING_DATA_TASK_STATUS,
@@ -42,13 +43,10 @@ export interface UpdateStatisticInfo {
   };
 }
 
-export interface ListTaskItem {
-  task_id: string;
-  project_id: string;
-}
 export interface TaskInfo {
   task_id: string;
   process_type: ProcessType;
+  project_id?: string;
 }
 export interface ProjectInfo {
   identity_id: string;
@@ -65,7 +63,7 @@ export interface ApiListProjectsItem {
   project_id: string;
   project_name: string;
   s3_prefix: string;
-  ls_task: Array<ListTaskItem>;
+  ls_task: Array<TaskInfo>;
   groups: GroupProjectInfo;
   is_sample: boolean;
   gen_status: GENERATE_PROJECT_STATUS_TYPE;
@@ -124,19 +122,30 @@ export interface TaskInfoApiFields {
   project_id: string;
   number_gen_images: number;
 }
-export type ProcessType = ImageSourceType | typeof UPLOAD_TASK_TYPE;
+export type ProcessType =
+  | ImageSourceType
+  | typeof UPLOAD_TASK_TYPE
+  | typeof HEALTHCHECK_TASK_TYPE;
 
 export type ZipTaskInfoApiFields = Pick<
   TaskInfoApiFields,
   "identity_id" | "task_id" | "status" | "process_type" | "project_id"
 >;
 
-export type GeneralTaskInfoApiFields = TaskInfoApiFields | ZipTaskInfoApiFields;
+export type HealthCheckInfoApiFields = Pick<
+  TaskInfoApiFields,
+  "task_id" | "status" | "process_type"
+>;
+
+export type GeneralTaskInfoApiFields =
+  | TaskInfoApiFields
+  | ZipTaskInfoApiFields
+  | HealthCheckInfoApiFields;
 export interface FetchTaskInfoPayload {
   idToken: string;
   taskId: string;
   processType: ProcessType;
-  projectId: string;
+  projectId?: string;
   isNotify?: boolean;
   generateMethod?: generateMethodType;
 }

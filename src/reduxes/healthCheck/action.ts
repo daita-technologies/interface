@@ -6,6 +6,7 @@ import {
 import {
   GET_PROJECT_HEALTH_CHECK_INFO,
   GET_RUN_HEALTH_CHECK_STATUS,
+  RESET_DATA_HEALTH_CHECK_STATE,
   RUN_HEALTH_CHECK,
 } from "./constants";
 
@@ -26,4 +27,8 @@ export const getProjectHealthCheckInfoAction = (
 ) => ({
   type: GET_PROJECT_HEALTH_CHECK_INFO.REQUESTED,
   payload,
+});
+
+export const resetDataHealthCheckState = () => ({
+  type: RESET_DATA_HEALTH_CHECK_STATE,
 });
