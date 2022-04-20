@@ -208,6 +208,7 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
   const currentProjectName = useSelector(selectorCurrentProjectName);
   const currentProjectId = useSelector(selectorCurrentProjectId);
   const { status, task_id, process_type } = taskInfo;
+
   const savedTaskStatus = useRef();
   const activeImagesTabId = useSelector(selectorActiveImagesTabId);
 
@@ -216,6 +217,17 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
       toast.error("Unexpected error, please re-run your task again.");
     }
   }, [status]);
+
+  useEffect(() => {
+    dispatch(
+      fetchTaskInfo({
+        idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+        taskId: task_id,
+        projectId: currentProjectId,
+        processType: process_type,
+      })
+    );
+  }, []);
 
   useInterval(
     () => {

@@ -306,11 +306,13 @@ const projectReducer = (
               newListProject[matchProjectIndex].ls_task[matchTaskIdIndex] = {
                 task_id: taskInfo.task_id,
                 project_id,
+                process_type: taskInfo.process_type,
               };
             } else {
               newListProject[matchProjectIndex].ls_task.push({
                 task_id: taskInfo.task_id,
                 project_id,
+                process_type: taskInfo.process_type,
               });
             }
 
@@ -453,15 +455,6 @@ const projectReducer = (
         updateProjectInfoDialog: {
           ...state.updateProjectInfoDialog,
           isProcessing: true,
-        } as SetIsOpenUpdateProjectInfoPayload,
-      };
-    }
-    case UPDATE_PROJECT_INFO.REQUESTED: {
-      return {
-        ...state,
-        updateProjectInfoDialog: {
-          ...state.updateProjectInfoDialog,
-          isProcessing: false,
         } as SetIsOpenUpdateProjectInfoPayload,
       };
     }

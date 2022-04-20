@@ -79,6 +79,7 @@ export const PREPROCESS_SOURCE = "PREPROCESS";
 export const AUGMENT_SOURCE = "AUGMENT";
 
 export const UPLOAD_TASK_TYPE = "UPLOAD";
+export const HEALTHCHECK_TASK_TYPE = "HEALTHCHECK";
 
 export const MAX_AUGMENT_FREE_PLAN = 5;
 

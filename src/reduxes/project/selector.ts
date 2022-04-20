@@ -37,6 +37,23 @@ export const selectorCurrentTaskList = (state: RootState) => {
   return [];
 };
 
+export const selectorTaskList = (state: RootState, projectId: string) => {
+  const { listProjects } = state.projectReducer;
+  if (listProjects) {
+    const matchIndex = listProjects.findIndex(
+      (project) => project.project_id === projectId
+    );
+
+    if (matchIndex > -1) {
+      return listProjects[matchIndex].ls_task;
+    }
+
+    return [];
+  }
+
+  return [];
+};
+
 export const selectorCurrentProjectId = (state: RootState) =>
   state.projectReducer.currentProjectInfo?.project_id || "";
 

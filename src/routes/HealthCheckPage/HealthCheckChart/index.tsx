@@ -12,22 +12,11 @@ import {
 import { Line, Pie } from "react-chartjs-2";
 import zoomPlugin from "chartjs-plugin-zoom";
 
-import { Autocomplete, Box, TextField } from "@mui/material";
-import {
-  EXTENSION_HEALTH_CHECK_FIELD,
-  HEALTH_CHECK_ATTRIBUTES_ARRAY,
-} from "constants/healthCheck";
+import { Box } from "@mui/material";
+import { EXTENSION_HEALTH_CHECK_FIELD } from "constants/healthCheck";
 import { darkTheme } from "styles/theme";
 
-import { useMemo, useState } from "react";
 import { HealthCheckFields } from "services/healthCheckApi";
-import { getChartTypeFromAttributeName } from "utils/healthCheck";
-
-import { MyButton } from "components";
-import { useDispatch, useSelector } from "react-redux";
-import { selectorIsRunningHealthCheck } from "reduxes/healthCheck/selector";
-import { runHealthCheckAction } from "reduxes/healthCheck/action";
-import { ORIGINAL_SOURCE } from "constants/defaultValues";
 
 import { HealthCheckChartProps } from "./type";
 
@@ -90,28 +79,15 @@ const getChartData = (
   };
 };
 
-const HealthCheckChart = function ({ data, projectId }: HealthCheckChartProps) {
-  const dispatch = useDispatch();
-  const [selectedAttribue, setSelectedAttribue] = useState<{
-    label: string;
-    value: keyof HealthCheckFields;
-  }>(HEALTH_CHECK_ATTRIBUTES_ARRAY[0]);
-
-  const isRunningHealthCheck = useSelector(selectorIsRunningHealthCheck);
-
+const HealthCheckChart = function ({
+  data,
+  chartType,
+  selectedAttribue,
+}: HealthCheckChartProps) {
   const { fileNameArray, dataArray } = getChartData(
     data,
     selectedAttribue.value
   );
-
-  const chartType = useMemo(
-    () => getChartTypeFromAttributeName(selectedAttribue.value),
-    [selectedAttribue]
-  );
-
-  const onClickRunHealthCheck = () => {
-    dispatch(runHealthCheckAction({ projectId, dataType: ORIGINAL_SOURCE }));
-  };
 
   const renderChart = () => {
     switch (chartType) {
@@ -238,38 +214,6 @@ const HealthCheckChart = function ({ data, projectId }: HealthCheckChartProps) {
 
   return (
     <Box sx={{ mt: 4 }}>
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        mb={6}
-      >
-        <MyButton
-          variant="contained"
-          color="primary"
-          isLoading={isRunningHealthCheck}
-          onClick={onClickRunHealthCheck}
-        >
-          Rerun Data Health Check
-        </MyButton>
-
-        <Autocomplete
-          sx={{ flexBasis: "40%" }}
-          disablePortal
-          options={HEALTH_CHECK_ATTRIBUTES_ARRAY}
-          isOptionEqualToValue={(option, selected) =>
-            option.value === selected.value
-          }
-          value={selectedAttribue}
-          onChange={(_, item) => {
-            if (item) {
-              setSelectedAttribue(item);
-            }
-          }}
-          renderInput={(params) => <TextField label="Attribute" {...params} />}
-        />
-      </Box>
-
       <Box>{renderChart()}</Box>
     </Box>
   );
