@@ -53,3 +53,20 @@ export const selectorIsDataHealthCheckGotTaskRunning = (
 
   return false;
 };
+
+export const selectorDataHealthCheckCurrentTotalImage = (state: RootState) => {
+  const { currentProjectInfo } = state.healthCheckReducer;
+  if (currentProjectInfo) {
+    const { groups } = currentProjectInfo;
+    if (groups) {
+      const totalOriginalImage = groups?.ORIGINAL?.count || 0;
+      const totalAugmentImage = groups?.AUGMENT?.count || 0;
+      const totalPreprocessImage = groups?.PREPROCESS?.count || 0;
+      return totalOriginalImage + totalAugmentImage + totalPreprocessImage;
+    }
+
+    return 0;
+  }
+
+  return 0;
+};

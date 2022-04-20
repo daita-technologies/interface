@@ -6,7 +6,7 @@ import {
   runHealthCheckAction,
 } from "reduxes/healthCheck/action";
 import { ID_TOKEN_NAME, ORIGINAL_SOURCE } from "constants/defaultValues";
-import { Empty, MyButton } from "components";
+import { Empty, Link, MyButton } from "components";
 
 import {
   Autocomplete,
@@ -20,6 +20,7 @@ import { RootState } from "reduxes";
 import {
   selectorActiveDataHealthCheck,
   selectorDataHealthCheckCurrentListTask,
+  selectorDataHealthCheckCurrentTotalImage,
   selectorDataHealthCheckTaskList,
   // selectorDataHealthCheckTaskList,
   selectorIsDataHealthCheckGotTaskRunning,
@@ -66,6 +67,10 @@ const HealthCheckMainContent = function ({
 
   const isDataHealthCheckGotTaskRunning = useSelector((state: RootState) =>
     selectorIsDataHealthCheckGotTaskRunning(state, projectId)
+  );
+
+  const dataHealthCheckCurrentTotalImage = useSelector(
+    selectorDataHealthCheckCurrentTotalImage
   );
 
   const [selectedAttribue, setSelectedAttribue] =
@@ -212,11 +217,21 @@ const HealthCheckMainContent = function ({
             rowGap={2}
           >
             <Typography>
-              No information about your data health check yet.
+              {dataHealthCheckCurrentTotalImage <= 0
+                ? `You haven't have any image yet.`
+                : "No information about your data health check yet."}
             </Typography>
+            {dataHealthCheckCurrentTotalImage <= 0 && (
+              <Typography>
+                <Link to={`/project/${projectName}`}>
+                  Upload your image now.
+                </Link>
+              </Typography>
+            )}
             <MyButton
               variant="contained"
               color="primary"
+              disabled={dataHealthCheckCurrentTotalImage <= 0}
               isLoading={isRunningHealthCheck}
               onClick={onClickRunHealthCheck}
             >
