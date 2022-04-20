@@ -203,7 +203,7 @@ function* handleUploadZipFile(action: {
         const uploadedFile = yield select(selectorUploadedFileCount);
         const totalUploadFile = yield select(selectorTotalUploadFileQuantity);
         if (uploadedFile >= totalUploadFile) {
-          yield toast.success("Images are successfully uploaded");
+          yield toast.success("Zip file are successfully uploaded");
           yield put(
             clearFileArray({ fileNameArray: Object.keys(uploadFiles) })
           );

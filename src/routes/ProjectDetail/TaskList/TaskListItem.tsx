@@ -34,7 +34,7 @@ import {
 import { TaskStatusType } from "reduxes/project/type";
 import { toast } from "react-toastify";
 import { selectorActiveImagesTabId } from "reduxes/album/selector";
-import { changeActiveImagesTab } from "reduxes/album/action";
+import { changeActiveImagesTab, fetchImages } from "reduxes/album/action";
 import { TaskListItemProps } from "./type";
 
 const returnColorOfTask = (targetStatus: TaskStatusType) => {
@@ -66,8 +66,7 @@ const TaskListImageSourceItem = function ({ taskInfo }: TaskInfoApiFields) {
   const currentProjectId = useSelector(selectorCurrentProjectId);
   const currentTaskListInfo = useSelector(selectorCurrentTaskListInfo);
   const activeImagesTabId = useSelector(selectorActiveImagesTabId);
-  const { status, task_id, process_type, number_finished, number_gen_images } =
-    taskInfo;
+  const { status, process_type, number_finished, number_gen_images } = taskInfo;
   const progress = useMemo(() => {
     if (number_gen_images !== 0) {
       const progressing = ((number_finished * 100) / number_gen_images).toFixed(
@@ -209,6 +208,7 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
   const { status, task_id, process_type } = taskInfo;
 
   const savedTaskStatus = useRef();
+  const activeImagesTabId = useSelector(selectorActiveImagesTabId);
 
   useEffect(() => {
     if (status === ERROR_TASK_STATUS) {
@@ -244,6 +244,7 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
   useEffect(() => {
     if (taskInfo) {
       if (
+        savedTaskStatus.current &&
         savedTaskStatus.current !== FINISH_TASK_STATUS &&
         taskInfo.status === FINISH_TASK_STATUS
       ) {
@@ -274,11 +275,17 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
             )} of the data set has been completed successfully.`
           );
         } else if (process_type === UPLOAD_TASK_TYPE) {
-          toast.success(
-            `${capitalizeFirstLetter(
-              getGenerateMethodLabel(process_type)
-            )} of the data set has been uploaded successfully.`
-          );
+          if (activeImagesTabId === ORIGINAL_IMAGES_TAB) {
+            dispatch(
+              fetchImages({
+                idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+                projectId: currentProjectId,
+                nextToken: "",
+                typeMethod: switchTabIdToSource(activeImagesTabId),
+              })
+            );
+          }
+          toast.success("Uploading has been uploaded successfully.");
         }
       } else {
         savedTaskStatus.current = taskInfo.status;
