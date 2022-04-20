@@ -7,6 +7,7 @@ import {
   PointElement,
   LineElement,
   Title,
+  SubTitle,
   Tooltip,
   Legend,
 } from "chart.js";
@@ -33,6 +34,7 @@ ChartJS.register(
   PointElement,
   LineElement,
   Title,
+  SubTitle,
   Tooltip,
   Legend,
   zoomPlugin,
@@ -136,6 +138,14 @@ const HealthCheckChart = function ({
                     drawBorder: false,
                   },
                   ticks: {
+                    callback: (value) =>
+                      `${
+                        typeof value === "number"
+                          ? Number(parseFloat(`${value}`).toFixed(3))
+                          : value
+                      }${
+                        selectedAttribue.unit ? ` ${selectedAttribue.unit}` : ""
+                      }`,
                     color: `${darkTheme.palette.text.primary}`,
                   },
                 },
@@ -160,6 +170,20 @@ const HealthCheckChart = function ({
                     mode: "x",
                   },
                 },
+                subtitle: {
+                  display: true,
+                  text: selectedAttribue.description,
+                  color: darkTheme.palette.text.primary,
+                  position: "bottom",
+                  align: "center",
+                  font: {
+                    size: 14,
+                    style: "italic",
+                  },
+                  padding: {
+                    top: 32,
+                  },
+                },
                 title: {
                   display: true,
                   text: selectedAttribue.label,
@@ -170,9 +194,10 @@ const HealthCheckChart = function ({
                   },
                   color: darkTheme.palette.text.primary,
                   padding: {
-                    top: 24,
+                    top: 8,
                   },
                 },
+
                 legend: {
                   display: false,
                 },
@@ -222,6 +247,20 @@ const HealthCheckChart = function ({
                       },
                       color: darkTheme.palette.common.white,
                     },
+                    subtitle: {
+                      display: true,
+                      text: selectedAttribue.description,
+                      color: darkTheme.palette.text.primary,
+                      position: "bottom",
+                      align: "center",
+                      font: {
+                        size: 14,
+                        style: "italic",
+                      },
+                      padding: {
+                        top: 32,
+                      },
+                    },
                     title: {
                       display: true,
                       text: selectedAttribue.label,
@@ -232,7 +271,7 @@ const HealthCheckChart = function ({
                       },
                       color: darkTheme.palette.text.primary,
                       padding: {
-                        top: 24,
+                        top: 8,
                       },
                     },
                     legend: {
