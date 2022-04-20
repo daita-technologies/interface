@@ -66,8 +66,7 @@ const TaskListImageSourceItem = function ({ taskInfo }: TaskInfoApiFields) {
   const currentProjectId = useSelector(selectorCurrentProjectId);
   const currentTaskListInfo = useSelector(selectorCurrentTaskListInfo);
   const activeImagesTabId = useSelector(selectorActiveImagesTabId);
-  const { status, task_id, process_type, number_finished, number_gen_images } =
-    taskInfo;
+  const { status, process_type, number_finished, number_gen_images } = taskInfo;
   const progress = useMemo(() => {
     if (number_gen_images !== 0) {
       const progressing = ((number_finished * 100) / number_gen_images).toFixed(
@@ -161,7 +160,6 @@ const TaskListImageSourceItem = function ({ taskInfo }: TaskInfoApiFields) {
 };
 
 const TaskListUploadItem = function ({ taskInfo }: TaskInfoApiFields) {
-  const currentProjectId = useSelector(selectorCurrentProjectId);
   const { status, process_type } = taskInfo;
   return (
     <Box display="flex" flexDirection="column" my={2}>
@@ -277,14 +275,16 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
             )} of the data set has been completed successfully.`
           );
         } else if (process_type === UPLOAD_TASK_TYPE) {
-          dispatch(
-            fetchImages({
-              idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-              projectId: currentProjectId,
-              nextToken: "",
-              typeMethod: switchTabIdToSource(activeImagesTabId),
-            })
-          );
+          if (activeImagesTabId === ORIGINAL_IMAGES_TAB) {
+            dispatch(
+              fetchImages({
+                idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+                projectId: currentProjectId,
+                nextToken: "",
+                typeMethod: switchTabIdToSource(activeImagesTabId),
+              })
+            );
+          }
           toast.success("Uploading has been uploaded successfully.");
         }
       } else {
