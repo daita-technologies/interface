@@ -232,6 +232,7 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
   useEffect(() => {
     if (taskInfo) {
       if (
+        savedTaskStatus.current &&
         savedTaskStatus.current !== FINISH_TASK_STATUS &&
         taskInfo.status === FINISH_TASK_STATUS
       ) {
@@ -262,11 +263,7 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
             )} of the data set has been completed successfully.`
           );
         } else if (process_type === UPLOAD_TASK_TYPE) {
-          toast.success(
-            `${capitalizeFirstLetter(
-              getGenerateMethodLabel(process_type)
-            )} of the data set has been uploaded successfully.`
-          );
+          toast.success("Uploading has been uploaded successfully.");
         }
       } else {
         savedTaskStatus.current = taskInfo.status;
