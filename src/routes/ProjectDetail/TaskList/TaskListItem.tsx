@@ -21,6 +21,7 @@ import {
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
   UPLOAD_TASK_TYPE,
+  ORIGINAL_IMAGES_TAB,
 } from "constants/defaultValues";
 import {
   FETCH_DETAIL_PROJECT,
