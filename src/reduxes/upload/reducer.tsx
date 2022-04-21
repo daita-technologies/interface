@@ -47,20 +47,25 @@ const uploadReducer = (state = inititalState, action: any): UploadState => {
     }
     case UPDATE_FILE: {
       const { files } = state;
-      files[payload.fileName] = {
-        ...files[payload.fileName],
-        ...payload.updateInfo,
-      };
-      return { ...state, files };
+      if (files[payload.fileName]) {
+        files[payload.fileName] = {
+          ...files[payload.fileName],
+          ...payload.updateInfo,
+        };
+        return { ...state, files };
+      }
+      return state;
     }
     case UPDATE_FILES: {
       const { fileNames, updateInfo } = payload;
       const { files } = state;
       fileNames.forEach((fileName: string) => {
-        files[fileName] = {
-          ...files[fileName],
-          ...updateInfo,
-        };
+        if (files[fileName]) {
+          files[fileName] = {
+            ...files[fileName],
+            ...updateInfo,
+          };
+        }
       });
       return {
         ...state,

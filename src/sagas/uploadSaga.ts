@@ -171,7 +171,11 @@ function* handleUploadZipFile(action: {
           );
         });
         yield parallelUploads3.done();
-
+        const uploadFilesForChecking = yield select(selectorUploadFiles);
+        if (!uploadFilesForChecking[fileName]) {
+          yield put({ type: UPLOAD_FILE.FAILED });
+          return;
+        }
         yield put(
           updateFile({
             fileName,
