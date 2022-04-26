@@ -65,6 +65,7 @@ import {
   fetchTaskInfo,
   updateCurrentProjectStatistic,
 } from "reduxes/project/action";
+import JSZip from "jszip";
 
 function* handleUpdateUploadToBackend(action: any): any {
   try {
@@ -478,22 +479,41 @@ function* handleCheckFilesToUpload(action: {
     // yield toast.error(e.message);
   }
 }
+function* validateZipFile(action: {
+  type: string;
+  payload: UploadFileParams;
+}): any {
+  const { fileName, projectId, projectName } = action.payload;
+  const uploadFiles = yield select(selectorUploadFiles);
+  const f = uploadFiles[fileName].file;
+  JSZip.loadAsync(f)
+    .then((zip) => {
+      zip.forEach((relativePath, zipEntry) => {
+        console.log(" zipEntry.name", zipEntry.name);
+      });
+    })
+    .catch((e) => console.log(e));
+}
 function* handleUploadRequest(requestChannel: any) {
   while (true) {
     const { payload } = yield take(requestChannel);
     const { fileName } = payload;
-    let isUploadRequest = false;
+    let isZipUploadRequest = false;
     // eslint-disable-next-line no-restricted-syntax
     for (const compressFileExtension of COMPRESS_FILE_EXTENSIONS) {
       if (
         fileName.indexOf(compressFileExtension) ===
         fileName.length - compressFileExtension.length
       ) {
-        isUploadRequest = true;
+        isZipUploadRequest = true;
         break;
       }
     }
-    if (isUploadRequest) {
+    if (isZipUploadRequest) {
+      // yield call(validateZipFile, {
+      //   type: "CHECK_ZIP_FILE",
+      //   payload,
+      // });
       yield call(handleUploadZipFile, {
         type: UPLOAD_FILE.REQUESTED,
         payload,
