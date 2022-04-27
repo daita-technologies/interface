@@ -15,8 +15,7 @@ const inititalState: CustomPreprocessReducer = {
   referencePreprocessImage: {} as ReferencePreprocessImageRecord,
   images: {},
   referenceSeletectorDialog: {
-    isShow: true,
-    method: "Normalize Hue",
+    isShow: false,
   },
 };
 
