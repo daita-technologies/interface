@@ -60,7 +60,7 @@ const ReferenceImageDialog = function () {
     selectorReferencePreprocessImage
   );
   useEffect(() => {
-    if (!currentProjectId) {
+    if (currentProjectId) {
       if (isShow === false || !method) {
         setReferenceImage(undefined);
         setImages({});
