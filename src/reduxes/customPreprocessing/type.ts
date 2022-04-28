@@ -17,7 +17,7 @@ export interface ReferencePreprocessImage {
 }
 export interface ReferenceImageInfoProps {
   method: PreprocessingMedthod;
-  fileName: string;
+  filename: string;
 }
 export interface ChangePreprocessingExpertModePayload {
   isPreprocessingExpertMode: boolean;

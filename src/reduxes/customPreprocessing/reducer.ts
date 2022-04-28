@@ -35,12 +35,15 @@ const customPreprocessingReducer = (
       };
     }
     case CHANGE_REFERENCE_PREPROCESSING_IMAGE: {
-      const { method, fileName } = payload as ReferenceImageInfoProps;
+      const { method, filename } = payload as ReferenceImageInfoProps;
       return {
         ...state,
         referencePreprocessImage: {
           ...state.referencePreprocessImage,
-          [method]: fileName,
+          [method]: {
+            filename,
+            method,
+          },
         },
       };
     }

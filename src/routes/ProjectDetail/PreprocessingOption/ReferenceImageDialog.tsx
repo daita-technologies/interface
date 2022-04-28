@@ -7,11 +7,11 @@ import {
   Divider,
   IconButton,
   Modal,
+  Skeleton,
   TextField,
   Typography,
 } from "@mui/material";
 import { MyButton } from "components";
-import ImageProcessing from "components/ImageProcessing";
 import { PreprocessingMedthod } from "components/ImageProcessing/type";
 import {
   ID_TOKEN_NAME,
@@ -27,7 +27,10 @@ import {
   setReferencePreprocessImage,
   setReferenceSeletectorDialog,
 } from "reduxes/customPreprocessing/action";
-import { selectorReferenceSeletectorDialog } from "reduxes/customPreprocessing/selector";
+import {
+  selectorReferencePreprocessImage,
+  selectorReferenceSeletectorDialog,
+} from "reduxes/customPreprocessing/selector";
 import { selectorS3 } from "reduxes/general/selector";
 import { selectorCurrentProjectId } from "reduxes/project/selector";
 import { projectApi } from "services";
@@ -42,16 +45,23 @@ const ReferenceImageDialog = function () {
 
   const [referenceImage, setReferenceImage] = useState<ImageApiFields>();
   const [images, setImages] = useState<AlbumImagesFields>({});
+  const [referenceImageName, setReferenceImageName] = useState<string>();
   const [open, setOpen] = useState(false);
   const [searchLoading, setSearchLoading] = useState<boolean>(true);
   const currentProjectId = useSelector(selectorCurrentProjectId);
   const s3 = useSelector(selectorS3);
   const { isShow, method } = useSelector(selectorReferenceSeletectorDialog);
-
   const handleClose = () => {
     dispatch(setReferenceSeletectorDialog({ isShow: false }));
   };
+  const referencePreprocessImage = useSelector(
+    selectorReferencePreprocessImage
+  );
   useEffect(() => {
+    if (isShow === false || !method) {
+      return;
+    }
+    setReferenceImageName(referencePreprocessImage[method]?.filename as string);
     projectApi
       .listData({
         idToken: getLocalStorage(ID_TOKEN_NAME) as string,
@@ -69,17 +79,15 @@ const ReferenceImageDialog = function () {
         } else {
           toast.error(fetchImagesResponse.message);
         }
-        setTimeout(() => {
-          setSearchLoading(false);
-        }, 5000);
+        setSearchLoading(false);
       });
-  }, []);
+  }, [isShow]);
   const handleSubmit = () => {
     if (referenceImage) {
       dispatch(
         setReferencePreprocessImage({
           method: method as PreprocessingMedthod,
-          fileName: referenceImage.filename,
+          filename: referenceImage.filename,
         })
       );
       dispatch(setReferenceSeletectorDialog({ isShow: false }));
@@ -124,17 +132,19 @@ const ReferenceImageDialog = function () {
     if (referenceImage) {
       if (referenceImage.url) {
         return (
-          <ImageProcessing
-            src={referenceImage.url as string}
-            processingMethod={method as PreprocessingMedthod}
+          <img
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+            }}
+            src={referenceImage.url}
+            alt="ts"
+            loading="lazy"
           />
         );
       }
-      return (
-        <Box pl={17} pt={10}>
-          <CircularProgress size={40} />
-        </Box>
-      );
+      return <Skeleton variant="rectangular" width="100%" height={200} />;
     }
     return "";
   };
@@ -170,7 +180,6 @@ const ReferenceImageDialog = function () {
                 </Typography>
                 <Autocomplete
                   fullWidth
-                  id="images"
                   sx={{ width: "100%" }}
                   open={open}
                   onOpen={() => {
@@ -179,6 +188,7 @@ const ReferenceImageDialog = function () {
                   onClose={() => {
                     setOpen(false);
                   }}
+                  value={referenceImageName}
                   isOptionEqualToValue={(option, value) => option === value}
                   getOptionLabel={(option: string) => option}
                   options={images ? Object.keys(images) : []}
@@ -209,7 +219,7 @@ const ReferenceImageDialog = function () {
                 flexItem
                 sx={{ backgroundColor: "text.secondary", margin: 2 }}
               />
-              <Box sx={{ pl: 1, width: "100%" }} flex={2}>
+              <Box pl={1} flex={2} width="100%" height="100%">
                 <Typography
                   variant="body1"
                   fontWeight={400}

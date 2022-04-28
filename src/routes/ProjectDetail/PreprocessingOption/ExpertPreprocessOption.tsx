@@ -60,8 +60,6 @@ const ExpertPreprocessingOption = function () {
   const handleShowReferenceDialog = (method: PreprocessingMedthod) => {
     dispatch(setReferenceSeletectorDialog({ isShow: true, method }));
   };
-  const { isShow } = useSelector(selectorReferenceSeletectorDialog);
-
   return (
     <Box>
       <Box display="flex" alignItems="center">
@@ -125,7 +123,7 @@ const ExpertPreprocessingOption = function () {
                     sx={limitTooLongLineStyle}
                   >
                     {referencePreprocessImage[method]
-                      ? referencePreprocessImage[method]
+                      ? referencePreprocessImage[method].filename
                       : "Select your reference image"}
                   </Typography>
                   <IconButton
@@ -142,7 +140,7 @@ const ExpertPreprocessingOption = function () {
             ))}
           </Box>
         </Box>
-        {isShow && <ReferenceImageDialog />}
+        <ReferenceImageDialog />
       </Box>
     </Box>
   );
