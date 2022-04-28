@@ -128,3 +128,5 @@ export const ERROR_MESSAGE_ACCOUNT_NOT_VERIFY =
 export const DEFAULT_SPLIT_DATASET_PERCENT_RATE = [70, 20, 10];
 
 export const COMPRESS_FILE_EXTENSIONS = [".tar", ".gz", ".bz2", ".zip"];
+
+export const TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE = "custom_method_expert_mode";

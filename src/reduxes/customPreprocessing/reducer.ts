@@ -1,3 +1,5 @@
+import { TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE } from "constants/defaultValues";
+import { getLocalStorage, setLocalStorage } from "utils/general";
 import {
   CHANGE_PREPROCESSING_EXPERT_MODE,
   CHANGE_REFERENCE_PREPROCESSING_IMAGE,
@@ -11,7 +13,8 @@ import {
 } from "./type";
 
 const inititalState: CustomPreprocessReducer = {
-  isPreprocessingExpertMode: true,
+  isPreprocessingExpertMode:
+    getLocalStorage(TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE) === "true",
   referencePreprocessImage: {} as ReferencePreprocessImageRecord,
   images: {},
   referenceSeletectorDialog: {
@@ -29,6 +32,10 @@ const customPreprocessingReducer = (
     case CHANGE_PREPROCESSING_EXPERT_MODE: {
       const { isPreprocessingExpertMode } =
         payload as ChangePreprocessingExpertModePayload;
+      setLocalStorage(
+        TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE,
+        `${isPreprocessingExpertMode}`
+      );
       return {
         ...state,
         isPreprocessingExpertMode,

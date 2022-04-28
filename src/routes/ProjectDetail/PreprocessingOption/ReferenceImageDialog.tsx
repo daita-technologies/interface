@@ -43,12 +43,14 @@ import {
 const ReferenceImageDialog = function () {
   const dispatch = useDispatch();
 
-  const [referenceImage, setReferenceImage] = useState<ImageApiFields>();
+  const [referenceImage, setReferenceImage] =
+    useState<Pick<ImageApiFields, "filename" | "url" | "photoKey">>();
   const [images, setImages] = useState<AlbumImagesFields>({});
   const [referenceImageName, setReferenceImageName] = useState<string>();
   const [open, setOpen] = useState(false);
   const [searchLoading, setSearchLoading] = useState<boolean>(true);
   const currentProjectId = useSelector(selectorCurrentProjectId);
+
   const s3 = useSelector(selectorS3);
   const { isShow, method } = useSelector(selectorReferenceSeletectorDialog);
   const handleClose = () => {
@@ -58,30 +60,45 @@ const ReferenceImageDialog = function () {
     selectorReferencePreprocessImage
   );
   useEffect(() => {
-    if (isShow === false || !method) {
-      return;
+    if (!currentProjectId) {
+      if (isShow === false || !method) {
+        setReferenceImage(undefined);
+        setImages({});
+        setReferenceImageName(undefined);
+        return;
+      }
+      const savedReferenceImage = referencePreprocessImage[method]
+        ?.filename as string;
+      if (referencePreprocessImage[method]) {
+        setReferenceImageName(savedReferenceImage);
+      }
+      setSearchLoading(true);
+      projectApi
+        .listData({
+          idToken: getLocalStorage(ID_TOKEN_NAME) as string,
+          projectId: currentProjectId,
+          nextToken: "",
+          typeMethod: ORIGINAL_SOURCE,
+          numLimit: MAXIMUM_FETCH_IMAGES_AMOUNT,
+        })
+        .then((fetchImagesResponse: any) => {
+          if (!fetchImagesResponse.error) {
+            const { items } = fetchImagesResponse.data;
+            const tempImage = convertArrayAlbumImageToObjectKeyFileName(
+              items,
+              ORIGINAL_SOURCE
+            );
+            setImages(tempImage);
+            if (savedReferenceImage) {
+              setReferenceImage(tempImage[savedReferenceImage]);
+            }
+          } else {
+            toast.error(fetchImagesResponse.message);
+          }
+          setSearchLoading(false);
+        });
     }
-    setReferenceImageName(referencePreprocessImage[method]?.filename as string);
-    projectApi
-      .listData({
-        idToken: getLocalStorage(ID_TOKEN_NAME) as string,
-        projectId: currentProjectId,
-        nextToken: "",
-        typeMethod: ORIGINAL_SOURCE,
-        numLimit: MAXIMUM_FETCH_IMAGES_AMOUNT,
-      })
-      .then((fetchImagesResponse: any) => {
-        if (!fetchImagesResponse.error) {
-          const { items } = fetchImagesResponse.data;
-          setImages(
-            convertArrayAlbumImageToObjectKeyFileName(items, ORIGINAL_SOURCE)
-          );
-        } else {
-          toast.error(fetchImagesResponse.message);
-        }
-        setSearchLoading(false);
-      });
-  }, [isShow]);
+  }, [isShow, currentProjectId]);
   const handleSubmit = () => {
     if (referenceImage) {
       dispatch(
@@ -95,53 +112,71 @@ const ReferenceImageDialog = function () {
       toast.error("Select your reference image");
     }
   };
+  const getDataImage = (photoKey: string) =>
+    new Promise<Blob>((resolve, reject) => {
+      if (s3) {
+        s3.send(
+          new GetObjectCommand({
+            Bucket: S3_BUCKET_NAME,
+            Key: photoKey,
+          })
+        ).then((photoContent) => {
+          if (photoContent.Body) {
+            const res = new Response(photoContent.Body as any);
+            res.blob().then((blob) => {
+              resolve(blob);
+            });
+          } else {
+            reject();
+          }
+        });
+      } else {
+        reject();
+      }
+    });
   const handleChangeReferenceImage = (event: any, newValue: string | null) => {
-    let image = images[newValue as string];
-    if (!image) {
+    if (newValue === null) {
       return;
     }
-    if (image.url) {
-      setReferenceImage(image);
-    }
-    setReferenceImage(image);
-    if (s3) {
-      s3.send(
-        new GetObjectCommand({
-          Bucket: S3_BUCKET_NAME,
-          Key: image.photoKey,
-        })
-      ).then((photoContent) => {
-        if (photoContent.Body) {
-          const res = new Response(photoContent.Body as any);
-          res.blob().then((blob) => {
-            image = {
-              ...image,
-              blob,
-              size: blob.size,
-              url: window.URL.createObjectURL(blob),
-            };
-            images[newValue as string] = image;
-            setImages(images);
-            setReferenceImage({ ...image });
-          });
-        }
-      });
-    }
+    setReferenceImage(images[newValue as string]);
   };
+
+  useEffect(() => {
+    if (referenceImage && referenceImage.photoKey) {
+      const cachedImage = images[referenceImage.filename];
+      if (cachedImage && cachedImage.url !== "") {
+        setReferenceImage(cachedImage);
+      } else {
+        getDataImage(referenceImage.photoKey).then((blob) => {
+          const image = {
+            ...images[referenceImage.filename],
+            blob,
+            size: blob.size,
+            url: window.URL.createObjectURL(blob),
+          };
+          images[referenceImage.filename] = image;
+          setImages(images);
+          setReferenceImage({ ...image });
+        });
+      }
+    }
+  }, [referenceImage?.filename]);
   const renderImageProcessing = () => {
     if (referenceImage) {
-      if (referenceImage.url) {
+      if (referenceImage && referenceImage.url && referenceImage.url !== "") {
         return (
-          <img
-            style={{
-              maxWidth: "100%",
-              maxHeight: "100%",
-              objectFit: "contain",
-            }}
-            src={referenceImage.url}
-            alt="ts"
-            loading="lazy"
-          />
+          <Box display="flex" maxHeight={220}>
+            <img
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
+                objectFit: "contain",
+              }}
+              src={referenceImage.url}
+              alt="ts"
+              loading="lazy"
+            />
+          </Box>
         );
       }
       return <Skeleton variant="rectangular" width="100%" height={200} />;
@@ -155,7 +190,7 @@ const ReferenceImageDialog = function () {
           <CancelIcon fontSize="large" />
         </IconButton>
         <Typography variant="h4" component="h2">
-          Select Your Reference Image
+          Please Select Your Reference Image
         </Typography>
         <Box marginTop={5} height="70%">
           <Box height="100%">

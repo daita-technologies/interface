@@ -20,10 +20,7 @@ import {
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setReferenceSeletectorDialog } from "reduxes/customPreprocessing/action";
-import {
-  selectorReferencePreprocessImage,
-  selectorReferenceSeletectorDialog,
-} from "reduxes/customPreprocessing/selector";
+import { selectorReferencePreprocessImage } from "reduxes/customPreprocessing/selector";
 import ReferenceImageDialog from "./ReferenceImageDialog";
 
 const limitTooLongLineStyle = {
