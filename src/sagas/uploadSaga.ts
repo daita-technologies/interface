@@ -2,8 +2,10 @@ import { Upload } from "@aws-sdk/lib-storage";
 import MD5 from "crypto-js/md5";
 import {
   COMPRESS_FILE_EXTENSIONS,
+  COMPRESS_IMAGE_EXTENSIONS,
   IDENTITY_ID_NAME,
   ID_TOKEN_NAME,
+  MAX_ALLOW_UPLOAD_IMAGES,
   ORIGINAL_SOURCE,
   UPLOAD_TASK_TYPE,
 } from "constants/defaultValues";
@@ -66,6 +68,7 @@ import {
   updateCurrentProjectStatistic,
 } from "reduxes/project/action";
 import JSZip from "jszip";
+import { selectorCurrentProjectTotalOriginalImage } from "reduxes/project/selector";
 
 function* handleUpdateUploadToBackend(action: any): any {
   try {
@@ -118,12 +121,55 @@ function* watchUploadProgressChannel() {
     yield put(action);
   }
 }
-
+function* isZipFileValid(action: {
+  type: string;
+  payload: UploadFileParams;
+}): any {
+  const totalOriginalImage = yield select(
+    selectorCurrentProjectTotalOriginalImage
+  );
+  const { fileName } = action.payload;
+  const uploadFiles = yield select(selectorUploadFiles);
+  const f = uploadFiles[fileName].file;
+  try {
+    const zip = yield JSZip.loadAsync(f);
+    let countImages = 0;
+    zip.forEach((relativePath: any, zipEntry: any) => {
+      const { name } = zipEntry;
+      const ext = name.substring(name.lastIndexOf("."));
+      if (COMPRESS_IMAGE_EXTENSIONS.indexOf(ext) !== -1) {
+        countImages += 1;
+      }
+    });
+    if (countImages + totalOriginalImage <= MAX_ALLOW_UPLOAD_IMAGES) {
+      return true;
+    }
+    yield put(
+      updateFile({
+        fileName,
+        updateInfo: {
+          error: `The maximum number of images in a project is ${MAX_ALLOW_UPLOAD_IMAGES}. The number of images in this zip file is ${countImages} and in this project is ${totalOriginalImage}`,
+          status: FAILED_UPLOAD_FILE_STATUS,
+        },
+      })
+    );
+  } catch (e) {
+    toast.error(`Fail to parse file ${fileName}`);
+  }
+  return false;
+}
 function* handleUploadZipFile(action: {
   type: string;
   payload: UploadFileParams;
 }): any {
   try {
+    const isValid = yield call(isZipFileValid, {
+      type: "CHECK_ZIP_FILE",
+      payload: action.payload,
+    });
+    if (isValid === false) {
+      return;
+    }
     const { fileName, projectId, projectName } = action.payload;
     const uploadFiles = yield select(selectorUploadFiles);
     const s3 = yield select(selectorS3);
@@ -479,21 +525,7 @@ function* handleCheckFilesToUpload(action: {
     // yield toast.error(e.message);
   }
 }
-function* validateZipFile(action: {
-  type: string;
-  payload: UploadFileParams;
-}): any {
-  const { fileName, projectId, projectName } = action.payload;
-  const uploadFiles = yield select(selectorUploadFiles);
-  const f = uploadFiles[fileName].file;
-  JSZip.loadAsync(f)
-    .then((zip) => {
-      zip.forEach((relativePath, zipEntry) => {
-        console.log(" zipEntry.name", zipEntry.name);
-      });
-    })
-    .catch((e) => console.log(e));
-}
+
 function* handleUploadRequest(requestChannel: any) {
   while (true) {
     const { payload } = yield take(requestChannel);
@@ -510,10 +542,6 @@ function* handleUploadRequest(requestChannel: any) {
       }
     }
     if (isZipUploadRequest) {
-      // yield call(validateZipFile, {
-      //   type: "CHECK_ZIP_FILE",
-      //   payload,
-      // });
       yield call(handleUploadZipFile, {
         type: UPLOAD_FILE.REQUESTED,
         payload,
