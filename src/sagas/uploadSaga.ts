@@ -5,6 +5,7 @@ import {
   COMPRESS_IMAGE_EXTENSIONS,
   IDENTITY_ID_NAME,
   ID_TOKEN_NAME,
+  MAXIMUM_ZIP_FILE_SIZE,
   MAX_ALLOW_UPLOAD_IMAGES,
   ORIGINAL_SOURCE,
   UPLOAD_TASK_TYPE,
@@ -55,6 +56,7 @@ import {
 import { projectApi } from "services";
 import {
   arrayBufferToWordArray,
+  formatBytes,
   generatePhotoKey,
   generateZipFileKey,
   getLocalStorage,
@@ -130,9 +132,24 @@ function* isZipFileValid(action: {
   );
   const { fileName } = action.payload;
   const uploadFiles = yield select(selectorUploadFiles);
-  const f = uploadFiles[fileName].file;
+  const { file } = uploadFiles[fileName];
+
   try {
-    const zip = yield JSZip.loadAsync(f);
+    if (file.size >= MAXIMUM_ZIP_FILE_SIZE) {
+      yield put(
+        updateFile({
+          fileName,
+          updateInfo: {
+            error: `The maximum size of zip file is ${formatBytes(
+              MAXIMUM_ZIP_FILE_SIZE
+            )}. File size of ${fileName} is ${formatBytes(file.size)}`,
+            status: FAILED_UPLOAD_FILE_STATUS,
+          },
+        })
+      );
+      return false;
+    }
+    const zip = yield JSZip.loadAsync(file);
     let countImages = 0;
     zip.forEach((relativePath: any, zipEntry: any) => {
       const { name } = zipEntry;
@@ -154,7 +171,7 @@ function* isZipFileValid(action: {
       })
     );
   } catch (e) {
-    toast.error(`Fail to parse file ${fileName}`);
+    toast.error(`Fail to parse zip file ${fileName}`);
   }
   return false;
 }
