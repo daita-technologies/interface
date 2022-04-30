@@ -1,9 +1,11 @@
 import {
   AUGMENT_GENERATE_IMAGES_TYPE,
   PREPROCESSING_GENERATE_IMAGES_TYPE,
+  PREPROCESS_GENERATE_TAB,
 } from "constants/defaultValues";
-import { GENERATE_IMAGES } from "./constants";
+import { CHANGE_ACTIVE_GENERATE_TAB, GENERATE_IMAGES } from "./constants";
 import {
+  ChangeActiveGenerateTabIdPayload,
   GenerateImageFailedPayload,
   GenerateImagePayload,
   GenerateImageSucceedPayload,
@@ -14,6 +16,7 @@ const inititalState: GenerateReducer = {
   isGeneratingImages: null,
   isGenerateImagesPreprocessing: null,
   isGenerateImagesAugmenting: null,
+  activeTabId: PREPROCESS_GENERATE_TAB,
 };
 
 const generateReducer = (state = inititalState, action: any) => {
@@ -68,7 +71,13 @@ const generateReducer = (state = inititalState, action: any) => {
         isGenerateImagesAugmenting: augmenting,
       };
     }
-
+    case CHANGE_ACTIVE_GENERATE_TAB: {
+      const { tabId } = payload as ChangeActiveGenerateTabIdPayload;
+      return {
+        ...state,
+        activeTabId: tabId,
+      };
+    }
     default:
       return state;
   }

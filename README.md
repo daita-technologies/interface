@@ -1,49 +1,144 @@
-# Getting Started with Create React App
+# DAITA Platform User Interface
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React-based user interface for the DAITA platform.
 
-## Available Scripts
+## Libraries
+
+- UI: [MUI](https://mui.com)
+- State management: [Redux](https://redux.js.org)
+- Redux side effect manager: [Redux-Saga](https://redux-saga.js.org)
+- S3 client - AWS SDK for JavaScript v3: [@aws-sdk/client-s3](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html)
+- HTTP client: [axios](https://www.npmjs.com/package/axios)
+
+## Folder Structure
+
+```bash
+public/
+  ...
+src/
+  components/
+    [ComponentName]/
+      .tsx
+    index.ts
+  config/
+    .ts
+  constants/
+    .ts
+  hooks/
+    .ts
+  reduxes/
+    [reducerName]/
+      action.ts
+      constants.ts
+      reducer.ts
+      selector.ts
+      type.ts
+  routes/
+    [PageName]/
+      index.tsx
+      type.ts
+    index.ts
+  sagas/
+    .ts
+  services/
+    .ts
+  styles/
+    .ts
+    .css
+  utils/
+    .ts
+```
+
+Files and directories related to React components should be **PascalCase** to separate words and file extension should be `.tsx` for TypeScript React.
+All other files and directories should be **camelCase** to separate words.
+
+**public/**
+
+Contains static files such as `index.html`, JavaScript library files, images, and other assets, etc.
+
+**src/components/**
+
+Contains components that are shared between pages.
+
+**src/config/**
+
+Contains configurations of the app.
+
+**src/contants/**
+
+Contains all constants of the app.
+
+**src/hooks/**
+
+Contains shared React hooks.
+
+**src/reduxes/**
+
+Contains redux's reducer of each app feature. Folder name base on feature's name.
+
+**src/routes/**
+
+Contains pages of the app. Filename base on page's name.
+
+**src/sagas/**
+
+Contains saga files of corresponding redux reducer.
+
+**src/services/**
+
+Contains API endpoints.
+
+**src/styles/**
+
+Contains custom styles for general sections.
+
+**src/utils/**
+
+Contains functions shared between the app.
+
+## Installation
+
+It is recommended to install [Yarn](https://classic.yarnpkg.com) through the `npm` package manager, which comes bundled with [Node.js](https://nodejs.org) when you install it on your system. It is recommended to use a Node.js version `>= 16.0.0`.
+
+Once you have `npm` installed, you can run the following both to install and upgrade Yarn:
+
+```bash
+npm install --global yarn
+```
+
+After having installed Yarn, simply run:
+
+```bash
+yarn install
+```
+
+## Serving the Application
+
+> You need an `.env` file for successful running. Contact the administrator for more information.
 
 In the project directory, you can run:
 
-### `yarn start`
+```bash
+yarn start
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Runs the app in the development mode. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+The page will reload if you make edits. You will also see any lint errors in the console.
 
-### `yarn test`
+## Building the Application
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+In the project directory, you can run:
 
-### `yarn build`
+```bash
+yarn build
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the app for production to the `build` folder. It correctly bundles React in production mode and optimises the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The build is minified and the filenames include the hashes. Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
 ## A Note on Releases
 

@@ -13,6 +13,7 @@ export interface RegisterPayload {
 
 export interface UserInfoType {
   username: string;
+  fullname: string;
 }
 export interface AuthReducer {
   userInfo: UserInfoType;
@@ -22,6 +23,7 @@ export interface AuthReducer {
   isFormRequesting: boolean;
   isVerifying: boolean;
   isForgotRequestStep: boolean;
+  isLoginAccountVerified: boolean;
 }
 
 export interface ForgotPasswordRequestPayload {

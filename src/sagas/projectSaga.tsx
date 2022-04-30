@@ -1,4 +1,8 @@
-import { ID_TOKEN_NAME } from "constants/defaultValues";
+import {
+  HEALTHCHECK_TASK_TYPE,
+  ID_TOKEN_NAME,
+  UPLOAD_TASK_TYPE,
+} from "constants/defaultValues";
 import { toast } from "react-toastify";
 import {
   all,
@@ -23,6 +27,7 @@ import {
   FETCH_TASK_INFO,
   LOAD_PROJECT_THUMBNAIL_IMAGE,
   SET_IS_OPEN_CREATE_PROJECT_MODAL,
+  UPDATE_PROJECT_INFO,
 } from "reduxes/project/constants";
 import {
   selectorCurrentProjectId,
@@ -36,9 +41,11 @@ import {
   FetchProjectTaskListPayload,
   FetchTaskInfoPayload,
   LoadProjectThumbnailImagePayload,
+  TaskInfo,
+  UpdateProjectInfoPayload,
 } from "reduxes/project/type";
 import history from "routerHistory";
-import { projectApi } from "services";
+import { healthCheckApi, projectApi } from "services";
 import { getLocalStorage } from "utils/general";
 import { GENERATE_IMAGES } from "reduxes/generate/constants";
 import { selectorS3 } from "reduxes/general/selector";
@@ -62,6 +69,7 @@ function* handleCreateProject(action: any): any {
         is_sample: createProjectResponse.data.is_sample,
         gen_status: createProjectResponse.data.gen_status,
         thum_key: "",
+        description: "",
       };
       yield put({
         type: CREATE_PROJECT.SUCCEEDED,
@@ -175,18 +183,37 @@ function* handleFetchTaskInfo(action: {
   type: string;
   payload: FetchTaskInfoPayload;
 }): any {
-  const { generateMethod, projectId, taskId } = action.payload;
+  const { idToken, generateMethod, projectId, taskId, processType } =
+    action.payload;
   try {
-    const fetchTaskInfoResponse = yield call(
-      projectApi.getTaskInfo,
-      action.payload
-    );
+    let fetchTaskInfoResponse;
+    if (processType === UPLOAD_TASK_TYPE) {
+      fetchTaskInfoResponse = yield call(
+        projectApi.getUploadZipTaskInfo,
+        action.payload
+      );
+    } else if (processType === HEALTHCHECK_TASK_TYPE) {
+      fetchTaskInfoResponse = yield call(
+        healthCheckApi.getRunHealthCheckStatus,
+        { idToken, taskId }
+      );
+    } else {
+      fetchTaskInfoResponse = yield call(
+        projectApi.getTaskInfo,
+        action.payload
+      );
+    }
 
     if (fetchTaskInfoResponse.error === false) {
       yield put({
         type: FETCH_TASK_INFO.SUCCEEDED,
         payload: {
-          taskInfo: fetchTaskInfoResponse.data,
+          taskInfo: {
+            task_id: taskId,
+            project_id: projectId,
+            process_type: processType,
+            ...fetchTaskInfoResponse.data,
+          },
           projectId: fetchTaskInfoResponse.data.project_id,
         },
       });
@@ -241,12 +268,17 @@ function* handleFetchProjectTaskList(action: {
   const { projectId } = action.payload;
   try {
     const idToken = yield getLocalStorage(ID_TOKEN_NAME);
-    const currentTaskList = yield select(selectorCurrentTaskList);
+    const currentTaskList: TaskInfo[] = yield select(selectorCurrentTaskList);
     yield all(
-      currentTaskList.map((taskId: string) =>
+      currentTaskList.map(({ task_id, process_type }: TaskInfo) =>
         call(handleFetchTaskInfo, {
           type: FETCH_TASK_INFO.REQUESTED,
-          payload: { idToken, taskId, projectId },
+          payload: {
+            idToken,
+            taskId: task_id,
+            projectId,
+            processType: process_type,
+          },
         })
       )
     );
@@ -383,6 +415,35 @@ function* handleLoadProjectThumbnailImage(action: {
   }
 }
 
+function* handleUpdateProjectInfo(action: {
+  type: string;
+  payload: UpdateProjectInfoPayload;
+}): any {
+  try {
+    const updateProjectInfoResponse = yield call(
+      projectApi.updateProjectInfo,
+      action.payload
+    );
+    if (!updateProjectInfoResponse.error) {
+      yield put({
+        type: UPDATE_PROJECT_INFO.SUCCEEDED,
+        payload: {
+          ...updateProjectInfoResponse.data,
+        },
+      });
+      yield toast.success(
+        `The project ${action.payload.updateInfo.projectName} was successfully updated.`
+      );
+      yield history.push("/dashboard");
+    } else {
+      yield put({ type: UPDATE_PROJECT_INFO.FAILED });
+      toast.error(updateProjectInfoResponse.message);
+    }
+  } catch (e: any) {
+    yield put({ type: UPDATE_PROJECT_INFO.FAILED });
+    toast.error(e.message);
+  }
+}
 function* createProjectSaga() {
   yield takeLatest(CREATE_PROJECT.REQUESTED, handleCreateProject);
   yield takeLatest(FETCH_LIST_PROJECTS.REQUESTED, handleFetchListProjects);
@@ -399,6 +460,7 @@ function* createProjectSaga() {
     LOAD_PROJECT_THUMBNAIL_IMAGE.REQUESTED,
     handleLoadProjectThumbnailImage
   );
+  yield takeLatest(UPDATE_PROJECT_INFO.REQUESTED, handleUpdateProjectInfo);
 }
 
 export default createProjectSaga;

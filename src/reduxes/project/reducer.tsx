@@ -1,7 +1,7 @@
 import {
-  ORIGINAL_SOURCE,
   AUGMENT_GENERATE_IMAGES_TYPE,
   LATEST_SELECTED_DATA_SOURCE_KEY_NAME,
+  ORIGINAL_SOURCE,
 } from "constants/defaultValues";
 import { GENERATE_IMAGES } from "reduxes/generate/constants";
 import { GenerateImageSucceedPayload } from "reduxes/generate/type";
@@ -21,10 +21,13 @@ import {
   SET_IS_EDITING_SPLIT_DATA,
   SET_IS_OPEN_CREATE_PROJECT_MODAL,
   SET_IS_OPEN_DELETE_CONFIRM,
+  SET_IS_OPEN_UPDATE_PROJECT_INFO,
   SET_SPLIT_DATA_NUMBER,
+  UPDATE_PROJECT_INFO,
   UPDATE_STATISTIC_PROJECT,
 } from "./constants";
 import {
+  ApiUpdateProjectsInfo,
   ChangeSelectedDatSourcePayload,
   CreateSampleSucceedPayload,
   DeleteProjectSucceedPayload,
@@ -35,6 +38,7 @@ import {
   ProjectReducerState,
   SetIsEditingSplitDataPayload,
   SetIsOpenDeleteConfirmPayload,
+  SetIsOpenUpdateProjectInfoPayload,
   SetSplitDataNumberPayload,
   SPLIT_DATA_NUMBER_SOURCE_TYPE,
   UpdateProjectStatisticPayload,
@@ -59,6 +63,7 @@ const inititalState: ProjectReducerState = {
   thumbnails: {},
   deleteConfirmDialogInfo: null,
   isEditingSplitData: false,
+  updateProjectInfoDialog: null,
 };
 
 const projectReducer = (
@@ -301,18 +306,21 @@ const projectReducer = (
               newListProject[matchProjectIndex].ls_task[matchTaskIdIndex] = {
                 task_id: taskInfo.task_id,
                 project_id,
+                process_type: taskInfo.process_type,
               };
             } else {
               newListProject[matchProjectIndex].ls_task.push({
                 task_id: taskInfo.task_id,
                 project_id,
+                process_type: taskInfo.process_type,
               });
             }
 
             // NOTE: add fetched task to currentInfo
             const newCurrentProjectInfo = { ...currentProjectInfo };
-            if (ls_task.indexOf(taskInfo.task_id) < 0) {
-              newCurrentProjectInfo.ls_task.push(taskInfo.task_id);
+            const task = ls_task.find((t) => t.task_id === taskInfo.task_id);
+            if (!task) {
+              newCurrentProjectInfo.ls_task.push(taskInfo);
             }
 
             return {
@@ -364,6 +372,7 @@ const projectReducer = (
             groups: null,
             ls_task: [],
             is_sample: true,
+            description: "",
           },
         ],
       };
@@ -433,6 +442,43 @@ const projectReducer = (
       const newThumbnails = { ...state.thumbnails };
       newThumbnails[projectId] = thumbnailUrl;
       return { ...state, thumbnails: newThumbnails };
+    }
+    case SET_IS_OPEN_UPDATE_PROJECT_INFO: {
+      return {
+        ...state,
+        updateProjectInfoDialog: payload as SetIsOpenUpdateProjectInfoPayload,
+      };
+    }
+    case UPDATE_PROJECT_INFO.REQUESTED: {
+      return {
+        ...state,
+        updateProjectInfoDialog: {
+          ...state.updateProjectInfoDialog,
+          isProcessing: true,
+        } as SetIsOpenUpdateProjectInfoPayload,
+      };
+    }
+    case UPDATE_PROJECT_INFO.SUCCEEDED: {
+      const { project_id, project_name, description } =
+        payload as ApiUpdateProjectsInfo;
+      const newListProject = [...state.listProjects];
+      const project = newListProject.find((pj) => pj.project_id == project_id);
+      if (project) {
+        project.project_name = project_name;
+        project.description = description;
+      }
+      return {
+        ...state,
+        listProjects: newListProject,
+        updateProjectInfoDialog: {
+          isOpen: false,
+          isProcessing: false,
+        },
+      };
+    }
+    case UPDATE_PROJECT_INFO.FAILED: {
+      // const { projectId } = payload as UpdateProjectInfoPayload;
+      return state;
     }
     default:
       return state;

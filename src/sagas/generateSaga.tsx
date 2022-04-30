@@ -42,6 +42,7 @@ function* handleGenerateImages(action: {
           idToken: getLocalStorage(ID_TOKEN_NAME) || "",
           taskId: generateImagesResponse.data.task_id,
           isNotify: true,
+          processType: generateImagesResponse.data.process_type,
           projectId,
           generateMethod,
         })

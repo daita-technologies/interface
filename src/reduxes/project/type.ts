@@ -4,6 +4,7 @@ import {
   FINISH_SAMPLE_PROJECT_STATUS,
   FINISH_TASK_STATUS,
   GENERATING_SAMPLE_PROJECT_STATUS,
+  HEALTHCHECK_TASK_TYPE,
   ORIGINAL_SOURCE,
   PENDING_TASK_STATUS,
   PREPARING_DATA_TASK_STATUS,
@@ -11,6 +12,7 @@ import {
   PREPROCESS_SOURCE,
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
+  UPLOAD_TASK_TYPE,
 } from "constants/defaultValues";
 import { ImageSourceType } from "reduxes/album/type";
 import { generateMethodType } from "reduxes/generate/type";
@@ -41,18 +43,18 @@ export interface UpdateStatisticInfo {
   };
 }
 
-export interface ListTaskItem {
+export interface TaskInfo {
   task_id: string;
-  project_id: string;
+  process_type: ProcessType;
+  project_id?: string;
 }
-
 export interface ProjectInfo {
   identity_id: string;
   project_name: string;
   project_id: string;
   times_generated: number;
   groups: GroupProjectInfo;
-  ls_task: Array<string>;
+  ls_task: Array<TaskInfo>;
   is_sample: boolean;
   gen_status: GENERATE_PROJECT_STATUS_TYPE;
 }
@@ -61,11 +63,12 @@ export interface ApiListProjectsItem {
   project_id: string;
   project_name: string;
   s3_prefix: string;
-  ls_task: Array<ListTaskItem>;
+  ls_task: Array<TaskInfo>;
   groups: GroupProjectInfo;
   is_sample: boolean;
   gen_status: GENERATE_PROJECT_STATUS_TYPE;
   thum_key: string;
+  description: string;
 }
 
 export interface UpdateProjectStatisticPayload {
@@ -114,22 +117,41 @@ export interface TaskInfoApiFields {
   identity_id: string;
   task_id: string;
   status: TaskStatusType;
-  process_type: ImageSourceType;
+  process_type: ProcessType;
   number_finished: number;
   project_id: string;
   number_gen_images: number;
 }
+export type ProcessType =
+  | ImageSourceType
+  | typeof UPLOAD_TASK_TYPE
+  | typeof HEALTHCHECK_TASK_TYPE;
 
+export type ZipTaskInfoApiFields = Pick<
+  TaskInfoApiFields,
+  "identity_id" | "task_id" | "status" | "process_type" | "project_id"
+>;
+
+export type HealthCheckInfoApiFields = Pick<
+  TaskInfoApiFields,
+  "task_id" | "status" | "process_type"
+>;
+
+export type GeneralTaskInfoApiFields =
+  | TaskInfoApiFields
+  | ZipTaskInfoApiFields
+  | HealthCheckInfoApiFields;
 export interface FetchTaskInfoPayload {
   idToken: string;
   taskId: string;
-  projectId: string;
+  processType: ProcessType;
+  projectId?: string;
   isNotify?: boolean;
   generateMethod?: generateMethodType;
 }
 
 export interface FetchTaskInfoSucceedPayload {
-  taskInfo: TaskInfoApiFields;
+  taskInfo: GeneralTaskInfoApiFields;
   projectId: string;
 }
 
@@ -176,9 +198,10 @@ export interface ProjectReducerState {
   currentProjectInfo: null | ProjectInfo;
   listMethod: null | ListMethodType;
   selectedDataSource: SPLIT_DATA_NUMBER_SOURCE_TYPE;
-  tasks: { [taskId: string]: TaskInfoApiFields };
+  tasks: { [taskId: string]: GeneralTaskInfoApiFields };
   thumbnails: { [projectId: string]: null | string };
   isEditingSplitData: boolean;
+  updateProjectInfoDialog: null | SetIsOpenUpdateProjectInfoPayload;
 }
 
 export interface SetIsEditingSplitDataPayload {
@@ -198,4 +221,30 @@ export interface LoadProjectThumbnailImagePayload {
 export interface LoadProjectThumbnailImageSucceedPayload {
   thumbnailUrl: string;
   projectId: string;
+}
+export interface UpdateProjectInfo {
+  projectName: string;
+  description?: string;
+}
+export interface UpdateProjectInfoPayload {
+  idToken: string;
+  projectId: string;
+  projectName: string;
+  updateInfo: UpdateProjectInfo;
+}
+
+export interface SetIsOpenUpdateProjectInfoPayload {
+  isOpen: boolean;
+  isProcessing: boolean;
+  projectId?: string;
+  projectName?: string;
+  updateInfo?: UpdateProjectInfo;
+}
+export interface ApiUpdateProjectsInfo {
+  project_id: string;
+  s3_prefix: string;
+  is_sample: boolean;
+  gen_status: GENERATE_PROJECT_STATUS_TYPE;
+  project_name: string;
+  description: string;
 }

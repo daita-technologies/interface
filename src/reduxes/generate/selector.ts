@@ -6,3 +6,5 @@ export const selectorIsGenerateImagesPreprocessing = (state: RootState) =>
   state.generateReducer.isGenerateImagesPreprocessing;
 export const selectorIsGenerateImagesAugmenting = (state: RootState) =>
   state.generateReducer.isGenerateImagesAugmenting;
+export const selectorActiveGenerateTabId = (state: RootState) =>
+  state.generateReducer.activeTabId;

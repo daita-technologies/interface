@@ -30,10 +30,13 @@ import {
   // PASSWORD_STRENGTH_REGEX,
   SYSTEM_DATE_FORMAT,
   SYSTEM_DATE_TIME_FORMAT,
+  USERNAME_REGEX,
 } from "constants/defaultValues";
 
 import { registerAction } from "reduxes/auth/actions";
 import { CheckCaseTextProps, UserInfoFormProps } from "./type";
+import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
+import ReCAPTCHA from "react-google-recaptcha";
 
 type RegisterFormFields = {
   username: string;
@@ -63,6 +66,8 @@ const upperCase = (value: string) => /(?=.*[A-Z])/.test(value);
 const oneDigit = (value: string) => /(?=.*\d)/.test(value);
 const specialChar = (value: string) =>
   /(?=.*[!@#$%^&*()\\[\]{}\-_+=~`|:;"'<>,./?])/.test(value);
+const MAX_USERNAME_LENGTH = 20;
+const MIN_USERNAME_LENGTH = 3;
 
 const UserInfoForm = function ({
   autoComplete = false,
@@ -93,6 +98,13 @@ const UserInfoForm = function ({
 
   const password = useRef({});
   password.current = watch("password", "");
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const reloadRecaptchaTrigger = useSelector(selectorReloadRecaptchaTrigger);
+
+  useEffect(() => {
+    recaptchaRef.current?.reset();
+    setValue("captcha", "");
+  }, [reloadRecaptchaTrigger]);
 
   const onSubmit: SubmitHandler<RegisterFormFields> = (data) => {
     const { username, email, password: passwordValue, captcha } = data;
@@ -156,11 +168,28 @@ const UserInfoForm = function ({
           fullWidth
           margin="normal"
           label="Username"
-          {...register("username", { required: true })}
+          {...register("username", {
+            required: true,
+            maxLength: {
+              value: MAX_USERNAME_LENGTH,
+              message: `Your username must be at the most ${MAX_USERNAME_LENGTH} characters long.`,
+            },
+            minLength: {
+              value: MIN_USERNAME_LENGTH,
+              message: `Your username must be at least ${MIN_USERNAME_LENGTH} characters long.`,
+            },
+            pattern: {
+              value: USERNAME_REGEX,
+              message: "Username accepts Alphanumeric characters, @^$.!`-#+'~_",
+            },
+          })}
           autoFocus
           disabled={isFormRequesting || editMode}
           autoComplete={autoCompleteString}
           defaultValue={(userInfo && editMode && userInfo.username) || null}
+          error={!!errors.username}
+          helperText={(errors.username && errors.username.message) || ""}
+          inputProps={{ style: { textTransform: "lowercase" } }}
         />
 
         <TextField
@@ -176,7 +205,7 @@ const UserInfoForm = function ({
             required: true,
             pattern: {
               value: EMAIL_REGEX,
-              message: "Email formatting is not correct.",
+              message: "Please enter a valid email address.",
             },
           })}
           disabled={isFormRequesting || (editMode && userInfo.email)}
@@ -304,7 +333,11 @@ const UserInfoForm = function ({
           </FormControl>
         )}
 
-        <ReCaptchaInput control={control} register={register} />
+        <ReCaptchaInput
+          recaptchaRef={recaptchaRef}
+          control={control}
+          register={register}
+        />
 
         <Box
           sx={{

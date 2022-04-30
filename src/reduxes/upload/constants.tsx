@@ -4,6 +4,7 @@ export const UPLOAD_FILE = asyncAction("UPLOAD_FILE");
 export const CHECK_FILES = asyncAction("CHECK_FILES");
 export const ADD_FILE = "ADD_FILE";
 export const UPDATE_FILE = "UPDATE_FILE";
+export const UPDATE_FILES = "UPDATE_FILES";
 export const CLEAR_ALL_FILE = "CLEAR_ALL_FILE";
 export const CLEAR_FILE_ARRAY = "CLEAR_FILE_ARRAY";
 export const UPDATE_STATUS_FILE_ARRAY = "UPDATE_STATUS_FILE_ARRAY";

@@ -1,30 +1,33 @@
-import React from "react";
-import {
-  Button,
-  ListItemIcon,
-  ListItemText,
-  Menu,
-  MenuItem,
-} from "@mui/material";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-
+import {
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Popover,
+} from "@mui/material";
+import React, { useEffect } from "react";
 import { UploadFromMenuProps } from "./type";
 
 const UploadFromMenu = function ({
   inputRef,
-  isDisabledUpload,
+  anchorEl,
+  isOpen,
+  relativeMousePosition = { top: 0, left: 0 },
+  onClose,
 }: UploadFromMenuProps) {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
+  const [anchorElClone, setAnchorElClone] =
+    React.useState<HTMLElement | null>();
+  const open = Boolean(anchorElClone);
+  useEffect(() => {
+    if (isOpen == true) {
+      setAnchorElClone(anchorEl);
+    } else {
+      setAnchorElClone(null);
+    }
+  }, [isOpen]);
   const handleClose = () => {
-    setAnchorEl(null);
+    onClose();
   };
 
   const removeDirectoryAttribute = () => {
@@ -65,37 +68,33 @@ const UploadFromMenu = function ({
     }
   };
   return (
-    <>
-      <Button
-        sx={{ mb: 2 }}
-        startIcon={<AddCircleIcon />}
-        variant="outlined"
-        color="inherit"
-        onClick={handleClick}
-        disabled={isDisabledUpload}
-      >
-        From ...
-      </Button>
-      <Menu
-        sx={{ mt: 1 }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-      >
-        <MenuItem onClick={onClickUploadFile}>
-          <ListItemIcon sx={{ color: "text.primary" }}>
-            <UploadFileIcon />
-          </ListItemIcon>
-          <ListItemText>Files upload</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={onClickUploadFolder}>
-          <ListItemIcon sx={{ color: "text.primary" }}>
-            <DriveFolderUploadIcon />
-          </ListItemIcon>
-          <ListItemText>Folder upload</ListItemText>
-        </MenuItem>
-      </Menu>
-    </>
+    <Popover
+      anchorEl={anchorElClone}
+      open={open}
+      anchorOrigin={{
+        vertical: "top",
+        horizontal: "left",
+      }}
+      transformOrigin={{
+        vertical: -relativeMousePosition.top,
+        horizontal: -relativeMousePosition.left,
+      }}
+      transitionDuration={0}
+      onClose={handleClose}
+    >
+      <ListItemButton onClick={onClickUploadFile}>
+        <ListItemIcon sx={{ color: "text.primary" }}>
+          <UploadFileIcon />
+        </ListItemIcon>
+        <ListItemText>Select Files</ListItemText>
+      </ListItemButton>
+      <ListItemButton onClick={onClickUploadFolder}>
+        <ListItemIcon sx={{ color: "text.primary" }}>
+          <DriveFolderUploadIcon />
+        </ListItemIcon>
+        <ListItemText>Select Folder</ListItemText>
+      </ListItemButton>
+    </Popover>
   );
 };
 

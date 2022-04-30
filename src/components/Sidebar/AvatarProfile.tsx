@@ -46,7 +46,7 @@ const AvatarProfile = function () {
   // };
 
   if (userInfo) {
-    const { username } = userInfo;
+    const { username, fullname } = userInfo;
 
     return (
       <Box>
@@ -61,7 +61,7 @@ const AvatarProfile = function () {
           ) : (
             <AccountCircleIcon />
           )}
-          {username && (
+          {(fullname || username) && (
             <Typography
               sx={{
                 color: "text.primary",
@@ -69,8 +69,9 @@ const AvatarProfile = function () {
                 pl: 4,
                 textTransform: "none",
               }}
+              noWrap
             >
-              {username}
+              {fullname || username}
             </Typography>
             // <Button
             //   sx={{

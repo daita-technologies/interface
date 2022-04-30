@@ -8,3 +8,6 @@ export { default as DashboardPage } from "./DashboardPage";
 export { default as ProfilePage } from "./ProfilePage";
 
 export { default as ProjectDetail } from "./ProjectDetail";
+export { default as TaskDashboard } from "./TaskDashboard";
+
+export { default as HealthCheckPage } from "./HealthCheckPage";

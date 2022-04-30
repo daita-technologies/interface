@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import lodash from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -24,7 +25,7 @@ import {
   Typography,
 } from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { TabPanel } from "components";
+import { Link, TabPanel, MyButton } from "components";
 
 import {
   a11yProps,
@@ -37,6 +38,9 @@ import {
   AUGMENT_SOURCE,
   ID_TOKEN_NAME,
   PREPROCESS_SOURCE,
+  AUGMENT_IMAGES_TAB,
+  ORIGINAL_IMAGES_TAB,
+  PREPROCESS_IMAGES_TAB,
 } from "constants/defaultValues";
 
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
@@ -59,15 +63,9 @@ import {
 } from "reduxes/album/selector";
 import { ImageApiFields, TAB_ID_TYPE } from "reduxes/album/type";
 
-import {
-  AUGMENT_IMAGES_TAB,
-  ORIGINAL_IMAGES_TAB,
-  PREPROCESS_IMAGES_TAB,
-} from "constants/defaultValues";
 import { ALBUM_SELECT_MODE } from "reduxes/album/constants";
 import { selectorMethodList } from "reduxes/project/selector";
 import { MethodInfoFields } from "reduxes/project/type";
-import _ from "lodash";
 
 import DownloadButton from "../DownloadButton";
 import { AlbumViewerProps } from "../type";
@@ -157,6 +155,8 @@ const ImageRow = function ({
 };
 
 const AlbumViewer = function (props: AlbumViewerProps) {
+  const { projectName } = useParams<{ projectName: string }>();
+
   const dispatch = useDispatch();
   const isFetchingInitialLoad = useSelector(selectorIsFetchingInitialLoad);
   const images = useSelector(selectorImages);
@@ -171,7 +171,6 @@ const AlbumViewer = function (props: AlbumViewerProps) {
   const activeImagesTabId = useSelector(selectorActiveImagesTabId);
 
   const s3 = useSelector((state: RootState) => state.generalReducer.s3);
-
   const hasMore = nextToken !== null;
 
   const listMethod = useSelector(selectorMethodList);
@@ -298,7 +297,7 @@ const AlbumViewer = function (props: AlbumViewerProps) {
             );
             if (matchMethodIndex > -1) {
               if (image.typeOfImage === PREPROCESS_SOURCE) {
-                return _.startCase(
+                return lodash.startCase(
                   usingListMethod[matchMethodIndex].method_name.replace(
                     /_/g,
                     " "
@@ -307,7 +306,7 @@ const AlbumViewer = function (props: AlbumViewerProps) {
               }
 
               if (image.typeOfImage === AUGMENT_SOURCE) {
-                return _.startCase(
+                return lodash.startCase(
                   usingListMethod[matchMethodIndex].method_name
                     .replace(/_/g, " ")
                     .replace(/random/g, "")
@@ -467,22 +466,6 @@ const AlbumViewer = function (props: AlbumViewerProps) {
                   <CircularProgress size={20} />
                 </Box>
               }
-              endMessage={
-                <Box
-                  mt={2}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Typography
-                    fontStyle="italic"
-                    color="text.secondary"
-                    fontSize={14}
-                  >
-                    No more data to load.
-                  </Typography>
-                </Box>
-              }
               scrollableTarget={IMAGE_LIST_HTML_ID}
             >
               {imagesFileNameArrayGrouped.map(
@@ -529,7 +512,7 @@ const AlbumViewer = function (props: AlbumViewerProps) {
         justifyContent="center"
       >
         <Typography fontStyle="italic" color="text.secondary">
-          You don't have any images.
+          You don&lsquo;t have any images.
         </Typography>
       </Box>
     );
@@ -584,8 +567,13 @@ const AlbumViewer = function (props: AlbumViewerProps) {
           <Box ml={8}>
             <SelectButton />
           </Box>
-          <Box ml="auto">
-            <DownloadButton projectId={projectId} />
+          <Box ml="auto" display="flex" alignItems="center">
+            <MyButton>
+              <Link to={`/health-check/${projectName}`}>Health Check</Link>
+            </MyButton>
+            <Box ml={3}>
+              <DownloadButton projectId={projectId} />
+            </Box>
           </Box>
         </Box>
 

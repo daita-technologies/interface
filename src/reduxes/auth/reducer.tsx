@@ -1,12 +1,17 @@
-import { TEMP_LOCAL_USERNAME } from "constants/defaultValues";
+import {
+  TEMP_LOCAL_FULLNAME,
+  TEMP_LOCAL_USERNAME,
+} from "constants/defaultValues";
 import { getLocalStorage, getLocalToken } from "utils/general";
 import {
   FORGOT_PASSWORD_CHANGE,
   FORGOT_PASSWORD_REQUEST,
   GET_USER_INFO,
   LOGIN,
+  LOGIN_ACCOUNT_NOT_VERIFY,
   LOG_OUT,
   REGISTER_USER,
+  RESET_LOGIN_ACCOUNT_NOT_VERIFY,
   SET_IS_FORGOT_REQUEST_STEP,
   UPDATE_USER_INFO,
   VERIFY_ACCOUNT,
@@ -15,7 +20,8 @@ import { AuthReducer, SetIsForgotRequestPayload } from "./type";
 
 const inititalState: AuthReducer = {
   userInfo: {
-    username: getLocalStorage(TEMP_LOCAL_USERNAME) || "DAITA User",
+    username: getLocalStorage(TEMP_LOCAL_USERNAME) || "",
+    fullname: getLocalStorage(TEMP_LOCAL_FULLNAME) || "DAITA User",
   },
   token: getLocalToken(),
   isLogged: !!getLocalToken(),
@@ -23,6 +29,7 @@ const inititalState: AuthReducer = {
   isFormRequesting: false,
   isVerifying: false,
   isForgotRequestStep: true,
+  isLoginAccountVerified: true,
 };
 
 const authReducer = (state = inititalState, action: any) => {
@@ -33,14 +40,21 @@ const authReducer = (state = inititalState, action: any) => {
       return { ...state, isLogging: true };
 
     case LOGIN.SUCCEEDED: {
-      const username = getLocalStorage(TEMP_LOCAL_USERNAME) || "";
+      const username =
+        getLocalStorage(TEMP_LOCAL_USERNAME) ||
+        inititalState.userInfo.username ||
+        "";
+      const fullname = getLocalStorage(TEMP_LOCAL_FULLNAME) || "";
 
       return {
         ...state,
         token: payload.token,
         isLogging: false,
         isLogged: true,
-        userInfo: { username: username || inititalState.userInfo.username },
+        userInfo: {
+          username,
+          fullname: fullname || username || inititalState.userInfo.fullname,
+        },
       };
     }
     case LOG_OUT.SUCCEEDED:
@@ -77,6 +91,10 @@ const authReducer = (state = inititalState, action: any) => {
       const { isForgotRequestStep } = payload as SetIsForgotRequestPayload;
       return { ...state, isForgotRequestStep };
     }
+    case LOGIN_ACCOUNT_NOT_VERIFY:
+      return { ...state, isLoginAccountVerified: false, isLogging: false };
+    case RESET_LOGIN_ACCOUNT_NOT_VERIFY:
+      return { ...state, isLoginAccountVerified: true };
     default:
       return state;
   }

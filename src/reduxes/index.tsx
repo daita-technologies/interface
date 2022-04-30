@@ -9,6 +9,9 @@ import albumReducer from "reduxes/album/reducer";
 import downloadReducer from "reduxes/download/reducer";
 import generateReducer from "reduxes/generate/reducer";
 import inviteReducer from "reduxes/invite/reducer";
+import feedbackReducer from "./feedback/reducer";
+import healthCheckReducer from "./healthCheck/reducer";
+import customPreprocessing from "./customPreprocessing/reducer";
 
 const rootReducer = combineReducers({
   authReducer,
@@ -20,6 +23,9 @@ const rootReducer = combineReducers({
   downloadReducer,
   generateReducer,
   inviteReducer,
+  feedbackReducer,
+  healthCheckReducer,
+  customPreprocessing,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
