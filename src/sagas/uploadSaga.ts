@@ -14,6 +14,7 @@ import { S3_BUCKET_NAME } from "constants/s3Values";
 import {
   ADDED_UPLOAD_FILE_STATUS,
   CHECKING_UPLOAD_FILE_STATUS,
+  CHECK_ZIP_FILE,
   FAILED_UPLOAD_FILE_STATUS,
   QUEUEING_UPLOAD_FILE_STATUS,
   UPLOADED_UPLOAD_FILE_STATUS,
@@ -140,9 +141,9 @@ function* isZipFileValid(action: {
         updateFile({
           fileName,
           updateInfo: {
-            error: `The maximum size of zip file is ${formatBytes(
-              MAXIMUM_ZIP_FILE_SIZE
-            )}. File size of ${fileName} is ${formatBytes(file.size)}`,
+            error: `The file size exceeds the limit allowed (${formatBytes(
+              file.size
+            )}/${formatBytes(MAXIMUM_ZIP_FILE_SIZE)})`,
             status: FAILED_UPLOAD_FILE_STATUS,
           },
         })
@@ -161,17 +162,19 @@ function* isZipFileValid(action: {
     if (countImages + totalOriginalImage <= MAX_ALLOW_UPLOAD_IMAGES) {
       return true;
     }
+    const totalImage = totalOriginalImage + countImages;
+    const exceedCount = totalImage - MAX_ALLOW_UPLOAD_IMAGES;
     yield put(
       updateFile({
         fileName,
         updateInfo: {
-          error: `The maximum number of images in a project is ${MAX_ALLOW_UPLOAD_IMAGES}. The number of images in this zip file is ${countImages} and in this project is ${totalOriginalImage}`,
+          error: `The number of images exceed ${exceedCount} (${totalImage}/ ${MAX_ALLOW_UPLOAD_IMAGES}).`,
           status: FAILED_UPLOAD_FILE_STATUS,
         },
       })
     );
   } catch (e) {
-    toast.error(`Fail to parse zip file ${fileName}`);
+    toast.error(`Failed to parse zip file ${fileName}`);
   }
   return false;
 }
@@ -181,7 +184,7 @@ function* handleUploadZipFile(action: {
 }): any {
   try {
     const isValid = yield call(isZipFileValid, {
-      type: "CHECK_ZIP_FILE",
+      type: CHECK_ZIP_FILE,
       payload: action.payload,
     });
     if (isValid === false) {
