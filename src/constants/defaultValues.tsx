@@ -65,7 +65,7 @@ export const SYSTEM_DATE_FORMAT = "YYYY/MM/DD";
 export const SYSTEM_TIME_FORMAT = "HH:mm:ss";
 
 export const VIEW_ALBUM_PAGE_SIZE = 10;
-export const MAXIMUM_FETCH_IMAGES_AMOUNT = 500;
+export const MAXIMUM_FETCH_IMAGES_AMOUNT = 1000;
 
 export const ORIGINAL_IMAGES_TAB = 0;
 export const PREPROCESS_IMAGES_TAB = 1;
@@ -111,7 +111,7 @@ export const FINISH_SAMPLE_PROJECT_STATUS = "FINISH";
 export const LATEST_SELECTED_DATA_SOURCE_KEY_NAME =
   "latest_selected_data_source_key_name";
 
-export const MAX_ALLOW_UPLOAD_IMAGES = 500;
+export const MAX_ALLOW_UPLOAD_IMAGES = 1000;
 
 export const ALL_DOWNLOAD_TYPE = "ALL";
 export const PREPROCESS_DOWNLOAD_TYPE = "PREPROCESS";
@@ -128,5 +128,8 @@ export const ERROR_MESSAGE_ACCOUNT_NOT_VERIFY =
 export const DEFAULT_SPLIT_DATASET_PERCENT_RATE = [70, 20, 10];
 
 export const COMPRESS_FILE_EXTENSIONS = [".tar", ".gz", ".bz2", ".zip"];
+
+export const TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE = "custom_method_expert_mode";
+
 export const COMPRESS_IMAGE_EXTENSIONS = [".jpeg", ".png", ".jpg"];
 export const MAXIMUM_ZIP_FILE_SIZE = 2000000000;

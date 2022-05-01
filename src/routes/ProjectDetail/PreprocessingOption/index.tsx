@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Switch, Typography } from "@mui/material";
 import { InfoTooltip, MyButton } from "components";
 import {
   ID_TOKEN_NAME,
@@ -7,6 +7,8 @@ import {
 } from "constants/defaultValues";
 import { useDispatch, useSelector } from "react-redux";
 import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
+import { changePreprocessingExpertMode } from "reduxes/customPreprocessing/action";
+import { selectorIsPreprocessingExpertMode } from "reduxes/customPreprocessing/selector";
 import {
   selectorCurrentProjectIdDownloading,
   selectorIsDownloading,
@@ -26,6 +28,7 @@ import {
 import { MethodInfoFields } from "reduxes/project/type";
 import { selectorIsUploading } from "reduxes/upload/selector";
 import { getLocalStorage } from "utils/general";
+import ExpertPreprocessingOption from "./ExpertPreprocessOption";
 import { PreprocessingOptionProps } from "./type";
 
 const PreprocessingOption = function (props: PreprocessingOptionProps) {
@@ -57,7 +60,18 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
   const currentProjectIdDownloading = useSelector(
     selectorCurrentProjectIdDownloading
   );
-
+  const isPreprocessingExpertMode = useSelector(
+    selectorIsPreprocessingExpertMode
+  );
+  const handleChangePreprocessintExpertMode = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    dispatch(
+      changePreprocessingExpertMode({
+        isPreprocessingExpertMode: event.target.checked,
+      })
+    );
+  };
   const onClickRunPreprocessing = () => {
     if (listMethod) {
       dispatch(
@@ -81,6 +95,20 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
     if (listMethod && listMethod.preprocessing) {
       return (
         <Box>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <Typography fontWeight={500}>Preprocessing Option </Typography>
+
+              <InfoTooltip
+                sx={{ ml: 1 }}
+                title="Data source: Preprocessing is applied to the original dataset."
+              />
+            </Box>
+          </Box>
           <Typography sx={{ mt: 2, mb: 1 }} variant="body2">
             Methods:
           </Typography>
@@ -116,34 +144,59 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
   };
 
   return (
-    <Box>
+    <Box display="flex" flexDirection="column" flex={1}>
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Box display="flex" alignItems="center" justifyContent="center">
-          <Typography fontWeight={500}>Preprocessing Option </Typography>
-          <InfoTooltip
-            sx={{ ml: 1 }}
-            title="Data source: Preprocessing is applied to the original dataset."
-          />
+        <Box>
+          <Typography variant="body2" color="text.secondary">
+            All preprocessing methods are applied to the original dataset
+          </Typography>
+          <Typography variant="h6" fontWeight={400}>
+            Select your mode
+          </Typography>
         </Box>
-        <MyButton
-          color="primary"
-          variant="contained"
-          size="small"
-          isLoading={!!isGenerateImagesPreprocessing}
-          disabled={
-            totalOriginalImages <= 0 ||
-            haveTaskRunning ||
-            isUploading ||
-            isAlbumSelectMode ||
-            !!isGenerateImagesAugmenting ||
-            (!!isDownloading && projectId === currentProjectIdDownloading)
-          }
-          onClick={onClickRunPreprocessing}
-        >
-          Run
-        </MyButton>
+        <Box>
+          <MyButton
+            color="primary"
+            variant="contained"
+            size="small"
+            isLoading={!!isGenerateImagesPreprocessing}
+            disabled={
+              totalOriginalImages <= 0 ||
+              haveTaskRunning ||
+              isUploading ||
+              isAlbumSelectMode ||
+              !!isGenerateImagesAugmenting ||
+              (!!isDownloading && projectId === currentProjectIdDownloading)
+            }
+            onClick={onClickRunPreprocessing}
+          >
+            Run
+          </MyButton>
+        </Box>
       </Box>
-      {renderMethodList()}
+
+      <Box
+        sx={{ mt: 1, mb: 2 }}
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+      >
+        <Box display="flex" alignItems="center">
+          <Switch
+            checked={isPreprocessingExpertMode}
+            size="small"
+            onChange={handleChangePreprocessintExpertMode}
+          />
+          <Typography fontWeight={500}>Expert Mode</Typography>
+          <InfoTooltip sx={{ ml: 1 }} title="Expert mode" />
+        </Box>
+      </Box>
+
+      {isPreprocessingExpertMode ? (
+        <ExpertPreprocessingOption />
+      ) : (
+        renderMethodList()
+      )}
     </Box>
   );
 };
