@@ -2,8 +2,11 @@ import { Upload } from "@aws-sdk/lib-storage";
 import MD5 from "crypto-js/md5";
 import {
   COMPRESS_FILE_EXTENSIONS,
+  COMPRESS_IMAGE_EXTENSIONS,
   IDENTITY_ID_NAME,
   ID_TOKEN_NAME,
+  MAXIMUM_ZIP_FILE_SIZE,
+  MAX_ALLOW_UPLOAD_IMAGES,
   ORIGINAL_SOURCE,
   UPLOAD_TASK_TYPE,
 } from "constants/defaultValues";
@@ -11,6 +14,7 @@ import { S3_BUCKET_NAME } from "constants/s3Values";
 import {
   ADDED_UPLOAD_FILE_STATUS,
   CHECKING_UPLOAD_FILE_STATUS,
+  CHECK_ZIP_FILE,
   FAILED_UPLOAD_FILE_STATUS,
   QUEUEING_UPLOAD_FILE_STATUS,
   UPLOADED_UPLOAD_FILE_STATUS,
@@ -53,6 +57,7 @@ import {
 import { projectApi } from "services";
 import {
   arrayBufferToWordArray,
+  formatBytes,
   generatePhotoKey,
   generateZipFileKey,
   getLocalStorage,
@@ -65,6 +70,8 @@ import {
   fetchTaskInfo,
   updateCurrentProjectStatistic,
 } from "reduxes/project/action";
+import JSZip from "jszip";
+import { selectorCurrentProjectTotalOriginalImage } from "reduxes/project/selector";
 
 function* handleUpdateUploadToBackend(action: any): any {
   try {
@@ -117,12 +124,72 @@ function* watchUploadProgressChannel() {
     yield put(action);
   }
 }
+function* isZipFileValid(action: {
+  type: string;
+  payload: UploadFileParams;
+}): any {
+  const totalOriginalImage = yield select(
+    selectorCurrentProjectTotalOriginalImage
+  );
+  const { fileName } = action.payload;
+  const uploadFiles = yield select(selectorUploadFiles);
+  const { file } = uploadFiles[fileName];
 
+  try {
+    if (file.size >= MAXIMUM_ZIP_FILE_SIZE) {
+      yield put(
+        updateFile({
+          fileName,
+          updateInfo: {
+            error: `The file size exceeds the limit allowed (${formatBytes(
+              file.size
+            )}/${formatBytes(MAXIMUM_ZIP_FILE_SIZE)})`,
+            status: FAILED_UPLOAD_FILE_STATUS,
+          },
+        })
+      );
+      return false;
+    }
+    const zip = yield JSZip.loadAsync(file);
+    let countImages = 0;
+    zip.forEach((relativePath: any, zipEntry: any) => {
+      const { name } = zipEntry;
+      const ext = name.substring(name.lastIndexOf("."));
+      if (COMPRESS_IMAGE_EXTENSIONS.indexOf(ext) !== -1) {
+        countImages += 1;
+      }
+    });
+    if (countImages + totalOriginalImage <= MAX_ALLOW_UPLOAD_IMAGES) {
+      return true;
+    }
+    const totalImage = totalOriginalImage + countImages;
+    const exceedCount = totalImage - MAX_ALLOW_UPLOAD_IMAGES;
+    yield put(
+      updateFile({
+        fileName,
+        updateInfo: {
+          error: `The number of images exceed ${exceedCount} (${totalImage}/ ${MAX_ALLOW_UPLOAD_IMAGES}).`,
+          status: FAILED_UPLOAD_FILE_STATUS,
+        },
+      })
+    );
+  } catch (e) {
+    toast.error(`Failed to parse zip file ${fileName}`);
+  }
+  return false;
+}
 function* handleUploadZipFile(action: {
   type: string;
   payload: UploadFileParams;
 }): any {
   try {
+    const isValid = yield call(isZipFileValid, {
+      type: CHECK_ZIP_FILE,
+      payload: action.payload,
+    });
+    if (isValid === false) {
+      return;
+    }
     const { fileName, projectId, projectName } = action.payload;
     const uploadFiles = yield select(selectorUploadFiles);
     const s3 = yield select(selectorS3);
@@ -478,22 +545,23 @@ function* handleCheckFilesToUpload(action: {
     // yield toast.error(e.message);
   }
 }
+
 function* handleUploadRequest(requestChannel: any) {
   while (true) {
     const { payload } = yield take(requestChannel);
     const { fileName } = payload;
-    let isUploadRequest = false;
+    let isZipUploadRequest = false;
     // eslint-disable-next-line no-restricted-syntax
     for (const compressFileExtension of COMPRESS_FILE_EXTENSIONS) {
       if (
         fileName.indexOf(compressFileExtension) ===
         fileName.length - compressFileExtension.length
       ) {
-        isUploadRequest = true;
+        isZipUploadRequest = true;
         break;
       }
     }
-    if (isUploadRequest) {
+    if (isZipUploadRequest) {
       yield call(handleUploadZipFile, {
         type: UPLOAD_FILE.REQUESTED,
         payload,
