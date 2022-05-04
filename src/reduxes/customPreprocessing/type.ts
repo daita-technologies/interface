@@ -1,4 +1,4 @@
-import { PreprocessingMedthod } from "components/ImageProcessing/type";
+import { PreprocessingMethod } from "components/ImageProcessing/type";
 import { AlbumImagesFields } from "reduxes/album/type";
 
 export interface CustomPreprocessReducer {
@@ -8,15 +8,15 @@ export interface CustomPreprocessReducer {
   referenceSeletectorDialog: ReferenceSeletectorDialog;
 }
 export type ReferencePreprocessImageRecord = Record<
-  PreprocessingMedthod,
+  PreprocessingMethod,
   ReferencePreprocessImage
 >;
 export interface ReferencePreprocessImage {
   filename: keyof AlbumImagesFields;
-  method: PreprocessingMedthod;
+  method: PreprocessingMethod;
 }
 export interface ReferenceImageInfoProps {
-  method: PreprocessingMedthod;
+  method: PreprocessingMethod;
   filename: string;
 }
 export interface ChangePreprocessingExpertModePayload {
@@ -24,5 +24,5 @@ export interface ChangePreprocessingExpertModePayload {
 }
 export interface ReferenceSeletectorDialog {
   isShow: boolean;
-  method?: PreprocessingMedthod;
+  method?: PreprocessingMethod;
 }
