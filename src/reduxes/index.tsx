@@ -12,6 +12,7 @@ import inviteReducer from "reduxes/invite/reducer";
 import feedbackReducer from "./feedback/reducer";
 import healthCheckReducer from "./healthCheck/reducer";
 import customPreprocessing from "./customPreprocessing/reducer";
+import customAugmentation from "./customAugmentation/reducer";
 
 const rootReducer = combineReducers({
   authReducer,
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
   feedbackReducer,
   healthCheckReducer,
   customPreprocessing,
+  customAugmentation,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
