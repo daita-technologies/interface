@@ -16,12 +16,12 @@ import {
 import { HealthCheckReducer } from "./type";
 
 const inititalState: HealthCheckReducer = {
-  isLoading: false,
-  isFetchAllTaskInfo: false,
+  isFetchingHealthCheckInfo: null,
+  isFetchedAllTaskInfo: null,
   isRunningHealthCheck: false,
   isFetchingHealthCheckStatus: false,
   activeDataHealthCheck: null,
-  taskList: {},
+  taskList: null,
   currentProjectInfo: null,
 };
 
@@ -54,7 +54,7 @@ const healthCheckReducer = (
       return {
         ...state,
         isRunningHealthCheck: false,
-        isFetchAllTaskInfo: false,
+        isFetchedAllTaskInfo: false,
         currentProjectInfo: targetCurrentProjectInfo,
       };
     }
@@ -70,18 +70,22 @@ const healthCheckReducer = (
     }
 
     case GET_PROJECT_HEALTH_CHECK_INFO.REQUESTED: {
-      return { ...state, isLoading: true, activeDataHealthCheck: null };
+      return {
+        ...state,
+        isFetchingHealthCheckInfo: true,
+        activeDataHealthCheck: null,
+      };
     }
     case GET_PROJECT_HEALTH_CHECK_INFO.SUCCEEDED: {
       return {
         ...state,
-        isLoading: false,
+        isFetchingHealthCheckInfo: false,
         activeDataHealthCheck:
           payload as GetProjectHealthCheckInfoReponseFields,
       };
     }
     case GET_PROJECT_HEALTH_CHECK_INFO.FAILED: {
-      return { ...state, isLoading: false };
+      return { ...state, isFetchingHealthCheckInfo: false };
     }
 
     case FETCH_TASK_INFO.SUCCEEDED: {
@@ -92,49 +96,50 @@ const healthCheckReducer = (
       const newTaskList = { ...taskList };
       newTaskList[task_id] = taskInfo as any;
 
-      let targetIsFetchAllTaskInfo = false;
+      let targetIsFetchedAllTaskInfo = false;
       if (
         Object.keys(newTaskList).length >=
         (currentProjectInfo?.ls_task.length || 0)
       ) {
-        targetIsFetchAllTaskInfo = true;
+        targetIsFetchedAllTaskInfo = true;
       }
       return {
         ...state,
         taskList: newTaskList,
-        isFetchAllTaskInfo: targetIsFetchAllTaskInfo,
+        isFetchedAllTaskInfo: targetIsFetchedAllTaskInfo,
       };
     }
 
     case FETCH_DETAIL_PROJECT.REQUESTED:
       return {
         ...state,
-        isLoading: true,
+        isFetchingHealthCheckInfo: true,
         currentProjectInfo: null,
       };
     case FETCH_DETAIL_PROJECT.FAILED:
       return {
         ...state,
-        isLoading: false,
-        isFetchAllTaskInfo: true,
+        isFetchingHealthCheckInfo: false,
+        isFetchedAllTaskInfo: true,
       };
 
     case FETCH_DETAIL_PROJECT.SUCCEEDED: {
       const { currentProjectInfo } = payload;
-      let targetIsFetchAllTaskInfo = false;
+      let targetIsFetchedAllTaskInfo = false;
+
       if (
         currentProjectInfo &&
         currentProjectInfo.ls_task &&
         currentProjectInfo.ls_task <= 0
       ) {
-        targetIsFetchAllTaskInfo = true;
+        targetIsFetchedAllTaskInfo = true;
       }
 
       return {
         ...state,
-        isLoading: false,
+        isFetchingHealthCheckInfo: false,
         currentProjectInfo,
-        isFetchAllTaskInfo: targetIsFetchAllTaskInfo,
+        isFetchedAllTaskInfo: targetIsFetchedAllTaskInfo,
       };
     }
 
@@ -142,7 +147,7 @@ const healthCheckReducer = (
       return {
         ...state,
         ...lodash.omit(inititalState, "taskList"),
-        isLoading: true,
+        isFetchingHealthCheckInfo: true,
       };
     default:
       return state;
