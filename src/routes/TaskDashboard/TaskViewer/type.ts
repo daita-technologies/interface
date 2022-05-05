@@ -1,14 +1,20 @@
+import { TaskProcessType } from "constants/taskType";
+
 import { TaskInfoApiFields } from "reduxes/project/type";
 
-export type TaskStatus =
-  | "Preparing"
-  | "Running"
-  | "Done"
-  | "Done with warning"
-  | "Error";
+export interface TaskViewerProps {
+  taskProcessType: TaskProcessType;
+}
+
+// export type TaskStatus =
+//   | "Preparing"
+//   | "Running"
+//   | "Done"
+//   | "Done with warning"
+//   | "Error";
 
 export interface EnhancedTableToolbarProps {
-  numSelected: number;
+  // numSelected: number;
   tableName: string;
 }
 export interface HeadCell {

@@ -12,6 +12,7 @@ import inviteReducer from "reduxes/invite/reducer";
 import feedbackReducer from "./feedback/reducer";
 import healthCheckReducer from "./healthCheck/reducer";
 import customPreprocessing from "./customPreprocessing/reducer";
+import taskReducer from "./task/reducer";
 import customAugmentation from "./customAugmentation/reducer";
 
 const rootReducer = combineReducers({
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   feedbackReducer,
   healthCheckReducer,
   customPreprocessing,
+  taskReducer,
   customAugmentation,
 });
 

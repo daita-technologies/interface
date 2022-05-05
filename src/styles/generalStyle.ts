@@ -19,6 +19,15 @@ export const modalCloseStyle = {
   color: "text.primary",
 };
 
+export const limitTwoLineStyle = {
+  display: "-webkit-box",
+  WebkitBoxOrient: "vertical",
+  WebkitLineClamp: 2,
+  overflow: "hidden",
+  maxWidth: 240,
+  lineHeight: 1.3,
+};
+
 const generalStyle = { modalStyle };
 
 export default generalStyle;
