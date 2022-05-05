@@ -46,18 +46,18 @@ export const selectorIsDataHealthCheckGotTaskRunning = (
 ) => {
   const { taskList } = state.healthCheckReducer;
 
-  if (taskList === null) {
-    return true;
+  if (taskList) {
+    const matchProjectIdTaskList = _.filter(
+      taskList,
+      (taskItem) => taskItem.project_id === projectId
+    );
+
+    return matchProjectIdTaskList.some(
+      (taskItem) => taskItem.status === RUNNING_TASK_STATUS
+    );
   }
 
-  const matchProjectIdTaskList = _.filter(
-    taskList,
-    (taskItem) => taskItem.project_id === projectId
-  );
-
-  return matchProjectIdTaskList.some(
-    (taskItem) => taskItem.status === RUNNING_TASK_STATUS
-  );
+  return false;
 };
 
 export const selectorDataHealthCheckCurrentTotalImage = (state: RootState) => {

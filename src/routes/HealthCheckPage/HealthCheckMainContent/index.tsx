@@ -138,7 +138,8 @@ const HealthCheckMainContent = function ({
   const renderContent = () => {
     if (
       isFetchingHealthCheckInfo === null ||
-      isFetchingHealthCheckInfo === true
+      isFetchingHealthCheckInfo === true ||
+      dataHealthCheckTaskListInfo === null
     ) {
       return (
         <Box py={6} display="flex" justifyContent="center" alignItems="center">

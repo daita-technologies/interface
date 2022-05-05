@@ -1,19 +1,22 @@
-import { HEALTHCHECK_TASK_TYPE } from "constants/defaultValues";
-import lodash from "lodash";
+import {
+  HEALTHCHECK_TASK_TYPE,
+  RUNNING_TASK_STATUS,
+} from "constants/defaultValues";
+
 import {
   GetProjectHealthCheckInfoReponseFields,
   RunHealthCheckResponseFields,
   // RunHealthCheckResponseFields,
 } from "services/healthCheckApi";
 import { FETCH_DETAIL_PROJECT, FETCH_TASK_INFO } from "../project/constants";
-import { FetchTaskInfoSucceedPayload } from "../project/type";
+import { FetchTaskInfoSucceedPayload, ProjectInfo } from "../project/type";
 import {
   GET_PROJECT_HEALTH_CHECK_INFO,
   GET_RUN_HEALTH_CHECK_STATUS,
   RESET_DATA_HEALTH_CHECK_STATE,
   RUN_HEALTH_CHECK,
 } from "./constants";
-import { HealthCheckReducer } from "./type";
+import { HealthCheckReducer, TaskListType } from "./type";
 
 const inititalState: HealthCheckReducer = {
   isFetchingHealthCheckInfo: null,
@@ -124,31 +127,41 @@ const healthCheckReducer = (
       };
 
     case FETCH_DETAIL_PROJECT.SUCCEEDED: {
-      const { currentProjectInfo } = payload;
+      const { currentProjectInfo } = payload as {
+        currentProjectInfo: ProjectInfo;
+      };
       let targetIsFetchedAllTaskInfo = false;
+      let targetTaskList: TaskListType = null;
 
-      if (
-        currentProjectInfo &&
-        currentProjectInfo.ls_task &&
-        currentProjectInfo.ls_task <= 0
-      ) {
-        targetIsFetchedAllTaskInfo = true;
+      if (currentProjectInfo && currentProjectInfo.ls_task) {
+        const { ls_task, project_id } = currentProjectInfo;
+        if (ls_task.length <= 0) {
+          targetIsFetchedAllTaskInfo = true;
+          targetTaskList = {};
+        } else {
+          ls_task.forEach((lsTaskInfo) => {
+            targetTaskList = {
+              [lsTaskInfo.task_id]: {
+                ...lsTaskInfo,
+                project_id,
+                status: RUNNING_TASK_STATUS,
+              },
+            };
+          });
+        }
       }
 
       return {
         ...state,
         isFetchingHealthCheckInfo: false,
         currentProjectInfo,
+        taskList: targetTaskList,
         isFetchedAllTaskInfo: targetIsFetchedAllTaskInfo,
       };
     }
 
     case RESET_DATA_HEALTH_CHECK_STATE:
-      return {
-        ...state,
-        ...lodash.omit(inititalState, "taskList"),
-        isFetchingHealthCheckInfo: true,
-      };
+      return inititalState;
     default:
       return state;
   }
