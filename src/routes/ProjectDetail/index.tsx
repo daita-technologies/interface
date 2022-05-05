@@ -48,6 +48,7 @@ import AlbumViewer from "./AlbumViewer";
 import AugmentationOption from "./AugmentationOption";
 // import AugmentationOutput from "./AugmentationOutput";
 import DataSetSplit from "./DataSetSplit";
+import ImageAugmentation from "./ImageAugmentation";
 import ProcessingOption from "./PreprocessingOption";
 import TaskList from "./TaskList";
 
@@ -375,12 +376,7 @@ const ProjectDetail = function () {
               activeTabId={activeGenerateTabId}
             >
               <Box mt={2} display="flex" gap={1}>
-                <Box p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
-                  <DataSetSplit />
-                </Box>
-                <Box p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
-                  <AugmentationOption />
-                </Box>
+                <ImageAugmentation />
               </Box>
             </TabPanel>
           </Box>

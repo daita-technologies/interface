@@ -7,20 +7,30 @@ import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
 import { InfoTooltip } from "components";
 import {
-  AUTO_ORIENTATION,
-  EQUALIZE_HISTOGRAM,
-  HIGH_RESOLUTION,
-  NORMALIZE_BRIGHTNESS,
-  NORMALIZE_CONTRAST,
-  NORMALIZE_HUE,
-  NORMALIZE_SATURATION,
-  NORMALIZE_SHARPNESS,
-  PreprocessingMethod,
+  AugmentationMethod,
+  BRIGHTNESS,
+  CONTRAST,
+  CROP,
+  ERASE,
+  GAUSSIAN_BLUR,
+  GAUSSIAN_NOISE,
+  HORIZONTAL_FLIP,
+  HUE,
+  POSTERIZE,
+  ROTATE,
+  SATURATION,
+  SCALE,
+  SHARPNESS,
+  SOLARIZE,
+  SUPPER_RESOLUTION,
+  TITLE,
+  TRANSLATE,
+  VERTICAL_FLIP,
 } from "components/ImageProcessing/type";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setReferenceSeletectorDialog } from "reduxes/customPreprocessing/action";
-import { selectorReferencePreprocessImage } from "reduxes/customPreprocessing/selector";
+import { setReferenceSeletectorDialog } from "reduxes/customAugmentation/action";
+import { selectorReferenceAugmentationImage } from "reduxes/customAugmentation/selector";
 import ReferenceImageDialog from "./ReferenceImageDialog";
 
 const limitTooLongLineStyle = {
@@ -32,29 +42,39 @@ const limitTooLongLineStyle = {
   lineHeight: 1.3,
 };
 
-const methods: PreprocessingMethod[] = [
-  HIGH_RESOLUTION,
-  NORMALIZE_HUE,
-  AUTO_ORIENTATION,
-  NORMALIZE_CONTRAST,
-  NORMALIZE_SATURATION,
-  EQUALIZE_HISTOGRAM,
-  NORMALIZE_SHARPNESS,
-  NORMALIZE_BRIGHTNESS,
+const methods: AugmentationMethod[] = [
+  ERASE,
+  SUPPER_RESOLUTION,
+  SHARPNESS,
+  BRIGHTNESS,
+  POSTERIZE,
+  CROP,
+  SATURATION,
+  VERTICAL_FLIP,
+  SOLARIZE,
+  HUE,
+  SCALE,
+  CONTRAST,
+  ROTATE,
+  GAUSSIAN_NOISE,
+  HORIZONTAL_FLIP,
+  TRANSLATE,
+  GAUSSIAN_BLUR,
+  TITLE,
 ];
 const icon = <CheckBoxOutlineBlankIcon />;
 const checkedIcon = <CheckBoxIcon />;
 
-const ExpertPreprocessingOption = function () {
+const ExpertAugmentationOption = function () {
   const dispatch = useDispatch();
-  const referencePreprocessImage = useSelector(
-    selectorReferencePreprocessImage
+  const referenceAugmentationImage = useSelector(
+    selectorReferenceAugmentationImage
   );
 
   const [listSelectedMethods, setListSelectedMethod] = useState<
-    PreprocessingMethod[]
+    AugmentationMethod[]
   >([]);
-  const handleShowReferenceDialog = (method: PreprocessingMethod) => {
+  const handleShowReferenceDialog = (method: AugmentationMethod) => {
     dispatch(setReferenceSeletectorDialog({ isShow: true, method }));
   };
   return (
@@ -87,7 +107,7 @@ const ExpertPreprocessingOption = function () {
                 {option}
               </li>
             )}
-            onChange={(event: any, listMethod: PreprocessingMethod[]) => {
+            onChange={(event: any, listMethod: AugmentationMethod[]) => {
               setListSelectedMethod(listMethod);
             }}
             renderInput={(params) => (
@@ -119,8 +139,8 @@ const ExpertPreprocessingOption = function () {
                     noWrap
                     sx={limitTooLongLineStyle}
                   >
-                    {referencePreprocessImage[method]
-                      ? referencePreprocessImage[method].filename
+                    {referenceAugmentationImage[method]
+                      ? referenceAugmentationImage[method].filename
                       : "Select your reference image"}
                   </Typography>
                   <IconButton
@@ -143,4 +163,4 @@ const ExpertPreprocessingOption = function () {
   );
 };
 
-export default ExpertPreprocessingOption;
+export default ExpertAugmentationOption;

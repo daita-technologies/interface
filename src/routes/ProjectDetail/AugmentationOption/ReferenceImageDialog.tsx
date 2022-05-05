@@ -12,7 +12,8 @@ import {
   Typography,
 } from "@mui/material";
 import { MyButton } from "components";
-import { PreprocessingMethod } from "components/ImageProcessing/type";
+import ImageProcessing from "components/ImageProcessing";
+import { AugmentationMethod } from "components/ImageProcessing/type";
 import {
   ID_TOKEN_NAME,
   MAXIMUM_FETCH_IMAGES_AMOUNT,
@@ -24,13 +25,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { AlbumImagesFields, ImageApiFields } from "reduxes/album/type";
 import {
-  setReferencePreprocessImage,
+  setReferenceAugmentationImage,
   setReferenceSeletectorDialog,
-} from "reduxes/customPreprocessing/action";
+} from "reduxes/customAugmentation/action";
 import {
-  selectorReferencePreprocessImage,
+  selectorReferenceAugmentationImage,
   selectorReferenceSeletectorDialog,
-} from "reduxes/customPreprocessing/selector";
+} from "reduxes/customAugmentation/selector";
 import { selectorS3 } from "reduxes/general/selector";
 import { selectorCurrentProjectId } from "reduxes/project/selector";
 import { projectApi } from "services";
@@ -56,8 +57,8 @@ const ReferenceImageDialog = function () {
   const handleClose = () => {
     dispatch(setReferenceSeletectorDialog({ isShow: false }));
   };
-  const referencePreprocessImage = useSelector(
-    selectorReferencePreprocessImage
+  const referenceAugmentationImage = useSelector(
+    selectorReferenceAugmentationImage
   );
   useEffect(() => {
     if (currentProjectId) {
@@ -67,9 +68,9 @@ const ReferenceImageDialog = function () {
         setReferenceImageName(undefined);
         return;
       }
-      const savedReferenceImage = referencePreprocessImage[method]
+      const savedReferenceImage = referenceAugmentationImage[method]
         ?.filename as string;
-      if (referencePreprocessImage[method]) {
+      if (referenceAugmentationImage[method]) {
         setReferenceImageName(savedReferenceImage);
       }
       setSearchLoading(true);
@@ -102,8 +103,8 @@ const ReferenceImageDialog = function () {
   const handleSubmit = () => {
     if (referenceImage) {
       dispatch(
-        setReferencePreprocessImage({
-          method: method as PreprocessingMethod,
+        setReferenceAugmentationImage({
+          method: method as AugmentationMethod,
           filename: referenceImage.filename,
         })
       );
@@ -165,16 +166,10 @@ const ReferenceImageDialog = function () {
     if (referenceImage) {
       if (referenceImage && referenceImage.url && referenceImage.url !== "") {
         return (
-          <Box display="flex" maxHeight={220}>
-            <img
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                objectFit: "contain",
-              }}
-              src={referenceImage.url}
-              alt="ts"
-              loading="lazy"
+          <Box display="flex">
+            <ImageProcessing
+              src={referenceImage.url as string}
+              method={method as AugmentationMethod}
             />
           </Box>
         );

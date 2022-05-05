@@ -1,13 +1,19 @@
 import { Box, Slider, Stack, Typography } from "@mui/material";
 import * as React from "react";
 import {
+  AugmentationMethod,
   AUTO_ORIENTATION,
+  BRIGHTNESS,
+  CONTRAST,
+  HUE,
   ImageProcessingTemplateProp,
   NORMALIZE_BRIGHTNESS,
   NORMALIZE_CONTRAST,
   NORMALIZE_HUE,
   NORMALIZE_SATURATION,
-  PreprocessingMedthod,
+  PreprocessingMethod,
+  ROTATE,
+  SATURATION,
 } from "./type";
 
 const valuePercent = (value: number) => `${value}%`;
@@ -71,13 +77,11 @@ function CanvasComp({
 function ImageProcessingTemplate({
   src,
   processingParam,
-  isShowCustom = false,
 }: {
   src: string;
   processingParam: ImageProcessingTemplateProp;
-  isShowCustom?: boolean;
 }) {
-  const { processingMethod, setting, filter } = processingParam;
+  const { method, setting, filter } = processingParam;
   const [value, setValue] = React.useState<number>(setting.min);
   const handleChange = (_event: Event, newValue: number | number[]) => {
     setValue(newValue as number);
@@ -87,38 +91,36 @@ function ImageProcessingTemplate({
       <Box style={{ textAlign: "center" }}>
         <CanvasComp
           src={src}
-          name={processingMethod}
+          name={method}
           getFilter={(context) => {
             context.filter = filter(value);
             return context;
           }}
         />
       </Box>
-      {isShowCustom === true && (
-        <Box style={{ textAlign: "center", marginTop: 10 }}>
-          <Box>
-            <Slider
-              value={value}
-              aria-label="Default"
-              valueLabelDisplay="auto"
-              onChange={handleChange}
-              getAriaValueText={setting.settingValueFormater}
-              marks={[
-                {
-                  value: setting.min,
-                  label: setting.settingValueFormater(setting.min),
-                },
-                {
-                  value: setting.max,
-                  label: setting.settingValueFormater(setting.max),
-                },
-              ]}
-              min={setting.min}
-              max={setting.max}
-            />
-          </Box>
+      <Box style={{ textAlign: "center", marginTop: 10 }}>
+        <Box>
+          <Slider
+            value={value}
+            aria-label="Default"
+            valueLabelDisplay="auto"
+            onChange={handleChange}
+            getAriaValueText={setting.settingValueFormater}
+            marks={[
+              {
+                value: setting.min,
+                label: setting.settingValueFormater(setting.min),
+              },
+              {
+                value: setting.max,
+                label: setting.settingValueFormater(setting.max),
+              },
+            ]}
+            min={setting.min}
+            max={setting.max}
+          />
         </Box>
-      )}
+      </Box>
     </Stack>
   );
 }
@@ -130,13 +132,12 @@ function ImageRotateProcessing({ src }: { src: string }) {
   return (
     <Stack sx={{ width: "100%" }}>
       <Box style={{ textAlign: "center" }}>
-        <Box display="flex" sx={{ height: 300 }} justifyContent="center">
+        <Box display="flex" justifyContent="center">
           <img
             src={src}
             alt="rotate"
             style={{
               transform: `rotate(${value}deg)`,
-              margin: "15% 0%",
               maxWidth: "75%",
               maxHeight: "50%",
             }}
@@ -170,7 +171,7 @@ function ImageRotateProcessing({ src }: { src: string }) {
   );
 }
 const hue: ImageProcessingTemplateProp = {
-  processingMethod: NORMALIZE_HUE,
+  method: HUE,
   filter: (value) => `hue-rotate(${value}deg)`,
   setting: {
     min: 0,
@@ -179,7 +180,7 @@ const hue: ImageProcessingTemplateProp = {
   },
 };
 const contrast: ImageProcessingTemplateProp = {
-  processingMethod: NORMALIZE_CONTRAST,
+  method: CONTRAST,
   filter: (value) => `contrast(${value})`,
   setting: {
     min: 1,
@@ -188,7 +189,7 @@ const contrast: ImageProcessingTemplateProp = {
   },
 };
 const saturation: ImageProcessingTemplateProp = {
-  processingMethod: NORMALIZE_SATURATION,
+  method: SATURATION,
   filter: (value) => `saturate(${value}%)`,
   setting: {
     min: 0,
@@ -198,7 +199,7 @@ const saturation: ImageProcessingTemplateProp = {
 };
 
 const brightness: ImageProcessingTemplateProp = {
-  processingMethod: NORMALIZE_BRIGHTNESS,
+  method: BRIGHTNESS,
   filter: (value: number) => `brightness(${value})`,
   setting: {
     min: 1,
@@ -208,25 +209,25 @@ const brightness: ImageProcessingTemplateProp = {
 };
 function ImageProcessing({
   src,
-  processingMethod,
+  method,
 }: {
   src: string;
-  processingMethod: PreprocessingMedthod | null;
+  method: AugmentationMethod | null;
 }) {
-  if (processingMethod === NORMALIZE_HUE) {
+  if (method === HUE) {
     return <ImageProcessingTemplate src={src} processingParam={hue} />;
   }
-  if (processingMethod === NORMALIZE_CONTRAST) {
+  if (method === CONTRAST) {
     return <ImageProcessingTemplate src={src} processingParam={contrast} />;
   }
-  if (processingMethod === NORMALIZE_SATURATION) {
+  if (method === SATURATION) {
     return <ImageProcessingTemplate src={src} processingParam={saturation} />;
   }
-  if (processingMethod === NORMALIZE_BRIGHTNESS) {
+  if (method === BRIGHTNESS) {
     return <ImageProcessingTemplate src={src} processingParam={brightness} />;
   }
 
-  if (processingMethod === AUTO_ORIENTATION) {
+  if (method === ROTATE) {
     return <ImageRotateProcessing src={src} />;
   }
   return (

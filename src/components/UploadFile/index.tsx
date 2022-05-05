@@ -22,6 +22,7 @@ import {
 import { getLocalStorage } from "utils/general";
 import {
   COMPRESS_FILE_EXTENSIONS,
+  COMPRESS_IMAGE_EXTENSIONS,
   ID_TOKEN_NAME,
   MAX_ALLOW_UPLOAD_IMAGES,
 } from "constants/defaultValues";
@@ -88,9 +89,7 @@ const dropZoneDisabledStyle = {
   opacity: 0.5,
 };
 const FILE_UPLOAD_EXTENSIONS = [
-  ".jpeg",
-  ".png",
-  ".jpg",
+  ...COMPRESS_IMAGE_EXTENSIONS,
   ...COMPRESS_FILE_EXTENSIONS,
 ];
 const UploadFile = function (props: UploadFileProps) {
