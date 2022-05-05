@@ -26,7 +26,7 @@ import TaskViewer from "./TaskViewer";
 
 const TASK_LIST_TAB_NAME = "task-list";
 const TASK_LIST_ALL_TAB_NAME = "All";
-const TASK_LIST_PAGE_SIZE = 6;
+const TASK_LIST_PAGE_SIZE = 100;
 
 const TaskDashboard = function () {
   const { projectName } = useParams<{ projectName: string }>();
@@ -95,24 +95,37 @@ const TaskDashboard = function () {
     handleRouteChange();
   }, [listProject, projectName]);
 
+  const renderLoadingBox = () => (
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      flex={1}
+      py={6}
+    >
+      <CircularProgress size={50} />
+    </Box>
+  );
+
+  const renderTabContent = () => {
+    if (isPageLoading === null || isPageLoading === true) {
+      return renderLoadingBox();
+    }
+
+    return (
+      <>
+        <TaskViewer taskProcessType={PREPROCESS_TASK_TYPE} />
+        <TaskViewer taskProcessType={AUGMENT_TASK_TYPE} />
+        <TaskViewer taskProcessType={HEALTHCHECK_TASK_TYPE} />
+        <TaskViewer taskProcessType={UPLOAD_TASK_TYPE} />
+        <TaskViewer taskProcessType={DOWNLOAD_TASK_TYPE} />
+      </>
+    );
+  };
+
   const renderPageContent = () => {
-    if (
-      isPageLoading === null ||
-      isPageLoading === true ||
-      isFetchingProjects === null ||
-      isFetchingProjects === true
-    ) {
-      return (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          flex={1}
-          py={6}
-        >
-          <CircularProgress size={50} />
-        </Box>
-      );
+    if (isFetchingProjects === null || isFetchingProjects === true) {
+      return renderLoadingBox();
     }
 
     if (!listProject || listProject.length <= 0) {
@@ -175,11 +188,7 @@ const TaskDashboard = function () {
           tabId={0}
           activeTabId={selectedTabIndex}
         >
-          <TaskViewer taskProcessType={PREPROCESS_TASK_TYPE} />
-          <TaskViewer taskProcessType={AUGMENT_TASK_TYPE} />
-          <TaskViewer taskProcessType={HEALTHCHECK_TASK_TYPE} />
-          <TaskViewer taskProcessType={UPLOAD_TASK_TYPE} />
-          <TaskViewer taskProcessType={DOWNLOAD_TASK_TYPE} />
+          {renderTabContent()}
         </TabPanel>
         {listProject.map((project, index) => (
           <TabPanel
@@ -188,11 +197,7 @@ const TaskDashboard = function () {
             tabId={index + 1}
             activeTabId={selectedTabIndex}
           >
-            <TaskViewer taskProcessType={PREPROCESS_TASK_TYPE} />
-            <TaskViewer taskProcessType={AUGMENT_TASK_TYPE} />
-            <TaskViewer taskProcessType={HEALTHCHECK_TASK_TYPE} />
-            <TaskViewer taskProcessType={UPLOAD_TASK_TYPE} />
-            <TaskViewer taskProcessType={DOWNLOAD_TASK_TYPE} />
+            {renderTabContent()}
           </TabPanel>
         ))}
       </Box>
