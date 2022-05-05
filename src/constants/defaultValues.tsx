@@ -1,5 +1,6 @@
 import { getLocalToken } from "utils/general";
 import { encode } from "js-base64";
+import { TaskProcessType, TaskStatusMergedType } from "./taskType";
 
 export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
@@ -7,6 +8,7 @@ export const generateApiUrl = process.env.REACT_APP_GENERATE_API_URL;
 export const uploadZipApiUrl = process.env.REACT_APP_UPLOAD_ZIP_API;
 export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
 export const healthCheckApiURL = process.env.REACT_APP_HEALTH_CHECK_API_URL;
+export const taskApiURL = process.env.REACT_APP_TASK_API_URL;
 
 export const reactAppDevEnv = "development";
 export const reactAppProdEnv = "production";
@@ -78,8 +80,19 @@ export const ORIGINAL_SOURCE = "ORIGINAL";
 export const PREPROCESS_SOURCE = "PREPROCESS";
 export const AUGMENT_SOURCE = "AUGMENT";
 
+export const PREPROCESS_TASK_TYPE = "PREPROCESS";
+export const AUGMENT_TASK_TYPE = "AUGMENT";
 export const UPLOAD_TASK_TYPE = "UPLOAD";
+export const DOWNLOAD_TASK_TYPE = "DOWNLOAD";
 export const HEALTHCHECK_TASK_TYPE = "HEALTHCHECK";
+
+export const ALL_TASK_TYPE_ARRAY: TaskProcessType[] = [
+  HEALTHCHECK_TASK_TYPE,
+  PREPROCESS_TASK_TYPE,
+  AUGMENT_TASK_TYPE,
+  UPLOAD_TASK_TYPE,
+  DOWNLOAD_TASK_TYPE,
+];
 
 export const MAX_AUGMENT_FREE_PLAN = 5;
 
@@ -95,6 +108,12 @@ export const UPLOADING_TASK_STATUS = "UPLOADING";
 export const FINISH_TASK_STATUS = "FINISH";
 export const ERROR_TASK_STATUS = "ERROR";
 export const FINISH_ERROR_TASK_STATUS = "FINISH_ERROR";
+
+export const TASK_STATUS_MERGED_ARRAY: TaskStatusMergedType[] = [
+  RUNNING_TASK_STATUS,
+  ERROR_TASK_STATUS,
+  FINISH_TASK_STATUS,
+];
 
 export const TEMP_LOCAL_USERNAME = "temp_username_key";
 export const TEMP_LOCAL_FULLNAME = "temp_fullname_key";
