@@ -53,7 +53,7 @@ const ForgotPasswordPage = function () {
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm<ForgotPasswordRequestFields>();
+  } = useForm<ForgotPasswordRequestFields>({ mode: "onChange" });
   const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const isFormRequesting = useSelector(selectorIsFormRequesting);

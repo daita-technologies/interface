@@ -26,6 +26,7 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
     handleSubmit,
     formState: { errors },
   } = useForm<CreateProjectFields>({
+    mode: "onChange",
     defaultValues: {
       accessToken: getLocalStorage(TOKEN_NAME) || "",
       idToken: getLocalStorage(ID_TOKEN_NAME) || "",

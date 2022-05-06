@@ -55,7 +55,7 @@ const LoginForm = function () {
     setValue,
     getValues,
     formState: { errors },
-  } = useForm<LoginFormFields>();
+  } = useForm<LoginFormFields>({ mode: "onChange" });
 
   const reloadRecaptchaTrigger = useSelector(selectorReloadRecaptchaTrigger);
 
