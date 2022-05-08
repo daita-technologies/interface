@@ -1,17 +1,17 @@
 import {
-  AUGMENT_TASK_TYPE,
-  DOWNLOAD_TASK_TYPE,
+  AUGMENT_TASK_PROCESS_TYPE,
+  DOWNLOAD_TASK_PROCESS_TYPE,
   ERROR_TASK_STATUS,
   FINISH_ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
-  HEALTHCHECK_TASK_TYPE,
+  HEALTHCHECK_TASK_PROCESS_TYPE,
   PENDING_TASK_STATUS,
   PREPARING_DATA_TASK_STATUS,
   PREPARING_HARDWARE_TASK_STATUS,
-  PREPROCESS_TASK_TYPE,
+  PREPROCESS_TASK_PROCESS_TYPE,
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
-  UPLOAD_TASK_TYPE,
+  UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
 import { TaskProcessType } from "constants/taskType";
 import { TaskStatusType } from "reduxes/project/type";
@@ -35,15 +35,15 @@ export function getTaskStatusMergedValue(taskStatus: TaskStatusType) {
 
 export function mapProcessTypeToName(taskProcessType: TaskProcessType) {
   switch (taskProcessType) {
-    case PREPROCESS_TASK_TYPE:
+    case PREPROCESS_TASK_PROCESS_TYPE:
       return "Preprocessing";
-    case AUGMENT_TASK_TYPE:
+    case AUGMENT_TASK_PROCESS_TYPE:
       return "Augmentation";
-    case UPLOAD_TASK_TYPE:
+    case UPLOAD_TASK_PROCESS_TYPE:
       return "Upload";
-    case DOWNLOAD_TASK_TYPE:
+    case DOWNLOAD_TASK_PROCESS_TYPE:
       return "Download";
-    case HEALTHCHECK_TASK_TYPE:
+    case HEALTHCHECK_TASK_PROCESS_TYPE:
       return "Data Health Check";
     default:
       return "";

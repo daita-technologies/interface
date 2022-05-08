@@ -8,7 +8,7 @@ import {
   MAXIMUM_ZIP_FILE_SIZE,
   MAX_ALLOW_UPLOAD_IMAGES,
   ORIGINAL_SOURCE,
-  UPLOAD_TASK_TYPE,
+  UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
 import { S3_BUCKET_NAME } from "constants/s3Values";
 import {
@@ -265,7 +265,7 @@ function* handleUploadZipFile(action: {
             fetchTaskInfo({
               idToken: getLocalStorage(ID_TOKEN_NAME) || "",
               taskId: uploadZipFileResponse.data.task_id,
-              processType: UPLOAD_TASK_TYPE,
+              processType: UPLOAD_TASK_PROCESS_TYPE,
               isNotify: true,
               projectId,
             })

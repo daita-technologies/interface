@@ -1,17 +1,11 @@
 import { TaskProcessType } from "constants/taskType";
 
-import { TaskInfoApiFields } from "reduxes/project/type";
+import { TaskItemApiFields } from "services/taskApi";
 
 export interface TaskViewerProps {
+  projectId: string;
   taskProcessType: TaskProcessType;
 }
-
-// export type TaskStatus =
-//   | "Preparing"
-//   | "Running"
-//   | "Done"
-//   | "Done with warning"
-//   | "Error";
 
 export interface EnhancedTableToolbarProps {
   // numSelected: number;
@@ -19,20 +13,7 @@ export interface EnhancedTableToolbarProps {
 }
 export interface HeadCell {
   disablePadding: boolean;
-  id: keyof TaskInfoApiFields;
+  id: keyof TaskItemApiFields | string;
   label: string;
   align: "left" | "center" | "right";
-}
-export interface TableFilterOption {
-  label: string;
-  key: keyof TaskInfoApiFields;
-  options: string[];
-}
-export interface TableFilterProps {
-  filters: TableFilterOption[];
-  onChange: (tableFilterType: TableFilterType) => void;
-}
-export interface TableFilterType {
-  key: keyof TaskInfoApiFields;
-  value: string | null;
 }

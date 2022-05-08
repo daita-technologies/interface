@@ -1,4 +1,4 @@
-import { HEALTHCHECK_TASK_TYPE } from "constants/defaultValues";
+import { HEALTHCHECK_TASK_PROCESS_TYPE } from "constants/defaultValues";
 import lodash from "lodash";
 import {
   GetProjectHealthCheckInfoReponseFields,
@@ -47,7 +47,7 @@ const healthCheckReducer = (
         targetCurrentProjectInfo = { ...currentProjectInfo };
         targetCurrentProjectInfo.ls_task.push({
           task_id,
-          process_type: HEALTHCHECK_TASK_TYPE,
+          process_type: HEALTHCHECK_TASK_PROCESS_TYPE,
         });
       }
 

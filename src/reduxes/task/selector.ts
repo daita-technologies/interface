@@ -8,3 +8,8 @@ export const selectorSpecificProcessTypeTaskInfo = (
   needProcessType: TaskProcessType,
   state: RootState
 ) => state.taskReducer[needProcessType];
+
+export const selectorSpecificProcessIsLoading = (
+  needProcessType: TaskProcessType,
+  state: RootState
+) => state.taskReducer[needProcessType].isLoading;

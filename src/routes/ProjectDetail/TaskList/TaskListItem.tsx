@@ -20,7 +20,7 @@ import {
   PREPROCESS_SOURCE,
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
-  UPLOAD_TASK_TYPE,
+  UPLOAD_TASK_PROCESS_TYPE,
   ORIGINAL_IMAGES_TAB,
 } from "constants/defaultValues";
 import {
@@ -275,7 +275,7 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
               getGenerateMethodLabel(process_type)
             )} of the data set has been completed successfully.`
           );
-        } else if (process_type === UPLOAD_TASK_TYPE) {
+        } else if (process_type === UPLOAD_TASK_PROCESS_TYPE) {
           if (activeImagesTabId === ORIGINAL_IMAGES_TAB) {
             dispatch(
               fetchImages({
@@ -301,7 +301,7 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
   ) {
     return null;
   }
-  if (process_type === UPLOAD_TASK_TYPE) {
+  if (process_type === UPLOAD_TASK_PROCESS_TYPE) {
     return <TaskListUploadItem taskInfo={taskInfo} />;
   }
   return <TaskListImageSourceItem taskInfo={taskInfo} />;
