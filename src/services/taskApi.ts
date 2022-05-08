@@ -19,13 +19,28 @@ export type GetTaskListFilterParams = {
   statusQuery: Array<TaskStatusMergedType | "">;
 };
 
+export type PageTokenType = {
+  [key: string]: any;
+};
+
+export type GetTaskListPaginationParams = {
+  pageToken: PageTokenType | null;
+};
+
 export interface GetTaskListParams {
   idToken?: string;
   filter: GetTaskListFilterParams;
-  pagination: {
-    pageToken: string | null;
-  };
+  pagination: GetTaskListPaginationParams;
   sizeListItemsQuery: number;
+}
+
+export interface GetTaskListInfoSuceededActionPayload {
+  filter: GetTaskListFilterParams;
+  response: TaskListResponseApiFields;
+}
+
+export interface GetTaskListInfoFailedActionPayload {
+  filter: GetTaskListFilterParams;
 }
 
 export type TaskItemApiFields = {

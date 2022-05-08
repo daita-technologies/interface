@@ -9,9 +9,11 @@ import {
 import { TaskProcessType } from "constants/taskType";
 import {
   GetTaskListFilterParams,
+  GetTaskListInfoSuceededActionPayload,
   TaskListResponseApiFields,
 } from "services/taskApi";
 import {
+  CHANGE_PAGE_TASK_LIST_INFO,
   FILTER_TASK_LIST_INFO,
   GET_TASK_LIST_INFO,
   TASK_LIST_REDUCER_PROCESS_TYPE_DEFAULT_VALUE,
@@ -19,6 +21,9 @@ import {
 import {
   FilterTaskListInfoFailedActionPayload,
   FilterTaskListInfoSucceededActionPayload,
+  PaginationTaskListInfoFailedActionPayload,
+  PaginationTaskListInfoRequestActionPayload,
+  PaginationTaskListInfoSucceedActionPayload,
   TaskReducer,
 } from "./type";
 
@@ -52,14 +57,16 @@ const taskReducer = (state = inititalState, action: any): TaskReducer => {
       };
     }
     case GET_TASK_LIST_INFO.SUCCEEDED: {
-      const responseTaskList = payload as TaskListResponseApiFields;
+      const { filter, response } =
+        payload as GetTaskListInfoSuceededActionPayload;
 
       const cloneState = { ...state };
 
       ALL_TASK_TYPE_ARRAY.forEach((processTypeName: TaskProcessType) => {
         cloneState[processTypeName].taskListInfo = {
-          ...responseTaskList[processTypeName],
+          ...response[processTypeName],
         };
+        cloneState[processTypeName].filter = { ...filter };
       });
 
       return {
@@ -140,10 +147,81 @@ const taskReducer = (state = inititalState, action: any): TaskReducer => {
 
         return cloneState;
       }
+
       return {
         ...state,
         isPageLoading: false,
       };
+    }
+    case CHANGE_PAGE_TASK_LIST_INFO.REQUESTED: {
+      const { filter, processType } =
+        payload as PaginationTaskListInfoRequestActionPayload;
+
+      if (processType) {
+        const cloneState = { ...state };
+
+        cloneState[processType] = {
+          ...cloneState[processType],
+          taskListInfo: {
+            ls_task: {
+              ...TASK_LIST_REDUCER_PROCESS_TYPE_DEFAULT_VALUE.taskListInfo
+                .ls_task,
+            },
+            ls_page_token: [
+              ...cloneState[processType].taskListInfo.ls_page_token,
+            ],
+          },
+
+          isLoading: true,
+          filter,
+          // currentPage,
+        };
+
+        return cloneState;
+      }
+
+      return state;
+    }
+    case CHANGE_PAGE_TASK_LIST_INFO.SUCCEEDED: {
+      const { filter, targetPage, response, processType } =
+        payload as PaginationTaskListInfoSucceedActionPayload;
+
+      if (processType) {
+        const cloneState = { ...state };
+
+        cloneState[processType] = {
+          ...cloneState[processType],
+          taskListInfo: {
+            ls_page_token: [
+              ...cloneState[processType].taskListInfo.ls_page_token,
+            ],
+            ls_task: response[processType].ls_task,
+          },
+          isLoading: false,
+          filter,
+          currentPage: targetPage,
+        };
+
+        return cloneState;
+      }
+      return state;
+    }
+    case CHANGE_PAGE_TASK_LIST_INFO.FAILED: {
+      const { processType } =
+        payload as PaginationTaskListInfoFailedActionPayload;
+
+      if (processType) {
+        const cloneState = { ...state };
+
+        cloneState[processType] = {
+          ...cloneState[processType],
+          isLoading: false,
+        };
+
+        return cloneState;
+      }
+
+      return state;
     }
     default:
       return state;

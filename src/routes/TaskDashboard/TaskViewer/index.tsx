@@ -17,7 +17,7 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-// import TablePagination from "@mui/material/TablePagination";
+import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 // import TableSortLabel from "@mui/material/TableSortLabel";
 import Toolbar from "@mui/material/Toolbar";
@@ -27,6 +27,7 @@ import { Empty } from "components";
 import {
   ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
+  HEALTHCHECK_TASK_PROCESS_TYPE,
   RUNNING_TASK_STATUS,
   SYSTEM_DATE_TIME_FORMAT,
 } from "constants/defaultValues";
@@ -42,8 +43,14 @@ import { selectorListProjects } from "reduxes/project/selector";
 import // TaskInfoApiFields,
 // TaskStatusType
 "reduxes/project/type";
-import { filterTaskListInfo } from "reduxes/task/action";
 import {
+  changePageTaskListInfo,
+  filterTaskListInfo,
+} from "reduxes/task/action";
+import { TASK_LIST_PAGE_SIZE } from "reduxes/task/constants";
+import {
+  selectorSpecificProcessCurrentPage,
+  selectorSpecificProcessFilter,
   selectorSpecificProcessIsLoading,
   selectorSpecificProcessTypeTaskInfo,
 } from "reduxes/task/selector";
@@ -317,10 +324,19 @@ const TaskViewer = function ({ projectId, taskProcessType }: TaskViewerProps) {
   const taskInfoOfCurrentProcessType = useSelector((state: RootState) =>
     selectorSpecificProcessTypeTaskInfo(taskProcessType, state)
   );
+  const listProject = useSelector(selectorListProjects);
+
   const isTableLoading = useSelector((state: RootState) =>
     selectorSpecificProcessIsLoading(taskProcessType, state)
   );
-  const listProject = useSelector(selectorListProjects);
+
+  const currentPage = useSelector((state: RootState) =>
+    selectorSpecificProcessCurrentPage(taskProcessType, state)
+  );
+
+  const currentFilter = useSelector((state: RootState) =>
+    selectorSpecificProcessFilter(taskProcessType, state)
+  );
 
   const getProjectNameByProjectId = (targetProjectId: string) => {
     const matchProjectIndex = listProject.findIndex(
@@ -353,9 +369,15 @@ const TaskViewer = function ({ projectId, taskProcessType }: TaskViewerProps) {
     //   )
     // );
 
-    // const handleChangePage = (event: unknown, newPage: number) => {
-    //   setPage(newPage);
-    // };
+    const handleChangePage = (event: unknown, targetPage: number) => {
+      dispatch(
+        changePageTaskListInfo({
+          filter: currentFilter,
+          processType: taskProcessType,
+          targetPage,
+        })
+      );
+    };
 
     // const handleChangeRowsPerPage = (
     //   event: React.ChangeEvent<HTMLInputElement>
@@ -527,15 +549,21 @@ const TaskViewer = function ({ projectId, taskProcessType }: TaskViewerProps) {
               <TableBody>{renderTableBody()}</TableBody>
             </Table>
           </TableContainer>
-          {/* <TablePagination
-          // rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={2}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        /> */}
+          <TablePagination
+            rowsPerPageOptions={[]}
+            component="div"
+            count={-1}
+            rowsPerPage={TASK_LIST_PAGE_SIZE}
+            page={Number(currentPage) || 0}
+            onPageChange={handleChangePage}
+            labelDisplayedRows={({ page }) =>
+              `Page ${page + 1}/${
+                ls_page_token.length >= 0 ? ls_page_token.length + 1 : 0
+              }`
+            }
+
+            // onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Paper>
       </Box>
     );

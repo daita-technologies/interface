@@ -1,4 +1,9 @@
-import { GetTaskListFilterParams, GetTaskListParams } from "services/taskApi";
+import {
+  GetTaskListFilterParams,
+  GetTaskListInfoFailedActionPayload,
+  GetTaskListInfoSuceededActionPayload,
+  GetTaskListParams,
+} from "services/taskApi";
 import {
   CHANGE_PAGE_TASK_LIST_INFO,
   FILTER_TASK_LIST_INFO,
@@ -7,10 +12,27 @@ import {
 import {
   FilterTaskListInfoSucceededActionPayload,
   FilterTaskListInfoFailedActionPayload,
+  PaginationTaskListInfoRequestActionPayload,
+  PaginationTaskListInfoSucceedActionPayload,
+  PaginationTaskListInfoFailedActionPayload,
 } from "./type";
 
 export const getTaskListInfo = (payload: GetTaskListParams) => ({
   type: GET_TASK_LIST_INFO.REQUESTED,
+  payload,
+});
+
+export const getTaskListInfoSuceeded = (
+  payload: GetTaskListInfoSuceededActionPayload
+) => ({
+  type: GET_TASK_LIST_INFO.SUCCEEDED,
+  payload,
+});
+
+export const getTaskListInfoFailed = (
+  payload: GetTaskListInfoFailedActionPayload
+) => ({
+  type: GET_TASK_LIST_INFO.FAILED,
   payload,
 });
 
@@ -33,7 +55,23 @@ export const filterTaskListInfoFailed = (
   payload,
 });
 
-export const changePageTaskListInfo = (payload: GetTaskListParams) => ({
+export const changePageTaskListInfo = (
+  payload: PaginationTaskListInfoRequestActionPayload
+) => ({
   type: CHANGE_PAGE_TASK_LIST_INFO.REQUESTED,
+  payload,
+});
+
+export const changePageTaskListInfoSucceeded = (
+  payload: PaginationTaskListInfoSucceedActionPayload
+) => ({
+  type: CHANGE_PAGE_TASK_LIST_INFO.SUCCEEDED,
+  payload,
+});
+
+export const changePageTaskListInfoFailed = (
+  payload: PaginationTaskListInfoFailedActionPayload
+) => ({
+  type: CHANGE_PAGE_TASK_LIST_INFO.FAILED,
   payload,
 });

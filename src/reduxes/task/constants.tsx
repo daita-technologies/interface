@@ -13,8 +13,14 @@ export const TASK_LIST_REDUCER_PROCESS_TYPE_DEFAULT_VALUE: TaskReducerEachProces
   {
     isLoading: null,
     taskListInfo: { ls_task: [], ls_page_token: [] },
-    currentPage: null,
+    currentPage: 0,
     filter: null,
   };
 
-export const TASK_LIST_PAGE_SIZE = 100;
+export const FILTER_DEFAULT_VALUE = {
+  projectId: "",
+  processType: [],
+  statusQuery: [],
+};
+
+export const TASK_LIST_PAGE_SIZE = 6;
