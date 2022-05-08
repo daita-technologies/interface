@@ -5,9 +5,10 @@ import {
   PREPROCESS_TASK_PROCESS_TYPE,
   UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
-import { TaskStatusMergedType } from "constants/taskType";
+import { TaskProcessType, TaskStatusMergedType } from "constants/taskType";
 import {
   GetTaskListFilterParams,
+  GetTaskListPaginationParams,
   TaskListEachProcessTypeResponseApiFields,
   TaskListResponseApiFields,
 } from "services/taskApi";
@@ -19,7 +20,7 @@ export interface FilterTaskListInfoPayload {
 export interface TaskReducerEachProcessType {
   isLoading: boolean | null;
   taskListInfo: TaskListEachProcessTypeResponseApiFields;
-  currentPage: string | null;
+  currentPage: number | null;
   filter: GetTaskListFilterParams | null;
 }
 
@@ -39,4 +40,22 @@ export interface FilterTaskListInfoSucceededActionPayload {
 
 export interface FilterTaskListInfoFailedActionPayload {
   filter: GetTaskListFilterParams;
+}
+
+export interface PaginationTaskListInfoRequestActionPayload {
+  filter: GetTaskListFilterParams | null;
+  processType: TaskProcessType;
+  targetPage: number;
+}
+
+export interface PaginationTaskListInfoSucceedActionPayload {
+  filter: GetTaskListFilterParams | null;
+  targetPage: number;
+  processType: TaskProcessType;
+  response: TaskListResponseApiFields;
+}
+export interface PaginationTaskListInfoFailedActionPayload {
+  filter: GetTaskListFilterParams | null;
+  processType: TaskProcessType;
+  targetPage: number;
 }
