@@ -4,7 +4,7 @@ import {
   FINISH_SAMPLE_PROJECT_STATUS,
   FINISH_TASK_STATUS,
   GENERATING_SAMPLE_PROJECT_STATUS,
-  HEALTHCHECK_TASK_TYPE,
+  HEALTHCHECK_TASK_PROCESS_TYPE,
   ORIGINAL_SOURCE,
   PENDING_TASK_STATUS,
   PREPARING_DATA_TASK_STATUS,
@@ -12,7 +12,7 @@ import {
   PREPROCESS_SOURCE,
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
-  UPLOAD_TASK_TYPE,
+  UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
 import { ImageSourceType } from "reduxes/album/type";
 import { generateMethodType } from "reduxes/generate/type";
@@ -124,8 +124,8 @@ export interface TaskInfoApiFields {
 }
 export type ProcessType =
   | ImageSourceType
-  | typeof UPLOAD_TASK_TYPE
-  | typeof HEALTHCHECK_TASK_TYPE;
+  | typeof UPLOAD_TASK_PROCESS_TYPE
+  | typeof HEALTHCHECK_TASK_PROCESS_TYPE;
 
 export type ZipTaskInfoApiFields = Pick<
   TaskInfoApiFields,

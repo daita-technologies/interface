@@ -1,5 +1,5 @@
 import { Link, useHistory, useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
@@ -15,18 +15,18 @@ import { Empty, TabPanel } from "components";
 import { a11yProps } from "utils/general";
 import { getTaskListInfo } from "reduxes/task/action";
 import {
-  AUGMENT_TASK_TYPE,
-  DOWNLOAD_TASK_TYPE,
-  HEALTHCHECK_TASK_TYPE,
-  PREPROCESS_TASK_TYPE,
-  UPLOAD_TASK_TYPE,
+  AUGMENT_TASK_PROCESS_TYPE,
+  DOWNLOAD_TASK_PROCESS_TYPE,
+  HEALTHCHECK_TASK_PROCESS_TYPE,
+  PREPROCESS_TASK_PROCESS_TYPE,
+  UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
 
+import { TASK_LIST_PAGE_SIZE } from "reduxes/task/constants";
 import TaskViewer from "./TaskViewer";
 
 const TASK_LIST_TAB_NAME = "task-list";
 const TASK_LIST_ALL_TAB_NAME = "All";
-const TASK_LIST_PAGE_SIZE = 100;
 
 const TaskDashboard = function () {
   const { projectName } = useParams<{ projectName: string }>();
@@ -35,8 +35,20 @@ const TaskDashboard = function () {
   const isFetchingProjects = useSelector(selectorIsFetchingProjects);
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const selectedProjectId = useMemo(() => {
+    if (selectedTabIndex > 0) {
+      // NOTE: -1 because of first index is "All projects"
+      if (listProject && listProject[selectedTabIndex - 1]) {
+        return listProject[selectedTabIndex - 1].project_id;
+      }
+    }
+
+    return "";
+  }, [selectedTabIndex]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     // NOTE: newValue is index include "0 - All projects"
@@ -114,11 +126,26 @@ const TaskDashboard = function () {
 
     return (
       <>
-        <TaskViewer taskProcessType={PREPROCESS_TASK_TYPE} />
-        <TaskViewer taskProcessType={AUGMENT_TASK_TYPE} />
-        <TaskViewer taskProcessType={HEALTHCHECK_TASK_TYPE} />
-        <TaskViewer taskProcessType={UPLOAD_TASK_TYPE} />
-        <TaskViewer taskProcessType={DOWNLOAD_TASK_TYPE} />
+        <TaskViewer
+          projectId={selectedProjectId}
+          taskProcessType={PREPROCESS_TASK_PROCESS_TYPE}
+        />
+        <TaskViewer
+          projectId={selectedProjectId}
+          taskProcessType={AUGMENT_TASK_PROCESS_TYPE}
+        />
+        <TaskViewer
+          projectId={selectedProjectId}
+          taskProcessType={HEALTHCHECK_TASK_PROCESS_TYPE}
+        />
+        <TaskViewer
+          projectId={selectedProjectId}
+          taskProcessType={UPLOAD_TASK_PROCESS_TYPE}
+        />
+        <TaskViewer
+          projectId={selectedProjectId}
+          taskProcessType={DOWNLOAD_TASK_PROCESS_TYPE}
+        />
       </>
     );
   };

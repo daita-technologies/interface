@@ -1,7 +1,7 @@
 import {
-  HEALTHCHECK_TASK_TYPE,
+  HEALTHCHECK_TASK_PROCESS_TYPE,
   ID_TOKEN_NAME,
-  UPLOAD_TASK_TYPE,
+  UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
 import { toast } from "react-toastify";
 import {
@@ -187,12 +187,12 @@ function* handleFetchTaskInfo(action: {
     action.payload;
   try {
     let fetchTaskInfoResponse;
-    if (processType === UPLOAD_TASK_TYPE) {
+    if (processType === UPLOAD_TASK_PROCESS_TYPE) {
       fetchTaskInfoResponse = yield call(
         projectApi.getUploadZipTaskInfo,
         action.payload
       );
-    } else if (processType === HEALTHCHECK_TASK_TYPE) {
+    } else if (processType === HEALTHCHECK_TASK_PROCESS_TYPE) {
       fetchTaskInfoResponse = yield call(
         healthCheckApi.getRunHealthCheckStatus,
         { idToken, taskId }
