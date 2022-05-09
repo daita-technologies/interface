@@ -50,6 +50,8 @@ export type TaskItemApiFields = {
   project_id: string;
   process_type: TaskProcessType;
   status: TaskStatusType;
+  number_finished?: number;
+  number_gen_images?: number;
 };
 
 export interface TaskListEachProcessTypeResponseApiFields {
