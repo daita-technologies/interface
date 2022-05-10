@@ -37,7 +37,7 @@ const InviteFriendModal = function () {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<InviteFriendModalFields>();
+  } = useForm<InviteFriendModalFields>({ mode: "onChange" });
 
   const isSendingFriendInvitation = useSelector(
     selectorIsSendingFriendInvitation

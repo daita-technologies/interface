@@ -32,7 +32,7 @@ const VerifyAccountPage = function () {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<VerifyFormInputs>();
+  } = useForm<VerifyFormInputs>({ mode: "onChange" });
 
   const isVerifying = useSelector(
     (state: RootState) => state.authReducer.isVerifying

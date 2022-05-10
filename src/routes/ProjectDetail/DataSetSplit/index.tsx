@@ -102,6 +102,7 @@ const DataSetSplit = function (props: DataSetSplitProps) {
     formState: { errors },
     getValues,
   } = useForm<SplitDataFormFields>({
+    mode: "onChange",
     defaultValues: {
       training: splitDataNumberBySource[TRAINING_DATA_NUMBER_INDEX],
       validation: splitDataNumberBySource[VALIDATION_DATA_NUMBER_INDEX],

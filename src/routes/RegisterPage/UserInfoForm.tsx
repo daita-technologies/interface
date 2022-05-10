@@ -88,7 +88,7 @@ const UserInfoForm = function ({
     handleSubmit,
     trigger,
     formState: { errors },
-  } = useForm<RegisterFormFields>();
+  } = useForm<RegisterFormFields>({ mode: "onChange" });
 
   const [isEightChars, setIsEightChars] = useState(false);
   const [isLowerCase, setIsLowerCase] = useState(false);
