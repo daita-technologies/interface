@@ -159,11 +159,17 @@ function* handleRefreshToken(action: {
 function* handleLogout(): any {
   try {
     yield put({ type: SET_PAGE_LOADING, payload: { isShow: true } });
-    yield call(authApi.logout);
+    const logoutResponse = yield call(authApi.logout);
     removeListToken();
-    yield put({ type: LOG_OUT.SUCCEEDED, payload: {} });
     yield removeLocalStorage(TEMP_LOCAL_USERNAME);
+    if (logoutResponse.error === false) {
+      if (logoutResponse.data.code) {
+        window.location.href = `https://auth.daita.tech/logout?client_id=4cpbb5etp3q7grnnrhrc7irjoa&logout_uri=http://localhost:3000`;
+        return;
+      }
+    }
     yield put({ type: SET_PAGE_LOADING, payload: { isShow: false } });
+    yield put({ type: LOG_OUT.SUCCEEDED, payload: {} });
   } catch (e: any) {
     yield removeLocalStorage(TEMP_LOCAL_USERNAME);
     yield put({ type: LOG_OUT.SUCCEEDED, payload: {} });
