@@ -52,7 +52,7 @@ const uploadReducer = (state = inititalState, action: any): UploadState => {
           ...files[payload.fileName],
           ...payload.updateInfo,
         };
-        return { ...state, files };
+        return { ...state, files: { ...files } };
       }
       return state;
     }
@@ -69,7 +69,7 @@ const uploadReducer = (state = inititalState, action: any): UploadState => {
       });
       return {
         ...state,
-        files,
+        files: { ...files },
       };
     }
     case UPDATE_STATUS_FILE_ARRAY: {

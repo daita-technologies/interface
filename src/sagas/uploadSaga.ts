@@ -159,6 +159,18 @@ function* isZipFileValid(action: {
         countImages += 1;
       }
     });
+    if (countImages === 0) {
+      yield put(
+        updateFile({
+          fileName,
+          updateInfo: {
+            error: `Not found any images in the zip file.`,
+            status: FAILED_UPLOAD_FILE_STATUS,
+          },
+        })
+      );
+      return false;
+    }
     if (countImages + totalOriginalImage <= MAX_ALLOW_UPLOAD_IMAGES) {
       return true;
     }
