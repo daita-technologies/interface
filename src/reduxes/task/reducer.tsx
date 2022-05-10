@@ -7,10 +7,11 @@ import {
   UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
 import { TaskProcessType } from "constants/taskType";
+import { FETCH_TASK_INFO } from "reduxes/project/constants";
+import { FetchTaskInfoSucceedPayload } from "reduxes/project/type";
 import {
   GetTaskListFilterParams,
   GetTaskListInfoSuceededActionPayload,
-  TaskListResponseApiFields,
 } from "services/taskApi";
 import {
   CHANGE_PAGE_TASK_LIST_INFO,
@@ -217,6 +218,40 @@ const taskReducer = (state = inititalState, action: any): TaskReducer => {
           ...cloneState[processType],
           isLoading: false,
         };
+
+        return cloneState;
+      }
+
+      return state;
+    }
+
+    case FETCH_TASK_INFO.SUCCEEDED: {
+      const { taskInfo } = payload as FetchTaskInfoSucceedPayload;
+      const { task_id, process_type, status } = taskInfo;
+
+      if (process_type) {
+        const cloneState = { ...state };
+        const cloneMatchTaskList = [
+          ...cloneState[process_type].taskListInfo.ls_task,
+        ];
+
+        const matchTaskIndex = cloneMatchTaskList.findIndex(
+          (eachTaskInfo) => task_id === eachTaskInfo.task_id
+        );
+
+        if (matchTaskIndex > -1) {
+          cloneState[process_type].taskListInfo.ls_task[matchTaskIndex] = {
+            ...cloneState[process_type].taskListInfo.ls_task[matchTaskIndex],
+            ...taskInfo,
+          };
+        } else {
+          cloneState[process_type].taskListInfo.ls_task.unshift({
+            identity_id: "",
+            project_id: "",
+            created_time: "",
+            ...taskInfo,
+          });
+        }
 
         return cloneState;
       }
