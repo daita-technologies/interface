@@ -1,5 +1,6 @@
 import {
   ERROR_MESSAGE_ACCOUNT_NOT_VERIFY,
+  LOGOUT_SOCIAL_API,
   TEMP_LOCAL_FULLNAME,
   TEMP_LOCAL_USERNAME,
 } from "constants/defaultValues";
@@ -164,7 +165,7 @@ function* handleLogout(): any {
     yield removeLocalStorage(TEMP_LOCAL_USERNAME);
     if (logoutResponse.error === false) {
       if (logoutResponse.data.code) {
-        window.location.href = `https://auth.daita.tech/logout?client_id=4cpbb5etp3q7grnnrhrc7irjoa&logout_uri=http://localhost:3000`;
+        window.location.href = LOGOUT_SOCIAL_API;
         return;
       }
     }
