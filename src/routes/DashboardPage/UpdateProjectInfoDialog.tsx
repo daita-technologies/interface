@@ -28,7 +28,7 @@ const UpdateProjectInfoDialog = function () {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<UpdateProjectInfo>();
+  } = useForm<UpdateProjectInfo>({ mode: "onChange" });
   if (!updateProjectInfoDialog) {
     return null;
   }

@@ -8,7 +8,7 @@ import {
   MAXIMUM_ZIP_FILE_SIZE,
   MAX_ALLOW_UPLOAD_IMAGES,
   ORIGINAL_SOURCE,
-  UPLOAD_TASK_TYPE,
+  UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
 import { S3_BUCKET_NAME } from "constants/s3Values";
 import {
@@ -159,6 +159,18 @@ function* isZipFileValid(action: {
         countImages += 1;
       }
     });
+    if (countImages === 0) {
+      yield put(
+        updateFile({
+          fileName,
+          updateInfo: {
+            error: `Not found any images in the zip file.`,
+            status: FAILED_UPLOAD_FILE_STATUS,
+          },
+        })
+      );
+      return false;
+    }
     if (countImages + totalOriginalImage <= MAX_ALLOW_UPLOAD_IMAGES) {
       return true;
     }
@@ -265,7 +277,7 @@ function* handleUploadZipFile(action: {
             fetchTaskInfo({
               idToken: getLocalStorage(ID_TOKEN_NAME) || "",
               taskId: uploadZipFileResponse.data.task_id,
-              processType: UPLOAD_TASK_TYPE,
+              processType: UPLOAD_TASK_PROCESS_TYPE,
               isNotify: true,
               projectId,
             })

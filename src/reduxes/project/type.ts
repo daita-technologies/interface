@@ -4,7 +4,6 @@ import {
   FINISH_SAMPLE_PROJECT_STATUS,
   FINISH_TASK_STATUS,
   GENERATING_SAMPLE_PROJECT_STATUS,
-  HEALTHCHECK_TASK_TYPE,
   ORIGINAL_SOURCE,
   PENDING_TASK_STATUS,
   PREPARING_DATA_TASK_STATUS,
@@ -12,8 +11,8 @@ import {
   PREPROCESS_SOURCE,
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
-  UPLOAD_TASK_TYPE,
 } from "constants/defaultValues";
+import { TaskProcessType } from "constants/taskType";
 import { ImageSourceType } from "reduxes/album/type";
 import { generateMethodType } from "reduxes/generate/type";
 
@@ -45,7 +44,7 @@ export interface UpdateStatisticInfo {
 
 export interface TaskInfo {
   task_id: string;
-  process_type: ProcessType;
+  process_type: TaskProcessType;
   project_id?: string;
 }
 export interface ProjectInfo {
@@ -117,15 +116,11 @@ export interface TaskInfoApiFields {
   identity_id: string;
   task_id: string;
   status: TaskStatusType;
-  process_type: ProcessType;
+  process_type: TaskProcessType;
   number_finished: number;
   project_id: string;
   number_gen_images: number;
 }
-export type ProcessType =
-  | ImageSourceType
-  | typeof UPLOAD_TASK_TYPE
-  | typeof HEALTHCHECK_TASK_TYPE;
 
 export type ZipTaskInfoApiFields = Pick<
   TaskInfoApiFields,
@@ -144,7 +139,7 @@ export type GeneralTaskInfoApiFields =
 export interface FetchTaskInfoPayload {
   idToken: string;
   taskId: string;
-  processType: ProcessType;
+  processType: TaskProcessType;
   projectId?: string;
   isNotify?: boolean;
   generateMethod?: generateMethodType;

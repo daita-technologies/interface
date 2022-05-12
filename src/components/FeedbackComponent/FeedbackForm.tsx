@@ -23,7 +23,7 @@ export const FeedbackForm = function ({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FeedbackFields>();
+  } = useForm<FeedbackFields>({ mode: "onChange" });
   const onSubmitFeedback = (data: FeedbackFields) => {
     setIsProcessing(true);
     onSubmit(data).then((resp: ResponseSubmitType) => {

@@ -5,8 +5,9 @@ import {
   ID_TOKEN_NAME,
   ORIGINAL_SOURCE,
 } from "constants/defaultValues";
+import { TaskProcessType } from "constants/taskType";
 import { ImageSourceType } from "reduxes/album/type";
-import { ProcessType, TaskStatusType } from "reduxes/project/type";
+import { TaskStatusType } from "reduxes/project/type";
 import { getLocalStorage } from "utils/general";
 
 export interface RunHealthCheckParams {
@@ -17,7 +18,7 @@ export interface RunHealthCheckParams {
 
 export interface RunHealthCheckResponseFields {
   task_id: string;
-  process_type: ProcessType;
+  process_type: TaskProcessType;
 }
 
 export interface GetProjectHealthCheckInfoParams {

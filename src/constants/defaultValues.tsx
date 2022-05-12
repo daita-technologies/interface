@@ -1,5 +1,6 @@
 import { getLocalToken } from "utils/general";
 import { encode } from "js-base64";
+
 import { TaskProcessType, TaskStatusMergedType } from "./taskType";
 
 export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
@@ -16,9 +17,12 @@ export const reactAppEnv = process.env.REACT_APP_ENV;
 
 export const RECAPTCHA_SITE_KEY =
   process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
-export const LOGIN_SOCIAL_CALLBACK_URL = encode(
-  `${window.location.protocol}//${window.location.host}/login`
-);
+
+export const ROOT_URL = `${window.location.protocol}//${window.location.host}`;
+export const LOGIN_URL = `${ROOT_URL}/login`;
+export const LOGIN_SOCIAL_CALLBACK_URL = encode(LOGIN_URL);
+export const LOGOUT_SOCIAL_API = `${process.env.REACT_APP_API_LOGOUT_SOCIAL}&logout_uri=${ROOT_URL}`;
+
 export const API_AMAZON_COGNITO = process.env.REACT_APP_API_AMAZON_COGNITO;
 export const COGNITO_REDIRECT_URI = process.env.REACT_APP_COGNITO_REDIRECT_URI;
 export const COGNITO_CLIENT_ID = process.env.REACT_APP_COGNITO_CLIENTID;
@@ -80,18 +84,19 @@ export const ORIGINAL_SOURCE = "ORIGINAL";
 export const PREPROCESS_SOURCE = "PREPROCESS";
 export const AUGMENT_SOURCE = "AUGMENT";
 
-export const PREPROCESS_TASK_TYPE = "PREPROCESS";
-export const AUGMENT_TASK_TYPE = "AUGMENT";
-export const UPLOAD_TASK_TYPE = "UPLOAD";
-export const DOWNLOAD_TASK_TYPE = "DOWNLOAD";
-export const HEALTHCHECK_TASK_TYPE = "HEALTHCHECK";
+export const PREPROCESS_TASK_PROCESS_TYPE = "PREPROCESS";
+export const AUGMENT_TASK_PROCESS_TYPE = "AUGMENT";
+export const UPLOAD_TASK_PROCESS_TYPE = "UPLOAD";
+export const DOWNLOAD_TASK_PROCESS_TYPE = "DOWNLOAD";
+export const HEALTHCHECK_TASK_PROCESS_TYPE = "HEALTHCHECK";
+export const FILTER_ALL_TASK_PROCESS_TYPE = "";
 
 export const ALL_TASK_TYPE_ARRAY: TaskProcessType[] = [
-  HEALTHCHECK_TASK_TYPE,
-  PREPROCESS_TASK_TYPE,
-  AUGMENT_TASK_TYPE,
-  UPLOAD_TASK_TYPE,
-  DOWNLOAD_TASK_TYPE,
+  HEALTHCHECK_TASK_PROCESS_TYPE,
+  PREPROCESS_TASK_PROCESS_TYPE,
+  AUGMENT_TASK_PROCESS_TYPE,
+  UPLOAD_TASK_PROCESS_TYPE,
+  DOWNLOAD_TASK_PROCESS_TYPE,
 ];
 
 export const MAX_AUGMENT_FREE_PLAN = 5;
@@ -108,6 +113,7 @@ export const UPLOADING_TASK_STATUS = "UPLOADING";
 export const FINISH_TASK_STATUS = "FINISH";
 export const ERROR_TASK_STATUS = "ERROR";
 export const FINISH_ERROR_TASK_STATUS = "FINISH_ERROR";
+export const FILTER_ALL_TASK_STATUS = "";
 
 export const TASK_STATUS_MERGED_ARRAY: TaskStatusMergedType[] = [
   RUNNING_TASK_STATUS,

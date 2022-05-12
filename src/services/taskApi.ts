@@ -2,11 +2,11 @@ import axios from "axios";
 import {
   getAuthHeader,
   ID_TOKEN_NAME,
-  PREPROCESS_TASK_TYPE,
-  AUGMENT_TASK_TYPE,
-  UPLOAD_TASK_TYPE,
-  DOWNLOAD_TASK_TYPE,
-  HEALTHCHECK_TASK_TYPE,
+  PREPROCESS_TASK_PROCESS_TYPE,
+  AUGMENT_TASK_PROCESS_TYPE,
+  UPLOAD_TASK_PROCESS_TYPE,
+  DOWNLOAD_TASK_PROCESS_TYPE,
+  HEALTHCHECK_TASK_PROCESS_TYPE,
   taskApiURL,
 } from "constants/defaultValues";
 import { TaskProcessType, TaskStatusMergedType } from "constants/taskType";
@@ -15,17 +15,32 @@ import { getLocalStorage } from "utils/general";
 
 export type GetTaskListFilterParams = {
   projectId: string;
-  processType: TaskProcessType[];
-  statusQuery: TaskStatusMergedType[];
+  processType: Array<TaskProcessType>;
+  statusQuery: Array<TaskStatusMergedType | "">;
+};
+
+export type PageTokenType = {
+  [key: string]: any;
+};
+
+export type GetTaskListPaginationParams = {
+  pageToken: PageTokenType | null;
 };
 
 export interface GetTaskListParams {
   idToken?: string;
   filter: GetTaskListFilterParams;
-  pagination: {
-    pageToken: string | null;
-  };
+  pagination: GetTaskListPaginationParams;
   sizeListItemsQuery: number;
+}
+
+export interface GetTaskListInfoSuceededActionPayload {
+  filter: GetTaskListFilterParams;
+  response: TaskListResponseApiFields;
+}
+
+export interface GetTaskListInfoFailedActionPayload {
+  filter: GetTaskListFilterParams;
 }
 
 export type TaskItemApiFields = {
@@ -35,6 +50,8 @@ export type TaskItemApiFields = {
   project_id: string;
   process_type: TaskProcessType;
   status: TaskStatusType;
+  number_finished?: number;
+  number_gen_images?: number;
 };
 
 export interface TaskListEachProcessTypeResponseApiFields {
@@ -43,11 +60,11 @@ export interface TaskListEachProcessTypeResponseApiFields {
 }
 
 export interface TaskListResponseApiFields {
-  [PREPROCESS_TASK_TYPE]: TaskListEachProcessTypeResponseApiFields;
-  [AUGMENT_TASK_TYPE]: TaskListEachProcessTypeResponseApiFields;
-  [UPLOAD_TASK_TYPE]: TaskListEachProcessTypeResponseApiFields;
-  [DOWNLOAD_TASK_TYPE]: TaskListEachProcessTypeResponseApiFields;
-  [HEALTHCHECK_TASK_TYPE]: TaskListEachProcessTypeResponseApiFields;
+  [PREPROCESS_TASK_PROCESS_TYPE]: TaskListEachProcessTypeResponseApiFields;
+  [AUGMENT_TASK_PROCESS_TYPE]: TaskListEachProcessTypeResponseApiFields;
+  [UPLOAD_TASK_PROCESS_TYPE]: TaskListEachProcessTypeResponseApiFields;
+  [DOWNLOAD_TASK_PROCESS_TYPE]: TaskListEachProcessTypeResponseApiFields;
+  [HEALTHCHECK_TASK_PROCESS_TYPE]: TaskListEachProcessTypeResponseApiFields;
 }
 
 const taskApi = {
