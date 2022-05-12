@@ -3,8 +3,14 @@ import _ from "lodash";
 import { RootState } from "reduxes";
 
 export const selectorIsHealthCheckLoading = (state: RootState) =>
-  state.healthCheckReducer.isLoading ||
-  !state.healthCheckReducer.isFetchAllTaskInfo;
+  state.healthCheckReducer.isFetchingHealthCheckInfo ||
+  !state.healthCheckReducer.isFetchedAllTaskInfo;
+
+export const selectorIsFetchedAllTaskInfo = (state: RootState) =>
+  state.healthCheckReducer.isFetchedAllTaskInfo;
+
+export const selectorIsFetchingHealthCheckInfo = (state: RootState) =>
+  state.healthCheckReducer.isFetchingHealthCheckInfo;
 
 export const selectorIsRunningHealthCheck = (state: RootState) =>
   state.healthCheckReducer.isRunningHealthCheck;

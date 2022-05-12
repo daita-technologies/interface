@@ -246,8 +246,8 @@ const taskReducer = (state = inititalState, action: any): TaskReducer => {
           };
         } else {
           cloneState[process_type].taskListInfo.ls_task.unshift({
-            identity_id: "",
-            project_id: "",
+            // identity_id: "",
+            // project_id: "",
             created_time: "",
             ...taskInfo,
           });

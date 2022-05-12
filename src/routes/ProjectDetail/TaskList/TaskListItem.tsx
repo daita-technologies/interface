@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Box, LinearProgress, Typography } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import useInterval from "hooks/useInterval";
@@ -22,6 +21,8 @@ import {
   UPLOADING_TASK_STATUS,
   UPLOAD_TASK_PROCESS_TYPE,
   ORIGINAL_IMAGES_TAB,
+  HEALTHCHECK_TASK_PROCESS_TYPE,
+  ORIGINAL_SOURCE,
 } from "constants/defaultValues";
 import {
   FETCH_DETAIL_PROJECT,
@@ -31,12 +32,19 @@ import {
   selectorCurrentProjectId,
   selectorCurrentProjectName,
   selectorCurrentTaskListInfo,
+  selectorListProjects,
 } from "reduxes/project/selector";
 import { TaskStatusType } from "reduxes/project/type";
 import { toast } from "react-toastify";
 import { selectorActiveImagesTabId } from "reduxes/album/selector";
 import { changeActiveImagesTab, fetchImages } from "reduxes/album/action";
-import { TaskListItemProps } from "./type";
+import { getProjectHealthCheckInfoAction } from "reduxes/healthCheck/action";
+import { PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME } from "reduxes/task/constants";
+import {
+  TaskListImageSourceItemProps,
+  TaskListItemProps,
+  TaskListUploadItemProps,
+} from "./type";
 
 const returnColorOfTask = (targetStatus: TaskStatusType) => {
   switch (targetStatus) {
@@ -62,24 +70,34 @@ const returnColorOfStatusText = (targetStatus: TaskStatusType) => {
   }
 };
 
-const TaskListImageSourceItem = function ({ taskInfo }: TaskInfoApiFields) {
+const TaskListImageSourceItem = function ({
+  taskInfo,
+}: TaskListImageSourceItemProps) {
   const dispatch = useDispatch();
   const currentProjectId = useSelector(selectorCurrentProjectId);
   const currentTaskListInfo = useSelector(selectorCurrentTaskListInfo);
   const activeImagesTabId = useSelector(selectorActiveImagesTabId);
   const { status, process_type, number_finished, number_gen_images } = taskInfo;
   const progress = useMemo(() => {
-    if (number_gen_images !== 0) {
-      const progressing = ((number_finished * 100) / number_gen_images).toFixed(
-        2
-      );
-      const parseNumber = Number(progressing);
-      if (parseNumber === 0 || parseNumber === 100) {
-        return parseNumber.toFixed(0);
+    if (
+      typeof number_finished !== "undefined" &&
+      typeof number_gen_images !== "undefined" &&
+      number_gen_images !== 0
+    ) {
+      if (number_gen_images !== 0) {
+        const progressing = (
+          (number_finished * 100) /
+          number_gen_images
+        ).toFixed(2);
+        const parseNumber = Number(progressing);
+        if (parseNumber === 0 || parseNumber === 100) {
+          return parseNumber.toFixed(0);
+        }
+        return progressing;
       }
-      return progressing;
+      return "100";
     }
-    return "100";
+    return "0";
   }, [number_finished, number_gen_images]);
 
   useEffect(() => {
@@ -160,7 +178,7 @@ const TaskListImageSourceItem = function ({ taskInfo }: TaskInfoApiFields) {
   );
 };
 
-const TaskListUploadItem = function ({ taskInfo }: TaskInfoApiFields) {
+const TaskListUploadItem = function ({ taskInfo }: TaskListUploadItemProps) {
   const { status, process_type } = taskInfo;
   return (
     <Box display="flex" flexDirection="column" my={2}>
@@ -202,14 +220,30 @@ const TaskListUploadItem = function ({ taskInfo }: TaskInfoApiFields) {
     </Box>
   );
 };
-const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
+const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
   const dispatch = useDispatch();
   const currentProjectName = useSelector(selectorCurrentProjectName);
   const currentProjectId = useSelector(selectorCurrentProjectId);
-  const { status, task_id, process_type } = taskInfo;
+  const listProject = useSelector(selectorListProjects);
+  const { status, task_id, process_type, project_id } = taskInfo;
 
-  const savedTaskStatus = useRef();
+  const isRunActionAfterFinished = useRef<boolean>(false);
   const activeImagesTabId = useSelector(selectorActiveImagesTabId);
+
+  const getProjectNameByProjectId = useCallback(
+    (targetProjectId: string) => {
+      const matchProjectIndex = listProject.findIndex(
+        (p) => p.project_id === targetProjectId
+      );
+
+      if (matchProjectIndex > -1) {
+        return listProject[matchProjectIndex].project_name;
+      }
+
+      return "";
+    },
+    [listProject]
+  );
 
   useEffect(() => {
     if (status === ERROR_TASK_STATUS) {
@@ -242,54 +276,75 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
     status === FINISH_TASK_STATUS ? null : 10000
   );
 
+  const actionWhenTaskFinish = () => {
+    switch (process_type) {
+      case PREPROCESS_SOURCE:
+      case AUGMENT_SOURCE:
+        toast.success(
+          `${capitalizeFirstLetter(
+            getGenerateMethodLabel(process_type)
+          )} of the data set has been completed successfully.`
+        );
+        break;
+      case UPLOAD_TASK_PROCESS_TYPE:
+        if (activeImagesTabId === ORIGINAL_IMAGES_TAB) {
+          dispatch(
+            fetchImages({
+              idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+              projectId: currentProjectId,
+              nextToken: "",
+              typeMethod: switchTabIdToSource(activeImagesTabId),
+            })
+          );
+        }
+        toast.success("Uploading has been uploaded successfully.");
+        break;
+      case HEALTHCHECK_TASK_PROCESS_TYPE:
+        dispatch(
+          getProjectHealthCheckInfoAction({
+            projectId: project_id,
+            dataType: ORIGINAL_SOURCE,
+            notShowLoading: true,
+          })
+        );
+        toast.success(
+          `Data health check of ${getProjectNameByProjectId(
+            project_id
+          )} has been completed successfully.`
+        );
+        break;
+      default:
+        break;
+    }
+  };
+
   useEffect(() => {
     if (taskInfo) {
       if (
-        savedTaskStatus.current &&
-        savedTaskStatus.current !== FINISH_TASK_STATUS &&
-        taskInfo.status === FINISH_TASK_STATUS
+        taskInfo.status === FINISH_TASK_STATUS &&
+        !isRunActionAfterFinished.current
       ) {
-        savedTaskStatus.current = FINISH_TASK_STATUS;
-        dispatch({
-          type: FETCH_DETAIL_PROJECT.REQUESTED,
-          payload: {
-            idToken: getLocalStorage(ID_TOKEN_NAME),
-            projectName: currentProjectName,
-            notShowLoading: true,
-          },
-        });
+        isRunActionAfterFinished.current = true;
 
-        dispatch({
-          type: FETCH_LIST_PROJECTS.REQUESTED,
-          payload: {
-            idToken: getLocalStorage(ID_TOKEN_NAME),
-            notShowLoading: true,
-          },
-        });
-        if (
-          process_type === PREPROCESS_SOURCE ||
-          process_type === AUGMENT_SOURCE
-        ) {
-          toast.success(
-            `${capitalizeFirstLetter(
-              getGenerateMethodLabel(process_type)
-            )} of the data set has been completed successfully.`
-          );
-        } else if (process_type === UPLOAD_TASK_PROCESS_TYPE) {
-          if (activeImagesTabId === ORIGINAL_IMAGES_TAB) {
-            dispatch(
-              fetchImages({
-                idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-                projectId: currentProjectId,
-                nextToken: "",
-                typeMethod: switchTabIdToSource(activeImagesTabId),
-              })
-            );
-          }
-          toast.success("Uploading has been uploaded successfully.");
+        if (pageName === PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME) {
+          dispatch({
+            type: FETCH_DETAIL_PROJECT.REQUESTED,
+            payload: {
+              idToken: getLocalStorage(ID_TOKEN_NAME),
+              projectName: currentProjectName,
+              notShowLoading: true,
+            },
+          });
+
+          dispatch({
+            type: FETCH_LIST_PROJECTS.REQUESTED,
+            payload: {
+              idToken: getLocalStorage(ID_TOKEN_NAME),
+              notShowLoading: true,
+            },
+          });
         }
-      } else {
-        savedTaskStatus.current = taskInfo.status;
+        actionWhenTaskFinish();
       }
     }
   }, [taskInfo]);

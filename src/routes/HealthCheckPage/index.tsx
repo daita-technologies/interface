@@ -53,7 +53,7 @@ const HealthCheckPage = function () {
   }, [listProject]);
 
   const renderPageContent = () => {
-    if (isFetchingProjects) {
+    if (isFetchingProjects === null || isFetchingProjects === true) {
       return (
         <Box
           display="flex"
