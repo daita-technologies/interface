@@ -1,28 +1,27 @@
 // @ts-nocheck
-import { useEffect, useMemo, useRef } from "react";
-import { Box, LinearProgress, Typography } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import useInterval from "hooks/useInterval";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchTaskInfo } from "reduxes/project/action";
-import {
-  capitalizeFirstLetter,
-  getGenerateMethodLabel,
-  getLocalStorage,
-  switchTabIdToSource,
-} from "utils/general";
+import { Box, LinearProgress, Typography } from "@mui/material";
 import {
   AUGMENT_SOURCE,
   ERROR_TASK_STATUS,
   FINISH_ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
+  GENERATE_REFERENCE_IMAGE_TYPE,
   ID_TOKEN_NAME,
+  ORIGINAL_IMAGES_TAB,
   PREPROCESS_SOURCE,
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
   UPLOAD_TASK_PROCESS_TYPE,
-  ORIGINAL_IMAGES_TAB,
 } from "constants/defaultValues";
+import useInterval from "hooks/useInterval";
+import { useEffect, useMemo, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { changeActiveImagesTab, fetchImages } from "reduxes/album/action";
+import { selectorActiveImagesTabId } from "reduxes/album/selector";
+import { fetchReferenceImageInfo } from "reduxes/customPreprocessing/action";
+import { fetchTaskInfo } from "reduxes/project/action";
 import {
   FETCH_DETAIL_PROJECT,
   FETCH_LIST_PROJECTS,
@@ -33,9 +32,12 @@ import {
   selectorCurrentTaskListInfo,
 } from "reduxes/project/selector";
 import { TaskStatusType } from "reduxes/project/type";
-import { toast } from "react-toastify";
-import { selectorActiveImagesTabId } from "reduxes/album/selector";
-import { changeActiveImagesTab, fetchImages } from "reduxes/album/action";
+import {
+  capitalizeFirstLetter,
+  getGenerateMethodLabel,
+  getLocalStorage,
+  switchTabIdToSource,
+} from "utils/general";
 import { TaskListItemProps } from "./type";
 
 const returnColorOfTask = (targetStatus: TaskStatusType) => {
@@ -287,6 +289,14 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
             );
           }
           toast.success("Uploading has been uploaded successfully.");
+        } else if (process_type === GENERATE_REFERENCE_IMAGE_TYPE) {
+          dispatch(
+            fetchReferenceImageInfo({
+              idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+              projectId: currentProjectId,
+            })
+          );
+          toast.success("Reference images have been generated successfully.");
         }
       } else {
         savedTaskStatus.current = taskInfo.status;
@@ -301,7 +311,10 @@ const TaskListItem = function ({ taskInfo }: TaskListItemProps) {
   ) {
     return null;
   }
-  if (process_type === UPLOAD_TASK_PROCESS_TYPE) {
+  if (
+    process_type === UPLOAD_TASK_PROCESS_TYPE ||
+    process_type === GENERATE_REFERENCE_IMAGE_TYPE
+  ) {
     return <TaskListUploadItem taskInfo={taskInfo} />;
   }
   return <TaskListImageSourceItem taskInfo={taskInfo} />;

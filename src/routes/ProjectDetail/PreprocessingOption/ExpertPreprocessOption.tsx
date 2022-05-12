@@ -1,27 +1,29 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import EditIcon from "@mui/icons-material/Edit";
-import { Box, Button, Divider, IconButton, Typography } from "@mui/material";
+import { Box, Divider, IconButton, Typography } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
-import { InfoTooltip } from "components";
-import {
-  AUTO_ORIENTATION,
-  EQUALIZE_HISTOGRAM,
-  HIGH_RESOLUTION,
-  NORMALIZE_BRIGHTNESS,
-  NORMALIZE_CONTRAST,
-  NORMALIZE_HUE,
-  NORMALIZE_SATURATION,
-  NORMALIZE_SHARPNESS,
-  PreprocessingMethod,
-} from "components/ImageProcessing/type";
-import { useState } from "react";
+import { InfoTooltip, MyButton } from "components";
 import { useDispatch, useSelector } from "react-redux";
-import { setReferenceSeletectorDialog } from "reduxes/customPreprocessing/action";
-import { selectorReferencePreprocessImage } from "reduxes/customPreprocessing/selector";
-import ReferenceImageDialog from "./ReferenceImageDialog";
+import {
+  generateReferenceImages,
+  setReferenceSeletectorDialog,
+  setSelectedMethods,
+} from "reduxes/customPreprocessing/action";
+import {
+  selectorIsGenerateReferenceRequesting,
+  selectorIsGenerating,
+  selectorReferencePreprocessImage,
+  selectorSelectedMethods,
+} from "reduxes/customPreprocessing/selector";
+import {
+  selectorCurrentProjectId,
+  selectorMethodList,
+} from "reduxes/project/selector";
+import { MethodInfoFields } from "reduxes/project/type";
+import ReferenceImageDialog, { prettyMethodName } from "./ReferenceImageDialog";
 
 const limitTooLongLineStyle = {
   display: "-webkit-box",
@@ -32,16 +34,6 @@ const limitTooLongLineStyle = {
   lineHeight: 1.3,
 };
 
-const methods: PreprocessingMethod[] = [
-  HIGH_RESOLUTION,
-  NORMALIZE_HUE,
-  AUTO_ORIENTATION,
-  NORMALIZE_CONTRAST,
-  NORMALIZE_SATURATION,
-  EQUALIZE_HISTOGRAM,
-  NORMALIZE_SHARPNESS,
-  NORMALIZE_BRIGHTNESS,
-];
 const icon = <CheckBoxOutlineBlankIcon />;
 const checkedIcon = <CheckBoxIcon />;
 
@@ -50,19 +42,41 @@ const ExpertPreprocessingOption = function () {
   const referencePreprocessImage = useSelector(
     selectorReferencePreprocessImage
   );
-
-  const [listSelectedMethods, setListSelectedMethod] = useState<
-    PreprocessingMethod[]
-  >([]);
-  const handleShowReferenceDialog = (method: PreprocessingMethod) => {
+  const currentProjectId = useSelector(selectorCurrentProjectId);
+  const selectedMethods = useSelector(selectorSelectedMethods);
+  const isGenerating = useSelector(selectorIsGenerating);
+  const isGenerateReferenceRequesting = useSelector(
+    selectorIsGenerateReferenceRequesting
+  );
+  const methods = useSelector(selectorMethodList)?.preprocessing;
+  const handleShowReferenceDialog = (method: MethodInfoFields) => {
     dispatch(setReferenceSeletectorDialog({ isShow: true, method }));
   };
+  const handleChangeSelectedMethods = (
+    event: any,
+    listMethod: MethodInfoFields[]
+  ) => {
+    dispatch(setSelectedMethods({ selectedMethods: listMethod }));
+  };
+  const handleClickGenerateReferenceImages = () => {
+    dispatch(generateReferenceImages({ projectId: currentProjectId }));
+  };
+  const isOptionEqualToValue = (
+    option: MethodInfoFields,
+    value: MethodInfoFields
+  ) => option.method_id === value.method_id;
   return (
     <Box>
       <Box display="flex" alignItems="center">
-        <Button variant="contained" size="small">
+        <MyButton
+          variant="contained"
+          size="small"
+          isLoading={isGenerateReferenceRequesting}
+          disabled={isGenerating}
+          onClick={handleClickGenerateReferenceImages}
+        >
           Run
-        </Button>
+        </MyButton>
         <Typography fontWeight={500} ml={1}>
           Generate the reference images
         </Typography>
@@ -73,9 +87,10 @@ const ExpertPreprocessingOption = function () {
           <Autocomplete
             multiple
             id="checkboxes-tags"
-            options={methods}
+            options={methods || []}
+            value={selectedMethods || []}
             disableCloseOnSelect
-            getOptionLabel={(option) => option}
+            getOptionLabel={(method) => prettyMethodName(method.method_name)}
             renderOption={(props, option, { selected }) => (
               <li {...props}>
                 <Checkbox
@@ -84,12 +99,11 @@ const ExpertPreprocessingOption = function () {
                   style={{ marginRight: 8 }}
                   checked={selected}
                 />
-                {option}
+                {prettyMethodName(option.method_name)}
               </li>
             )}
-            onChange={(event: any, listMethod: PreprocessingMethod[]) => {
-              setListSelectedMethod(listMethod);
-            }}
+            isOptionEqualToValue={isOptionEqualToValue}
+            onChange={handleChangeSelectedMethods}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -107,10 +121,10 @@ const ExpertPreprocessingOption = function () {
         />
         <Box borderRadius={2} bgcolor="background.paper" flex={3}>
           <Box display="flex" flexWrap="wrap" justifyContent="flex-start">
-            {listSelectedMethods.map((method) => (
-              <Box key={method} flexBasis="33.33%" sx={{ p: 1 }}>
+            {selectedMethods.map((method) => (
+              <Box key={method.method_id} flexBasis="33.33%" sx={{ p: 1 }}>
                 <Typography variant="body1" fontWeight={500}>
-                  {method}
+                  {prettyMethodName(method.method_name)}
                 </Typography>
                 <Box display="flex" alignItems="flex-end">
                   <Typography
@@ -119,8 +133,8 @@ const ExpertPreprocessingOption = function () {
                     noWrap
                     sx={limitTooLongLineStyle}
                   >
-                    {referencePreprocessImage[method]
-                      ? referencePreprocessImage[method].filename
+                    {referencePreprocessImage[method.method_id]
+                      ? referencePreprocessImage[method.method_id].filename
                       : "Select your reference image"}
                   </Typography>
                   <IconButton

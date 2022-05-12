@@ -126,7 +126,10 @@ export type ZipTaskInfoApiFields = Pick<
   TaskInfoApiFields,
   "identity_id" | "task_id" | "status" | "process_type" | "project_id"
 >;
-
+export type GenerateReferenceImageTaskInfoApiFields = Pick<
+  TaskInfoApiFields,
+  "task_id" | "status" | "process_type" | "project_id"
+>;
 export type HealthCheckInfoApiFields = Pick<
   TaskInfoApiFields,
   "task_id" | "status" | "process_type"
@@ -135,7 +138,8 @@ export type HealthCheckInfoApiFields = Pick<
 export type GeneralTaskInfoApiFields =
   | TaskInfoApiFields
   | ZipTaskInfoApiFields
-  | HealthCheckInfoApiFields;
+  | HealthCheckInfoApiFields
+  | GenerateReferenceImageTaskInfoApiFields;
 export interface FetchTaskInfoPayload {
   idToken: string;
   taskId: string;

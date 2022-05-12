@@ -1,4 +1,5 @@
 import {
+  GENERATE_REFERENCE_IMAGE_TYPE,
   HEALTHCHECK_TASK_PROCESS_TYPE,
   ID_TOKEN_NAME,
   UPLOAD_TASK_PROCESS_TYPE,
@@ -50,6 +51,7 @@ import { getLocalStorage } from "utils/general";
 import { GENERATE_IMAGES } from "reduxes/generate/constants";
 import { selectorS3 } from "reduxes/general/selector";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
+import customMethodApi from "services/customMethodApi";
 
 function* handleCreateProject(action: any): any {
   try {
@@ -195,6 +197,11 @@ function* handleFetchTaskInfo(action: {
     } else if (processType === HEALTHCHECK_TASK_PROCESS_TYPE) {
       fetchTaskInfoResponse = yield call(
         healthCheckApi.getRunHealthCheckStatus,
+        { idToken, taskId }
+      );
+    } else if (processType === GENERATE_REFERENCE_IMAGE_TYPE) {
+      fetchTaskInfoResponse = yield call(
+        customMethodApi.getReferenceImagesTaskInfo,
         { idToken, taskId }
       );
     } else {

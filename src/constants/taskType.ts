@@ -10,6 +10,7 @@ import {
   ERROR_TASK_STATUS,
   // FILTER_ALL_TASK_PROCESS_TYPE,
   FILTER_ALL_TASK_STATUS,
+  GENERATE_REFERENCE_IMAGE_TYPE,
 } from "./defaultValues";
 
 export type TaskProcessType =
@@ -17,7 +18,8 @@ export type TaskProcessType =
   | typeof AUGMENT_TASK_PROCESS_TYPE
   | typeof UPLOAD_TASK_PROCESS_TYPE
   | typeof DOWNLOAD_TASK_PROCESS_TYPE
-  | typeof HEALTHCHECK_TASK_PROCESS_TYPE;
+  | typeof HEALTHCHECK_TASK_PROCESS_TYPE
+  | typeof GENERATE_REFERENCE_IMAGE_TYPE;
 // | typeof FILTER_ALL_TASK_PROCESS_TYPE;
 
 export type TaskStatusMergedType =

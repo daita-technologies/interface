@@ -12,7 +12,6 @@ import {
   Typography,
 } from "@mui/material";
 import { MyButton } from "components";
-import { PreprocessingMethod } from "components/ImageProcessing/type";
 import {
   ID_TOKEN_NAME,
   MAXIMUM_FETCH_IMAGES_AMOUNT,
@@ -33,6 +32,7 @@ import {
 } from "reduxes/customPreprocessing/selector";
 import { selectorS3 } from "reduxes/general/selector";
 import { selectorCurrentProjectId } from "reduxes/project/selector";
+import { MethodInfoFields } from "reduxes/project/type";
 import { projectApi } from "services";
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import {
@@ -40,6 +40,14 @@ import {
   getLocalStorage,
 } from "utils/general";
 
+export const prettyMethodName = (methodName: string | undefined) => {
+  if (!methodName) {
+    return "";
+  }
+  const str = methodName.replace(/_/g, " ");
+  const firstLetter = str.substring(0, 1);
+  return firstLetter.toUpperCase() + str.substring(1);
+};
 const ReferenceImageDialog = function () {
   const dispatch = useDispatch();
 
@@ -67,9 +75,9 @@ const ReferenceImageDialog = function () {
         setReferenceImageName(undefined);
         return;
       }
-      const savedReferenceImage = referencePreprocessImage[method]
+      const savedReferenceImage = referencePreprocessImage[method.method_id]
         ?.filename as string;
-      if (referencePreprocessImage[method]) {
+      if (referencePreprocessImage[method.method_id]) {
         setReferenceImageName(savedReferenceImage);
       }
       setSearchLoading(true);
@@ -103,7 +111,7 @@ const ReferenceImageDialog = function () {
     if (referenceImage) {
       dispatch(
         setReferencePreprocessImage({
-          method: method as PreprocessingMethod,
+          method: method as MethodInfoFields,
           filename: referenceImage.filename,
         })
       );
@@ -195,7 +203,7 @@ const ReferenceImageDialog = function () {
         <Box marginTop={5} height="70%">
           <Box height="100%">
             <Typography variant="h6" fontWeight={500}>
-              {method}
+              {prettyMethodName(method?.method_name)}
             </Typography>
 
             <Box

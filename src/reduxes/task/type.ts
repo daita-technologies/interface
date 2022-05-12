@@ -1,6 +1,7 @@
 import {
   AUGMENT_TASK_PROCESS_TYPE,
   DOWNLOAD_TASK_PROCESS_TYPE,
+  GENERATE_REFERENCE_IMAGE_TYPE,
   HEALTHCHECK_TASK_PROCESS_TYPE,
   PREPROCESS_TASK_PROCESS_TYPE,
   UPLOAD_TASK_PROCESS_TYPE,
@@ -8,7 +9,6 @@ import {
 import { TaskProcessType, TaskStatusMergedType } from "constants/taskType";
 import {
   GetTaskListFilterParams,
-  GetTaskListPaginationParams,
   TaskListEachProcessTypeResponseApiFields,
   TaskListResponseApiFields,
 } from "services/taskApi";
@@ -30,6 +30,7 @@ export interface TaskReducer {
   [UPLOAD_TASK_PROCESS_TYPE]: TaskReducerEachProcessType;
   [DOWNLOAD_TASK_PROCESS_TYPE]: TaskReducerEachProcessType;
   [HEALTHCHECK_TASK_PROCESS_TYPE]: TaskReducerEachProcessType;
+  [GENERATE_REFERENCE_IMAGE_TYPE]: TaskReducerEachProcessType;
   isPageLoading: boolean | null;
 }
 

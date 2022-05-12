@@ -1,22 +1,25 @@
-import { PreprocessingMethod } from "components/ImageProcessing/type";
 import { AlbumImagesFields } from "reduxes/album/type";
+import { MethodInfoFields } from "reduxes/project/type";
 
 export interface CustomPreprocessReducer {
   isPreprocessingExpertMode: boolean;
   referencePreprocessImage: ReferencePreprocessImageRecord;
-  images: AlbumImagesFields;
   referenceSeletectorDialog: ReferenceSeletectorDialog;
+  selectedMethods: MethodInfoFields[];
+  isGenerating: boolean;
+  isGenerateReferenceRequesting: boolean;
 }
 export type ReferencePreprocessImageRecord = Record<
-  PreprocessingMethod,
+  string,
   ReferencePreprocessImage
 >;
 export interface ReferencePreprocessImage {
   filename: keyof AlbumImagesFields;
-  method: PreprocessingMethod;
+  method: MethodInfoFields;
+  referenceInfoApiFields?: ReferenceInfoApiFields;
 }
 export interface ReferenceImageInfoProps {
-  method: PreprocessingMethod;
+  method: MethodInfoFields;
   filename: string;
 }
 export interface ChangePreprocessingExpertModePayload {
@@ -24,5 +27,20 @@ export interface ChangePreprocessingExpertModePayload {
 }
 export interface ReferenceSeletectorDialog {
   isShow: boolean;
-  method?: PreprocessingMethod;
+  method?: MethodInfoFields;
+}
+export interface SelectedMethodProps {
+  selectedMethods: MethodInfoFields[];
+}
+export interface GenerateReferenceImagesProps {
+  projectId: string;
+}
+export interface ReferenceInfoApiFields {
+  method_id: string;
+  method_name: string;
+  image_s3_path: string;
+  task_id: string;
+  project_id: string;
+  created_time: string;
+  filename: string;
 }
