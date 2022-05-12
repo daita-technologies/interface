@@ -9,6 +9,9 @@ export const CHANGE_PAGE_TASK_LIST_INFO = asyncAction(
   "CHANGE_PAGE_TASK_LIST_INFO"
 );
 
+export const PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME = "projectDetail";
+export const HEALTH_CHECK_TASK_PLACEMENT_PAGE_NAME = "healthCheck";
+
 export const TASK_LIST_REDUCER_PROCESS_TYPE_DEFAULT_VALUE: TaskReducerEachProcessType =
   {
     isLoading: null,

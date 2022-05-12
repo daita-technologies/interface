@@ -3,6 +3,7 @@ import {
   RUNNING_TASK_STATUS,
 } from "constants/defaultValues";
 import {
+  GetProjectHealthCheckInfoParams,
   GetProjectHealthCheckInfoReponseFields,
   RunHealthCheckResponseFields,
   // RunHealthCheckResponseFields,
@@ -72,10 +73,19 @@ const healthCheckReducer = (
     }
 
     case GET_PROJECT_HEALTH_CHECK_INFO.REQUESTED: {
+      const { notShowLoading } = payload as GetProjectHealthCheckInfoParams;
+      if (state.activeDataHealthCheck === null) {
+        return {
+          ...state,
+          isFetchingHealthCheckInfo: true,
+          activeDataHealthCheck: null,
+        };
+      }
+
       return {
         ...state,
-        isFetchingHealthCheckInfo: true,
-        activeDataHealthCheck: null,
+        isFetchingHealthCheckInfo: !notShowLoading,
+        ...(notShowLoading ? undefined : { activeDataHealthCheck: null }),
       };
     }
     case GET_PROJECT_HEALTH_CHECK_INFO.SUCCEEDED: {
@@ -141,6 +151,7 @@ const healthCheckReducer = (
           ls_task.forEach((lsTaskInfo) => {
             targetTaskList = {
               [lsTaskInfo.task_id]: {
+                identity_id: "",
                 ...lsTaskInfo,
                 project_id,
                 status: RUNNING_TASK_STATUS,

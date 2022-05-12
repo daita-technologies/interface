@@ -1,23 +1,37 @@
 import { LinearProgress, TableCell, TableRow, Typography } from "@mui/material";
 import { CircularProgressWithLabel } from "components";
 import {
+  AUGMENT_SOURCE,
   AUGMENT_TASK_PROCESS_TYPE,
   ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
+  HEALTHCHECK_TASK_PROCESS_TYPE,
   ID_TOKEN_NAME,
+  ORIGINAL_SOURCE,
+  PREPROCESS_SOURCE,
   PREPROCESS_TASK_PROCESS_TYPE,
   RUNNING_TASK_STATUS,
   SYSTEM_DATE_TIME_FORMAT,
+  UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
 import { TaskStatusMergedType } from "constants/taskType";
 import useInterval from "hooks/useInterval";
 import moment from "moment";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { RootState } from "reduxes";
+import { getProjectHealthCheckInfoAction } from "reduxes/healthCheck/action";
 import { fetchTaskInfo } from "reduxes/project/action";
+import { FETCH_LIST_PROJECTS } from "reduxes/project/constants";
+import { TaskStatusType } from "reduxes/project/type";
 import { selectorSpecificProcessTaskInfo } from "reduxes/task/selector";
 import { limitTwoLineStyle } from "styles/generalStyle";
-import { getLocalStorage } from "utils/general";
+import {
+  capitalizeFirstLetter,
+  getGenerateMethodLabel,
+  getLocalStorage,
+} from "utils/general";
 import { getTaskStatusMergedValue } from "utils/task";
 import TaskTableAction from "../TaskTableAction";
 
@@ -77,8 +91,28 @@ const TaskTableRow = function ({
   }
 
   const { task_id, project_id, status, created_time, process_type } = taskInfo;
-
+  const savedTaskStatus = useRef<TaskStatusType>();
   const dispatch = useDispatch();
+
+  const getProjectNameByProjectId = useCallback(
+    (targetProjectId: string) => {
+      const matchProjectIndex = listProject.findIndex(
+        (p) => p.project_id === targetProjectId
+      );
+
+      if (matchProjectIndex > -1) {
+        return listProject[matchProjectIndex].project_name;
+      }
+
+      return "";
+    },
+    [listProject]
+  );
+
+  const currentProjectName = useMemo(
+    () => getProjectNameByProjectId(project_id),
+    [project_id]
+  );
 
   useInterval(
     () => {
@@ -94,17 +128,44 @@ const TaskTableRow = function ({
     status === FINISH_TASK_STATUS ? null : 10000
   );
 
-  const getProjectNameByProjectId = (targetProjectId: string) => {
-    const matchProjectIndex = listProject.findIndex(
-      (p) => p.project_id === targetProjectId
-    );
-
-    if (matchProjectIndex > -1) {
-      return listProject[matchProjectIndex].project_name;
+  const actionWhenTaskFinish = () => {
+    switch (process_type) {
+      case PREPROCESS_SOURCE:
+      case AUGMENT_SOURCE:
+        toast.success(
+          `${capitalizeFirstLetter(
+            getGenerateMethodLabel(process_type)
+          )} of the data set has been completed successfully.`
+        );
+        break;
+      case UPLOAD_TASK_PROCESS_TYPE:
+        toast.success("Uploading has been uploaded successfully.");
+        break;
+      case HEALTHCHECK_TASK_PROCESS_TYPE:
+        toast.success(
+          `Data health check of ${currentProjectName} has been completed successfully.`
+        );
+        break;
+      default:
+        break;
     }
-
-    return "";
   };
+
+  useEffect(() => {
+    if (taskInfo) {
+      if (
+        savedTaskStatus.current &&
+        savedTaskStatus.current !== FINISH_TASK_STATUS &&
+        taskInfo.status === FINISH_TASK_STATUS
+      ) {
+        savedTaskStatus.current = FINISH_TASK_STATUS;
+
+        actionWhenTaskFinish();
+      } else {
+        savedTaskStatus.current = taskInfo.status;
+      }
+    }
+  }, [taskInfo]);
 
   const renderProcessCell = () => {
     const isTaskRunning =

@@ -31,6 +31,7 @@ import { selectorTaskList } from "reduxes/project/selector";
 import { fetchTaskInfo } from "reduxes/project/action";
 import { FETCH_DETAIL_PROJECT } from "reduxes/project/constants";
 import { TaskInfo } from "reduxes/project/type";
+import { HEALTH_CHECK_TASK_PLACEMENT_PAGE_NAME } from "reduxes/task/constants";
 import TaskListItem from "routes/ProjectDetail/TaskList/TaskListItem";
 
 import { HEALTH_CHECK_ATTRIBUTES_ARRAY } from "constants/healthCheck";
@@ -121,6 +122,7 @@ const HealthCheckMainContent = function ({
             (taskItemInfo: TaskInfo) => (
               <TaskListItem
                 key={`data-health-check-task-list-item-${taskItemInfo.task_id}`}
+                pageName={HEALTH_CHECK_TASK_PLACEMENT_PAGE_NAME}
                 taskInfo={
                   dataHealthCheckTaskListInfo[taskItemInfo.task_id] ||
                   taskItemInfo
