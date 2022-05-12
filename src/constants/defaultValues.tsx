@@ -18,9 +18,12 @@ export const reactAppEnv = process.env.REACT_APP_ENV;
 
 export const RECAPTCHA_SITE_KEY =
   process.env.REACT_APP_RECAPTCHA_SITE_KEY || "";
-export const LOGIN_SOCIAL_CALLBACK_URL = encode(
-  `${window.location.protocol}//${window.location.host}/login`
-);
+
+export const ROOT_URL = `${window.location.protocol}//${window.location.host}`;
+export const LOGIN_URL = `${ROOT_URL}/login`;
+export const LOGIN_SOCIAL_CALLBACK_URL = encode(LOGIN_URL);
+export const LOGOUT_SOCIAL_API = `${process.env.REACT_APP_API_LOGOUT_SOCIAL}&logout_uri=${ROOT_URL}`;
+
 export const API_AMAZON_COGNITO = process.env.REACT_APP_API_AMAZON_COGNITO;
 export const COGNITO_REDIRECT_URI = process.env.REACT_APP_COGNITO_REDIRECT_URI;
 export const COGNITO_CLIENT_ID = process.env.REACT_APP_COGNITO_CLIENTID;

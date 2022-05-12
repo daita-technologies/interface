@@ -1,5 +1,6 @@
 import {
   ERROR_MESSAGE_ACCOUNT_NOT_VERIFY,
+  LOGOUT_SOCIAL_API,
   TEMP_LOCAL_FULLNAME,
   TEMP_LOCAL_USERNAME,
 } from "constants/defaultValues";
@@ -159,11 +160,17 @@ function* handleRefreshToken(action: {
 function* handleLogout(): any {
   try {
     yield put({ type: SET_PAGE_LOADING, payload: { isShow: true } });
-    yield call(authApi.logout);
+    const logoutResponse = yield call(authApi.logout);
     removeListToken();
-    yield put({ type: LOG_OUT.SUCCEEDED, payload: {} });
     yield removeLocalStorage(TEMP_LOCAL_USERNAME);
+    if (logoutResponse.error === false) {
+      if (logoutResponse.data.code) {
+        window.location.href = LOGOUT_SOCIAL_API;
+        return;
+      }
+    }
     yield put({ type: SET_PAGE_LOADING, payload: { isShow: false } });
+    yield put({ type: LOG_OUT.SUCCEEDED, payload: {} });
   } catch (e: any) {
     yield removeLocalStorage(TEMP_LOCAL_USERNAME);
     yield put({ type: LOG_OUT.SUCCEEDED, payload: {} });
