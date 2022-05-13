@@ -50,14 +50,14 @@ const customPreprocessingReducer = (
       };
     }
     case CHANGE_REFERENCE_PREPROCESSING_IMAGE: {
-      const { method, filename } = payload as ReferenceImageInfoProps;
+      const { method } = payload as ReferenceImageInfoProps;
       return {
         ...state,
         referencePreprocessImage: {
           ...state.referencePreprocessImage,
           [method.method_id]: {
-            filename,
-            method,
+            isSelectedByUser: true,
+            ...payload,
           },
         },
       };
@@ -73,9 +73,15 @@ const customPreprocessingReducer = (
     }
     case SET_SELECTED_METHODS: {
       const { selectedMethods } = payload as SelectedMethodProps;
+      const referencePreprocessImage = {} as ReferencePreprocessImageRecord;
+      selectedMethods.forEach((selectedMethod) => {
+        referencePreprocessImage[selectedMethod.method_id] =
+          state.referencePreprocessImage[selectedMethod.method_id];
+      });
       return {
         ...state,
         selectedMethods,
+        referencePreprocessImage,
       };
     }
     case GENERATE_REFERENCE_IMAGES.REQUESTED: {
@@ -108,11 +114,17 @@ const customPreprocessingReducer = (
           method_id: el.method_id,
           method_name: el.method_name,
         };
-        referencePreprocessImage[el.method_id] = {
-          filename: el.filename,
-          method,
-          referenceInfoApiFields: el,
-        };
+        const refImage = state.referencePreprocessImage[el.method_id];
+        if (refImage && refImage.isSelectedByUser) {
+          referencePreprocessImage[el.method_id] = refImage;
+        } else {
+          referencePreprocessImage[el.method_id] = {
+            filename: el.filename,
+            method,
+            isSelectedByUser: false,
+            imageS3Path: el.image_s3_path,
+          };
+        }
         selectedMethods.push(method);
       });
 

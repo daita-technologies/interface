@@ -5,6 +5,7 @@ import {
   PREPROCESSING_GENERATE_IMAGES_TYPE,
   PREPROCESS_GENERATE_TAB,
   AUGMENTATION_GENERATE_TAB,
+  AUGMENT_SOURCE,
 } from "constants/defaultValues";
 import { ImageSourceType } from "reduxes/album/type";
 
@@ -30,6 +31,8 @@ export interface GenerateImagePayload {
   numberImageGeneratePerSource: number;
   dataNumber: Array<number>;
   generateMethod: generateMethodType;
+  processType: typeof PREPROCESS_SOURCE | typeof AUGMENT_SOURCE;
+  referenceImages: Record<string, string>;
 }
 
 export interface GenerateImageSucceedPayload {

@@ -16,11 +16,13 @@ export type ReferencePreprocessImageRecord = Record<
 export interface ReferencePreprocessImage {
   filename: keyof AlbumImagesFields;
   method: MethodInfoFields;
-  referenceInfoApiFields?: ReferenceInfoApiFields;
+  isSelectedByUser: boolean;
+  imageS3Path: string;
 }
 export interface ReferenceImageInfoProps {
   method: MethodInfoFields;
   filename: string;
+  imageS3Path: string;
 }
 export interface ChangePreprocessingExpertModePayload {
   isPreprocessingExpertMode: boolean;

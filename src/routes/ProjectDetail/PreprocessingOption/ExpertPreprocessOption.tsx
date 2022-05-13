@@ -6,6 +6,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
 import { InfoTooltip, MyButton } from "components";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   generateReferenceImages,
@@ -49,6 +50,9 @@ const ExpertPreprocessingOption = function () {
     selectorIsGenerateReferenceRequesting
   );
   const methods = useSelector(selectorMethodList)?.preprocessing;
+  useEffect(() => {
+    dispatch(setSelectedMethods({ selectedMethods: [] }));
+  }, [currentProjectId]);
   const handleShowReferenceDialog = (method: MethodInfoFields) => {
     dispatch(setReferenceSeletectorDialog({ isShow: true, method }));
   };

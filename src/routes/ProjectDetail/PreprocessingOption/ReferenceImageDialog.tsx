@@ -52,7 +52,9 @@ const ReferenceImageDialog = function () {
   const dispatch = useDispatch();
 
   const [referenceImage, setReferenceImage] =
-    useState<Pick<ImageApiFields, "filename" | "url" | "photoKey">>();
+    useState<
+      Pick<ImageApiFields, "filename" | "url" | "photoKey" | "s3_key">
+    >();
   const [images, setImages] = useState<AlbumImagesFields>({});
   const [referenceImageName, setReferenceImageName] = useState<string>();
   const [open, setOpen] = useState(false);
@@ -113,6 +115,7 @@ const ReferenceImageDialog = function () {
         setReferencePreprocessImage({
           method: method as MethodInfoFields,
           filename: referenceImage.filename,
+          imageS3Path: referenceImage.s3_key as string,
         })
       );
       dispatch(setReferenceSeletectorDialog({ isShow: false }));
@@ -146,7 +149,9 @@ const ReferenceImageDialog = function () {
     if (newValue === null) {
       return;
     }
-    setReferenceImage(images[newValue as string]);
+    const image = images[newValue as string];
+    setReferenceImage(image);
+    setReferenceImageName(image.filename);
   };
 
   useEffect(() => {
@@ -191,6 +196,35 @@ const ReferenceImageDialog = function () {
     }
     return "";
   };
+  const renderReferenceImageName = () => {
+    if (method && referencePreprocessImage[method.method_id]) {
+      return (
+        <>
+          Refence image:{" "}
+          <Typography
+            variant="body1"
+            fontWeight={400}
+            component="span"
+            sx={{
+              cursor: "pointer",
+              fontWeight: "bold",
+              color: "#1c68dc",
+            }}
+            onClick={(e: any) =>
+              handleChangeReferenceImage(
+                e,
+                referencePreprocessImage[method?.method_id]?.filename as string
+              )
+            }
+            noWrap
+          >
+            {referencePreprocessImage[method?.method_id]?.filename}
+          </Typography>
+        </>
+      );
+    }
+    return "";
+  };
   return (
     <Modal open={isShow} onClose={handleClose} disableEscapeKeyDown>
       <Box sx={{ ...modalStyle, width: 800, height: 500 }}>
@@ -200,12 +234,15 @@ const ReferenceImageDialog = function () {
         <Typography variant="h4" component="h2">
           Please Select Your Reference Image
         </Typography>
-        <Box marginTop={5} height="70%">
+
+        <Box mt={2} height="70%">
           <Box height="100%">
             <Typography variant="h6" fontWeight={500}>
               {prettyMethodName(method?.method_name)}
             </Typography>
-
+            <Typography variant="body1" fontWeight={400} height={30}>
+              {renderReferenceImageName()}
+            </Typography>
             <Box
               display="flex"
               justifyContent="space-between"
@@ -231,7 +268,7 @@ const ReferenceImageDialog = function () {
                   onClose={() => {
                     setOpen(false);
                   }}
-                  value={referenceImageName}
+                  value={referenceImageName || null}
                   isOptionEqualToValue={(option, value) => option === value}
                   getOptionLabel={(option: string) => option}
                   options={images ? Object.keys(images) : []}
@@ -277,7 +314,7 @@ const ReferenceImageDialog = function () {
           </Box>
         </Box>
 
-        <Box display="flex" justifyContent="flex-end" marginTop={2}>
+        <Box display="flex" justifyContent="flex-end" marginTop={6}>
           <MyButton
             type="button"
             variant="contained"

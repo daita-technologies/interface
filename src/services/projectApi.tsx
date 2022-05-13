@@ -185,6 +185,8 @@ const projectApi = {
     dataType,
     numberImageGeneratePerSource,
     dataNumber,
+    processType,
+    referenceImages,
   }: GenerateImagePayload) =>
     axios.post(
       `${generateApiUrl}/generate/generate_images`,
@@ -194,6 +196,8 @@ const projectApi = {
         project_name: projectName,
         ls_method_id: listMethodId,
         data_type: dataType,
+        process_type: processType,
+        reference_images: referenceImages,
         // NOTE: TODO: pass number will generate per source later
         num_aug_p_img: 1 || numberImageGeneratePerSource,
         data_number: dataNumber,
