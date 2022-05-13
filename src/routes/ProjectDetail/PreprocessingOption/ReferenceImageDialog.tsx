@@ -31,8 +31,10 @@ import {
   selectorReferenceSeletectorDialog,
 } from "reduxes/customPreprocessing/selector";
 import { selectorS3 } from "reduxes/general/selector";
-import { selectorCurrentProjectId } from "reduxes/project/selector";
-import { MethodInfoFields } from "reduxes/project/type";
+import {
+  selectorCurrentProjectId,
+  selectorMethodList,
+} from "reduxes/project/selector";
 import { projectApi } from "services";
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import {
@@ -62,7 +64,7 @@ const ReferenceImageDialog = function () {
   const currentProjectId = useSelector(selectorCurrentProjectId);
 
   const s3 = useSelector(selectorS3);
-  const { isShow, method } = useSelector(selectorReferenceSeletectorDialog);
+  const { isShow, methodId } = useSelector(selectorReferenceSeletectorDialog);
   const handleClose = () => {
     dispatch(setReferenceSeletectorDialog({ isShow: false }));
   };
@@ -71,15 +73,15 @@ const ReferenceImageDialog = function () {
   );
   useEffect(() => {
     if (currentProjectId) {
-      if (isShow === false || !method) {
+      if (isShow === false || !methodId) {
         setReferenceImage(undefined);
         setImages({});
         setReferenceImageName(undefined);
         return;
       }
-      const savedReferenceImage = referencePreprocessImage[method.method_id]
+      const savedReferenceImage = referencePreprocessImage[methodId]
         ?.filename as string;
-      if (referencePreprocessImage[method.method_id]) {
+      if (referencePreprocessImage[methodId]) {
         setReferenceImageName(savedReferenceImage);
       }
       setSearchLoading(true);
@@ -110,10 +112,10 @@ const ReferenceImageDialog = function () {
     }
   }, [isShow, currentProjectId]);
   const handleSubmit = () => {
-    if (referenceImage) {
+    if (methodId && referenceImage) {
       dispatch(
         setReferencePreprocessImage({
-          method: method as MethodInfoFields,
+          methodId,
           filename: referenceImage.filename,
           imageS3Path: referenceImage.s3_key as string,
         })
@@ -153,7 +155,13 @@ const ReferenceImageDialog = function () {
     setReferenceImage(image);
     setReferenceImageName(image.filename);
   };
-
+  const methods = useSelector(selectorMethodList)?.preprocessing;
+  const getMethodName = (id: string | undefined) => {
+    if (methodId) {
+      return methods?.find((t) => t.method_id === id)?.method_name;
+    }
+    return "";
+  };
   useEffect(() => {
     if (referenceImage && referenceImage.photoKey) {
       const cachedImage = images[referenceImage.filename];
@@ -197,7 +205,7 @@ const ReferenceImageDialog = function () {
     return "";
   };
   const renderReferenceImageName = () => {
-    if (method && referencePreprocessImage[method.method_id]) {
+    if (methodId && referencePreprocessImage[methodId]) {
       return (
         <>
           Refence image:{" "}
@@ -213,12 +221,12 @@ const ReferenceImageDialog = function () {
             onClick={(e: any) =>
               handleChangeReferenceImage(
                 e,
-                referencePreprocessImage[method?.method_id]?.filename as string
+                referencePreprocessImage[methodId]?.filename as string
               )
             }
             noWrap
           >
-            {referencePreprocessImage[method?.method_id]?.filename}
+            {referencePreprocessImage[methodId]?.filename}
           </Typography>
         </>
       );
@@ -238,7 +246,7 @@ const ReferenceImageDialog = function () {
         <Box mt={2} height="70%">
           <Box height="100%">
             <Typography variant="h6" fontWeight={500}>
-              {prettyMethodName(method?.method_name)}
+              {prettyMethodName(getMethodName(methodId))}
             </Typography>
             <Typography variant="body1" fontWeight={400} height={30}>
               {renderReferenceImageName()}

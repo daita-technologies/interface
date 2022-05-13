@@ -1,3 +1,6 @@
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import { Box, Typography } from "@mui/material";
 import {
   GENERATE_REFERENCE_IMAGE_TYPE,
   HEALTHCHECK_TASK_PROCESS_TYPE,
@@ -13,10 +16,9 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import { Box, Typography } from "@mui/material";
-
+import { fetchReferenceImageInfoSuccess } from "reduxes/customPreprocessing/action";
+import { selectorS3 } from "reduxes/general/selector";
+import { GENERATE_IMAGES } from "reduxes/generate/constants";
 import {
   CREATE_PROJECT,
   CREATE_SAMPLE_PROJECT,
@@ -33,6 +35,7 @@ import {
 import {
   selectorCurrentProjectId,
   selectorCurrentTaskList,
+  selectorMethodList,
 } from "reduxes/project/selector";
 import {
   ApiListProjectsItem,
@@ -41,17 +44,15 @@ import {
   DeleteProjectPayload,
   FetchProjectTaskListPayload,
   FetchTaskInfoPayload,
+  ListMethodType,
   LoadProjectThumbnailImagePayload,
   TaskInfo,
   UpdateProjectInfoPayload,
 } from "reduxes/project/type";
 import history from "routerHistory";
 import { healthCheckApi, projectApi } from "services";
-import { getLocalStorage } from "utils/general";
-import { GENERATE_IMAGES } from "reduxes/generate/constants";
-import { selectorS3 } from "reduxes/general/selector";
-import { GetObjectCommand } from "@aws-sdk/client-s3";
 import customMethodApi from "services/customMethodApi";
+import { getLocalStorage } from "utils/general";
 
 function* handleCreateProject(action: any): any {
   try {
@@ -139,6 +140,21 @@ function* handleFetchDetailProject(action: any): any {
           currentProjectInfo: fetchDetailProjectResponse.data,
         },
       });
+
+      const referenceImages = fetchDetailProjectResponse.data.reference_images;
+      if (Object.keys(referenceImages).length !== 0) {
+        const referenceInfoApiFields: any = [];
+        Object.entries(referenceImages).forEach(([key, value]) => {
+          const ref = value as any;
+          referenceInfoApiFields.push({
+            method_id: key,
+            filename: ref.filename,
+            image_s3_path: ref.s3_path,
+          });
+        });
+
+        yield put(fetchReferenceImageInfoSuccess(referenceInfoApiFields));
+      }
     } else {
       yield put({
         type: FETCH_DETAIL_PROJECT.FAILED,

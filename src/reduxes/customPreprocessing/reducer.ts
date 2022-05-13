@@ -1,5 +1,4 @@
 import { TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE } from "constants/defaultValues";
-import { MethodInfoFields } from "reduxes/project/type";
 import { getLocalStorage, setLocalStorage } from "utils/general";
 import {
   CHANGE_PREPROCESSING_EXPERT_MODE,
@@ -25,7 +24,7 @@ const inititalState: CustomPreprocessReducer = {
   referenceSeletectorDialog: {
     isShow: false,
   },
-  selectedMethods: [],
+  selectedMethodIds: [],
   isGenerating: false,
   isGenerateReferenceRequesting: false,
 };
@@ -50,12 +49,12 @@ const customPreprocessingReducer = (
       };
     }
     case CHANGE_REFERENCE_PREPROCESSING_IMAGE: {
-      const { method } = payload as ReferenceImageInfoProps;
+      const { methodId } = payload as ReferenceImageInfoProps;
       return {
         ...state,
         referencePreprocessImage: {
           ...state.referencePreprocessImage,
-          [method.method_id]: {
+          [methodId]: {
             isSelectedByUser: true,
             ...payload,
           },
@@ -72,15 +71,15 @@ const customPreprocessingReducer = (
       };
     }
     case SET_SELECTED_METHODS: {
-      const { selectedMethods } = payload as SelectedMethodProps;
+      const { selectedMethodIds } = payload as SelectedMethodProps;
       const referencePreprocessImage = {} as ReferencePreprocessImageRecord;
-      selectedMethods.forEach((selectedMethod) => {
-        referencePreprocessImage[selectedMethod.method_id] =
-          state.referencePreprocessImage[selectedMethod.method_id];
+      selectedMethodIds.forEach((selectedMethod) => {
+        referencePreprocessImage[selectedMethod] =
+          state.referencePreprocessImage[selectedMethod];
       });
       return {
         ...state,
-        selectedMethods,
+        selectedMethodIds,
         referencePreprocessImage,
       };
     }
@@ -108,30 +107,26 @@ const customPreprocessingReducer = (
     case FETCH_REFERENCE_IMAGE_INFO.SUCCEEDED: {
       const referenceInfoApiFields = payload as ReferenceInfoApiFields[];
       const referencePreprocessImage = {} as ReferencePreprocessImageRecord;
-      const selectedMethods = [] as MethodInfoFields[];
+      const selectedMethodIds = [] as string[];
       referenceInfoApiFields.forEach((el) => {
-        const method = {
-          method_id: el.method_id,
-          method_name: el.method_name,
-        };
         const refImage = state.referencePreprocessImage[el.method_id];
         if (refImage && refImage.isSelectedByUser) {
           referencePreprocessImage[el.method_id] = refImage;
         } else {
           referencePreprocessImage[el.method_id] = {
             filename: el.filename,
-            method,
+            methodId: el.method_id,
             isSelectedByUser: false,
             imageS3Path: el.image_s3_path,
           };
         }
-        selectedMethods.push(method);
+        selectedMethodIds.push(el.method_id);
       });
 
       return {
         ...state,
         referencePreprocessImage,
-        selectedMethods,
+        selectedMethodIds,
         isGenerating: false,
       };
     }

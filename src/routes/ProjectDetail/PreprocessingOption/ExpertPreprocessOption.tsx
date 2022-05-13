@@ -17,13 +17,12 @@ import {
   selectorIsGenerateReferenceRequesting,
   selectorIsGenerating,
   selectorReferencePreprocessImage,
-  selectorSelectedMethods,
+  selectorSelectedMethodIds,
 } from "reduxes/customPreprocessing/selector";
 import {
   selectorCurrentProjectId,
   selectorMethodList,
 } from "reduxes/project/selector";
-import { MethodInfoFields } from "reduxes/project/type";
 import ReferenceImageDialog, { prettyMethodName } from "./ReferenceImageDialog";
 
 const limitTooLongLineStyle = {
@@ -44,31 +43,29 @@ const ExpertPreprocessingOption = function () {
     selectorReferencePreprocessImage
   );
   const currentProjectId = useSelector(selectorCurrentProjectId);
-  const selectedMethods = useSelector(selectorSelectedMethods);
+  const selectedMethodIds = useSelector(selectorSelectedMethodIds);
   const isGenerating = useSelector(selectorIsGenerating);
   const isGenerateReferenceRequesting = useSelector(
     selectorIsGenerateReferenceRequesting
   );
   const methods = useSelector(selectorMethodList)?.preprocessing;
+  const methodIds = methods ? methods.map((t) => t.method_id) : [];
   useEffect(() => {
-    dispatch(setSelectedMethods({ selectedMethods: [] }));
+    dispatch(setSelectedMethods({ selectedMethodIds: [] }));
   }, [currentProjectId]);
-  const handleShowReferenceDialog = (method: MethodInfoFields) => {
-    dispatch(setReferenceSeletectorDialog({ isShow: true, method }));
+  const handleShowReferenceDialog = (methodId: string) => {
+    dispatch(setReferenceSeletectorDialog({ isShow: true, methodId }));
   };
-  const handleChangeSelectedMethods = (
-    event: any,
-    listMethod: MethodInfoFields[]
-  ) => {
-    dispatch(setSelectedMethods({ selectedMethods: listMethod }));
+  const handleChangeSelectedMethods = (event: any, listMethod: string[]) => {
+    dispatch(setSelectedMethods({ selectedMethodIds: listMethod }));
   };
   const handleClickGenerateReferenceImages = () => {
     dispatch(generateReferenceImages({ projectId: currentProjectId }));
   };
-  const isOptionEqualToValue = (
-    option: MethodInfoFields,
-    value: MethodInfoFields
-  ) => option.method_id === value.method_id;
+  const isOptionEqualToValue = (option: string, value: string) =>
+    option === value;
+  const getMethodName = (methodId: string) =>
+    methods?.find((t) => t.method_id === methodId)?.method_name;
   return (
     <Box>
       <Box display="flex" alignItems="center">
@@ -91,10 +88,12 @@ const ExpertPreprocessingOption = function () {
           <Autocomplete
             multiple
             id="checkboxes-tags"
-            options={methods || []}
-            value={selectedMethods || []}
+            options={methodIds}
+            value={selectedMethodIds || []}
             disableCloseOnSelect
-            getOptionLabel={(method) => prettyMethodName(method.method_name)}
+            getOptionLabel={(methodId) =>
+              prettyMethodName(getMethodName(methodId))
+            }
             renderOption={(props, option, { selected }) => (
               <li {...props}>
                 <Checkbox
@@ -103,7 +102,7 @@ const ExpertPreprocessingOption = function () {
                   style={{ marginRight: 8 }}
                   checked={selected}
                 />
-                {prettyMethodName(option.method_name)}
+                {prettyMethodName(getMethodName(option))}
               </li>
             )}
             isOptionEqualToValue={isOptionEqualToValue}
@@ -125,10 +124,10 @@ const ExpertPreprocessingOption = function () {
         />
         <Box borderRadius={2} bgcolor="background.paper" flex={3}>
           <Box display="flex" flexWrap="wrap" justifyContent="flex-start">
-            {selectedMethods.map((method) => (
-              <Box key={method.method_id} flexBasis="33.33%" sx={{ p: 1 }}>
+            {selectedMethodIds.map((methodId) => (
+              <Box key={methodId} flexBasis="33.33%" sx={{ p: 1 }}>
                 <Typography variant="body1" fontWeight={500}>
-                  {prettyMethodName(method.method_name)}
+                  {prettyMethodName(getMethodName(methodId))}
                 </Typography>
                 <Box display="flex" alignItems="flex-end">
                   <Typography
@@ -137,8 +136,8 @@ const ExpertPreprocessingOption = function () {
                     noWrap
                     sx={limitTooLongLineStyle}
                   >
-                    {referencePreprocessImage[method.method_id]
-                      ? referencePreprocessImage[method.method_id].filename
+                    {referencePreprocessImage[methodId]
+                      ? referencePreprocessImage[methodId].filename
                       : "Select your reference image"}
                   </Typography>
                   <IconButton
@@ -146,7 +145,7 @@ const ExpertPreprocessingOption = function () {
                     sx={{ padding: "0 2px" }}
                     color="primary"
                     component="span"
-                    onClick={() => handleShowReferenceDialog(method)}
+                    onClick={() => handleShowReferenceDialog(methodId)}
                   >
                     <EditIcon sx={{ width: 20 }} />
                   </IconButton>
