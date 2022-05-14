@@ -273,7 +273,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         })
       );
     },
-    status === FINISH_TASK_STATUS ? null : 10000
+    status === FINISH_TASK_STATUS || status === ERROR_TASK_STATUS ? null : 10000
   );
 
   const actionWhenTaskFinish = () => {
@@ -297,7 +297,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
             })
           );
         }
-        toast.success("Uploading has been uploaded successfully.");
+        toast.success("Images have been uploaded successfully.");
         break;
       case HEALTHCHECK_TASK_PROCESS_TYPE:
         dispatch(

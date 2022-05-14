@@ -161,8 +161,7 @@ const HealthCheckMainContent = function ({
             alignItems="center"
           >
             <Typography>
-              Your infomation about project&lsquo;s Data Health Check is being
-              generated, please come back in a few minutes...
+              Data Health Check is being generated, please wait for a while...
             </Typography>
             <CircularProgress sx={{ mt: 4 }} />
           </Box>
@@ -181,7 +180,7 @@ const HealthCheckMainContent = function ({
             >
               <Typography>
                 {dataHealthCheckCurrentTotalImage <= 0
-                  ? `You haven't have any image yet.`
+                  ? `You haven't had any images yet.`
                   : "No information about your data health check yet."}
               </Typography>
               {dataHealthCheckCurrentTotalImage <= 0 && (

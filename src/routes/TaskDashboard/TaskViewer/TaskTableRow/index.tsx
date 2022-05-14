@@ -7,7 +7,6 @@ import {
   FINISH_TASK_STATUS,
   HEALTHCHECK_TASK_PROCESS_TYPE,
   ID_TOKEN_NAME,
-  ORIGINAL_SOURCE,
   PREPROCESS_SOURCE,
   PREPROCESS_TASK_PROCESS_TYPE,
   RUNNING_TASK_STATUS,
@@ -21,9 +20,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { RootState } from "reduxes";
-import { getProjectHealthCheckInfoAction } from "reduxes/healthCheck/action";
 import { fetchTaskInfo } from "reduxes/project/action";
-import { FETCH_LIST_PROJECTS } from "reduxes/project/constants";
 import { TaskStatusType } from "reduxes/project/type";
 import { selectorSpecificProcessTaskInfo } from "reduxes/task/selector";
 import { limitTwoLineStyle } from "styles/generalStyle";
@@ -125,7 +122,7 @@ const TaskTableRow = function ({
         })
       );
     },
-    status === FINISH_TASK_STATUS ? null : 10000
+    status === FINISH_TASK_STATUS || status === ERROR_TASK_STATUS ? null : 10000
   );
 
   const actionWhenTaskFinish = () => {
@@ -139,7 +136,7 @@ const TaskTableRow = function ({
         );
         break;
       case UPLOAD_TASK_PROCESS_TYPE:
-        toast.success("Uploading has been uploaded successfully.");
+        toast.success("Images have been uploaded successfully.");
         break;
       case HEALTHCHECK_TASK_PROCESS_TYPE:
         toast.success(

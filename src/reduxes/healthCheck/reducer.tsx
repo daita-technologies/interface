@@ -125,13 +125,11 @@ const healthCheckReducer = (
     case FETCH_DETAIL_PROJECT.REQUESTED:
       return {
         ...state,
-        isFetchingHealthCheckInfo: true,
         currentProjectInfo: null,
       };
     case FETCH_DETAIL_PROJECT.FAILED:
       return {
         ...state,
-        isFetchingHealthCheckInfo: false,
         isFetchedAllTaskInfo: true,
       };
 
@@ -163,7 +161,6 @@ const healthCheckReducer = (
 
       return {
         ...state,
-        isFetchingHealthCheckInfo: false,
         currentProjectInfo,
         taskList: targetTaskList,
         isFetchedAllTaskInfo: targetIsFetchedAllTaskInfo,
