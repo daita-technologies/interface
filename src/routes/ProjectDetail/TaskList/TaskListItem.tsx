@@ -297,7 +297,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
             })
           );
         }
-        toast.success("Uploading has been uploaded successfully.");
+        toast.success("Images have been uploaded successfully.");
         break;
       case HEALTHCHECK_TASK_PROCESS_TYPE:
         dispatch(

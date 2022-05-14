@@ -136,7 +136,7 @@ const TaskTableRow = function ({
         );
         break;
       case UPLOAD_TASK_PROCESS_TYPE:
-        toast.success("Uploading has been uploaded successfully.");
+        toast.success("Images have been uploaded successfully.");
         break;
       case HEALTHCHECK_TASK_PROCESS_TYPE:
         toast.success(
