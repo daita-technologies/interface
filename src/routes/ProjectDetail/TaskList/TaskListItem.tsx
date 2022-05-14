@@ -273,7 +273,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         })
       );
     },
-    status === FINISH_TASK_STATUS ? null : 10000
+    status === FINISH_TASK_STATUS || status === ERROR_TASK_STATUS ? null : 10000
   );
 
   const actionWhenTaskFinish = () => {
