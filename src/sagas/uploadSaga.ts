@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { Upload } from "@aws-sdk/lib-storage";
 import MD5 from "crypto-js/md5";
 import {
@@ -5,6 +6,7 @@ import {
   COMPRESS_IMAGE_EXTENSIONS,
   IDENTITY_ID_NAME,
   ID_TOKEN_NAME,
+  LIMIT_UPLOAD_IMAGE_SIZE,
   MAXIMUM_ZIP_FILE_SIZE,
   MAX_ALLOW_UPLOAD_IMAGES,
   ORIGINAL_SOURCE,
@@ -154,10 +156,14 @@ function* isZipFileValid(action: {
     }
     const zip = yield JSZip.loadAsync(file);
     let countImages = 0;
+    let validateFileSizeCounter = 0;
     zip.forEach((relativePath: any, zipEntry: any) => {
       const { name } = zipEntry;
       const ext = name.substring(name.lastIndexOf("."));
       if (COMPRESS_IMAGE_EXTENSIONS.indexOf(ext) !== -1) {
+        if (zipEntry._data.uncompressedSize <= LIMIT_UPLOAD_IMAGE_SIZE) {
+          validateFileSizeCounter += 1;
+        }
         countImages += 1;
       }
     });
@@ -167,6 +173,20 @@ function* isZipFileValid(action: {
           fileName,
           updateInfo: {
             error: `Not found any images in the zip files. Please remove it to start a new uploading`,
+            status: FAILED_UPLOAD_FILE_STATUS,
+          },
+        })
+      );
+      return false;
+    }
+    if (validateFileSizeCounter === 0) {
+      yield put(
+        updateFile({
+          fileName,
+          updateInfo: {
+            error: `Not found any images with a size of less than ${formatBytes(
+              LIMIT_UPLOAD_IMAGE_SIZE
+            )}. Please remove it to start a new uploading`,
             status: FAILED_UPLOAD_FILE_STATUS,
           },
         })
