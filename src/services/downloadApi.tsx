@@ -1,6 +1,7 @@
 import axios from "axios";
 import { projectApiUrl, getAuthHeader } from "constants/defaultValues";
 import { DownloadType } from "constants/type";
+import { TaskStatusType } from "reduxes/project/type";
 
 export interface DownloadZipEc2Params {
   idToken: string;
@@ -12,6 +13,12 @@ export interface DownloadZipEc2Params {
 export interface DownloadZipEc2Progress {
   idToken: string;
   taskId: string;
+}
+
+export interface DownloadZipEc2ProgressResponseFields {
+  presign_url: null | string;
+  s3_key: null | string;
+  status: TaskStatusType;
 }
 
 export interface DownloadResponse {

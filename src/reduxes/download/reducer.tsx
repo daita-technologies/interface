@@ -90,6 +90,7 @@ const downloadReducer = (state = inititalState, action: any) => {
         images: {},
         totalNeedDownload: null,
         currentProjectIdDownloading: null,
+        downloadZipEc2TaskId: undefined,
       };
     }
 

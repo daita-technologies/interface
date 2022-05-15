@@ -34,6 +34,7 @@ import {
 } from "utils/general";
 import {
   AUGMENT_SOURCE,
+  ERROR_TASK_STATUS,
   MAXIMUM_FETCH_IMAGES_AMOUNT,
   ORIGINAL_SOURCE,
   PREPROCESS_SOURCE,
@@ -340,7 +341,19 @@ function* handleDownloadZipEc2Progress(action: {
       downloadZipEc2ProgressResponse.error === false &&
       downloadZipEc2ProgressResponse.data
     ) {
-      yield put({ type: DOWNLOAD_ZIP_EC2_PROGRESS.SUCCEEDED });
+      yield put({
+        type: DOWNLOAD_ZIP_EC2_PROGRESS.SUCCEEDED,
+        payload: downloadZipEc2ProgressResponse.data,
+      });
+
+      if (downloadZipEc2ProgressResponse.data.status === ERROR_TASK_STATUS) {
+        yield toast.error(
+          "Unexpected error occurred when downloading your images."
+        );
+        yield put({
+          type: DOWNLOAD_ALL_FILES.FAILED,
+        });
+      }
 
       if (downloadZipEc2ProgressResponse.data.presign_url) {
         yield put({ type: DOWNLOAD_ZIP_EC2.SUCCEEDED });
