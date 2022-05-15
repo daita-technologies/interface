@@ -1,5 +1,5 @@
 import { LinearProgress, TableCell, TableRow, Typography } from "@mui/material";
-import { CircularProgressWithLabel } from "components";
+import { CircularProgressWithLabel, Link } from "components";
 import {
   AUGMENT_SOURCE,
   AUGMENT_TASK_PROCESS_TYPE,
@@ -223,9 +223,11 @@ const TaskTableRow = function ({
           </Typography>
         </TableCell> */}
         <TableCell align="left">
-          <Typography sx={limitTwoLineStyle} component="span" variant="body2">
-            {getProjectNameByProjectId(project_id)}
-          </Typography>
+          <Link to={`/project/${currentProjectName}`}>
+            <Typography sx={limitTwoLineStyle} component="span" variant="body2">
+              {getProjectNameByProjectId(project_id)}
+            </Typography>
+          </Link>
         </TableCell>
         <TableCell align="left">
           <Typography component="span" variant="body2">
