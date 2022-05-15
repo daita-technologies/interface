@@ -4,7 +4,9 @@ import {
   DOWNLOAD_TASK_PROCESS_TYPE,
   GENERATE_REFERENCE_IMAGE_TYPE,
   HEALTHCHECK_TASK_PROCESS_TYPE,
+  IDENTITY_ID_NAME,
   PREPROCESS_TASK_PROCESS_TYPE,
+  RUNNING_TASK_STATUS,
   UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
 import { TaskProcessType } from "constants/taskType";
@@ -13,14 +15,19 @@ import { FetchTaskInfoSucceedPayload } from "reduxes/project/type";
 import {
   GetTaskListFilterParams,
   GetTaskListInfoSuceededActionPayload,
+  TaskItemApiFields,
 } from "services/taskApi";
+import { getLocalStorage } from "utils/general";
 import {
+  ADD_TASK_TO_CURRENT_DASHBOARD,
   CHANGE_PAGE_TASK_LIST_INFO,
   FILTER_TASK_LIST_INFO,
   GET_TASK_LIST_INFO,
   TASK_LIST_REDUCER_PROCESS_TYPE_DEFAULT_VALUE,
+  TRIGGER_STOP_TASK_PROCESS,
 } from "./constants";
 import {
+  AddTaskToCurrentDashboardActionPayload,
   FilterTaskListInfoFailedActionPayload,
   FilterTaskListInfoSucceededActionPayload,
   PaginationTaskListInfoFailedActionPayload,
@@ -261,6 +268,35 @@ const taskReducer = (state = inititalState, action: any): TaskReducer => {
       }
 
       return state;
+    }
+
+    case TRIGGER_STOP_TASK_PROCESS.REQUESTED: {
+      return { ...state };
+    }
+    case TRIGGER_STOP_TASK_PROCESS.SUCCEEDED: {
+      return { ...state };
+    }
+    case TRIGGER_STOP_TASK_PROCESS.FAILED: {
+      return { ...state };
+    }
+
+    case ADD_TASK_TO_CURRENT_DASHBOARD: {
+      const { taskId, processType, projectId } =
+        payload as AddTaskToCurrentDashboardActionPayload;
+      const newTaskInfo: TaskItemApiFields = {
+        task_id: taskId,
+        process_type: processType,
+        project_id: projectId,
+        status: RUNNING_TASK_STATUS,
+        identity_id: getLocalStorage(IDENTITY_ID_NAME) || "",
+        created_time: new Date().toISOString(),
+      };
+
+      const cloneState = { ...state };
+
+      cloneState[processType].taskListInfo.ls_task.unshift(newTaskInfo);
+
+      return { ...state, ...cloneState };
     }
     default:
       return state;

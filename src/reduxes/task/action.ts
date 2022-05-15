@@ -3,11 +3,14 @@ import {
   GetTaskListInfoFailedActionPayload,
   GetTaskListInfoSuceededActionPayload,
   GetTaskListParams,
+  TaskItemApiFields,
 } from "services/taskApi";
 import {
+  ADD_TASK_TO_CURRENT_DASHBOARD,
   CHANGE_PAGE_TASK_LIST_INFO,
   FILTER_TASK_LIST_INFO,
   GET_TASK_LIST_INFO,
+  TRIGGER_STOP_TASK_PROCESS,
 } from "./constants";
 import {
   FilterTaskListInfoSucceededActionPayload,
@@ -15,6 +18,7 @@ import {
   PaginationTaskListInfoRequestActionPayload,
   PaginationTaskListInfoSucceedActionPayload,
   PaginationTaskListInfoFailedActionPayload,
+  TriggerStopTaskProcessRequestActionPayload,
 } from "./type";
 
 export const getTaskListInfo = (payload: GetTaskListParams) => ({
@@ -73,5 +77,14 @@ export const changePageTaskListInfoFailed = (
   payload: PaginationTaskListInfoFailedActionPayload
 ) => ({
   type: CHANGE_PAGE_TASK_LIST_INFO.FAILED,
+  payload,
+});
+
+export const triggerStopTaskProcess = (
+  payload: TriggerStopTaskProcessRequestActionPayload
+) => ({ type: TRIGGER_STOP_TASK_PROCESS.REQUESTED, payload });
+
+export const addTaskToCurrentDashboard = (payload: TaskItemApiFields) => ({
+  type: ADD_TASK_TO_CURRENT_DASHBOARD,
   payload,
 });

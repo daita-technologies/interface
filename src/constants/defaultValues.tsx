@@ -11,6 +11,7 @@ export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
 export const healthCheckApiURL = process.env.REACT_APP_HEALTH_CHECK_API_URL;
 export const taskApiURL = process.env.REACT_APP_TASK_API_URL;
 export const customMethodUrl = process.env.REACT_APP_GENERATE_API_URL;
+export const stopApiURL = process.env.REACT_APP_TASK_API_URL;
 
 export const reactAppDevEnv = "development";
 export const reactAppProdEnv = "production";
@@ -115,12 +116,14 @@ export const UPLOADING_TASK_STATUS = "UPLOADING";
 export const FINISH_TASK_STATUS = "FINISH";
 export const ERROR_TASK_STATUS = "ERROR";
 export const FINISH_ERROR_TASK_STATUS = "FINISH_ERROR";
+export const CANCEL_TASK_STATUS = "CANCEL";
 export const FILTER_ALL_TASK_STATUS = "";
 
 export const TASK_STATUS_MERGED_ARRAY: TaskStatusMergedType[] = [
   RUNNING_TASK_STATUS,
   ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
+  CANCEL_TASK_STATUS,
 ];
 
 export const TEMP_LOCAL_USERNAME = "temp_username_key";

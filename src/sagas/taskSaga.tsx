@@ -1,7 +1,9 @@
+// import { IDENTITY_ID_NAME, RUNNING_TASK_STATUS } from "constants/defaultValues";
 import { toast } from "react-toastify";
-import { call, put, select, takeLatest } from "redux-saga/effects";
+import { call, put, select, takeEvery, takeLatest } from "redux-saga/effects";
 import { RootState } from "reduxes";
 import {
+  // addTaskToCurrentDashboard,
   changePageTaskListInfoFailed,
   changePageTaskListInfoSucceeded,
   filterTaskListInfoFailed,
@@ -16,15 +18,22 @@ import {
   FILTER_TASK_LIST_INFO,
   GET_TASK_LIST_INFO,
   TASK_LIST_PAGE_SIZE,
+  TRIGGER_STOP_TASK_PROCESS,
 } from "reduxes/task/constants";
 import { selectorSpecificProcessListPage } from "reduxes/task/selector";
-import { PaginationTaskListInfoRequestActionPayload } from "reduxes/task/type";
+import {
+  PaginationTaskListInfoRequestActionPayload,
+  TriggerStopTaskProcessRequestActionPayload,
+} from "reduxes/task/type";
+import { stopProcessApi } from "services";
 
 import taskApi, {
   GetTaskListFilterParams,
   GetTaskListParams,
+  // TaskItemApiFields,
   TaskListResponseApiFields,
 } from "services/taskApi";
+// import { getLocalStorage } from "utils/general";
 
 function* handleGetTaskListInfo(action: {
   type: string;
@@ -146,12 +155,62 @@ function* handlePaginationTaskListInfo(action: {
   }
 }
 
+function* handleTriggerStopTaskProcess(action: {
+  type: string;
+  payload: TriggerStopTaskProcessRequestActionPayload;
+}): any {
+  try {
+    const { payload } = action;
+    const {
+      taskId,
+      // processType, projectId
+    } = payload;
+
+    const triggerStopTaskResponse = yield call(stopProcessApi.stopProcess, {
+      taskId,
+    });
+
+    if (triggerStopTaskResponse.error === false) {
+      yield put({
+        type: TRIGGER_STOP_TASK_PROCESS.SUCCEEDED,
+      });
+
+      yield toast.info("Your task is being processed to stop.");
+
+      // const newTaskInfo: TaskItemApiFields = {
+      //   task_id: taskId,
+      //   process_type: processType,
+      //   project_id: projectId,
+      //   status: RUNNING_TASK_STATUS,
+      //   identity_id: getLocalStorage(IDENTITY_ID_NAME) || "",
+      //   created_time: new Date().toISOString(),
+      // };
+
+      // yield put(addTaskToCurrentDashboard(newTaskInfo));
+    } else {
+      yield put({
+        type: TRIGGER_STOP_TASK_PROCESS.FAILED,
+      });
+      toast.error(triggerStopTaskResponse.message);
+    }
+  } catch (e: any) {
+    yield put({
+      type: TRIGGER_STOP_TASK_PROCESS.FAILED,
+    });
+    toast.error(e.message);
+  }
+}
+
 function* generateSaga() {
   yield takeLatest(GET_TASK_LIST_INFO.REQUESTED, handleGetTaskListInfo);
   yield takeLatest(FILTER_TASK_LIST_INFO.REQUESTED, handleFilterTaskListInfo);
   yield takeLatest(
     CHANGE_PAGE_TASK_LIST_INFO.REQUESTED,
     handlePaginationTaskListInfo
+  );
+  yield takeEvery(
+    TRIGGER_STOP_TASK_PROCESS.REQUESTED,
+    handleTriggerStopTaskProcess
   );
 }
 
