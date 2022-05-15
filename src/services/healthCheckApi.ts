@@ -25,6 +25,7 @@ export interface GetProjectHealthCheckInfoParams {
   idToken?: string;
   projectId: string;
   dataType: ImageSourceType;
+  notShowLoading?: boolean;
 }
 
 export interface HealthCheckFields {

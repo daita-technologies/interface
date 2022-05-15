@@ -1,6 +1,6 @@
 import { ID_TOKEN_NAME } from "constants/defaultValues";
 import { toast } from "react-toastify";
-import { call, delay, put, takeEvery } from "redux-saga/effects";
+import { call, delay, put, takeEvery, takeLatest } from "redux-saga/effects";
 
 import {
   GET_PROJECT_HEALTH_CHECK_INFO,
@@ -97,7 +97,7 @@ function* handleGetProjectHealthCheckInfo(action: {
 
 function* generateSaga() {
   yield takeEvery(RUN_HEALTH_CHECK.REQUESTED, handleRunHealthCheck);
-  yield takeEvery(
+  yield takeLatest(
     GET_PROJECT_HEALTH_CHECK_INFO.REQUESTED,
     handleGetProjectHealthCheckInfo
   );

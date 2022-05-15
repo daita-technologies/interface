@@ -22,15 +22,16 @@ import {
   selectorDataHealthCheckCurrentListTask,
   selectorDataHealthCheckCurrentTotalImage,
   selectorDataHealthCheckTaskList,
-  // selectorDataHealthCheckTaskList,
   selectorIsDataHealthCheckGotTaskRunning,
-  selectorIsHealthCheckLoading,
+  selectorIsFetchedAllTaskInfo,
+  selectorIsFetchingHealthCheckInfo,
   selectorIsRunningHealthCheck,
 } from "reduxes/healthCheck/selector";
 import { selectorTaskList } from "reduxes/project/selector";
 import { fetchTaskInfo } from "reduxes/project/action";
 import { FETCH_DETAIL_PROJECT } from "reduxes/project/constants";
 import { TaskInfo } from "reduxes/project/type";
+import { HEALTH_CHECK_TASK_PLACEMENT_PAGE_NAME } from "reduxes/task/constants";
 import TaskListItem from "routes/ProjectDetail/TaskList/TaskListItem";
 
 import { HEALTH_CHECK_ATTRIBUTES_ARRAY } from "constants/healthCheck";
@@ -61,9 +62,13 @@ const HealthCheckMainContent = function ({
 
   const activeDataHealthCheck = useSelector(selectorActiveDataHealthCheck);
 
-  const isHealthCheckLoading = useSelector(selectorIsHealthCheckLoading);
+  const isFetchingHealthCheckInfo = useSelector(
+    selectorIsFetchingHealthCheckInfo
+  );
 
   const isRunningHealthCheck = useSelector(selectorIsRunningHealthCheck);
+
+  const isFetchedAllTaskInfo = useSelector(selectorIsFetchedAllTaskInfo);
 
   const isDataHealthCheckGotTaskRunning = useSelector((state: RootState) =>
     selectorIsDataHealthCheckGotTaskRunning(state, projectId)
@@ -109,34 +114,43 @@ const HealthCheckMainContent = function ({
     }
   }, [taskList, projectId]);
 
-  const renderTaskList = () => (
-    <Box maxHeight={(60 + 16 * 2) * 3} sx={{ display: "none" }}>
-      {dataHealthCheckMatchProjectIdTaskList.map((taskItemInfo: TaskInfo) => (
-        <TaskListItem
-          key={`data-health-check-task-list-item-${taskItemInfo.task_id}`}
-          taskInfo={
-            dataHealthCheckTaskListInfo[taskItemInfo.task_id] || taskItemInfo
-          }
-        />
-      ))}
-    </Box>
-  );
+  const renderTaskList = () => {
+    if (dataHealthCheckTaskListInfo) {
+      return (
+        <Box maxHeight={(60 + 16 * 2) * 3} sx={{ display: "none" }}>
+          {dataHealthCheckMatchProjectIdTaskList.map(
+            (taskItemInfo: TaskInfo) => (
+              <TaskListItem
+                key={`data-health-check-task-list-item-${taskItemInfo.task_id}`}
+                pageName={HEALTH_CHECK_TASK_PLACEMENT_PAGE_NAME}
+                taskInfo={
+                  dataHealthCheckTaskListInfo[taskItemInfo.task_id] ||
+                  taskItemInfo
+                }
+              />
+            )
+          )}
+        </Box>
+      );
+    }
+
+    return null;
+  };
 
   const renderContent = () => {
-    if (!activeDataHealthCheck || activeDataHealthCheck.length <= 0) {
-      if (isHealthCheckLoading) {
-        return (
-          <Box
-            py={6}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <CircularProgress size={40} />
-          </Box>
-        );
-      }
+    if (
+      isFetchingHealthCheckInfo === null ||
+      isFetchingHealthCheckInfo === true ||
+      dataHealthCheckTaskListInfo === null
+    ) {
+      return (
+        <Box py={6} display="flex" justifyContent="center" alignItems="center">
+          <CircularProgress size={40} />
+        </Box>
+      );
+    }
 
+    if (!activeDataHealthCheck || activeDataHealthCheck.length <= 0) {
       if (isDataHealthCheckGotTaskRunning) {
         return (
           <Box
@@ -147,99 +161,95 @@ const HealthCheckMainContent = function ({
             alignItems="center"
           >
             <Typography>
-              Your infomation about project&lsquo;s Data Health Check is being
-              generated, please come back in a few minutes...
+              Data Health Check is being generated, please wait for a while...
             </Typography>
             <CircularProgress sx={{ mt: 4 }} />
           </Box>
         );
       }
-    }
 
-    if (activeDataHealthCheck && activeDataHealthCheck?.length > 0) {
       return (
-        <Box>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            mb={6}
-          >
-            <MyButton
-              variant="contained"
-              color="primary"
-              disabled={isHealthCheckLoading}
-              isLoading={
-                isRunningHealthCheck || isDataHealthCheckGotTaskRunning
-              }
-              onClick={onClickRunHealthCheck}
+        <Empty
+          description={
+            <Box
+              display="flex"
+              flexDirection="column"
+              justifyContent="center"
+              alignItems="center"
+              rowGap={2}
             >
-              {`${
-                isDataHealthCheckGotTaskRunning ? "Re-Running" : "Re-run"
-              } Data Health Check`}
-            </MyButton>
-
-            <Autocomplete
-              sx={{ flexBasis: "40%" }}
-              disablePortal
-              options={HEALTH_CHECK_ATTRIBUTES_ARRAY}
-              isOptionEqualToValue={(option, selected) =>
-                option.value === selected.value
-              }
-              value={selectedAttribue}
-              onChange={(_, item) => {
-                if (item) {
-                  setSelectedAttribue(item);
-                }
-              }}
-              renderInput={(params) => (
-                <TextField label="Attribute" {...params} />
+              <Typography>
+                {dataHealthCheckCurrentTotalImage <= 0
+                  ? `You haven't had any images yet.`
+                  : "No information about your data health check yet."}
+              </Typography>
+              {dataHealthCheckCurrentTotalImage <= 0 && (
+                <Typography>
+                  <Link to={`/project/${projectName}`}>
+                    Upload your image now.
+                  </Link>
+                </Typography>
               )}
-            />
-          </Box>
-
-          <HealthCheckChart
-            data={activeDataHealthCheck}
-            selectedAttribue={selectedAttribue}
-          />
-        </Box>
+              <MyButton
+                variant="contained"
+                color="primary"
+                disabled={dataHealthCheckCurrentTotalImage <= 0}
+                isLoading={isRunningHealthCheck}
+                onClick={onClickRunHealthCheck}
+              >
+                Run Data Health Check
+              </MyButton>
+            </Box>
+          }
+        />
       );
     }
 
+    // NOTE: activeDataHealthCheck && activeDataHealthCheck?.length > 0
     return (
-      <Empty
-        description={
-          <Box
-            display="flex"
-            flexDirection="column"
-            justifyContent="center"
-            alignItems="center"
-            rowGap={2}
+      <Box>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={6}
+        >
+          <MyButton
+            variant="contained"
+            color="primary"
+            disabled={!isFetchedAllTaskInfo}
+            isLoading={isRunningHealthCheck || isDataHealthCheckGotTaskRunning}
+            onClick={onClickRunHealthCheck}
           >
-            <Typography>
-              {dataHealthCheckCurrentTotalImage <= 0
-                ? `You haven't have any image yet.`
-                : "No information about your data health check yet."}
-            </Typography>
-            {dataHealthCheckCurrentTotalImage <= 0 && (
-              <Typography>
-                <Link to={`/project/${projectName}`}>
-                  Upload your image now.
-                </Link>
-              </Typography>
+            {`${
+              isDataHealthCheckGotTaskRunning ? "Re-Running" : "Re-run"
+            } Data Health Check`}
+          </MyButton>
+
+          <Autocomplete
+            sx={{ flexBasis: "40%" }}
+            disablePortal
+            options={HEALTH_CHECK_ATTRIBUTES_ARRAY}
+            isOptionEqualToValue={(option, selected) =>
+              option.value === selected.value
+            }
+            value={selectedAttribue}
+            onChange={(_, item) => {
+              if (item) {
+                setSelectedAttribue(item);
+              }
+            }}
+            renderInput={(params) => (
+              <TextField label="Attribute" {...params} />
             )}
-            <MyButton
-              variant="contained"
-              color="primary"
-              disabled={dataHealthCheckCurrentTotalImage <= 0}
-              isLoading={isRunningHealthCheck}
-              onClick={onClickRunHealthCheck}
-            >
-              Run Data Health Check
-            </MyButton>
-          </Box>
-        }
-      />
+          />
+        </Box>
+
+        <HealthCheckChart
+          data={activeDataHealthCheck}
+          selectedAttribue={selectedAttribue}
+        />
+      </Box>
     );
   };
 

@@ -143,7 +143,9 @@ function* isZipFileValid(action: {
           updateInfo: {
             error: `The file size exceeds the limit allowed (${formatBytes(
               file.size
-            )}/${formatBytes(MAXIMUM_ZIP_FILE_SIZE)})`,
+            )}/${formatBytes(
+              MAXIMUM_ZIP_FILE_SIZE
+            )}). Please remove it to start a new uploading`,
             status: FAILED_UPLOAD_FILE_STATUS,
           },
         })
@@ -164,7 +166,7 @@ function* isZipFileValid(action: {
         updateFile({
           fileName,
           updateInfo: {
-            error: `Not found any images in the zip file.`,
+            error: `Not found any images in the zip files. Please remove it to start a new uploading`,
             status: FAILED_UPLOAD_FILE_STATUS,
           },
         })
@@ -180,7 +182,7 @@ function* isZipFileValid(action: {
       updateFile({
         fileName,
         updateInfo: {
-          error: `The number of images exceed ${exceedCount} (${totalImage}/ ${MAX_ALLOW_UPLOAD_IMAGES}).`,
+          error: `The number of images exceed ${exceedCount} (${totalImage}/ ${MAX_ALLOW_UPLOAD_IMAGES}). Please remove it to start a new uploading`,
           status: FAILED_UPLOAD_FILE_STATUS,
         },
       })
@@ -286,7 +288,7 @@ function* handleUploadZipFile(action: {
         const uploadedFile = yield select(selectorUploadedFileCount);
         const totalUploadFile = yield select(selectorTotalUploadFileQuantity);
         if (uploadedFile >= totalUploadFile) {
-          yield toast.success("Zip file are successfully uploaded");
+          yield toast.success("Zip files are successfully uploaded");
           yield put(
             clearFileArray({ fileNameArray: Object.keys(uploadFiles) })
           );

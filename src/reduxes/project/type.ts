@@ -117,24 +117,23 @@ export interface TaskInfoApiFields {
   task_id: string;
   status: TaskStatusType;
   process_type: TaskProcessType;
-  number_finished: number;
   project_id: string;
-  number_gen_images: number;
+  number_finished?: number;
+  number_gen_images?: number;
 }
 
-export type ZipTaskInfoApiFields = Pick<
-  TaskInfoApiFields,
-  "identity_id" | "task_id" | "status" | "process_type" | "project_id"
->;
-export type GenerateReferenceImageTaskInfoApiFields = Pick<
-  TaskInfoApiFields,
-  "task_id" | "status" | "process_type" | "project_id"
->;
-export type HealthCheckInfoApiFields = Pick<
-  TaskInfoApiFields,
-  "task_id" | "status" | "process_type"
->;
+export type ZipTaskInfoApiFields = TaskInfoApiFields;
+// export type ZipTaskInfoApiFields = Pick<
+//   TaskInfoApiFields,
+//   "identity_id" | "task_id" | "status" | "process_type" | "project_id"
+// >;
+export type HealthCheckInfoApiFields = TaskInfoApiFields;
+// export type HealthCheckInfoApiFields = Pick<
+//   TaskInfoApiFields,
+//   "task_id" | "status" | "process_type" | "project_id"
+// >;
 
+export type GenerateReferenceImageTaskInfoApiFields = TaskInfoApiFields;
 export type GeneralTaskInfoApiFields =
   | TaskInfoApiFields
   | ZipTaskInfoApiFields
