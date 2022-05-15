@@ -13,6 +13,7 @@ import {
   addFile,
   checkFileUpload,
   clearAllFile,
+  clearFileArray,
   deleteFile,
   resetUploadState,
   setTotalUploadFileQuantity,
@@ -213,7 +214,20 @@ const UploadFile = function (props: UploadFileProps) {
 
   const onDeleteFile = (fileName: string) => {
     if (uploadFiles && uploadFiles[fileName]) {
-      dispatch(deleteFile({ fileName }));
+      let isUploadSucess = true;
+      Object.keys(uploadFiles).forEach((name) => {
+        if (
+          name !== fileName &&
+          uploadFiles[name].status !== UPLOADED_UPLOAD_FILE_STATUS
+        )
+          isUploadSucess = false;
+      });
+      if (isUploadSucess) {
+        dispatch(clearFileArray({ fileNameArray: Object.keys(uploadFiles) }));
+        dispatch(setTotalUploadFileQuantity({ totalUploadFileQuantity: null }));
+      } else {
+        dispatch(deleteFile({ fileName }));
+      }
     }
   };
 
