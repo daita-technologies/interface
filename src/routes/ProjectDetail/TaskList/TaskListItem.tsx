@@ -35,7 +35,10 @@ import {
   selectorListProjects,
 } from "reduxes/project/selector";
 import { TaskStatusType } from "reduxes/project/type";
-import { PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME } from "reduxes/task/constants";
+import {
+  HEALTH_CHECK_TASK_PLACEMENT_PAGE_NAME,
+  PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME,
+} from "reduxes/task/constants";
 import {
   capitalizeFirstLetter,
   getGenerateMethodLabel,
@@ -264,16 +267,26 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
     );
   }, []);
 
+  const callFetchTaskInfo = () => {
+    dispatch(
+      fetchTaskInfo({
+        idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+        taskId: task_id,
+        projectId: currentProjectId,
+        processType: process_type,
+      })
+    );
+  };
+
   useInterval(
     () => {
-      dispatch(
-        fetchTaskInfo({
-          idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-          taskId: task_id,
-          projectId: currentProjectId,
-          processType: process_type,
-        })
-      );
+      if (pageName === HEALTH_CHECK_TASK_PLACEMENT_PAGE_NAME) {
+        if (process_type === HEALTHCHECK_TASK_PROCESS_TYPE) {
+          callFetchTaskInfo();
+        }
+      } else {
+        callFetchTaskInfo();
+      }
     },
     status === FINISH_TASK_STATUS || status === ERROR_TASK_STATUS ? null : 10000
   );
