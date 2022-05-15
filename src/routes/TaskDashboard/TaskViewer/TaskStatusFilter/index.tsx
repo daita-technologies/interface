@@ -1,5 +1,6 @@
 import { Autocomplete, Box, TextField } from "@mui/material";
 import {
+  CANCEL_TASK_STATUS,
   ERROR_TASK_STATUS,
   FILTER_ALL_TASK_STATUS,
   FINISH_TASK_STATUS,
@@ -23,6 +24,10 @@ const TASK_STATUS_FILTER_OPTION_ARRAY: TaskStatusFilterOption[] = [
   {
     value: ERROR_TASK_STATUS,
     label: "Error",
+  },
+  {
+    value: CANCEL_TASK_STATUS,
+    label: "Cancel",
   },
 ];
 

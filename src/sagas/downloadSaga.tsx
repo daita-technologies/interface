@@ -27,13 +27,14 @@ import {
   selectorTotalSelectedFilesNeedDownload,
 } from "reduxes/download/selector";
 
-import { projectApi } from "services";
+import { projectApi, downloadApi } from "services";
 import {
   convertArrayAlbumImageToObjectKeyFileName,
   getLoadImageContentToDownloadActionName,
 } from "utils/general";
 import {
   AUGMENT_SOURCE,
+  ERROR_TASK_STATUS,
   MAXIMUM_FETCH_IMAGES_AMOUNT,
   ORIGINAL_SOURCE,
   PREPROCESS_SOURCE,
@@ -53,11 +54,12 @@ import {
   selectorCurrentProjectTotalPreprocessImage,
 } from "reduxes/project/selector";
 import { selectorImages } from "reduxes/album/selector";
-import { downloadApi } from "services";
+
 import {
   DownloadZipEc2Params,
   DownloadZipEc2Progress,
 } from "services/downloadApi";
+import { triggerPresignedURLDownload } from "utils/download";
 
 const ALL_SOURCE_TYPES = [ORIGINAL_SOURCE, PREPROCESS_SOURCE, AUGMENT_SOURCE];
 
@@ -340,21 +342,27 @@ function* handleDownloadZipEc2Progress(action: {
       downloadZipEc2ProgressResponse.error === false &&
       downloadZipEc2ProgressResponse.data
     ) {
-      yield put({ type: DOWNLOAD_ZIP_EC2_PROGRESS.SUCCEEDED });
+      yield put({
+        type: DOWNLOAD_ZIP_EC2_PROGRESS.SUCCEEDED,
+        payload: downloadZipEc2ProgressResponse.data,
+      });
+
+      if (downloadZipEc2ProgressResponse.data.status === ERROR_TASK_STATUS) {
+        yield toast.error(
+          "Unexpected error occurred when downloading your images."
+        );
+        yield put({
+          type: DOWNLOAD_ALL_FILES.FAILED,
+        });
+      }
 
       if (downloadZipEc2ProgressResponse.data.presign_url) {
         yield put({ type: DOWNLOAD_ZIP_EC2.SUCCEEDED });
 
-        const downloadBtn = document.createElement("a");
-        downloadBtn.setAttribute("download", `${projectId}.zip`);
-        downloadBtn.href = downloadZipEc2ProgressResponse.data.presign_url;
-        downloadBtn.style.display = "none";
-        document.documentElement.appendChild(downloadBtn);
-        downloadBtn.click();
-
-        setTimeout(() => {
-          document.documentElement.removeChild(downloadBtn);
-        }, 1000);
+        triggerPresignedURLDownload(
+          downloadZipEc2ProgressResponse.data.presign_url,
+          projectId
+        );
       }
     } else {
       yield put({

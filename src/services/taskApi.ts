@@ -53,6 +53,7 @@ export type TaskItemApiFields = {
   status: TaskStatusType;
   number_finished?: number;
   number_gen_images?: number;
+  presign_url?: string | null;
 };
 
 export interface TaskListEachProcessTypeResponseApiFields {

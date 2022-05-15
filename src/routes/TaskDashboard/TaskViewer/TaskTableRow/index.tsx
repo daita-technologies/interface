@@ -3,6 +3,7 @@ import { CircularProgressWithLabel } from "components";
 import {
   AUGMENT_SOURCE,
   AUGMENT_TASK_PROCESS_TYPE,
+  CANCEL_TASK_STATUS,
   ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
   HEALTHCHECK_TASK_PROCESS_TYPE,
@@ -40,6 +41,8 @@ const getStyledStatus = (taskStatus: TaskStatusMergedType) => {
       return "success";
     case ERROR_TASK_STATUS:
       return "error";
+    case CANCEL_TASK_STATUS:
+      return "warning";
     case RUNNING_TASK_STATUS:
     default:
       return "info";
@@ -122,7 +125,7 @@ const TaskTableRow = function ({
         })
       );
     },
-    status === FINISH_TASK_STATUS || status === ERROR_TASK_STATUS ? null : 10000
+    getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS ? 10000 : null
   );
 
   const actionWhenTaskFinish = () => {

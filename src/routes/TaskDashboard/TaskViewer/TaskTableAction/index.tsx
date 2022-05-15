@@ -1,16 +1,39 @@
 import { IconButton, ListItemText, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { TaskItemApiFields } from "services/taskApi";
+import {
+  DOWNLOAD_TASK_PROCESS_TYPE,
+  RUNNING_TASK_STATUS,
+} from "constants/defaultValues";
+import { triggerPresignedURLDownload } from "utils/download";
+import { useDispatch } from "react-redux";
+import { triggerStopTaskProcess } from "reduxes/task/action";
+import { getTaskStatusMergedValue } from "utils/task";
 
 function TaskTableAction({ taskInfo }: { taskInfo: TaskItemApiFields }) {
+  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { task_id, process_type, presign_url, project_id, status } = taskInfo;
 
   const handleStopActionClick = () => {
-    setAnchorEl(null);
+    dispatch(
+      triggerStopTaskProcess({
+        taskId: task_id,
+        projectId: project_id,
+      })
+    );
     setOpen(false);
   };
+
+  const handleClickOnDownloadAction = () => {
+    if (presign_url) {
+      triggerPresignedURLDownload(presign_url, project_id);
+      setOpen(false);
+    }
+  };
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -18,24 +41,53 @@ function TaskTableAction({ taskInfo }: { taskInfo: TaskItemApiFields }) {
     setAnchorEl(event.currentTarget);
     setOpen(true);
   };
-  return (
-    <>
-      <IconButton className="dot-option-symbol" onClick={handleClick}>
-        <MoreVertIcon />
-      </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <MenuItem disabled onClick={handleStopActionClick}>
-          <ListItemText>Stop</ListItemText>
-        </MenuItem>
-      </Menu>
-    </>
-  );
+
+  const menuItemCount = useMemo(() => {
+    let count = 0;
+
+    if (getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS) {
+      count += 1;
+    }
+
+    if (process_type === DOWNLOAD_TASK_PROCESS_TYPE) {
+      count += 1;
+    }
+
+    return count;
+  }, [status, process_type]);
+
+  if (menuItemCount > 0) {
+    return (
+      <>
+        <IconButton className="dot-option-symbol" onClick={handleClick}>
+          <MoreVertIcon />
+        </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          {getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS && (
+            <MenuItem onClick={handleStopActionClick}>
+              <ListItemText>Stop</ListItemText>
+            </MenuItem>
+          )}
+          {process_type === DOWNLOAD_TASK_PROCESS_TYPE && (
+            <MenuItem
+              disabled={!presign_url}
+              onClick={handleClickOnDownloadAction}
+            >
+              <ListItemText>Download</ListItemText>
+            </MenuItem>
+          )}
+        </Menu>
+      </>
+    );
+  }
+
+  return null;
 }
 
 export default TaskTableAction;

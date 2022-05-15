@@ -11,6 +11,7 @@ import {
   // FILTER_ALL_TASK_PROCESS_TYPE,
   FILTER_ALL_TASK_STATUS,
   GENERATE_REFERENCE_IMAGE_TYPE,
+  CANCEL_TASK_STATUS,
 } from "./defaultValues";
 
 export type TaskProcessType =
@@ -26,4 +27,5 @@ export type TaskStatusMergedType =
   | typeof RUNNING_TASK_STATUS
   | typeof FINISH_TASK_STATUS
   | typeof ERROR_TASK_STATUS
-  | typeof FILTER_ALL_TASK_STATUS;
+  | typeof FILTER_ALL_TASK_STATUS
+  | typeof CANCEL_TASK_STATUS;
