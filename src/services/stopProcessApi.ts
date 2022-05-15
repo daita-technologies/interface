@@ -2,22 +2,22 @@ import axios from "axios";
 import {
   stopApiURL,
   getAuthHeader,
-  ID_TOKEN_NAME,
+  IDENTITY_ID_NAME,
 } from "constants/defaultValues";
 
 import { getLocalStorage } from "utils/general";
 
 export interface StopProcessParams {
-  idToken?: string;
+  identityId?: string;
   taskId: string;
 }
 
 const stopProcessApi = {
-  stopProcess: ({ idToken, taskId }: StopProcessParams) =>
+  stopProcess: ({ identityId, taskId }: StopProcessParams) =>
     axios.post(
       `${stopApiURL}/task/stop_proceess `,
       {
-        id_token: getLocalStorage(ID_TOKEN_NAME) || idToken || "",
+        identity_id: identityId || getLocalStorage(IDENTITY_ID_NAME) || "",
         task_id: taskId,
       },
       { headers: getAuthHeader() }
