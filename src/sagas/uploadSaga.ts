@@ -188,7 +188,15 @@ function* isZipFileValid(action: {
       })
     );
   } catch (e) {
-    toast.error(`Failed to parse zip file ${fileName}`);
+    yield put(
+      updateFile({
+        fileName,
+        updateInfo: {
+          error: `Failed to parse zip file ${fileName}. Please remove it to start a new uploading`,
+          status: FAILED_UPLOAD_FILE_STATUS,
+        },
+      })
+    );
   }
   return false;
 }
