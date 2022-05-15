@@ -10,6 +10,7 @@ export const uploadZipApiUrl = process.env.REACT_APP_UPLOAD_ZIP_API;
 export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
 export const healthCheckApiURL = process.env.REACT_APP_HEALTH_CHECK_API_URL;
 export const taskApiURL = process.env.REACT_APP_TASK_API_URL;
+export const customMethodUrl = process.env.REACT_APP_GENERATE_API_URL;
 
 export const reactAppDevEnv = "development";
 export const reactAppProdEnv = "production";
@@ -89,6 +90,7 @@ export const AUGMENT_TASK_PROCESS_TYPE = "AUGMENT";
 export const UPLOAD_TASK_PROCESS_TYPE = "UPLOAD";
 export const DOWNLOAD_TASK_PROCESS_TYPE = "DOWNLOAD";
 export const HEALTHCHECK_TASK_PROCESS_TYPE = "HEALTHCHECK";
+export const GENERATE_REFERENCE_IMAGE_TYPE = "REFERENCE_IMAGE";
 export const FILTER_ALL_TASK_PROCESS_TYPE = "";
 
 export const ALL_TASK_TYPE_ARRAY: TaskProcessType[] = [

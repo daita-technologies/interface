@@ -133,10 +133,12 @@ export type HealthCheckInfoApiFields = TaskInfoApiFields;
 //   "task_id" | "status" | "process_type" | "project_id"
 // >;
 
+export type GenerateReferenceImageTaskInfoApiFields = TaskInfoApiFields;
 export type GeneralTaskInfoApiFields =
   | TaskInfoApiFields
   | ZipTaskInfoApiFields
-  | HealthCheckInfoApiFields;
+  | HealthCheckInfoApiFields
+  | GenerateReferenceImageTaskInfoApiFields;
 export interface FetchTaskInfoPayload {
   idToken: string;
   taskId: string;

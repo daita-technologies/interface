@@ -1,29 +1,29 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import { Box, LinearProgress, Typography } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import useInterval from "hooks/useInterval";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchTaskInfo } from "reduxes/project/action";
-import {
-  capitalizeFirstLetter,
-  getGenerateMethodLabel,
-  getLocalStorage,
-  switchTabIdToSource,
-} from "utils/general";
+import { Box, LinearProgress, Typography } from "@mui/material";
 import {
   AUGMENT_SOURCE,
   ERROR_TASK_STATUS,
   FINISH_ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
+  GENERATE_REFERENCE_IMAGE_TYPE,
+  HEALTHCHECK_TASK_PROCESS_TYPE,
   ID_TOKEN_NAME,
+  ORIGINAL_IMAGES_TAB,
+  ORIGINAL_SOURCE,
   PREPROCESS_SOURCE,
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
   UPLOAD_TASK_PROCESS_TYPE,
-  ORIGINAL_IMAGES_TAB,
-  HEALTHCHECK_TASK_PROCESS_TYPE,
-  ORIGINAL_SOURCE,
 } from "constants/defaultValues";
+import useInterval from "hooks/useInterval";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { changeActiveImagesTab, fetchImages } from "reduxes/album/action";
+import { selectorActiveImagesTabId } from "reduxes/album/selector";
+import { fetchReferenceImageInfo } from "reduxes/customPreprocessing/action";
+import { getProjectHealthCheckInfoAction } from "reduxes/healthCheck/action";
+import { fetchTaskInfo } from "reduxes/project/action";
 import {
   FETCH_DETAIL_PROJECT,
   FETCH_LIST_PROJECTS,
@@ -35,11 +35,13 @@ import {
   selectorListProjects,
 } from "reduxes/project/selector";
 import { TaskStatusType } from "reduxes/project/type";
-import { toast } from "react-toastify";
-import { selectorActiveImagesTabId } from "reduxes/album/selector";
-import { changeActiveImagesTab, fetchImages } from "reduxes/album/action";
-import { getProjectHealthCheckInfoAction } from "reduxes/healthCheck/action";
 import { PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME } from "reduxes/task/constants";
+import {
+  capitalizeFirstLetter,
+  getGenerateMethodLabel,
+  getLocalStorage,
+  switchTabIdToSource,
+} from "utils/general";
 import {
   TaskListImageSourceItemProps,
   TaskListItemProps,
@@ -313,6 +315,15 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
           )} has been completed successfully.`
         );
         break;
+      case GENERATE_REFERENCE_IMAGE_TYPE:
+        dispatch(
+          fetchReferenceImageInfo({
+            idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+            projectId: currentProjectId,
+          })
+        );
+        toast.success("Reference images have been generated successfully.");
+        break;
       default:
         break;
     }
@@ -356,7 +367,10 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
   ) {
     return null;
   }
-  if (process_type === UPLOAD_TASK_PROCESS_TYPE) {
+  if (
+    process_type === UPLOAD_TASK_PROCESS_TYPE ||
+    process_type === GENERATE_REFERENCE_IMAGE_TYPE
+  ) {
     return <TaskListUploadItem taskInfo={taskInfo} />;
   }
   return <TaskListImageSourceItem taskInfo={taskInfo} />;

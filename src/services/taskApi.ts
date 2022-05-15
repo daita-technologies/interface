@@ -8,6 +8,7 @@ import {
   DOWNLOAD_TASK_PROCESS_TYPE,
   HEALTHCHECK_TASK_PROCESS_TYPE,
   taskApiURL,
+  GENERATE_REFERENCE_IMAGE_TYPE,
 } from "constants/defaultValues";
 import { TaskProcessType, TaskStatusMergedType } from "constants/taskType";
 import { TaskStatusType } from "reduxes/project/type";
@@ -65,6 +66,7 @@ export interface TaskListResponseApiFields {
   [UPLOAD_TASK_PROCESS_TYPE]: TaskListEachProcessTypeResponseApiFields;
   [DOWNLOAD_TASK_PROCESS_TYPE]: TaskListEachProcessTypeResponseApiFields;
   [HEALTHCHECK_TASK_PROCESS_TYPE]: TaskListEachProcessTypeResponseApiFields;
+  [GENERATE_REFERENCE_IMAGE_TYPE]: TaskListEachProcessTypeResponseApiFields;
 }
 
 const taskApi = {

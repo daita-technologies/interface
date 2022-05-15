@@ -12,7 +12,6 @@ import {
   Typography,
 } from "@mui/material";
 import { MyButton } from "components";
-import { PreprocessingMethod } from "components/ImageProcessing/type";
 import {
   ID_TOKEN_NAME,
   MAXIMUM_FETCH_IMAGES_AMOUNT,
@@ -32,7 +31,10 @@ import {
   selectorReferenceSeletectorDialog,
 } from "reduxes/customPreprocessing/selector";
 import { selectorS3 } from "reduxes/general/selector";
-import { selectorCurrentProjectId } from "reduxes/project/selector";
+import {
+  selectorCurrentProjectId,
+  selectorMethodList,
+} from "reduxes/project/selector";
 import { projectApi } from "services";
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import {
@@ -40,11 +42,21 @@ import {
   getLocalStorage,
 } from "utils/general";
 
+export const prettyMethodName = (methodName: string | undefined) => {
+  if (!methodName) {
+    return "";
+  }
+  const str = methodName.replace(/_/g, " ");
+  const firstLetter = str.substring(0, 1);
+  return firstLetter.toUpperCase() + str.substring(1);
+};
 const ReferenceImageDialog = function () {
   const dispatch = useDispatch();
 
   const [referenceImage, setReferenceImage] =
-    useState<Pick<ImageApiFields, "filename" | "url" | "photoKey">>();
+    useState<
+      Pick<ImageApiFields, "filename" | "url" | "photoKey" | "s3_key">
+    >();
   const [images, setImages] = useState<AlbumImagesFields>({});
   const [referenceImageName, setReferenceImageName] = useState<string>();
   const [open, setOpen] = useState(false);
@@ -52,7 +64,7 @@ const ReferenceImageDialog = function () {
   const currentProjectId = useSelector(selectorCurrentProjectId);
 
   const s3 = useSelector(selectorS3);
-  const { isShow, method } = useSelector(selectorReferenceSeletectorDialog);
+  const { isShow, methodId } = useSelector(selectorReferenceSeletectorDialog);
   const handleClose = () => {
     dispatch(setReferenceSeletectorDialog({ isShow: false }));
   };
@@ -61,15 +73,15 @@ const ReferenceImageDialog = function () {
   );
   useEffect(() => {
     if (currentProjectId) {
-      if (isShow === false || !method) {
+      if (isShow === false || !methodId) {
         setReferenceImage(undefined);
         setImages({});
         setReferenceImageName(undefined);
         return;
       }
-      const savedReferenceImage = referencePreprocessImage[method]
+      const savedReferenceImage = referencePreprocessImage[methodId]
         ?.filename as string;
-      if (referencePreprocessImage[method]) {
+      if (referencePreprocessImage[methodId]) {
         setReferenceImageName(savedReferenceImage);
       }
       setSearchLoading(true);
@@ -100,11 +112,12 @@ const ReferenceImageDialog = function () {
     }
   }, [isShow, currentProjectId]);
   const handleSubmit = () => {
-    if (referenceImage) {
+    if (methodId && referenceImage) {
       dispatch(
         setReferencePreprocessImage({
-          method: method as PreprocessingMethod,
+          methodId,
           filename: referenceImage.filename,
+          imageS3Path: referenceImage.s3_key as string,
         })
       );
       dispatch(setReferenceSeletectorDialog({ isShow: false }));
@@ -138,9 +151,17 @@ const ReferenceImageDialog = function () {
     if (newValue === null) {
       return;
     }
-    setReferenceImage(images[newValue as string]);
+    const image = images[newValue as string];
+    setReferenceImage(image);
+    setReferenceImageName(image.filename);
   };
-
+  const methods = useSelector(selectorMethodList)?.preprocessing;
+  const getMethodName = (id: string | undefined) => {
+    if (methodId) {
+      return methods?.find((t) => t.method_id === id)?.method_name;
+    }
+    return "";
+  };
   useEffect(() => {
     if (referenceImage && referenceImage.photoKey) {
       const cachedImage = images[referenceImage.filename];
@@ -183,6 +204,35 @@ const ReferenceImageDialog = function () {
     }
     return "";
   };
+  const renderReferenceImageName = () => {
+    if (methodId && referencePreprocessImage[methodId]) {
+      return (
+        <>
+          Refence image:{" "}
+          <Typography
+            variant="body1"
+            fontWeight={400}
+            component="span"
+            sx={{
+              cursor: "pointer",
+              fontWeight: "bold",
+              color: "#1c68dc",
+            }}
+            onClick={(e: any) =>
+              handleChangeReferenceImage(
+                e,
+                referencePreprocessImage[methodId]?.filename as string
+              )
+            }
+            noWrap
+          >
+            {referencePreprocessImage[methodId]?.filename}
+          </Typography>
+        </>
+      );
+    }
+    return "";
+  };
   return (
     <Modal open={isShow} onClose={handleClose} disableEscapeKeyDown>
       <Box sx={{ ...modalStyle, width: 800, height: 500 }}>
@@ -192,12 +242,15 @@ const ReferenceImageDialog = function () {
         <Typography variant="h4" component="h2">
           Please Select Your Reference Image
         </Typography>
-        <Box marginTop={5} height="70%">
+
+        <Box mt={2} height="70%">
           <Box height="100%">
             <Typography variant="h6" fontWeight={500}>
-              {method}
+              {prettyMethodName(getMethodName(methodId))}
             </Typography>
-
+            <Typography variant="body1" fontWeight={400} height={30}>
+              {renderReferenceImageName()}
+            </Typography>
             <Box
               display="flex"
               justifyContent="space-between"
@@ -223,7 +276,7 @@ const ReferenceImageDialog = function () {
                   onClose={() => {
                     setOpen(false);
                   }}
-                  value={referenceImageName}
+                  value={referenceImageName || null}
                   isOptionEqualToValue={(option, value) => option === value}
                   getOptionLabel={(option: string) => option}
                   options={images ? Object.keys(images) : []}
@@ -269,7 +322,7 @@ const ReferenceImageDialog = function () {
           </Box>
         </Box>
 
-        <Box display="flex" justifyContent="flex-end" marginTop={2}>
+        <Box display="flex" justifyContent="flex-end" marginTop={6}>
           <MyButton
             type="button"
             variant="contained"

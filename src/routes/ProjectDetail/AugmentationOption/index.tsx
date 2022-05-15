@@ -7,6 +7,7 @@ import {
   PREPROCESS_SOURCE,
   AUGMENT_GENERATE_IMAGES_TYPE,
   DEFAULT_SPLIT_DATASET_PERCENT_RATE,
+  AUGMENT_SOURCE,
 } from "constants/defaultValues";
 import useConfirmDialog from "hooks/useConfirmDialog";
 import { useMemo } from "react";
@@ -175,9 +176,9 @@ const AugmentationOption = function (props: AugmentationOptionProps) {
               idToken: getLocalStorage(ID_TOKEN_NAME) || "",
               projectId,
               projectName,
-              listMethodId: listMethod.augmentation.map(
-                (method: MethodInfoFields) => method.method_id
-              ),
+              listMethodId: [],
+              processType: AUGMENT_SOURCE,
+              referenceImages: {},
               dataType: selectedDataSource,
               numberImageGeneratePerSource: 1,
               dataNumber: defaultSplitDataset,
@@ -223,6 +224,8 @@ const AugmentationOption = function (props: AugmentationOptionProps) {
             listMethodId: listMethod.augmentation.map(
               (method: MethodInfoFields) => method.method_id
             ),
+            processType: AUGMENT_SOURCE,
+            referenceImages: {},
             dataType: selectedDataSource,
             numberImageGeneratePerSource: 1,
             dataNumber: splitDataNumberBySource,

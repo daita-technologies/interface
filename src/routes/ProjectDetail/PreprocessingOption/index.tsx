@@ -4,11 +4,15 @@ import {
   ID_TOKEN_NAME,
   ORIGINAL_SOURCE,
   PREPROCESSING_GENERATE_IMAGES_TYPE,
+  PREPROCESS_SOURCE,
 } from "constants/defaultValues";
 import { useDispatch, useSelector } from "react-redux";
 import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
 import { changePreprocessingExpertMode } from "reduxes/customPreprocessing/action";
-import { selectorIsPreprocessingExpertMode } from "reduxes/customPreprocessing/selector";
+import {
+  selectorIsPreprocessingExpertMode,
+  selectorReferencePreprocessImage,
+} from "reduxes/customPreprocessing/selector";
 import {
   selectorCurrentProjectIdDownloading,
   selectorIsDownloading,
@@ -25,7 +29,6 @@ import {
   selectorHaveTaskRunning,
   selectorMethodList,
 } from "reduxes/project/selector";
-import { MethodInfoFields } from "reduxes/project/type";
 import { selectorIsUploading } from "reduxes/upload/selector";
 import { getLocalStorage } from "utils/general";
 import ExpertPreprocessingOption from "./ExpertPreprocessOption";
@@ -63,6 +66,9 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
   const isPreprocessingExpertMode = useSelector(
     selectorIsPreprocessingExpertMode
   );
+  const referencePreprocessImage = useSelector(
+    selectorReferencePreprocessImage
+  );
   const handleChangePreprocessintExpertMode = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -73,22 +79,29 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
     );
   };
   const onClickRunPreprocessing = () => {
-    if (listMethod) {
-      dispatch(
-        generateImages({
-          idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-          projectId,
-          projectName,
-          listMethodId: listMethod.preprocessing.map(
-            (method: MethodInfoFields) => method.method_id
-          ),
-          dataType: ORIGINAL_SOURCE,
-          numberImageGeneratePerSource: 1,
-          dataNumber: [totalOriginalImages, 0, 0],
-          generateMethod: PREPROCESSING_GENERATE_IMAGES_TYPE,
-        })
-      );
+    let listMethodId = [] as string[];
+    const referenceImages = {} as Record<string, string>;
+    if (isPreprocessingExpertMode) {
+      listMethodId = Object.keys(referencePreprocessImage);
+      listMethodId.forEach((methodId) => {
+        referenceImages[methodId] =
+          referencePreprocessImage[methodId].imageS3Path;
+      });
     }
+    dispatch(
+      generateImages({
+        idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+        projectId,
+        projectName,
+        listMethodId,
+        processType: PREPROCESS_SOURCE,
+        referenceImages,
+        dataType: ORIGINAL_SOURCE,
+        numberImageGeneratePerSource: 1,
+        dataNumber: [totalOriginalImages, 0, 0],
+        generateMethod: PREPROCESSING_GENERATE_IMAGES_TYPE,
+      })
+    );
   };
 
   const renderMethodList = () => {

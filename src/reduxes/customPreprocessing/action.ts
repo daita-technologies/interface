@@ -1,12 +1,19 @@
+import { ReferenceImagesParams } from "services/customMethodApi";
 import {
   CHANGE_PREPROCESSING_EXPERT_MODE,
   CHANGE_REFERENCE_PREPROCESSING_IMAGE,
+  FETCH_REFERENCE_IMAGE_INFO,
+  GENERATE_REFERENCE_IMAGES,
   SET_REFERENCE_SELECTOR_DIALOG,
+  SET_SELECTED_METHODS,
 } from "./constants";
 import {
   ChangePreprocessingExpertModePayload,
+  GenerateReferenceImagesProps,
   ReferenceImageInfoProps,
+  ReferenceInfoApiFields,
   ReferenceSeletectorDialog,
+  SelectedMethodProps,
 } from "./type";
 
 export const changePreprocessingExpertMode = (
@@ -27,5 +34,27 @@ export const setReferencePreprocessImage = (
   payload: ReferenceImageInfoProps
 ) => ({
   type: CHANGE_REFERENCE_PREPROCESSING_IMAGE,
+  payload,
+});
+export const setSelectedMethods = (payload: SelectedMethodProps) => ({
+  type: SET_SELECTED_METHODS,
+  payload,
+});
+export const generateReferenceImages = (
+  payload: GenerateReferenceImagesProps
+) => ({
+  type: GENERATE_REFERENCE_IMAGES.REQUESTED,
+  payload,
+});
+
+export const fetchReferenceImageInfo = (payload: ReferenceImagesParams) => ({
+  type: FETCH_REFERENCE_IMAGE_INFO.REQUESTED,
+  payload,
+});
+
+export const fetchReferenceImageInfoSuccess = (
+  payload: ReferenceInfoApiFields[]
+) => ({
+  type: FETCH_REFERENCE_IMAGE_INFO.SUCCEEDED,
   payload,
 });

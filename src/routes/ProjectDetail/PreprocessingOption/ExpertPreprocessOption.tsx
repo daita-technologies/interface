@@ -1,27 +1,29 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import EditIcon from "@mui/icons-material/Edit";
-import { Box, Button, Divider, IconButton, Typography } from "@mui/material";
+import { Box, Divider, IconButton, Typography } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
-import { InfoTooltip } from "components";
-import {
-  AUTO_ORIENTATION,
-  EQUALIZE_HISTOGRAM,
-  HIGH_RESOLUTION,
-  NORMALIZE_BRIGHTNESS,
-  NORMALIZE_CONTRAST,
-  NORMALIZE_HUE,
-  NORMALIZE_SATURATION,
-  NORMALIZE_SHARPNESS,
-  PreprocessingMethod,
-} from "components/ImageProcessing/type";
-import { useState } from "react";
+import { InfoTooltip, MyButton } from "components";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setReferenceSeletectorDialog } from "reduxes/customPreprocessing/action";
-import { selectorReferencePreprocessImage } from "reduxes/customPreprocessing/selector";
-import ReferenceImageDialog from "./ReferenceImageDialog";
+import {
+  generateReferenceImages,
+  setReferenceSeletectorDialog,
+  setSelectedMethods,
+} from "reduxes/customPreprocessing/action";
+import {
+  selectorIsGenerateReferenceRequesting,
+  selectorIsGenerating,
+  selectorReferencePreprocessImage,
+  selectorSelectedMethodIds,
+} from "reduxes/customPreprocessing/selector";
+import {
+  selectorCurrentProjectId,
+  selectorMethodList,
+} from "reduxes/project/selector";
+import ReferenceImageDialog, { prettyMethodName } from "./ReferenceImageDialog";
 
 const limitTooLongLineStyle = {
   display: "-webkit-box",
@@ -32,16 +34,6 @@ const limitTooLongLineStyle = {
   lineHeight: 1.3,
 };
 
-const methods: PreprocessingMethod[] = [
-  HIGH_RESOLUTION,
-  NORMALIZE_HUE,
-  AUTO_ORIENTATION,
-  NORMALIZE_CONTRAST,
-  NORMALIZE_SATURATION,
-  EQUALIZE_HISTOGRAM,
-  NORMALIZE_SHARPNESS,
-  NORMALIZE_BRIGHTNESS,
-];
 const icon = <CheckBoxOutlineBlankIcon />;
 const checkedIcon = <CheckBoxIcon />;
 
@@ -50,19 +42,42 @@ const ExpertPreprocessingOption = function () {
   const referencePreprocessImage = useSelector(
     selectorReferencePreprocessImage
   );
-
-  const [listSelectedMethods, setListSelectedMethod] = useState<
-    PreprocessingMethod[]
-  >([]);
-  const handleShowReferenceDialog = (method: PreprocessingMethod) => {
-    dispatch(setReferenceSeletectorDialog({ isShow: true, method }));
+  const currentProjectId = useSelector(selectorCurrentProjectId);
+  const selectedMethodIds = useSelector(selectorSelectedMethodIds);
+  const isGenerating = useSelector(selectorIsGenerating);
+  const isGenerateReferenceRequesting = useSelector(
+    selectorIsGenerateReferenceRequesting
+  );
+  const methods = useSelector(selectorMethodList)?.preprocessing;
+  const methodIds = methods ? methods.map((t) => t.method_id) : [];
+  useEffect(() => {
+    dispatch(setSelectedMethods({ selectedMethodIds: [] }));
+  }, [currentProjectId]);
+  const handleShowReferenceDialog = (methodId: string) => {
+    dispatch(setReferenceSeletectorDialog({ isShow: true, methodId }));
   };
+  const handleChangeSelectedMethods = (event: any, listMethod: string[]) => {
+    dispatch(setSelectedMethods({ selectedMethodIds: listMethod }));
+  };
+  const handleClickGenerateReferenceImages = () => {
+    dispatch(generateReferenceImages({ projectId: currentProjectId }));
+  };
+  const isOptionEqualToValue = (option: string, value: string) =>
+    option === value;
+  const getMethodName = (methodId: string) =>
+    methods?.find((t) => t.method_id === methodId)?.method_name;
   return (
     <Box>
       <Box display="flex" alignItems="center">
-        <Button variant="contained" size="small">
+        <MyButton
+          variant="contained"
+          size="small"
+          isLoading={isGenerateReferenceRequesting}
+          disabled={isGenerating}
+          onClick={handleClickGenerateReferenceImages}
+        >
           Run
-        </Button>
+        </MyButton>
         <Typography fontWeight={500} ml={1}>
           Generate the reference images
         </Typography>
@@ -73,9 +88,12 @@ const ExpertPreprocessingOption = function () {
           <Autocomplete
             multiple
             id="checkboxes-tags"
-            options={methods}
+            options={methodIds}
+            value={selectedMethodIds || []}
             disableCloseOnSelect
-            getOptionLabel={(option) => option}
+            getOptionLabel={(methodId) =>
+              prettyMethodName(getMethodName(methodId))
+            }
             renderOption={(props, option, { selected }) => (
               <li {...props}>
                 <Checkbox
@@ -84,12 +102,11 @@ const ExpertPreprocessingOption = function () {
                   style={{ marginRight: 8 }}
                   checked={selected}
                 />
-                {option}
+                {prettyMethodName(getMethodName(option))}
               </li>
             )}
-            onChange={(event: any, listMethod: PreprocessingMethod[]) => {
-              setListSelectedMethod(listMethod);
-            }}
+            isOptionEqualToValue={isOptionEqualToValue}
+            onChange={handleChangeSelectedMethods}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -107,10 +124,10 @@ const ExpertPreprocessingOption = function () {
         />
         <Box borderRadius={2} bgcolor="background.paper" flex={3}>
           <Box display="flex" flexWrap="wrap" justifyContent="flex-start">
-            {listSelectedMethods.map((method) => (
-              <Box key={method} flexBasis="33.33%" sx={{ p: 1 }}>
+            {selectedMethodIds.map((methodId) => (
+              <Box key={methodId} flexBasis="33.33%" sx={{ p: 1 }}>
                 <Typography variant="body1" fontWeight={500}>
-                  {method}
+                  {prettyMethodName(getMethodName(methodId))}
                 </Typography>
                 <Box display="flex" alignItems="flex-end">
                   <Typography
@@ -119,8 +136,8 @@ const ExpertPreprocessingOption = function () {
                     noWrap
                     sx={limitTooLongLineStyle}
                   >
-                    {referencePreprocessImage[method]
-                      ? referencePreprocessImage[method].filename
+                    {referencePreprocessImage[methodId]
+                      ? referencePreprocessImage[methodId].filename
                       : "Select your reference image"}
                   </Typography>
                   <IconButton
@@ -128,7 +145,7 @@ const ExpertPreprocessingOption = function () {
                     sx={{ padding: "0 2px" }}
                     color="primary"
                     component="span"
-                    onClick={() => handleShowReferenceDialog(method)}
+                    onClick={() => handleShowReferenceDialog(methodId)}
                   >
                     <EditIcon sx={{ width: 20 }} />
                   </IconButton>

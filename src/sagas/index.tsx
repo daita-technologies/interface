@@ -9,6 +9,7 @@ import generateSaga from "./generateSaga";
 import inviteSaga from "./inviteSaga";
 import healthCheckSaga from "./healthCheckSaga";
 import taskSaga from "./taskSaga";
+import customMethod from "./customMethod";
 
 export default function* rootSaga() {
   yield all([
@@ -21,5 +22,6 @@ export default function* rootSaga() {
     inviteSaga(),
     healthCheckSaga(),
     taskSaga(),
+    customMethod(),
   ]);
 }
