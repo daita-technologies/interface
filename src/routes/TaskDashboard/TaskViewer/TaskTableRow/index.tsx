@@ -125,7 +125,7 @@ const TaskTableRow = function ({
         })
       );
     },
-    status === FINISH_TASK_STATUS || status === ERROR_TASK_STATUS ? null : 10000
+    getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS ? 10000 : null
   );
 
   const actionWhenTaskFinish = () => {

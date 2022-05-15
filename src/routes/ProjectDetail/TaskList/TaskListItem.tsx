@@ -45,6 +45,7 @@ import {
   getLocalStorage,
   switchTabIdToSource,
 } from "utils/general";
+import { getTaskStatusMergedValue } from "utils/task";
 import {
   TaskListImageSourceItemProps,
   TaskListItemProps,
@@ -288,7 +289,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         callFetchTaskInfo();
       }
     },
-    status === FINISH_TASK_STATUS || status === ERROR_TASK_STATUS ? null : 10000
+    getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS ? 10000 : null
   );
 
   const actionWhenTaskFinish = () => {

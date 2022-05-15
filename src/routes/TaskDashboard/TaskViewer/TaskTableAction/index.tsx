@@ -9,6 +9,7 @@ import {
 import { triggerPresignedURLDownload } from "utils/download";
 import { useDispatch } from "react-redux";
 import { triggerStopTaskProcess } from "reduxes/task/action";
+import { getTaskStatusMergedValue } from "utils/task";
 
 function TaskTableAction({ taskInfo }: { taskInfo: TaskItemApiFields }) {
   const dispatch = useDispatch();
@@ -44,7 +45,7 @@ function TaskTableAction({ taskInfo }: { taskInfo: TaskItemApiFields }) {
   const menuItemCount = useMemo(() => {
     let count = 0;
 
-    if (status === RUNNING_TASK_STATUS) {
+    if (getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS) {
       count += 1;
     }
 
@@ -68,7 +69,7 @@ function TaskTableAction({ taskInfo }: { taskInfo: TaskItemApiFields }) {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          {status === RUNNING_TASK_STATUS && (
+          {getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS && (
             <MenuItem onClick={handleStopActionClick}>
               <ListItemText>Stop</ListItemText>
             </MenuItem>
