@@ -1,13 +1,13 @@
 import {
   HEALTHCHECK_TASK_PROCESS_TYPE,
+  IDENTITY_ID_NAME,
   RUNNING_TASK_STATUS,
 } from "constants/defaultValues";
 import {
   GetProjectHealthCheckInfoParams,
   GetProjectHealthCheckInfoReponseFields,
-  RunHealthCheckResponseFields,
-  // RunHealthCheckResponseFields,
 } from "services/healthCheckApi";
+import { getLocalStorage } from "utils/general";
 import { FETCH_DETAIL_PROJECT, FETCH_TASK_INFO } from "../project/constants";
 import { FetchTaskInfoSucceedPayload, ProjectInfo } from "../project/type";
 import {
@@ -16,7 +16,11 @@ import {
   RESET_DATA_HEALTH_CHECK_STATE,
   RUN_HEALTH_CHECK,
 } from "./constants";
-import { HealthCheckReducer, TaskListType } from "./type";
+import {
+  HealthCheckReducer,
+  RunHealthCheckSucceededActionPayload,
+  TaskListType,
+} from "./type";
 
 const inititalState: HealthCheckReducer = {
   isFetchingHealthCheckInfo: null,
@@ -42,22 +46,33 @@ const healthCheckReducer = (
       return { ...state, isRunningHealthCheck: false };
     }
     case RUN_HEALTH_CHECK.SUCCEEDED: {
-      const { task_id } = payload as RunHealthCheckResponseFields;
+      const { taskId, projectId } =
+        payload as RunHealthCheckSucceededActionPayload;
       const { currentProjectInfo } = state;
 
       let targetCurrentProjectInfo = null;
+      const newTaskList = { ...state.taskList };
       if (currentProjectInfo) {
         targetCurrentProjectInfo = { ...currentProjectInfo };
         targetCurrentProjectInfo.ls_task.push({
-          task_id,
+          task_id: taskId,
           process_type: HEALTHCHECK_TASK_PROCESS_TYPE,
         });
+
+        newTaskList[taskId] = {
+          task_id: taskId,
+          status: RUNNING_TASK_STATUS,
+          process_type: HEALTHCHECK_TASK_PROCESS_TYPE,
+          project_id: projectId,
+          identity_id: getLocalStorage(IDENTITY_ID_NAME) || "",
+        };
       }
 
       return {
         ...state,
         isRunningHealthCheck: false,
         isFetchedAllTaskInfo: false,
+        taskList: newTaskList,
         currentProjectInfo: targetCurrentProjectInfo,
       };
     }

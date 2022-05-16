@@ -19,6 +19,7 @@ export interface RunHealthCheckParams {
 export interface RunHealthCheckResponseFields {
   task_id: string;
   process_type: TaskProcessType;
+  project_id: string;
 }
 
 export interface GetProjectHealthCheckInfoParams {
