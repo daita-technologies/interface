@@ -233,7 +233,8 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
   const listProject = useSelector(selectorListProjects);
   const { status, task_id, process_type, project_id } = taskInfo;
 
-  const isRunActionAfterFinished = useRef<boolean>(false);
+  const savedTaskStatus = useRef<TaskStatusType>();
+
   const activeImagesTabId = useSelector(selectorActiveImagesTabId);
 
   const getProjectNameByProjectId = useCallback(
@@ -346,10 +347,11 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
   useEffect(() => {
     if (taskInfo) {
       if (
-        taskInfo.status === FINISH_TASK_STATUS &&
-        !isRunActionAfterFinished.current
+        savedTaskStatus.current &&
+        savedTaskStatus.current !== FINISH_TASK_STATUS &&
+        taskInfo.status === FINISH_TASK_STATUS
       ) {
-        isRunActionAfterFinished.current = true;
+        savedTaskStatus.current = FINISH_TASK_STATUS;
 
         if (pageName === PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME) {
           dispatch({
@@ -370,6 +372,8 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
           });
         }
         actionWhenTaskFinish();
+      } else {
+        savedTaskStatus.current = taskInfo.status;
       }
     }
   }, [taskInfo]);
