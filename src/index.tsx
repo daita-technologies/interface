@@ -6,6 +6,7 @@ import { CheckingApp, ConfirmDialogProvider } from "components";
 import { ThemeProvider } from "@mui/material/styles";
 import { ToastContainer } from "react-toastify";
 
+import { VISIBLE_TOAST_MESSAGE_SECOND_TIME } from "constants/defaultValues";
 import store from "store";
 import { darkTheme } from "styles/theme";
 
@@ -24,7 +25,7 @@ ReactDOM.render(
           <App />
           <ToastContainer
             position="top-right"
-            autoClose={6000}
+            autoClose={VISIBLE_TOAST_MESSAGE_SECOND_TIME}
             pauseOnHover
             theme="colored"
           />
