@@ -242,7 +242,7 @@ const TaskTableRow = function ({
             color={`${getStyledStatus(getTaskStatusMergedValue(status))}.dark`}
             // color="success.first = (second) => {third}"
           >
-            {getTaskStatusMergedValue(status)}
+            {status.replace(/_/g, " ")}
           </Typography>
         </TableCell>
         <TableCell align="right">

@@ -8,6 +8,10 @@ a,
   text-decoration: none;
   color: #1c78d3;
 }
+a.text-link {
+  color: #ffffff;
+  text-decoration: underline;
+}
 
 /* .MuiSvgIcon-root {
   color: #d7d7db;
