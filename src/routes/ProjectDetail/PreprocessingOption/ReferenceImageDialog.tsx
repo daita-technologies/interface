@@ -16,6 +16,7 @@ import {
   ID_TOKEN_NAME,
   MAXIMUM_FETCH_IMAGES_AMOUNT,
   ORIGINAL_SOURCE,
+  RESOLUTION_METHOD_ID,
 } from "constants/defaultValues";
 import { S3_BUCKET_NAME } from "constants/s3Values";
 import { useEffect, useState } from "react";
@@ -61,6 +62,8 @@ const ReferenceImageDialog = function () {
   const [referenceImageName, setReferenceImageName] = useState<string>();
   const [open, setOpen] = useState(false);
   const [searchLoading, setSearchLoading] = useState<boolean>(true);
+  const [dimensions, setDimensions] =
+    useState<{ width: number; height: number }>();
   const currentProjectId = useSelector(selectorCurrentProjectId);
 
   const s3 = useSelector(selectorS3);
@@ -182,21 +185,41 @@ const ReferenceImageDialog = function () {
       }
     }
   }, [referenceImage?.filename]);
+  const onImgLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    setDimensions({
+      width: event.currentTarget.naturalWidth,
+      height: event.currentTarget.naturalHeight,
+    });
+  };
   const renderImageProcessing = () => {
     if (referenceImage) {
       if (referenceImage && referenceImage.url && referenceImage.url !== "") {
         return (
-          <Box display="flex" maxHeight={220}>
-            <img
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                objectFit: "contain",
-              }}
-              src={referenceImage.url}
-              alt="ts"
-              loading="lazy"
-            />
+          <Box display="flex" flexDirection="column">
+            <Box display="flex" maxHeight={220}>
+              <img
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  objectFit: "contain",
+                }}
+                src={referenceImage.url}
+                onLoad={onImgLoad}
+                alt="ts"
+                loading="lazy"
+              />
+            </Box>
+            <Typography
+              variant="body1"
+              textAlign="center"
+              height={200}
+              mt={0.5}
+              fontSize={14}
+            >
+              {methodId === RESOLUTION_METHOD_ID && dimensions
+                ? `Width x Height: ${dimensions.width} x ${dimensions.height} pixels`
+                : ""}
+            </Typography>
           </Box>
         );
       }
@@ -235,7 +258,7 @@ const ReferenceImageDialog = function () {
   };
   return (
     <Modal open={isShow} onClose={handleClose} disableEscapeKeyDown>
-      <Box sx={{ ...modalStyle, width: 800, height: 500 }}>
+      <Box sx={{ ...modalStyle, width: 800, height: 520 }}>
         <IconButton sx={modalCloseStyle} onClick={handleClose}>
           <CancelIcon fontSize="large" />
         </IconButton>
