@@ -142,8 +142,9 @@ function* handleFetchDetailProject(action: any): any {
       });
 
       const referenceImages = fetchDetailProjectResponse.data.reference_images;
+      const referenceInfoApiFields: any = [];
+
       if (Object.keys(referenceImages).length !== 0) {
-        const referenceInfoApiFields: any = [];
         Object.entries(referenceImages).forEach(([key, value]) => {
           const ref = value as any;
           referenceInfoApiFields.push({
@@ -152,9 +153,8 @@ function* handleFetchDetailProject(action: any): any {
             image_s3_path: ref.s3_path,
           });
         });
-
-        yield put(fetchReferenceImageInfoSuccess(referenceInfoApiFields));
       }
+      yield put(fetchReferenceImageInfoSuccess(referenceInfoApiFields));
     } else {
       yield put({
         type: FETCH_DETAIL_PROJECT.FAILED,
