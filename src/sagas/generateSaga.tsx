@@ -45,10 +45,16 @@ function* handleGenerateImages(action: {
       }/task-list/${getProjectNameFromProjectId(listProjects, projectId)}`;
 
       yield toast.success(
+        `${label} successfully initiated. Please go to My Tasks for the details.`
+      );
+
+      yield toast.info(
         <Box>
-          <Typography>
-            {label} successfully initiated. Detail at:{" "}
-            <a href={taskDashboardHref}>{taskDashboardHref}</a>
+          <Typography fontSize={14}>
+            Your progress link:{" "}
+            <a className="text-link" href={taskDashboardHref}>
+              {taskDashboardHref}
+            </a>
           </Typography>
         </Box>
       );

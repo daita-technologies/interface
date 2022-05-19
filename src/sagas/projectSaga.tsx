@@ -1,6 +1,4 @@
 import { GetObjectCommand } from "@aws-sdk/client-s3";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import { Box, Typography } from "@mui/material";
 import {
   GENERATE_REFERENCE_IMAGE_TYPE,
   HEALTHCHECK_TASK_PROCESS_TYPE,
@@ -32,11 +30,7 @@ import {
   SET_IS_OPEN_CREATE_PROJECT_MODAL,
   UPDATE_PROJECT_INFO,
 } from "reduxes/project/constants";
-import {
-  selectorCurrentProjectId,
-  selectorCurrentTaskList,
-  selectorMethodList,
-} from "reduxes/project/selector";
+import { selectorCurrentTaskList } from "reduxes/project/selector";
 import {
   ApiListProjectsItem,
   CreateSamplePayload,
@@ -44,7 +38,6 @@ import {
   DeleteProjectPayload,
   FetchProjectTaskListPayload,
   FetchTaskInfoPayload,
-  ListMethodType,
   LoadProjectThumbnailImagePayload,
   TaskInfo,
   UpdateProjectInfoPayload,
@@ -250,24 +243,6 @@ function* handleFetchTaskInfo(action: {
               generateMethod,
             },
           });
-        }
-
-        const currentProjectId = yield select(selectorCurrentProjectId);
-
-        if (projectId === currentProjectId) {
-          yield toast.info(
-            <Box display="flex" alignItems="center">
-              <ArrowUpwardIcon sx={{ mr: 1, width: 32, height: 32 }} />
-              <Typography>
-                Please scroll to the top of the page to watch the progress.
-              </Typography>
-            </Box>,
-            {
-              position: "bottom-right",
-              onClick: () =>
-                window.scrollTo({ behavior: "smooth", top: 0, left: 0 }),
-            }
-          );
         }
       }
     } else {

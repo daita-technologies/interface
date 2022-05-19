@@ -140,7 +140,9 @@ const TaskListImageSourceItem = function ({
           component="span"
           variant="body2"
         >
-          {status === RUNNING_TASK_STATUS ? "EXECUTING" : status}
+          {status === RUNNING_TASK_STATUS
+            ? "EXECUTING"
+            : status.replace(/_/g, " ")}
         </Typography>
       </Typography>
       {status !== ERROR_TASK_STATUS && status !== FINISH_ERROR_TASK_STATUS && (
@@ -198,7 +200,9 @@ const TaskListUploadItem = function ({ taskInfo }: TaskListUploadItemProps) {
           component="span"
           variant="body2"
         >
-          {status === RUNNING_TASK_STATUS ? "EXECUTING" : status}
+          {status === RUNNING_TASK_STATUS
+            ? "EXECUTING"
+            : status.replace(/_/g, " ")}
         </Typography>
       </Typography>
       {status !== ERROR_TASK_STATUS && status !== FINISH_ERROR_TASK_STATUS && (
