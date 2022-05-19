@@ -3,6 +3,7 @@ import { getLocalStorage, setLocalStorage } from "utils/general";
 import {
   CHANGE_AUGMENTATION_EXPERT_MODE,
   CHANGE_REFERENCE_AUGMENTATION_IMAGE,
+  SET_AUGMENTATION_SELECTED_METHOD,
   SET_REFERENCE_AUGMENTATION_SELECTOR_DIALOG,
 } from "./constants";
 import {
@@ -10,6 +11,7 @@ import {
   CustomAugmentationReducer,
   ReferenceAugmentationgeRecord,
   ReferenceAugmentationImage,
+  SelectedMethodProps,
 } from "./type";
 
 const inititalState: CustomAugmentationReducer = {
@@ -19,6 +21,7 @@ const inititalState: CustomAugmentationReducer = {
   referenceSeletectorDialog: {
     isShow: false,
   },
+  selectedMethodIds: [],
 };
 
 const customAugementationReducer = (
@@ -40,15 +43,27 @@ const customAugementationReducer = (
         isAugmentationExpertMode,
       };
     }
+    case SET_AUGMENTATION_SELECTED_METHOD: {
+      const { selectedMethodIds } = payload as SelectedMethodProps;
+      const referenceAugmentationImage = {} as ReferenceAugmentationgeRecord;
+      selectedMethodIds.forEach((selectedMethod) => {
+        referenceAugmentationImage[selectedMethod] =
+          state.referenceAugmentationImage[selectedMethod];
+      });
+      return {
+        ...state,
+        selectedMethodIds,
+        referenceAugmentationImage,
+      };
+    }
     case CHANGE_REFERENCE_AUGMENTATION_IMAGE: {
-      const { method, filename } = payload as ReferenceAugmentationImage;
+      const { methodId } = payload as ReferenceAugmentationImage;
       return {
         ...state,
         referenceAugmentationImage: {
           ...state.referenceAugmentationImage,
-          [method]: {
-            filename,
-            method,
+          [methodId]: {
+            ...payload,
           },
         },
       };

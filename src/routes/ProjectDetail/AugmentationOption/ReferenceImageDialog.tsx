@@ -12,8 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { MyButton } from "components";
-import ImageProcessing from "components/ImageProcessing";
-import { AugmentationMethod } from "components/ImageProcessing/type";
+import ImageProcessing, { CanvasCompView } from "components/ImageProcessing";
 import {
   ID_TOKEN_NAME,
   MAXIMUM_FETCH_IMAGES_AMOUNT,
@@ -33,27 +32,34 @@ import {
   selectorReferenceSeletectorDialog,
 } from "reduxes/customAugmentation/selector";
 import { selectorS3 } from "reduxes/general/selector";
-import { selectorCurrentProjectId } from "reduxes/project/selector";
+import {
+  selectorCurrentProjectId,
+  selectorMethodList,
+} from "reduxes/project/selector";
 import { projectApi } from "services";
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import {
   convertArrayAlbumImageToObjectKeyFileName,
   getLocalStorage,
 } from "utils/general";
+import { prettyMethodName } from "../PreprocessingOption/ReferenceImageDialog";
 
 const ReferenceImageDialog = function () {
   const dispatch = useDispatch();
 
   const [referenceImage, setReferenceImage] =
-    useState<Pick<ImageApiFields, "filename" | "url" | "photoKey">>();
+    useState<
+      Pick<ImageApiFields, "filename" | "url" | "photoKey" | "s3_key">
+    >();
   const [images, setImages] = useState<AlbumImagesFields>({});
   const [referenceImageName, setReferenceImageName] = useState<string>();
   const [open, setOpen] = useState(false);
   const [searchLoading, setSearchLoading] = useState<boolean>(true);
   const currentProjectId = useSelector(selectorCurrentProjectId);
 
+  const methods = useSelector(selectorMethodList)?.augmentation;
   const s3 = useSelector(selectorS3);
-  const { isShow, method } = useSelector(selectorReferenceSeletectorDialog);
+  const { isShow, methodId } = useSelector(selectorReferenceSeletectorDialog);
   const handleClose = () => {
     dispatch(setReferenceSeletectorDialog({ isShow: false }));
   };
@@ -62,15 +68,15 @@ const ReferenceImageDialog = function () {
   );
   useEffect(() => {
     if (currentProjectId) {
-      if (isShow === false || !method) {
+      if (isShow === false || !methodId) {
         setReferenceImage(undefined);
         setImages({});
         setReferenceImageName(undefined);
         return;
       }
-      const savedReferenceImage = referenceAugmentationImage[method]
+      const savedReferenceImage = referenceAugmentationImage[methodId]
         ?.filename as string;
-      if (referenceAugmentationImage[method]) {
+      if (referenceAugmentationImage[methodId]) {
         setReferenceImageName(savedReferenceImage);
       }
       setSearchLoading(true);
@@ -101,11 +107,13 @@ const ReferenceImageDialog = function () {
     }
   }, [isShow, currentProjectId]);
   const handleSubmit = () => {
-    if (referenceImage) {
+    if (methodId && referenceImage) {
       dispatch(
         setReferenceAugmentationImage({
-          method: method as AugmentationMethod,
+          methodId,
           filename: referenceImage.filename,
+          imageS3Path: referenceImage.s3_key,
+          value: 0,
         })
       );
       dispatch(setReferenceSeletectorDialog({ isShow: false }));
@@ -162,19 +170,34 @@ const ReferenceImageDialog = function () {
       }
     }
   }, [referenceImage?.filename]);
-  const renderImageProcessing = () => {
+  const renderImageProcessing = (isShowAdjustment: boolean) => {
     if (referenceImage) {
-      if (referenceImage && referenceImage.url && referenceImage.url !== "") {
+      if (
+        methodId &&
+        referenceImage &&
+        referenceImage.url &&
+        referenceImage.url !== ""
+      ) {
         return (
-          <Box display="flex">
-            <ImageProcessing
-              src={referenceImage.url as string}
-              method={method as AugmentationMethod}
-            />
+          <Box display="flex" justifyContent="center">
+            {isShowAdjustment ? (
+              <ImageProcessing
+                src={referenceImage.url as string}
+                methodId={methodId}
+              />
+            ) : (
+              <CanvasCompView src={referenceImage.url as string} />
+            )}
           </Box>
         );
       }
-      return <Skeleton variant="rectangular" width="100%" height={200} />;
+      return <Skeleton variant="rectangular" width="100%" height={150} />;
+    }
+    return "";
+  };
+  const getMethodName = (id: string | undefined) => {
+    if (methodId) {
+      return methods?.find((t) => t.method_id === id)?.method_name;
     }
     return "";
   };
@@ -185,63 +208,57 @@ const ReferenceImageDialog = function () {
           <CancelIcon fontSize="large" />
         </IconButton>
         <Typography variant="h4" component="h2">
-          Please Select Your Reference Image
+          {prettyMethodName(getMethodName(methodId))}
         </Typography>
-        <Box marginTop={5} height="70%">
-          <Box height="100%">
-            <Typography variant="h6" fontWeight={500}>
-              {method}
-            </Typography>
-
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              marginTop={2}
-              height="90%"
-            >
-              <Box flex={2}>
-                <Typography
-                  mb={2}
-                  variant="body1"
-                  fontWeight={400}
-                  color="text.secondary"
-                >
-                  Select your reference image by file name
-                </Typography>
-                <Autocomplete
-                  fullWidth
-                  sx={{ width: "100%" }}
-                  open={open}
-                  onOpen={() => {
-                    setOpen(true);
-                  }}
-                  onClose={() => {
-                    setOpen(false);
-                  }}
-                  value={referenceImageName}
-                  isOptionEqualToValue={(option, value) => option === value}
-                  getOptionLabel={(option: string) => option}
-                  options={images ? Object.keys(images) : []}
-                  loading={searchLoading && open}
-                  onChange={handleChangeReferenceImage}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Select a reference image"
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {searchLoading && open ? (
-                              <CircularProgress color="inherit" size={20} />
-                            ) : null}
-                            {params.InputProps.endAdornment}
-                          </>
-                        ),
-                      }}
-                    />
-                  )}
-                />
+        <Box marginTop={3} height="70%">
+          <Box height="70%">
+            <Box flex={2}>
+              <Typography
+                mb={2}
+                variant="body1"
+                fontWeight={400}
+                color="text.secondary"
+              >
+                Please select your image for live adjustment
+              </Typography>
+              <Autocomplete
+                fullWidth
+                sx={{ width: "100%" }}
+                open={open}
+                onOpen={() => {
+                  setOpen(true);
+                }}
+                onClose={() => {
+                  setOpen(false);
+                }}
+                value={referenceImageName}
+                isOptionEqualToValue={(option, value) => option === value}
+                getOptionLabel={(option: string) => option}
+                options={images ? Object.keys(images) : []}
+                loading={searchLoading && open}
+                onChange={handleChangeReferenceImage}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select a reference image"
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {searchLoading && open ? (
+                            <CircularProgress color="inherit" size={20} />
+                          ) : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
+              />
+            </Box>
+            <Box display="flex" justifyContent="space-between" height="90%">
+              <Box mt={3} flex={2} width="100%" height="100%">
+                {renderImageProcessing(false)}
               </Box>
               <Divider
                 orientation="vertical"
@@ -249,22 +266,14 @@ const ReferenceImageDialog = function () {
                 flexItem
                 sx={{ backgroundColor: "text.secondary", margin: 2 }}
               />
-              <Box pl={1} flex={2} width="100%" height="100%">
-                <Typography
-                  variant="body1"
-                  fontWeight={400}
-                  mb={2}
-                  color="text.secondary"
-                >
-                  Your Selection
-                </Typography>
-                {renderImageProcessing()}
+              <Box mt={3} flex={2} width="100%" height="100%">
+                {renderImageProcessing(true)}
               </Box>
             </Box>
           </Box>
         </Box>
 
-        <Box display="flex" justifyContent="flex-end" marginTop={2}>
+        <Box display="flex" justifyContent="flex-end" marginTop={4}>
           <MyButton
             type="button"
             variant="contained"

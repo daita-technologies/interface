@@ -1,24 +1,52 @@
 import { Box, Slider, Stack, Typography } from "@mui/material";
 import * as React from "react";
+import { prettyMethodName } from "routes/ProjectDetail/PreprocessingOption/ReferenceImageDialog";
 import {
-  AugmentationMethod,
-  AUTO_ORIENTATION,
-  BRIGHTNESS,
-  CONTRAST,
-  HUE,
+  ImageProcessingSourceProps,
   ImageProcessingTemplateProp,
-  NORMALIZE_BRIGHTNESS,
-  NORMALIZE_CONTRAST,
-  NORMALIZE_HUE,
-  NORMALIZE_SATURATION,
-  PreprocessingMethod,
-  ROTATE,
-  SATURATION,
+  METHODID_AUGMENTMETHOD,
+  RANDOM_BRIGHTNESS,
+  RANDOM_CONTRAST,
+  RANDOM_HUE,
+  RANDOM_ROTATE,
+  RANDOM_SATURATION,
+  SUPER_RESOLUTION,
 } from "./type";
 
 const valuePercent = (value: number) => `${value}%`;
 const valueDeg = (value: number) => `${value}°`;
 
+export function CanvasCompView({ src }: { src: string }) {
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  React.useEffect(() => {
+    if (canvasRef.current) {
+      const renderCtx = canvasRef.current.getContext("2d");
+      if (renderCtx) {
+        const canvasWidth = canvasRef.current?.width as number;
+        const canvasHeight = canvasRef.current?.height as number;
+
+        const img = new Image();
+        img.src = src;
+        img.onload = () => {
+          renderCtx.clearRect(0, 0, img.width, img.height);
+          renderCtx.drawImage(
+            img,
+            0,
+            0,
+            img.width,
+            img.height,
+            (canvasWidth - canvasWidth) / 2,
+            (canvasHeight - canvasHeight) / 2,
+            canvasWidth,
+            canvasHeight
+          );
+        };
+      }
+    }
+  }, [src]);
+
+  return <canvas key={src} ref={canvasRef} />;
+}
 function CanvasComp({
   name,
   src,
@@ -75,14 +103,19 @@ function CanvasComp({
 }
 
 function ImageProcessingTemplate({
-  src,
-  processingParam,
+  imageProcessingSourceProps,
+  imageProcessingTemplateProp,
 }: {
-  src: string;
-  processingParam: ImageProcessingTemplateProp;
+  imageProcessingSourceProps: ImageProcessingSourceProps;
+  imageProcessingTemplateProp: ImageProcessingTemplateProp;
 }) {
-  const { method, setting, filter } = processingParam;
-  const [value, setValue] = React.useState<number>(setting.min);
+  const { src, methodId } = imageProcessingSourceProps;
+  const method = METHODID_AUGMENTMETHOD[methodId];
+  const { setting } = imageProcessingTemplateProp;
+  const [imagePreview, setImagePreview] =
+    React.useState<HTMLImageElement | null>(null);
+
+  const [value, setValue] = React.useState<number>(setting ? setting.min : 0);
   const handleChange = (_event: Event, newValue: number | number[]) => {
     setValue(newValue as number);
   };
@@ -91,34 +124,44 @@ function ImageProcessingTemplate({
       <Box style={{ textAlign: "center" }}>
         <CanvasComp
           src={src}
-          name={method}
-          getFilter={(context) => {
-            context.filter = filter(value);
+          name={prettyMethodName(method.method.toLocaleLowerCase())}
+          getFilter={(context, img) => {
+            setImagePreview(img);
+            context.filter = imageProcessingTemplateProp.filter(value);
             return context;
           }}
         />
       </Box>
-      <Box style={{ textAlign: "center", marginTop: 10 }}>
+
+      <Box style={{ textAlign: "center", margin: "0px 24px" }}>
         <Box>
-          <Slider
-            value={value}
-            aria-label="Default"
-            valueLabelDisplay="auto"
-            onChange={handleChange}
-            getAriaValueText={setting.settingValueFormater}
-            marks={[
-              {
-                value: setting.min,
-                label: setting.settingValueFormater(setting.min),
-              },
-              {
-                value: setting.max,
-                label: setting.settingValueFormater(setting.max),
-              },
-            ]}
-            min={setting.min}
-            max={setting.max}
-          />
+          {setting ? (
+            <Slider
+              value={value}
+              aria-label="Default"
+              valueLabelDisplay="auto"
+              onChange={handleChange}
+              getAriaValueText={setting.settingValueFormater}
+              marks={[
+                {
+                  value: setting.min,
+                  label: setting.settingValueFormater(setting.min),
+                },
+                {
+                  value: setting.max,
+                  label: setting.settingValueFormater(setting.max),
+                },
+              ]}
+              min={setting.min}
+              max={setting.max}
+            />
+          ) : (
+            <Typography variant="subtitle1">
+              {method.method === SUPER_RESOLUTION && imagePreview
+                ? `Width x Height: ${imagePreview.width} x ${imagePreview.height} pixels `
+                : ""}
+            </Typography>
+          )}
         </Box>
       </Box>
     </Stack>
@@ -144,7 +187,7 @@ function ImageRotateProcessing({ src }: { src: string }) {
           />
         </Box>
       </Box>
-      <Box style={{ textAlign: "center" }}>
+      <Box style={{ textAlign: "center", margin: "0px 24px" }}>
         <Box>
           <Slider
             value={value}
@@ -152,6 +195,7 @@ function ImageRotateProcessing({ src }: { src: string }) {
             valueLabelDisplay="auto"
             onChange={handleChange}
             getAriaValueText={valuePercent}
+            sx={{ margin: "0px 24px" }}
             marks={[
               {
                 value: -90,
@@ -171,7 +215,6 @@ function ImageRotateProcessing({ src }: { src: string }) {
   );
 }
 const hue: ImageProcessingTemplateProp = {
-  method: HUE,
   filter: (value) => `hue-rotate(${value}deg)`,
   setting: {
     min: 0,
@@ -180,7 +223,6 @@ const hue: ImageProcessingTemplateProp = {
   },
 };
 const contrast: ImageProcessingTemplateProp = {
-  method: CONTRAST,
   filter: (value) => `contrast(${value})`,
   setting: {
     min: 1,
@@ -189,7 +231,6 @@ const contrast: ImageProcessingTemplateProp = {
   },
 };
 const saturation: ImageProcessingTemplateProp = {
-  method: SATURATION,
   filter: (value) => `saturate(${value}%)`,
   setting: {
     min: 0,
@@ -199,7 +240,6 @@ const saturation: ImageProcessingTemplateProp = {
 };
 
 const brightness: ImageProcessingTemplateProp = {
-  method: BRIGHTNESS,
   filter: (value: number) => `brightness(${value})`,
   setting: {
     min: 1,
@@ -207,44 +247,63 @@ const brightness: ImageProcessingTemplateProp = {
     settingValueFormater: valuePercent,
   },
 };
-function ImageProcessing({
-  src,
-  method,
-}: {
-  src: string;
-  method: AugmentationMethod | null;
-}) {
-  if (method === HUE) {
-    return <ImageProcessingTemplate src={src} processingParam={hue} />;
+function ImageProcessing(
+  imageProcessingSourceProps: ImageProcessingSourceProps
+) {
+  const { src, methodId } = imageProcessingSourceProps;
+  const augmentationMethodInfo = METHODID_AUGMENTMETHOD[methodId];
+  if (augmentationMethodInfo) {
+    switch (augmentationMethodInfo.method) {
+      case RANDOM_HUE:
+        return (
+          <ImageProcessingTemplate
+            imageProcessingTemplateProp={hue}
+            imageProcessingSourceProps={imageProcessingSourceProps}
+          />
+        );
+      case RANDOM_CONTRAST:
+        return (
+          <ImageProcessingTemplate
+            imageProcessingTemplateProp={contrast}
+            imageProcessingSourceProps={imageProcessingSourceProps}
+          />
+        );
+      case RANDOM_SATURATION:
+        return (
+          <ImageProcessingTemplate
+            imageProcessingTemplateProp={saturation}
+            imageProcessingSourceProps={imageProcessingSourceProps}
+          />
+        );
+      case RANDOM_BRIGHTNESS:
+        return (
+          <ImageProcessingTemplate
+            imageProcessingTemplateProp={brightness}
+            imageProcessingSourceProps={imageProcessingSourceProps}
+          />
+        );
+      case RANDOM_ROTATE:
+        return <ImageRotateProcessing src={src} />;
+      default:
+        return (
+          <Stack sx={{ width: "100%" }}>
+            <Box
+              sx={{
+                width: "100%",
+                backgroundColor: "Gray",
+                textAlign: "center",
+                margin: 0,
+              }}
+            >
+              <Typography variant="body1" fontWeight={500} lineHeight={10}>
+                A live preview is not available for this action
+              </Typography>
+            </Box>
+          </Stack>
+        );
+    }
+  } else {
+    return <h6>Method Augmentation Not Available</h6>;
   }
-  if (method === CONTRAST) {
-    return <ImageProcessingTemplate src={src} processingParam={contrast} />;
-  }
-  if (method === SATURATION) {
-    return <ImageProcessingTemplate src={src} processingParam={saturation} />;
-  }
-  if (method === BRIGHTNESS) {
-    return <ImageProcessingTemplate src={src} processingParam={brightness} />;
-  }
-
-  if (method === ROTATE) {
-    return <ImageRotateProcessing src={src} />;
-  }
-  return (
-    <Stack sx={{ width: "100%" }}>
-      <Box
-        sx={{
-          width: "100%",
-          backgroundColor: "Gray",
-          textAlign: "center",
-          margin: 0,
-        }}
-      >
-        <Typography variant="body1" fontWeight={500} lineHeight={10}>
-          A live preview is not available for this action
-        </Typography>
-      </Box>
-    </Stack>
-  );
 }
 export default ImageProcessing;
