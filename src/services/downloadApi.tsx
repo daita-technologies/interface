@@ -48,13 +48,16 @@ const downloadApi = {
       { headers: getAuthHeader() }
     ),
   downloadUpdate: ({ idToken, taskId }: DownloadZipEc2Progress) =>
-    axios.get(`${downloadZipApiUrl}/dataflow/get_compress_download_task`, {
-      params: {
+    axios.post(
+      `${downloadZipApiUrl}/dataflow/get_compress_download_task`,
+      {
         id_token: idToken || getLocalStorage(ID_TOKEN_NAME) || "",
         task_id: taskId,
       },
-      headers: getAuthHeader(),
-    }),
+      {
+        headers: getAuthHeader(),
+      }
+    ),
 };
 
 export default downloadApi;
