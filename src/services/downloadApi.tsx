@@ -1,7 +1,12 @@
 import axios from "axios";
-import { projectApiUrl, getAuthHeader } from "constants/defaultValues";
+import {
+  downloadZipApiUrl,
+  getAuthHeader,
+  ID_TOKEN_NAME,
+} from "constants/defaultValues";
 import { DownloadType } from "constants/type";
 import { TaskStatusType } from "reduxes/project/type";
+import { getLocalStorage } from "utils/general";
 
 export interface DownloadZipEc2Params {
   idToken: string;
@@ -11,7 +16,7 @@ export interface DownloadZipEc2Params {
 }
 
 export interface DownloadZipEc2Progress {
-  idToken: string;
+  idToken?: string;
   taskId: string;
 }
 
@@ -33,7 +38,7 @@ const downloadApi = {
     projectId,
   }: DownloadZipEc2Params) =>
     axios.post(
-      `${projectApiUrl}/projects/download_create`,
+      `${downloadZipApiUrl}/dataflow/create_compress_download_task`,
       {
         id_token: idToken,
         down_type: downType,
@@ -43,14 +48,13 @@ const downloadApi = {
       { headers: getAuthHeader() }
     ),
   downloadUpdate: ({ idToken, taskId }: DownloadZipEc2Progress) =>
-    axios.post(
-      `${projectApiUrl}/projects/download_update`,
-      {
-        id_token: idToken,
+    axios.get(`${downloadZipApiUrl}/dataflow/get_compress_download_task`, {
+      params: {
+        id_token: idToken || getLocalStorage(ID_TOKEN_NAME) || "",
         task_id: taskId,
       },
-      { headers: getAuthHeader() }
-    ),
+      headers: getAuthHeader(),
+    }),
 };
 
 export default downloadApi;

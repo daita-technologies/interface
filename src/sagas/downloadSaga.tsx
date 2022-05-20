@@ -293,7 +293,6 @@ function* handleDownloadZipEc2Create(action: {
   type: string;
   payload: DownloadZipEc2Params;
 }): any {
-  const { idToken } = action.payload;
   try {
     const downloadZipEc2Response = yield call(
       downloadApi.downloadCreate,
@@ -308,7 +307,7 @@ function* handleDownloadZipEc2Create(action: {
           taskId: resTaskId,
         },
       });
-      yield put(downloadZipEc2Progress({ idToken, taskId: resTaskId }));
+      yield put(downloadZipEc2Progress({ taskId: resTaskId }));
     } else {
       yield put({
         type: DOWNLOAD_ZIP_EC2_CREATE.FAILED,
@@ -359,7 +358,11 @@ function* handleDownloadZipEc2Progress(action: {
       if (downloadZipEc2ProgressResponse.data.presign_url) {
         yield put({ type: DOWNLOAD_ZIP_EC2.SUCCEEDED });
 
-        triggerPresignedURLDownload(
+        yield toast.success(
+          `Your download link is ready, you can go to "My Task" to get it.`
+        );
+        // NOTE: If user still keep the current site, not navigate to any where then trigger download
+        yield triggerPresignedURLDownload(
           downloadZipEc2ProgressResponse.data.presign_url,
           projectId
         );
@@ -376,7 +379,7 @@ function* handleDownloadZipEc2Progress(action: {
     yield put({
       type: DOWNLOAD_ZIP_EC2_PROGRESS.FAILED,
     });
-    yield toast.error(e.message);
+    // yield toast.error(e.message);
   }
 }
 

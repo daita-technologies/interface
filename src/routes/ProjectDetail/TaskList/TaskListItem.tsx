@@ -2,6 +2,7 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { Box, LinearProgress, Typography } from "@mui/material";
 import {
   AUGMENT_SOURCE,
+  DOWNLOAD_TASK_PROCESS_TYPE,
   ERROR_TASK_STATUS,
   FINISH_ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
@@ -22,6 +23,7 @@ import { toast } from "react-toastify";
 import { changeActiveImagesTab, fetchImages } from "reduxes/album/action";
 import { selectorActiveImagesTabId } from "reduxes/album/selector";
 import { fetchReferenceImageInfo } from "reduxes/customPreprocessing/action";
+import { DOWNLOAD_ZIP_EC2 } from "reduxes/download/constants";
 import { getProjectHealthCheckInfoAction } from "reduxes/healthCheck/action";
 import { fetchTaskInfo } from "reduxes/project/action";
 import {
@@ -39,6 +41,7 @@ import {
   HEALTH_CHECK_TASK_PLACEMENT_PAGE_NAME,
   PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME,
 } from "reduxes/task/constants";
+
 import {
   capitalizeFirstLetter,
   getGenerateMethodLabel,
@@ -235,8 +238,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
   const currentProjectName = useSelector(selectorCurrentProjectName);
   const currentProjectId = useSelector(selectorCurrentProjectId);
   const listProject = useSelector(selectorListProjects);
-  const { status, task_id, process_type, project_id } = taskInfo;
-
+  const { status, task_id, process_type, project_id, presign_url } = taskInfo;
   const savedTaskStatus = useRef<TaskStatusType>();
 
   const activeImagesTabId = useSelector(selectorActiveImagesTabId);
@@ -343,6 +345,26 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         );
         toast.success("Reference images have been generated successfully.");
         break;
+      case DOWNLOAD_TASK_PROCESS_TYPE:
+        if (presign_url) {
+          dispatch({ type: DOWNLOAD_ZIP_EC2.SUCCEEDED });
+
+          toast.success(
+            <Box>
+              <Typography>
+                Your download link is ready, please go to{" "}
+                <a
+                  className="text-link"
+                  href={`/task-list/${getProjectNameByProjectId(project_id)}`}
+                >
+                  &quot;My Task&quot;
+                </a>{" "}
+                to get it.
+              </Typography>
+            </Box>
+          );
+        }
+        break;
       default:
         break;
     }
@@ -389,13 +411,17 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
   ) {
     return null;
   }
-  if (
-    process_type === UPLOAD_TASK_PROCESS_TYPE ||
-    process_type === GENERATE_REFERENCE_IMAGE_TYPE
-  ) {
-    return <TaskListUploadItem taskInfo={taskInfo} />;
-  }
-  return <TaskListImageSourceItem taskInfo={taskInfo} />;
+
+  return (
+    <Box display="none">
+      {process_type === UPLOAD_TASK_PROCESS_TYPE ||
+      process_type === GENERATE_REFERENCE_IMAGE_TYPE ? (
+        <TaskListUploadItem taskInfo={taskInfo} />
+      ) : (
+        <TaskListImageSourceItem taskInfo={taskInfo} />
+      )}
+    </Box>
+  );
 };
 
 export default TaskListItem;
