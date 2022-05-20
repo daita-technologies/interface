@@ -4,24 +4,26 @@ import { AlbumImagesFields } from "reduxes/album/type";
 export interface CustomAugmentationReducer {
   isAugmentationExpertMode: boolean;
   referenceAugmentationImage: ReferenceAugmentationgeRecord;
-  referenceSeletectorDialog: ReferenceAugmentationSeletectorDialog;
+  referenceSeletectorDialog: ReferenceSeletectorDialog;
+  selectedMethodIds: string[];
 }
 export type ReferenceAugmentationgeRecord = Record<
-  AugmentationMethod,
+  string,
   ReferenceAugmentationImage
 >;
 export interface ReferenceAugmentationImage {
   filename: keyof AlbumImagesFields;
-  method: AugmentationMethod;
-}
-export interface ReferenceAugmentationImageInfoProps {
-  method: AugmentationMethod;
-  filename: string;
+  methodId: string;
+  imageS3Path: string;
+  value: number;
 }
 export interface ChangeAugmentationxpertModePayload {
   isAugmentationExpertMode: boolean;
 }
-export interface ReferenceAugmentationSeletectorDialog {
+export interface ReferenceSeletectorDialog {
   isShow: boolean;
-  method?: AugmentationMethod;
+  methodId?: string;
+}
+export interface SelectedMethodProps {
+  selectedMethodIds: string[];
 }
