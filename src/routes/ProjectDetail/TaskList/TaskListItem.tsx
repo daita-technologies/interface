@@ -351,7 +351,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
 
           toast.success(
             <Box>
-              <Typography>
+              <Typography fontSize={14}>
                 Your download link is ready, please go to{" "}
                 <a
                   className="text-link"

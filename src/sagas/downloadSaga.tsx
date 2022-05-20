@@ -60,6 +60,7 @@ import {
   DownloadZipEc2Progress,
 } from "services/downloadApi";
 import { triggerPresignedURLDownload } from "utils/download";
+import { Box, Typography } from "@mui/material";
 
 const ALL_SOURCE_TYPES = [ORIGINAL_SOURCE, PREPROCESS_SOURCE, AUGMENT_SOURCE];
 
@@ -359,7 +360,18 @@ function* handleDownloadZipEc2Progress(action: {
         yield put({ type: DOWNLOAD_ZIP_EC2.SUCCEEDED });
 
         yield toast.success(
-          `Your download link is ready, you can go to "My Task" to get it.`
+          <Box>
+            <Typography fontSize={14}>
+              Your download link is ready, you can go to{" "}
+              <a
+                className="text-link"
+                href={`/task-list/${downloadZipEc2ProgressResponse.data.project_name}`}
+              >
+                &quot;My Task&quot;
+              </a>{" "}
+              to get it.
+            </Typography>
+          </Box>
         );
         // NOTE: If user still keep the current site, not navigate to any where then trigger download
         yield triggerPresignedURLDownload(
