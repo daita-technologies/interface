@@ -122,6 +122,7 @@ export interface TaskInfoApiFields {
   project_id: string;
   number_finished?: number;
   number_gen_images?: number;
+  presign_url?: string;
 }
 
 export type ZipTaskInfoApiFields = TaskInfoApiFields;

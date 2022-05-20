@@ -1,5 +1,6 @@
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import {
+  DOWNLOAD_TASK_PROCESS_TYPE,
   GENERATE_REFERENCE_IMAGE_TYPE,
   HEALTHCHECK_TASK_PROCESS_TYPE,
   ID_TOKEN_NAME,
@@ -43,7 +44,7 @@ import {
   UpdateProjectInfoPayload,
 } from "reduxes/project/type";
 import history from "routerHistory";
-import { healthCheckApi, projectApi } from "services";
+import { downloadApi, healthCheckApi, projectApi } from "services";
 import customMethodApi from "services/customMethodApi";
 import { getLocalStorage } from "utils/general";
 
@@ -194,9 +195,10 @@ function* handleFetchTaskInfo(action: {
   type: string;
   payload: FetchTaskInfoPayload;
 }): any {
-  const { idToken, generateMethod, projectId, taskId, processType } =
-    action.payload;
   try {
+    const { idToken, generateMethod, projectId, taskId, processType } =
+      action.payload;
+
     let fetchTaskInfoResponse;
     if (processType === UPLOAD_TASK_PROCESS_TYPE) {
       fetchTaskInfoResponse = yield call(
@@ -213,6 +215,10 @@ function* handleFetchTaskInfo(action: {
         customMethodApi.getReferenceImagesTaskInfo,
         { idToken, taskId }
       );
+    } else if (processType === DOWNLOAD_TASK_PROCESS_TYPE) {
+      fetchTaskInfoResponse = yield call(downloadApi.downloadUpdate, {
+        taskId,
+      });
     } else {
       fetchTaskInfoResponse = yield call(
         projectApi.getTaskInfo,

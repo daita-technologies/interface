@@ -1,11 +1,19 @@
-import { LinearProgress, TableCell, TableRow, Typography } from "@mui/material";
+import {
+  Box,
+  LinearProgress,
+  TableCell,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { CircularProgressWithLabel, Link } from "components";
 import {
   AUGMENT_SOURCE,
   AUGMENT_TASK_PROCESS_TYPE,
   CANCEL_TASK_STATUS,
+  DOWNLOAD_TASK_PROCESS_TYPE,
   ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
+  GENERATE_REFERENCE_IMAGE_TYPE,
   HEALTHCHECK_TASK_PROCESS_TYPE,
   ID_TOKEN_NAME,
   PREPROCESS_SOURCE,
@@ -21,6 +29,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { RootState } from "reduxes";
+import { DOWNLOAD_ZIP_EC2 } from "reduxes/download/constants";
 import { fetchTaskInfo } from "reduxes/project/action";
 import { TaskStatusType } from "reduxes/project/type";
 import { selectorSpecificProcessTaskInfo } from "reduxes/task/selector";
@@ -90,7 +99,14 @@ const TaskTableRow = function ({
     return null;
   }
 
-  const { task_id, project_id, status, created_time, process_type } = taskInfo;
+  const {
+    task_id,
+    project_id,
+    status,
+    created_time,
+    process_type,
+    presign_url,
+  } = taskInfo;
   const savedTaskStatus = useRef<TaskStatusType>();
   const dispatch = useDispatch();
 
@@ -145,6 +161,29 @@ const TaskTableRow = function ({
         toast.success(
           `Data health check of ${currentProjectName} has been completed successfully.`
         );
+        break;
+      case GENERATE_REFERENCE_IMAGE_TYPE:
+        toast.success("Reference images have been generated successfully.");
+        break;
+      case DOWNLOAD_TASK_PROCESS_TYPE:
+        if (presign_url) {
+          dispatch({ type: DOWNLOAD_ZIP_EC2.SUCCEEDED });
+
+          toast.success(
+            <Box>
+              <Typography fontSize={14}>
+                Your download link is ready, you can go to{" "}
+                <a
+                  className="text-link"
+                  href={`/task-list/${getProjectNameByProjectId(project_id)}`}
+                >
+                  &quot;My Task&quot;
+                </a>{" "}
+                to get it.
+              </Typography>
+            </Box>
+          );
+        }
         break;
       default:
         break;
