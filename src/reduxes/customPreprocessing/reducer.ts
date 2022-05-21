@@ -25,7 +25,7 @@ const inititalState: CustomPreprocessReducer = {
     isShow: false,
   },
   selectedMethodIds: [],
-  isGenerating: false,
+  isGenerating: true,
   isGenerateReferenceRequesting: false,
 };
 
@@ -107,32 +107,46 @@ const customPreprocessingReducer = (
     case FETCH_REFERENCE_IMAGE_INFO.SUCCEEDED: {
       const referenceInfoApiFields = payload as ReferenceInfoApiFields[];
       const referencePreprocessImage = {} as ReferencePreprocessImageRecord;
-      const selectedMethodIds = [] as string[];
-      referenceInfoApiFields.forEach((el) => {
-        const refImage = state.referencePreprocessImage[el.method_id];
-        if (refImage && refImage.isSelectedByUser) {
-          referencePreprocessImage[el.method_id] = refImage;
-        } else {
+      const { selectedMethodIds } = state;
+      const newSelectedMethodIds = [] as string[];
+      if (selectedMethodIds.length !== 0) {
+        selectedMethodIds.forEach((methodId) => {
+          const refInfo = referenceInfoApiFields.find(
+            (ref) => ref.method_id === methodId
+          );
+          if (refInfo) {
+            referencePreprocessImage[methodId] = {
+              filename: refInfo.filename,
+              methodId: refInfo.method_id,
+              isSelectedByUser: false,
+              imageS3Path: refInfo.image_s3_path,
+            };
+          }
+          newSelectedMethodIds.push(methodId);
+        });
+      } else {
+        referenceInfoApiFields.forEach((el) => {
           referencePreprocessImage[el.method_id] = {
             filename: el.filename,
             methodId: el.method_id,
             isSelectedByUser: false,
             imageS3Path: el.image_s3_path,
           };
-        }
-        selectedMethodIds.push(el.method_id);
-      });
-
+          newSelectedMethodIds.push(el.method_id);
+        });
+      }
       return {
         ...state,
         referencePreprocessImage,
-        selectedMethodIds,
+        selectedMethodIds: newSelectedMethodIds,
+        isGenerateReferenceRequesting: false,
         isGenerating: false,
       };
     }
     case FETCH_REFERENCE_IMAGE_INFO.FAILED: {
       return {
         ...state,
+        isGenerateReferenceRequesting: false,
         isGenerating: false,
       };
     }

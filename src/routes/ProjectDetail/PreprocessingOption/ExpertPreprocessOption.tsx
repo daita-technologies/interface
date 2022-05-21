@@ -21,6 +21,7 @@ import {
 } from "reduxes/customPreprocessing/selector";
 import {
   selectorCurrentProjectId,
+  selectorHaveTaskRunning,
   selectorMethodList,
 } from "reduxes/project/selector";
 import ReferenceImageDialog, { prettyMethodName } from "./ReferenceImageDialog";
@@ -53,6 +54,8 @@ const ExpertPreprocessingOption = function () {
   useEffect(() => {
     dispatch(setSelectedMethods({ selectedMethodIds: [] }));
   }, [currentProjectId]);
+  const haveTaskRunning = useSelector(selectorHaveTaskRunning);
+
   const handleShowReferenceDialog = (methodId: string) => {
     dispatch(setReferenceSeletectorDialog({ isShow: true, methodId }));
   };
@@ -73,7 +76,7 @@ const ExpertPreprocessingOption = function () {
           variant="contained"
           size="small"
           isLoading={isGenerateReferenceRequesting}
-          disabled={isGenerating}
+          disabled={isGenerating || haveTaskRunning}
           onClick={handleClickGenerateReferenceImages}
         >
           Run

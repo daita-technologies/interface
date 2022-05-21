@@ -370,6 +370,12 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
     }
   };
 
+  const isReFetchProjectInfoWhenTaskFinish = useMemo(
+    () =>
+      pageName === PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME &&
+      process_type !== GENERATE_REFERENCE_IMAGE_TYPE,
+    [pageName, process_type]
+  );
   useEffect(() => {
     if (taskInfo) {
       if (
@@ -379,7 +385,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
       ) {
         savedTaskStatus.current = FINISH_TASK_STATUS;
 
-        if (pageName === PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME) {
+        if (isReFetchProjectInfoWhenTaskFinish) {
           dispatch({
             type: FETCH_DETAIL_PROJECT.REQUESTED,
             payload: {
@@ -402,7 +408,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         savedTaskStatus.current = taskInfo.status;
       }
     }
-  }, [taskInfo]);
+  }, [taskInfo, isReFetchProjectInfoWhenTaskFinish]);
 
   if (
     status === FINISH_TASK_STATUS ||
