@@ -1,5 +1,4 @@
 import { Upload } from "@aws-sdk/lib-storage";
-import MD5 from "crypto-js/md5";
 import {
   COMPRESS_FILE_EXTENSIONS,
   COMPRESS_IMAGE_EXTENSIONS,
@@ -20,20 +19,29 @@ import {
   UPLOADED_UPLOAD_FILE_STATUS,
   UPLOADING_UPLOAD_FILE_STATUS,
 } from "constants/uploadFile";
+import MD5 from "crypto-js/md5";
+import JSZip from "jszip";
 import { toast } from "react-toastify";
 import { channel } from "redux-saga";
 import {
+  actionChannel,
   all,
   call,
+  delay,
+  fork,
   put,
+  select,
   take,
   takeEvery,
-  select,
-  actionChannel,
-  fork,
-  delay,
 } from "redux-saga/effects";
+import { addImageToAlbumFromFile } from "reduxes/album/action";
 import { selectorS3 } from "reduxes/general/selector";
+import {
+  fetchTaskInfo,
+  updateCurrentProjectStatistic,
+} from "reduxes/project/action";
+import { selectorCurrentProjectTotalOriginalImage } from "reduxes/project/selector";
+import { alertGoToTaskDashboard } from "reduxes/task/action";
 import {
   clearFileArray,
   notifyExistFile,
@@ -49,11 +57,11 @@ import {
   UPLOAD_FILE,
 } from "reduxes/upload/constants";
 import {
+  selectorTotalUploadFileQuantity,
   selectorUploadedFileCount,
   selectorUploadFiles,
-  selectorTotalUploadFileQuantity,
 } from "reduxes/upload/selector";
-
+import { CheckFileUploadParams, UploadFileParams } from "reduxes/upload/type";
 import { projectApi } from "services";
 import {
   arrayBufferToWordArray,
@@ -64,14 +72,6 @@ import {
   objectIndexOf,
   readAsArrayBuffer,
 } from "utils/general";
-import { CheckFileUploadParams, UploadFileParams } from "reduxes/upload/type";
-import { addImageToAlbumFromFile } from "reduxes/album/action";
-import {
-  fetchTaskInfo,
-  updateCurrentProjectStatistic,
-} from "reduxes/project/action";
-import JSZip from "jszip";
-import { selectorCurrentProjectTotalOriginalImage } from "reduxes/project/selector";
 
 function* handleUpdateUploadToBackend(action: any): any {
   try {
@@ -296,7 +296,13 @@ function* handleUploadZipFile(action: {
         const uploadedFile = yield select(selectorUploadedFileCount);
         const totalUploadFile = yield select(selectorTotalUploadFileQuantity);
         if (uploadedFile >= totalUploadFile) {
-          yield toast.success("Zip files are successfully uploaded");
+          yield put(
+            alertGoToTaskDashboard({
+              message:
+                "Zip file uploading successfully initiated. Please go to My Tasks for the details.",
+              projectId,
+            })
+          );
           yield put(
             clearFileArray({ fileNameArray: Object.keys(uploadFiles) })
           );

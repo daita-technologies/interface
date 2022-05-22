@@ -16,6 +16,7 @@ import {
 import { fetchTaskInfo } from "reduxes/project/action";
 import { selectorMethodList } from "reduxes/project/selector";
 import { ListMethodType } from "reduxes/project/type";
+import { alertGoToTaskDashboard } from "reduxes/task/action";
 import customMethodApi, {
   ReferenceImagesParams,
 } from "services/customMethodApi";
@@ -38,6 +39,13 @@ function* handleGenerateReferenceImages(action: {
           taskId: genRefImagesResp.data.task_id,
           processType: GENERATE_REFERENCE_IMAGE_TYPE,
           isNotify: true,
+          projectId,
+        })
+      );
+      yield put(
+        alertGoToTaskDashboard({
+          message:
+            "Reference image generation successfully initiated. Please go to My Tasks for the details.",
           projectId,
         })
       );

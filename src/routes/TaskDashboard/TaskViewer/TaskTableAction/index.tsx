@@ -1,17 +1,23 @@
-import { IconButton, ListItemText, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useMemo, useState } from "react";
-import { TaskItemApiFields } from "services/taskApi";
+import { Box, IconButton, ListItemText, Menu, MenuItem } from "@mui/material";
 import {
+  AUGMENT_TASK_PROCESS_TYPE,
   DOWNLOAD_TASK_PROCESS_TYPE,
+  PREPROCESS_TASK_PROCESS_TYPE,
   RUNNING_TASK_STATUS,
 } from "constants/defaultValues";
-import { triggerPresignedURLDownload } from "utils/download";
+import { useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { triggerStopTaskProcess } from "reduxes/task/action";
+import { TaskItemApiFields } from "services/taskApi";
+import { triggerPresignedURLDownload } from "utils/download";
 import { getTaskStatusMergedValue } from "utils/task";
 
-function TaskTableAction({ taskInfo }: { taskInfo: TaskItemApiFields }) {
+function TaskTableActionWithAction({
+  taskInfo,
+}: {
+  taskInfo: TaskItemApiFields;
+}) {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -69,11 +75,13 @@ function TaskTableAction({ taskInfo }: { taskInfo: TaskItemApiFields }) {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          {getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS && (
-            <MenuItem onClick={handleStopActionClick}>
-              <ListItemText>Stop</ListItemText>
-            </MenuItem>
-          )}
+          {getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS &&
+            (process_type === PREPROCESS_TASK_PROCESS_TYPE ||
+              process_type === AUGMENT_TASK_PROCESS_TYPE) && (
+              <MenuItem onClick={handleStopActionClick}>
+                <ListItemText>Stop</ListItemText>
+              </MenuItem>
+            )}
           {process_type === DOWNLOAD_TASK_PROCESS_TYPE && (
             <MenuItem
               disabled={!presign_url}
@@ -88,6 +96,17 @@ function TaskTableAction({ taskInfo }: { taskInfo: TaskItemApiFields }) {
   }
 
   return null;
+}
+function TaskTableAction({ taskInfo }: { taskInfo: TaskItemApiFields }) {
+  const { process_type } = taskInfo;
+  if (
+    process_type === PREPROCESS_TASK_PROCESS_TYPE ||
+    process_type === AUGMENT_TASK_PROCESS_TYPE ||
+    process_type === DOWNLOAD_TASK_PROCESS_TYPE
+  ) {
+    return <TaskTableActionWithAction taskInfo={taskInfo} />;
+  }
+  return <Box mr={2}>-</Box>;
 }
 
 export default TaskTableAction;

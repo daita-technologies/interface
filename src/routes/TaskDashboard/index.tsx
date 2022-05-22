@@ -17,6 +17,7 @@ import { getTaskListInfo } from "reduxes/task/action";
 import {
   AUGMENT_TASK_PROCESS_TYPE,
   DOWNLOAD_TASK_PROCESS_TYPE,
+  GENERATE_REFERENCE_IMAGE_TYPE,
   HEALTHCHECK_TASK_PROCESS_TYPE,
   PREPROCESS_TASK_PROCESS_TYPE,
   UPLOAD_TASK_PROCESS_TYPE,
@@ -145,6 +146,10 @@ const TaskDashboard = function () {
         <TaskViewer
           projectId={selectedProjectId}
           taskProcessType={DOWNLOAD_TASK_PROCESS_TYPE}
+        />
+        <TaskViewer
+          projectId={selectedProjectId}
+          taskProcessType={GENERATE_REFERENCE_IMAGE_TYPE}
         />
       </>
     );

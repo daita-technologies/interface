@@ -5,6 +5,7 @@ import {
   ERROR_TASK_STATUS,
   FINISH_ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
+  GENERATE_REFERENCE_IMAGE_TYPE,
   HEALTHCHECK_TASK_PROCESS_TYPE,
   PENDING_TASK_STATUS,
   PREPARING_DATA_TASK_STATUS,
@@ -48,6 +49,8 @@ export function mapProcessTypeToName(taskProcessType: TaskProcessType) {
       return "Download";
     case HEALTHCHECK_TASK_PROCESS_TYPE:
       return "Data Health Check";
+    case GENERATE_REFERENCE_IMAGE_TYPE:
+      return "Reference image";
     default:
       return "";
   }
