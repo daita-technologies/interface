@@ -35,9 +35,12 @@ const PreviewImage = function ({ methodId }: PreviewImageProps) {
               (selectedParamObj) =>
                 selectedParamObj.paramName === paramNameOrdered
             );
-            const currentParamMappingIndex = ls_params_value[
-              selectedParams[selectedParamIndex].paramName
-            ].indexOf(selectedParams[selectedParamIndex].paramValue);
+            const listParamsValueTemplate: number[] | boolean[] =
+              ls_params_value[selectedParams[selectedParamIndex].paramName];
+            const currentParamMappingIndex = listParamsValueTemplate.findIndex(
+              (templateValue: number | boolean) =>
+                templateValue === selectedParams[selectedParamIndex].paramValue
+            );
             if (currentParamMappingIndex > -1) {
               targetDictIndex += `${currentParamMappingIndex}|`;
             }
