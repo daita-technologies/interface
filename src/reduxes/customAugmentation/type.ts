@@ -1,11 +1,36 @@
-import { AugmentationMethod } from "components/ImageProcessing/type";
 import { AlbumImagesFields } from "reduxes/album/type";
+import {
+  GetAugmentCustomMethodPreviewImageParams,
+  GetAugmentCustomMethodPreviewImageResponse,
+} from "services/customMethodApi";
 
+export type SelectedParamAugmentCustomMethod = {
+  paramName: string;
+  paramValue: number | boolean;
+};
+export type AugmentCustomMethodParamValue = {
+  methodId: string;
+  params: SelectedParamAugmentCustomMethod[];
+};
+
+export interface ChangeAugmentCustomMethodParamValueActionPayload
+  extends AugmentCustomMethodParamValue {}
+
+export interface AugmentCustomMethodPreviewImageInfo {
+  [methodName: string]: GetAugmentCustomMethodPreviewImageResponse;
+}
+
+export interface SavedAugmentCustomMethodParamValueType {
+  [methodName: string]: AugmentCustomMethodParamValue | undefined;
+}
 export interface CustomAugmentationReducer {
   isAugmentationExpertMode: boolean;
   referenceAugmentationImage: ReferenceAugmentationgeRecord;
   referenceSeletectorDialog: ReferenceSeletectorDialog;
   selectedMethodIds: string[];
+  augmentCustomMethodPreviewImageInfo: null | AugmentCustomMethodPreviewImageInfo;
+  savedAugmentCustomMethodParamValue: SavedAugmentCustomMethodParamValueType;
+  isFetchingAugmentCustomMethodPreviewImage: boolean | null;
 }
 export type ReferenceAugmentationgeRecord = Record<
   string,
@@ -27,3 +52,9 @@ export interface ReferenceSeletectorDialog {
 export interface SelectedMethodProps {
   selectedMethodIds: string[];
 }
+
+export interface GetAugmentCustomMethodPreviewImageInfoRequestActionPayload
+  extends GetAugmentCustomMethodPreviewImageParams {}
+
+export interface GetAugmentCustomMethodPreviewImageInfoSucceededActionPayload
+  extends GetAugmentCustomMethodPreviewImageResponse {}
