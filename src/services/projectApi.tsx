@@ -187,23 +187,27 @@ const projectApi = {
     dataNumber,
     processType,
     referenceImages,
-  }: GenerateImagePayload) =>
-    axios.post(
-      `${generateApiUrl}/generate/generate_images`,
-      {
-        id_token: idToken,
-        project_id: projectId,
-        project_name: projectName,
-        ls_method_id: listMethodId,
-        data_type: dataType,
-        process_type: processType,
-        reference_images: referenceImages,
-        // NOTE: TODO: pass number will generate per source later
-        num_aug_p_img: 1 || numberImageGeneratePerSource,
-        data_number: dataNumber,
-      },
-      { headers: getAuthHeader() }
-    ),
+    isNormalizeResolution,
+  }: GenerateImagePayload) => {
+    const payload: any = {
+      id_token: idToken,
+      project_id: projectId,
+      project_name: projectName,
+      ls_method_id: listMethodId,
+      data_type: dataType,
+      process_type: processType,
+      reference_images: referenceImages,
+      // NOTE: TODO: pass number will generate per source later
+      num_aug_p_img: 1 || numberImageGeneratePerSource,
+      data_number: dataNumber,
+    };
+    if (isNormalizeResolution !== undefined) {
+      payload.is_normalize_resolution = isNormalizeResolution;
+    }
+    return axios.post(`${generateApiUrl}/generate/generate_images`, payload, {
+      headers: getAuthHeader(),
+    });
+  },
   getTaskInfo: ({ idToken, taskId }: GetTaskProgressRequestBody) =>
     axios.post(
       `${generateApiUrl}/generate/task_progress`,

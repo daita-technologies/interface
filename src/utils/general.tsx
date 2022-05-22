@@ -23,7 +23,7 @@ import {
   ImageSourceType,
 } from "reduxes/album/type";
 import { S3_BUCKET_NAME } from "constants/s3Values";
-import { generateMethodType } from "reduxes/generate/type";
+import { GenerateMethodType } from "reduxes/generate/type";
 import { TokenStorageName, TokenStorageTypes } from "./type";
 
 export const asyncAction = (actionName: string) => ({
@@ -235,7 +235,7 @@ export function switchTabIdToSource(tabId: number) {
 }
 
 export function getGenerateMethodLabel(
-  type?: generateMethodType | ImageSourceType
+  type?: GenerateMethodType | ImageSourceType
 ) {
   switch (type) {
     case PREPROCESSING_GENERATE_IMAGES_TYPE:
