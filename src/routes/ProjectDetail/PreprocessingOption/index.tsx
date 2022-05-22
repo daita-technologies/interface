@@ -1,4 +1,10 @@
-import { Box, Switch, Typography } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  FormControlLabel,
+  Switch,
+  Typography,
+} from "@mui/material";
 import { InfoTooltip, MyButton } from "components";
 import {
   ID_TOKEN_NAME,
@@ -167,7 +173,7 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
             Select your mode
           </Typography>
         </Box>
-        <Box>
+        <Box display="flex" flexDirection="column" justifyContent="flex-end">
           <MyButton
             color="primary"
             variant="contained"
@@ -181,10 +187,20 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
               !!isGenerateImagesAugmenting ||
               (!!isDownloading && projectId === currentProjectIdDownloading)
             }
+            sx={{ justifyContent: "flex-end" }}
             onClick={onClickRunPreprocessing}
           >
             Run
           </MyButton>
+          {!isPreprocessingExpertMode && (
+            <Box display="flex" alignItems="center">
+              <FormControlLabel
+                control={<Checkbox checked={false} />}
+                label="Normalization"
+              />
+              <InfoTooltip title="Expert mode" />
+            </Box>
+          )}
         </Box>
       </Box>
 

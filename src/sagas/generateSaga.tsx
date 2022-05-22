@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { delay, call, put, takeEvery } from "redux-saga/effects";
+import { delay, call, put, takeEvery, select } from "redux-saga/effects";
 
 import { projectApi } from "services";
 
@@ -9,18 +9,22 @@ import {
   capitalizeFirstLetter,
   getGenerateMethodLabel,
   getLocalStorage,
+  getProjectNameFromProjectId,
 } from "utils/general";
 import {
   AUGMENT_GENERATE_IMAGES_TYPE_LABEL,
   ID_TOKEN_NAME,
 } from "constants/defaultValues";
 import { fetchTaskInfo } from "reduxes/project/action";
+import { Box, Typography } from "@mui/material";
+import { selectorListProjects } from "reduxes/project/selector";
 
 function* handleGenerateImages(action: {
   type: string;
   payload: GenerateImagePayload;
 }): any {
   const { generateMethod, projectId } = action.payload;
+
   try {
     const generateImagesResponse = yield call(
       projectApi.generateImages,
@@ -34,7 +38,26 @@ function* handleGenerateImages(action: {
       } else {
         label = capitalizeFirstLetter(label);
       }
-      yield toast.success(`${label} successfully initiated.`);
+      const listProjects = yield select(selectorListProjects);
+
+      const taskDashboardHref = yield `${
+        window.location.origin
+      }/task-list/${getProjectNameFromProjectId(listProjects, projectId)}`;
+
+      yield toast.success(
+        `${label} successfully initiated. Please go to My Tasks for the details.`
+      );
+
+      yield toast.info(
+        <Box>
+          <Typography fontSize={14}>
+            Your progress link:{" "}
+            <a className="text-link" href={taskDashboardHref}>
+              {taskDashboardHref}
+            </a>
+          </Typography>
+        </Box>
+      );
 
       yield delay(2000);
       yield put(

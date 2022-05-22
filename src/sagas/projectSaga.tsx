@@ -1,7 +1,6 @@
 import { GetObjectCommand } from "@aws-sdk/client-s3";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import { Box, Typography } from "@mui/material";
 import {
+  DOWNLOAD_TASK_PROCESS_TYPE,
   GENERATE_REFERENCE_IMAGE_TYPE,
   HEALTHCHECK_TASK_PROCESS_TYPE,
   ID_TOKEN_NAME,
@@ -32,11 +31,7 @@ import {
   SET_IS_OPEN_CREATE_PROJECT_MODAL,
   UPDATE_PROJECT_INFO,
 } from "reduxes/project/constants";
-import {
-  selectorCurrentProjectId,
-  selectorCurrentTaskList,
-  selectorMethodList,
-} from "reduxes/project/selector";
+import { selectorCurrentTaskList } from "reduxes/project/selector";
 import {
   ApiListProjectsItem,
   CreateSamplePayload,
@@ -44,13 +39,12 @@ import {
   DeleteProjectPayload,
   FetchProjectTaskListPayload,
   FetchTaskInfoPayload,
-  ListMethodType,
   LoadProjectThumbnailImagePayload,
   TaskInfo,
   UpdateProjectInfoPayload,
 } from "reduxes/project/type";
 import history from "routerHistory";
-import { healthCheckApi, projectApi } from "services";
+import { downloadApi, healthCheckApi, projectApi } from "services";
 import customMethodApi from "services/customMethodApi";
 import { getLocalStorage } from "utils/general";
 
@@ -142,8 +136,9 @@ function* handleFetchDetailProject(action: any): any {
       });
 
       const referenceImages = fetchDetailProjectResponse.data.reference_images;
+      const referenceInfoApiFields: any = [];
+
       if (Object.keys(referenceImages).length !== 0) {
-        const referenceInfoApiFields: any = [];
         Object.entries(referenceImages).forEach(([key, value]) => {
           const ref = value as any;
           referenceInfoApiFields.push({
@@ -152,9 +147,8 @@ function* handleFetchDetailProject(action: any): any {
             image_s3_path: ref.s3_path,
           });
         });
-
-        yield put(fetchReferenceImageInfoSuccess(referenceInfoApiFields));
       }
+      yield put(fetchReferenceImageInfoSuccess(referenceInfoApiFields));
     } else {
       yield put({
         type: FETCH_DETAIL_PROJECT.FAILED,
@@ -201,9 +195,10 @@ function* handleFetchTaskInfo(action: {
   type: string;
   payload: FetchTaskInfoPayload;
 }): any {
-  const { idToken, generateMethod, projectId, taskId, processType } =
-    action.payload;
   try {
+    const { idToken, generateMethod, projectId, taskId, processType } =
+      action.payload;
+
     let fetchTaskInfoResponse;
     if (processType === UPLOAD_TASK_PROCESS_TYPE) {
       fetchTaskInfoResponse = yield call(
@@ -220,6 +215,10 @@ function* handleFetchTaskInfo(action: {
         customMethodApi.getReferenceImagesTaskInfo,
         { idToken, taskId }
       );
+    } else if (processType === DOWNLOAD_TASK_PROCESS_TYPE) {
+      fetchTaskInfoResponse = yield call(downloadApi.downloadUpdate, {
+        taskId,
+      });
     } else {
       fetchTaskInfoResponse = yield call(
         projectApi.getTaskInfo,
@@ -250,24 +249,6 @@ function* handleFetchTaskInfo(action: {
               generateMethod,
             },
           });
-        }
-
-        const currentProjectId = yield select(selectorCurrentProjectId);
-
-        if (projectId === currentProjectId) {
-          yield toast.info(
-            <Box display="flex" alignItems="center">
-              <ArrowUpwardIcon sx={{ mr: 1, width: 32, height: 32 }} />
-              <Typography>
-                Please scroll to the top of the page to watch the progress.
-              </Typography>
-            </Box>,
-            {
-              position: "bottom-right",
-              onClick: () =>
-                window.scrollTo({ behavior: "smooth", top: 0, left: 0 }),
-            }
-          );
         }
       }
     } else {

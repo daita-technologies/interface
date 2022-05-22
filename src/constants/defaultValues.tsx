@@ -6,11 +6,13 @@ import { TaskProcessType, TaskStatusMergedType } from "./taskType";
 export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
 export const generateApiUrl = process.env.REACT_APP_GENERATE_API_URL;
+export const downloadZipApiUrl = process.env.REACT_APP_DOWNLOAD_ZIP_API;
 export const uploadZipApiUrl = process.env.REACT_APP_UPLOAD_ZIP_API;
 export const inviteApiURL = process.env.REACT_APP_INVITE_API_URL;
 export const healthCheckApiURL = process.env.REACT_APP_HEALTH_CHECK_API_URL;
 export const taskApiURL = process.env.REACT_APP_TASK_API_URL;
 export const customMethodUrl = process.env.REACT_APP_GENERATE_API_URL;
+export const stopApiURL = process.env.REACT_APP_TASK_API_URL;
 
 export const reactAppDevEnv = "development";
 export const reactAppProdEnv = "production";
@@ -115,12 +117,14 @@ export const UPLOADING_TASK_STATUS = "UPLOADING";
 export const FINISH_TASK_STATUS = "FINISH";
 export const ERROR_TASK_STATUS = "ERROR";
 export const FINISH_ERROR_TASK_STATUS = "FINISH_ERROR";
+export const CANCEL_TASK_STATUS = "CANCEL";
 export const FILTER_ALL_TASK_STATUS = "";
 
 export const TASK_STATUS_MERGED_ARRAY: TaskStatusMergedType[] = [
   RUNNING_TASK_STATUS,
   ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
+  CANCEL_TASK_STATUS,
 ];
 
 export const TEMP_LOCAL_USERNAME = "temp_username_key";
@@ -161,3 +165,7 @@ export const TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE = "custom_method_expert_mode";
 
 export const COMPRESS_IMAGE_EXTENSIONS = [".jpeg", ".png", ".jpg"];
 export const MAXIMUM_ZIP_FILE_SIZE = 2000000000;
+
+export const VISIBLE_TOAST_MESSAGE_SECOND_TIME = 4000;
+
+export const RESOLUTION_METHOD_ID = "PRE-009";

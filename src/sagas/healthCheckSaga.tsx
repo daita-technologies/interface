@@ -6,6 +6,7 @@ import {
   GET_PROJECT_HEALTH_CHECK_INFO,
   RUN_HEALTH_CHECK,
 } from "reduxes/healthCheck/constants";
+import { RunHealthCheckSucceededActionPayload } from "reduxes/healthCheck/type";
 import { fetchTaskInfo } from "reduxes/project/action";
 import { healthCheckApi } from "services";
 import {
@@ -32,7 +33,10 @@ function* handleRunHealthCheck(action: {
         runHealthCheckResponse.data as RunHealthCheckResponseFields;
       yield put({
         type: RUN_HEALTH_CHECK.SUCCEEDED,
-        payload: { task_id },
+        payload: {
+          taskId: task_id,
+          projectId,
+        } as RunHealthCheckSucceededActionPayload,
       });
       yield toast.success(`Data health check successfully initiated.`);
 

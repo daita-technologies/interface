@@ -5,7 +5,11 @@ import {
   getProjectHealthCheckInfoAction,
   runHealthCheckAction,
 } from "reduxes/healthCheck/action";
-import { ID_TOKEN_NAME, ORIGINAL_SOURCE } from "constants/defaultValues";
+import {
+  ID_TOKEN_NAME,
+  ORIGINAL_SOURCE,
+  VISIBLE_TOAST_MESSAGE_SECOND_TIME,
+} from "constants/defaultValues";
 import { Empty, Link, MyButton } from "components";
 
 import {
@@ -43,6 +47,8 @@ import {
   HealthCheckMainContentProps,
 } from "./type";
 
+const HEALTH_CHECK_RUN_EXTRA_DISABLE_TIME = 2500;
+
 const HealthCheckMainContent = function ({
   projectId,
 }: HealthCheckMainContentProps) {
@@ -51,6 +57,9 @@ const HealthCheckMainContent = function ({
   const taskList = useSelector((state: RootState) =>
     selectorTaskList(state, projectId)
   );
+
+  const [isDisableRunByTimeout, setIsDisableRunByTimeout] =
+    useState<boolean>(false);
 
   const dataHealthCheckTaskListInfo = useSelector(
     selectorDataHealthCheckTaskList
@@ -84,6 +93,10 @@ const HealthCheckMainContent = function ({
     );
 
   const onClickRunHealthCheck = () => {
+    setIsDisableRunByTimeout(true);
+    setTimeout(() => {
+      setIsDisableRunByTimeout(false);
+    }, VISIBLE_TOAST_MESSAGE_SECOND_TIME + HEALTH_CHECK_RUN_EXTRA_DISABLE_TIME);
     dispatch(runHealthCheckAction({ projectId, dataType: ORIGINAL_SOURCE }));
   };
 
@@ -193,7 +206,9 @@ const HealthCheckMainContent = function ({
               <MyButton
                 variant="contained"
                 color="primary"
-                disabled={dataHealthCheckCurrentTotalImage <= 0}
+                disabled={
+                  dataHealthCheckCurrentTotalImage <= 0 || isDisableRunByTimeout
+                }
                 isLoading={isRunningHealthCheck}
                 onClick={onClickRunHealthCheck}
               >
@@ -217,7 +232,7 @@ const HealthCheckMainContent = function ({
           <MyButton
             variant="contained"
             color="primary"
-            disabled={!isFetchedAllTaskInfo}
+            disabled={!isFetchedAllTaskInfo || isDisableRunByTimeout}
             isLoading={isRunningHealthCheck || isDataHealthCheckGotTaskRunning}
             onClick={onClickRunHealthCheck}
           >

@@ -273,11 +273,12 @@ export const getProjectNameFromProjectId = (
       projectId,
       "project_id"
     );
-    if (matchProjectIndex > 0) {
+
+    if (matchProjectIndex > -1) {
       return listProjects[matchProjectIndex].project_name;
     }
-    return null;
+    return "";
   }
 
-  return null;
+  return "";
 };

@@ -389,10 +389,10 @@ const ProjectDetail = function () {
 
   return (
     <Box mt={4} mb={10}>
-      <BeforeUnload
+      {/* <BeforeUnload
         isActive={!!isDownloading}
         message={`We are currently processing your data dowload.\r\nAre you sure you want to quit?`}
-      />
+      /> */}
       <Typography variant="h4" component="h1">
         {projectName}
       </Typography>

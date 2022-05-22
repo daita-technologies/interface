@@ -60,3 +60,15 @@ export interface PaginationTaskListInfoFailedActionPayload {
   processType: TaskProcessType;
   targetPage: number;
 }
+
+export interface AddTaskToCurrentDashboardActionPayload {
+  taskId: string;
+  processType: TaskProcessType;
+  projectId: string;
+}
+
+export interface TriggerStopTaskProcessRequestActionPayload {
+  taskId: string;
+  // processType: TaskProcessType;
+  projectId: string;
+}

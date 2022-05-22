@@ -1,4 +1,5 @@
 import {
+  CANCEL_TASK_STATUS,
   ERROR_TASK_STATUS,
   FINISH_ERROR_TASK_STATUS,
   FINISH_SAMPLE_PROJECT_STATUS,
@@ -110,7 +111,8 @@ export type TaskStatusType =
   | typeof FINISH_TASK_STATUS
   | typeof UPLOADING_TASK_STATUS
   | typeof FINISH_ERROR_TASK_STATUS
-  | typeof ERROR_TASK_STATUS;
+  | typeof ERROR_TASK_STATUS
+  | typeof CANCEL_TASK_STATUS;
 
 export interface TaskInfoApiFields {
   identity_id: string;
@@ -120,6 +122,7 @@ export interface TaskInfoApiFields {
   project_id: string;
   number_finished?: number;
   number_gen_images?: number;
+  presign_url?: string;
 }
 
 export type ZipTaskInfoApiFields = TaskInfoApiFields;

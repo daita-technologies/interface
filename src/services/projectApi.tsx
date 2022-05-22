@@ -226,7 +226,7 @@ const projectApi = {
     projectName,
   }: DeleteProjectRequestBody) =>
     axios.post(
-      `${projectApiUrl}/projects/delete`,
+      `${generateApiUrl}/projects/delete`,
       {
         id_token: idToken,
         project_id: projectId,
@@ -249,7 +249,7 @@ const projectApi = {
     listObjectInfo,
   }: DeleteImagesRequestBody) =>
     axios.post(
-      `${projectApiUrl}/projects/delete_images`,
+      `${generateApiUrl}/projects/delete_images`,
       {
         id_token: idToken,
         project_id: projectId,

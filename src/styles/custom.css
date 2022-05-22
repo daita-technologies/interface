@@ -6,6 +6,11 @@ body {
 a,
 .MuiLink-underlineHover:hover {
   text-decoration: none;
+  color: #1c78d3;
+}
+a.text-link {
+  color: #ffffff;
+  text-decoration: underline;
 }
 
 /* .MuiSvgIcon-root {

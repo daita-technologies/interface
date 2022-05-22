@@ -1,5 +1,6 @@
 import {
   AUGMENT_TASK_PROCESS_TYPE,
+  CANCEL_TASK_STATUS,
   DOWNLOAD_TASK_PROCESS_TYPE,
   ERROR_TASK_STATUS,
   FINISH_ERROR_TASK_STATUS,
@@ -23,6 +24,8 @@ export function getTaskStatusMergedValue(taskStatus: TaskStatusType) {
       return ERROR_TASK_STATUS;
     case FINISH_TASK_STATUS:
       return FINISH_TASK_STATUS;
+    case CANCEL_TASK_STATUS:
+      return CANCEL_TASK_STATUS;
     case PENDING_TASK_STATUS:
     case PREPARING_HARDWARE_TASK_STATUS:
     case PREPARING_DATA_TASK_STATUS:

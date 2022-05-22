@@ -88,7 +88,7 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
     handleClose();
     if (currentProjectTotalImage > 0) {
       toast.info(
-        "Preparing download and zipping files. Please, do not close or refresh the page."
+        "We are zipping your file and creating a download link. You will receive an automatic email notification when finished."
       );
       dispatch(
         downloadZipEc2Create({
@@ -113,7 +113,7 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
     handleClose();
     if (currentProjectTotalImage > 0) {
       toast.info(
-        "Preparing download and zipping files. Please, do not close or refresh the page."
+        "We are zipping your file and creating a download link. You will receive an automatic email notification when finished."
       );
       dispatch(
         downloadZipEc2Create({
@@ -140,7 +140,6 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
       if (downloadZipEc2TaskId) {
         dispatch(
           downloadZipEc2Progress({
-            idToken: getLocalStorage(ID_TOKEN_NAME) || "",
             taskId: downloadZipEc2TaskId,
           })
         );

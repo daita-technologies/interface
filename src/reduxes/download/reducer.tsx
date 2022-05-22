@@ -1,4 +1,7 @@
+import { DOWNLOAD_TASK_PROCESS_TYPE } from "constants/defaultValues";
+import { FETCH_DETAIL_PROJECT } from "reduxes/project/constants";
 import { DownloadZipEc2Params } from "services/downloadApi";
+import { TaskItemApiFields } from "services/taskApi";
 import {
   DOWNLOAD_ALL_FILES,
   DOWNLOAD_SELECTED_FILES,
@@ -90,6 +93,7 @@ const downloadReducer = (state = inititalState, action: any) => {
         images: {},
         totalNeedDownload: null,
         currentProjectIdDownloading: null,
+        downloadZipEc2TaskId: undefined,
       };
     }
 
@@ -198,6 +202,22 @@ const downloadReducer = (state = inititalState, action: any) => {
         isDownloading: true,
         isDownloadingZipEc2: true,
         currentProjectIdDownloading: projectId,
+      };
+    }
+
+    case FETCH_DETAIL_PROJECT.SUCCEEDED: {
+      const { project_id, ls_task } = payload.currentProjectInfo;
+
+      const isHaveDownloadingTask = ls_task.some(
+        (taskRunning: TaskItemApiFields) =>
+          taskRunning.process_type === DOWNLOAD_TASK_PROCESS_TYPE
+      );
+
+      return {
+        ...state,
+        isDownloading: isHaveDownloadingTask,
+        isDownloadingZipEc2: isHaveDownloadingTask,
+        currentProjectIdDownloading: project_id,
       };
     }
     default:

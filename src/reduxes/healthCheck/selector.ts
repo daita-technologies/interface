@@ -1,4 +1,7 @@
-import { RUNNING_TASK_STATUS } from "constants/defaultValues";
+import {
+  HEALTHCHECK_TASK_PROCESS_TYPE,
+  RUNNING_TASK_STATUS,
+} from "constants/defaultValues";
 import _ from "lodash";
 import { RootState } from "reduxes";
 
@@ -53,7 +56,9 @@ export const selectorIsDataHealthCheckGotTaskRunning = (
     );
 
     return matchProjectIdTaskList.some(
-      (taskItem) => taskItem.status === RUNNING_TASK_STATUS
+      (taskItem) =>
+        taskItem.status === RUNNING_TASK_STATUS &&
+        taskItem.process_type === HEALTHCHECK_TASK_PROCESS_TYPE
     );
   }
 

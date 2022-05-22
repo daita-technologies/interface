@@ -13,3 +13,8 @@ export interface HealthCheckReducer {
   taskList: TaskListType;
   currentProjectInfo: null | ProjectInfo;
 }
+
+export interface RunHealthCheckSucceededActionPayload {
+  taskId: string;
+  projectId: string;
+}

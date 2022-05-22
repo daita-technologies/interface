@@ -2,6 +2,7 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { Box, LinearProgress, Typography } from "@mui/material";
 import {
   AUGMENT_SOURCE,
+  DOWNLOAD_TASK_PROCESS_TYPE,
   ERROR_TASK_STATUS,
   FINISH_ERROR_TASK_STATUS,
   FINISH_TASK_STATUS,
@@ -22,6 +23,7 @@ import { toast } from "react-toastify";
 import { changeActiveImagesTab, fetchImages } from "reduxes/album/action";
 import { selectorActiveImagesTabId } from "reduxes/album/selector";
 import { fetchReferenceImageInfo } from "reduxes/customPreprocessing/action";
+import { DOWNLOAD_ZIP_EC2 } from "reduxes/download/constants";
 import { getProjectHealthCheckInfoAction } from "reduxes/healthCheck/action";
 import { fetchTaskInfo } from "reduxes/project/action";
 import {
@@ -35,13 +37,18 @@ import {
   selectorListProjects,
 } from "reduxes/project/selector";
 import { TaskStatusType } from "reduxes/project/type";
-import { PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME } from "reduxes/task/constants";
+import {
+  HEALTH_CHECK_TASK_PLACEMENT_PAGE_NAME,
+  PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME,
+} from "reduxes/task/constants";
+
 import {
   capitalizeFirstLetter,
   getGenerateMethodLabel,
   getLocalStorage,
   switchTabIdToSource,
 } from "utils/general";
+import { getTaskStatusMergedValue } from "utils/task";
 import {
   TaskListImageSourceItemProps,
   TaskListItemProps,
@@ -136,7 +143,9 @@ const TaskListImageSourceItem = function ({
           component="span"
           variant="body2"
         >
-          {status === RUNNING_TASK_STATUS ? "EXECUTING" : status}
+          {status === RUNNING_TASK_STATUS
+            ? "EXECUTING"
+            : status.replace(/_/g, " ")}
         </Typography>
       </Typography>
       {status !== ERROR_TASK_STATUS && status !== FINISH_ERROR_TASK_STATUS && (
@@ -194,7 +203,9 @@ const TaskListUploadItem = function ({ taskInfo }: TaskListUploadItemProps) {
           component="span"
           variant="body2"
         >
-          {status === RUNNING_TASK_STATUS ? "EXECUTING" : status}
+          {status === RUNNING_TASK_STATUS
+            ? "EXECUTING"
+            : status.replace(/_/g, " ")}
         </Typography>
       </Typography>
       {status !== ERROR_TASK_STATUS && status !== FINISH_ERROR_TASK_STATUS && (
@@ -227,9 +238,9 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
   const currentProjectName = useSelector(selectorCurrentProjectName);
   const currentProjectId = useSelector(selectorCurrentProjectId);
   const listProject = useSelector(selectorListProjects);
-  const { status, task_id, process_type, project_id } = taskInfo;
+  const { status, task_id, process_type, project_id, presign_url } = taskInfo;
+  const savedTaskStatus = useRef<TaskStatusType>();
 
-  const isRunActionAfterFinished = useRef<boolean>(false);
   const activeImagesTabId = useSelector(selectorActiveImagesTabId);
 
   const getProjectNameByProjectId = useCallback(
@@ -264,18 +275,28 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
     );
   }, []);
 
+  const callFetchTaskInfo = () => {
+    dispatch(
+      fetchTaskInfo({
+        idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+        taskId: task_id,
+        projectId: currentProjectId,
+        processType: process_type,
+      })
+    );
+  };
+
   useInterval(
     () => {
-      dispatch(
-        fetchTaskInfo({
-          idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-          taskId: task_id,
-          projectId: currentProjectId,
-          processType: process_type,
-        })
-      );
+      if (pageName === HEALTH_CHECK_TASK_PLACEMENT_PAGE_NAME) {
+        if (process_type === HEALTHCHECK_TASK_PROCESS_TYPE) {
+          callFetchTaskInfo();
+        }
+      } else {
+        callFetchTaskInfo();
+      }
     },
-    status === FINISH_TASK_STATUS || status === ERROR_TASK_STATUS ? null : 10000
+    getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS ? 10000 : null
   );
 
   const actionWhenTaskFinish = () => {
@@ -324,20 +345,47 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         );
         toast.success("Reference images have been generated successfully.");
         break;
+      case DOWNLOAD_TASK_PROCESS_TYPE:
+        if (presign_url) {
+          dispatch({ type: DOWNLOAD_ZIP_EC2.SUCCEEDED });
+
+          toast.success(
+            <Box>
+              <Typography fontSize={14}>
+                Your download link is ready, please go to{" "}
+                <a
+                  className="text-link"
+                  href={`/task-list/${getProjectNameByProjectId(project_id)}`}
+                >
+                  &quot;My Task&quot;
+                </a>{" "}
+                to get it.
+              </Typography>
+            </Box>
+          );
+        }
+        break;
       default:
         break;
     }
   };
 
+  const isReFetchProjectInfoWhenTaskFinish = useMemo(
+    () =>
+      pageName === PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME &&
+      process_type !== GENERATE_REFERENCE_IMAGE_TYPE,
+    [pageName, process_type]
+  );
   useEffect(() => {
     if (taskInfo) {
       if (
-        taskInfo.status === FINISH_TASK_STATUS &&
-        !isRunActionAfterFinished.current
+        savedTaskStatus.current &&
+        savedTaskStatus.current !== FINISH_TASK_STATUS &&
+        taskInfo.status === FINISH_TASK_STATUS
       ) {
-        isRunActionAfterFinished.current = true;
+        savedTaskStatus.current = FINISH_TASK_STATUS;
 
-        if (pageName === PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME) {
+        if (isReFetchProjectInfoWhenTaskFinish) {
           dispatch({
             type: FETCH_DETAIL_PROJECT.REQUESTED,
             payload: {
@@ -356,9 +404,11 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
           });
         }
         actionWhenTaskFinish();
+      } else {
+        savedTaskStatus.current = taskInfo.status;
       }
     }
-  }, [taskInfo]);
+  }, [taskInfo, isReFetchProjectInfoWhenTaskFinish]);
 
   if (
     status === FINISH_TASK_STATUS ||
@@ -367,13 +417,17 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
   ) {
     return null;
   }
-  if (
-    process_type === UPLOAD_TASK_PROCESS_TYPE ||
-    process_type === GENERATE_REFERENCE_IMAGE_TYPE
-  ) {
-    return <TaskListUploadItem taskInfo={taskInfo} />;
-  }
-  return <TaskListImageSourceItem taskInfo={taskInfo} />;
+
+  return (
+    <Box display="none">
+      {process_type === UPLOAD_TASK_PROCESS_TYPE ||
+      process_type === GENERATE_REFERENCE_IMAGE_TYPE ? (
+        <TaskListUploadItem taskInfo={taskInfo} />
+      ) : (
+        <TaskListImageSourceItem taskInfo={taskInfo} />
+      )}
+    </Box>
+  );
 };
 
 export default TaskListItem;
