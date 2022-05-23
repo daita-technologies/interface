@@ -1,9 +1,9 @@
-// import { IDENTITY_ID_NAME, RUNNING_TASK_STATUS } from "constants/defaultValues";
+import { Box, Typography } from "@mui/material";
 import { toast } from "react-toastify";
 import { call, put, select, takeEvery, takeLatest } from "redux-saga/effects";
 import { RootState } from "reduxes";
+import { selectorListProjects } from "reduxes/project/selector";
 import {
-  // addTaskToCurrentDashboard,
   changePageTaskListInfoFailed,
   changePageTaskListInfoSucceeded,
   filterTaskListInfoFailed,
@@ -11,28 +11,30 @@ import {
   getTaskListInfoFailed,
   getTaskListInfoSuceeded,
 } from "reduxes/task/action";
-
 import {
   CHANGE_PAGE_TASK_LIST_INFO,
   FILTER_DEFAULT_VALUE,
   FILTER_TASK_LIST_INFO,
   GET_TASK_LIST_INFO,
+  GOTO_TASK_DASHBOARD_ALERT,
   TASK_LIST_PAGE_SIZE,
   TRIGGER_STOP_TASK_PROCESS,
 } from "reduxes/task/constants";
 import { selectorSpecificProcessListPage } from "reduxes/task/selector";
 import {
+  GoToTaskDashboardAlertPayload,
   PaginationTaskListInfoRequestActionPayload,
   TriggerStopTaskProcessRequestActionPayload,
 } from "reduxes/task/type";
 import { stopProcessApi } from "services";
-
 import taskApi, {
   GetTaskListFilterParams,
   GetTaskListParams,
   // TaskItemApiFields,
   TaskListResponseApiFields,
 } from "services/taskApi";
+import { getProjectNameFromProjectId } from "utils/general";
+
 // import { getLocalStorage } from "utils/general";
 
 function* handleGetTaskListInfo(action: {
@@ -200,7 +202,30 @@ function* handleTriggerStopTaskProcess(action: {
     toast.error(e.message);
   }
 }
+function* handleGotoTaskDashboardAlert(action: {
+  type: string;
+  payload: GoToTaskDashboardAlertPayload;
+}): any {
+  const { payload } = action;
+  const listProjects = yield select(selectorListProjects);
 
+  const taskDashboardHref = yield `${
+    window.location.origin
+  }/task-list/${getProjectNameFromProjectId(listProjects, payload.projectId)}`;
+
+  yield toast.success(payload.message);
+
+  yield toast.info(
+    <Box>
+      <Typography fontSize={14}>
+        Your progress link:{" "}
+        <a className="text-link" href={taskDashboardHref}>
+          {taskDashboardHref}
+        </a>
+      </Typography>
+    </Box>
+  );
+}
 function* generateSaga() {
   yield takeLatest(GET_TASK_LIST_INFO.REQUESTED, handleGetTaskListInfo);
   yield takeLatest(FILTER_TASK_LIST_INFO.REQUESTED, handleFilterTaskListInfo);
@@ -212,6 +237,11 @@ function* generateSaga() {
     TRIGGER_STOP_TASK_PROCESS.REQUESTED,
     handleTriggerStopTaskProcess
   );
+  yield takeEvery(
+    TRIGGER_STOP_TASK_PROCESS.REQUESTED,
+    handleTriggerStopTaskProcess
+  );
+  yield takeEvery(GOTO_TASK_DASHBOARD_ALERT, handleGotoTaskDashboardAlert);
 }
 
 export default generateSaga;

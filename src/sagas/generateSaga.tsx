@@ -1,23 +1,19 @@
-import { toast } from "react-toastify";
-import { delay, call, put, takeEvery, select } from "redux-saga/effects";
-
-import { projectApi } from "services";
-
-import { GENERATE_IMAGES } from "reduxes/generate/constants";
-import { GenerateImagePayload } from "reduxes/generate/type";
-import {
-  capitalizeFirstLetter,
-  getGenerateMethodLabel,
-  getLocalStorage,
-  getProjectNameFromProjectId,
-} from "utils/general";
 import {
   AUGMENT_GENERATE_IMAGES_TYPE_LABEL,
   ID_TOKEN_NAME,
 } from "constants/defaultValues";
+import { toast } from "react-toastify";
+import { call, delay, put, takeEvery } from "redux-saga/effects";
+import { GENERATE_IMAGES } from "reduxes/generate/constants";
+import { GenerateImagePayload } from "reduxes/generate/type";
 import { fetchTaskInfo } from "reduxes/project/action";
-import { Box, Typography } from "@mui/material";
-import { selectorListProjects } from "reduxes/project/selector";
+import { alertGoToTaskDashboard } from "reduxes/task/action";
+import { projectApi } from "services";
+import {
+  capitalizeFirstLetter,
+  getGenerateMethodLabel,
+  getLocalStorage,
+} from "utils/general";
 
 function* handleGenerateImages(action: {
   type: string;
@@ -38,27 +34,12 @@ function* handleGenerateImages(action: {
       } else {
         label = capitalizeFirstLetter(label);
       }
-      const listProjects = yield select(selectorListProjects);
-
-      const taskDashboardHref = yield `${
-        window.location.origin
-      }/task-list/${getProjectNameFromProjectId(listProjects, projectId)}`;
-
-      yield toast.success(
-        `${label} successfully initiated. Please go to My Tasks for the details.`
+      yield put(
+        alertGoToTaskDashboard({
+          message: `${label} successfully initiated. Please go to My Tasks for the details.`,
+          projectId,
+        })
       );
-
-      yield toast.info(
-        <Box>
-          <Typography fontSize={14}>
-            Your progress link:{" "}
-            <a className="text-link" href={taskDashboardHref}>
-              {taskDashboardHref}
-            </a>
-          </Typography>
-        </Box>
-      );
-
       yield delay(2000);
       yield put(
         fetchTaskInfo({

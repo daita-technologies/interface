@@ -10,6 +10,7 @@ import {
   CHANGE_PAGE_TASK_LIST_INFO,
   FILTER_TASK_LIST_INFO,
   GET_TASK_LIST_INFO,
+  GOTO_TASK_DASHBOARD_ALERT,
   TRIGGER_STOP_TASK_PROCESS,
 } from "./constants";
 import {
@@ -19,6 +20,7 @@ import {
   PaginationTaskListInfoSucceedActionPayload,
   PaginationTaskListInfoFailedActionPayload,
   TriggerStopTaskProcessRequestActionPayload,
+  GoToTaskDashboardAlertPayload,
 } from "./type";
 
 export const getTaskListInfo = (payload: GetTaskListParams) => ({
@@ -86,5 +88,11 @@ export const triggerStopTaskProcess = (
 
 export const addTaskToCurrentDashboard = (payload: TaskItemApiFields) => ({
   type: ADD_TASK_TO_CURRENT_DASHBOARD,
+  payload,
+});
+export const alertGoToTaskDashboard = (
+  payload: GoToTaskDashboardAlertPayload
+) => ({
+  type: GOTO_TASK_DASHBOARD_ALERT,
   payload,
 });
