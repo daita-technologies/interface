@@ -138,7 +138,7 @@ const AugmentPreviewImageDialog = function () {
           </Box>
         </Box>
 
-        {augmentCustomMethodPreviewImageInfo && (
+        {/* {augmentCustomMethodPreviewImageInfo && (
           <Box display="flex" justifyContent="flex-end" marginTop={4}>
             <MyButton
               type="button"
@@ -149,7 +149,7 @@ const AugmentPreviewImageDialog = function () {
               Aplly
             </MyButton>
           </Box>
-        )}
+        )} */}
       </Box>
     );
   };
