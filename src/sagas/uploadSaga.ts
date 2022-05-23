@@ -299,7 +299,7 @@ function* handleUploadZipFile(action: {
           yield put(
             alertGoToTaskDashboard({
               message:
-                "Zip file uploading successfully initiated. Please go to My Tasks for the details.",
+                "Zip file uploading successfully initiated. Please wait for a while to unzip or go to My Task for details",
               projectId,
             })
           );
