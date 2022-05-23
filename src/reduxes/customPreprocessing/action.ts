@@ -4,6 +4,7 @@ import {
   CHANGE_REFERENCE_PREPROCESSING_IMAGE,
   FETCH_REFERENCE_IMAGE_INFO,
   GENERATE_REFERENCE_IMAGES,
+  RESET_STATE_GENERATE_REFERENCE_IMAGE,
   SET_REFERENCE_SELECTOR_DIALOG,
   SET_SELECTED_METHODS,
 } from "./constants";
@@ -13,6 +14,7 @@ import {
   ReferenceImageInfoProps,
   ReferenceInfoApiFields,
   ReferenceSeletectorDialog,
+  ResetGenerateReferenceImageProps,
   SelectedMethodProps,
 } from "./type";
 
@@ -38,6 +40,12 @@ export const setReferencePreprocessImage = (
 });
 export const setSelectedMethods = (payload: SelectedMethodProps) => ({
   type: SET_SELECTED_METHODS,
+  payload,
+});
+export const resetStateGenerateReferenceImage = (
+  payload: ResetGenerateReferenceImageProps
+) => ({
+  type: RESET_STATE_GENERATE_REFERENCE_IMAGE,
   payload,
 });
 export const generateReferenceImages = (

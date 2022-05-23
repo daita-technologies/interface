@@ -1,6 +1,7 @@
 import { AlbumImagesFields } from "reduxes/album/type";
 
 export interface CustomPreprocessReducer {
+  projectId: string | null;
   isPreprocessingExpertMode: boolean;
   referencePreprocessImage: ReferencePreprocessImageRecord;
   referenceSeletectorDialog: ReferenceSeletectorDialog;
@@ -43,4 +44,7 @@ export interface ReferenceInfoApiFields {
   project_id: string;
   created_time: string;
   filename: string;
+}
+export interface ResetGenerateReferenceImageProps {
+  projectId: string;
 }

@@ -14,6 +14,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   generateReferenceImages,
+  resetStateGenerateReferenceImage,
   setReferenceSeletectorDialog,
   setSelectedMethods,
 } from "reduxes/customPreprocessing/action";
@@ -56,7 +57,7 @@ const ExpertPreprocessingOption = function () {
   const methods = useSelector(selectorMethodList)?.preprocessing;
   const methodIds = methods ? methods.map((t) => t.method_id) : [];
   useEffect(() => {
-    dispatch(setSelectedMethods({ selectedMethodIds: [] }));
+    dispatch(resetStateGenerateReferenceImage({ projectId: currentProjectId }));
   }, [currentProjectId]);
   const haveTaskRunning = useSelector(selectorHaveTaskRunning);
 
@@ -86,7 +87,7 @@ const ExpertPreprocessingOption = function () {
           variant="contained"
           size="small"
           isLoading={isGenerateReferenceRequesting}
-          disabled={!currentProjectId||isGenerating || haveTaskRunning}
+          disabled={!currentProjectId || isGenerating || haveTaskRunning}
           onClick={handleClickGenerateReferenceImages}
         >
           Run
