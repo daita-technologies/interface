@@ -89,13 +89,15 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
     );
   };
   const onClickRunPreprocessing = () => {
-    let listMethodId = [] as string[];
+    const listMethodId = [] as string[];
     const referenceImages = {} as Record<string, string>;
     if (isPreprocessingExpertMode) {
-      listMethodId = Object.keys(referencePreprocessImage);
-      listMethodId.forEach((methodId) => {
-        referenceImages[methodId] =
-          referencePreprocessImage[methodId].imageS3Path;
+      Object.keys(referencePreprocessImage).forEach((methodId) => {
+        if (referencePreprocessImage[methodId]) {
+          referenceImages[methodId] =
+            referencePreprocessImage[methodId].imageS3Path;
+          listMethodId.push(methodId);
+        }
       });
     }
     dispatch(
