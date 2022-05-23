@@ -26,3 +26,7 @@ export const selectorSavedAugmentCustomMethodParamValue = (
   methodId: string,
   state: RootState
 ) => state.customAugmentation.savedAugmentCustomMethodParamValue[methodId];
+
+export const selectorIsLoadingAugmentCustomMethodPreviewImage = (
+  state: RootState
+) => state.customAugmentation.isLoadingPreviewImage;

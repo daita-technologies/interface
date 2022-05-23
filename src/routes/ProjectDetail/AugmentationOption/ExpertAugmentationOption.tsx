@@ -5,9 +5,11 @@ import { Box, Divider } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
+import _ from "lodash";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  removeAugmentCustomMethodParamValue,
   setReferenceSeletectorDialog,
   setSelectedMethods,
 } from "reduxes/customAugmentation/action";
@@ -46,6 +48,11 @@ const ExpertAugmentationOption = function () {
   }, [currentProjectId]);
 
   const handleChangeSelectedMethods = (event: any, listMethod: string[]) => {
+    if (listMethod.length < selectedMethodIds.length) {
+      // NOTE: user remove selected method
+      const removeMethodIdList = _.difference(selectedMethodIds, listMethod);
+      dispatch(removeAugmentCustomMethodParamValue({ removeMethodIdList }));
+    }
     dispatch(setSelectedMethods({ selectedMethodIds: listMethod }));
   };
   const handleShowReferenceDialog = (methodId: string) => {

@@ -16,6 +16,10 @@ export type AugmentCustomMethodParamValue = {
 export interface ChangeAugmentCustomMethodParamValueActionPayload
   extends AugmentCustomMethodParamValue {}
 
+export interface RemoveAugmentCustomMethodParamValueActionPayload {
+  removeMethodIdList: string[];
+}
+
 export interface AugmentCustomMethodPreviewImageInfo {
   [methodName: string]: GetAugmentCustomMethodPreviewImageResponse;
 }
@@ -23,6 +27,7 @@ export interface AugmentCustomMethodPreviewImageInfo {
 export interface SavedAugmentCustomMethodParamValueType {
   [methodName: string]: AugmentCustomMethodParamValue | undefined;
 }
+
 export interface CustomAugmentationReducer {
   isAugmentationExpertMode: boolean;
   referenceAugmentationImage: ReferenceAugmentationgeRecord;
@@ -31,6 +36,7 @@ export interface CustomAugmentationReducer {
   augmentCustomMethodPreviewImageInfo: null | AugmentCustomMethodPreviewImageInfo;
   savedAugmentCustomMethodParamValue: SavedAugmentCustomMethodParamValueType;
   isFetchingAugmentCustomMethodPreviewImage: boolean | null;
+  isLoadingPreviewImage: boolean;
 }
 export type ReferenceAugmentationgeRecord = Record<
   string,
@@ -58,3 +64,7 @@ export interface GetAugmentCustomMethodPreviewImageInfoRequestActionPayload
 
 export interface GetAugmentCustomMethodPreviewImageInfoSucceededActionPayload
   extends GetAugmentCustomMethodPreviewImageResponse {}
+
+export interface ChangeIsLoadingAugmentCustomMethodPreviewImageRequestActionPayload {
+  isLoading: boolean;
+}

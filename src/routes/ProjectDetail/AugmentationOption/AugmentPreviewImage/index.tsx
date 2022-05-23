@@ -48,13 +48,16 @@ const AugmentPreviewImageDialog = function () {
     selectorAugmentCustomMethodPreviewImageInfo(methodId || "", state)
   );
 
-  const handleClose = () => {
+  const handleClose = (event: any, reason?: string) => {
+    if (reason && reason === "backdropClick") return;
     dispatch(setReferenceSeletectorDialog({ isShow: false }));
   };
 
   useEffect(() => {
     if (methodId) {
-      dispatch(getAugmentCustomMethodPreviewImageInfo({ methodId }));
+      if (!augmentCustomMethodPreviewImageInfo) {
+        dispatch(getAugmentCustomMethodPreviewImageInfo({ methodId }));
+      }
     }
   }, [methodId]);
 
@@ -77,12 +80,11 @@ const AugmentPreviewImageDialog = function () {
             </Box>
 
             {ls_params_name.map((paramName: string, paramNameIndex: number) => (
-              <Box mb={paramNameIndex === ls_params_name.length - 1 ? 2 : 0}>
-                <ParamControl
-                  key={`param-control-${paramName}`}
-                  methodId={methodId}
-                  paramName={paramName}
-                />
+              <Box
+                key={`param-control-${paramName}`}
+                mb={paramNameIndex === ls_params_name.length - 1 ? 2 : 0}
+              >
+                <ParamControl methodId={methodId} paramName={paramName} />
               </Box>
             ))}
           </Box>
@@ -155,7 +157,7 @@ const AugmentPreviewImageDialog = function () {
   return (
     <Modal open={isShow} onClose={handleClose} disableEscapeKeyDown>
       <Box sx={{ ...modalStyle, width: 800, minHeight: 500 }}>
-        <IconButton sx={modalCloseStyle} onClick={handleClose}>
+        <IconButton sx={modalCloseStyle} onClick={(e) => handleClose(e, "")}>
           <CancelIcon fontSize="large" />
         </IconButton>
         <Typography variant="h4" component="h2">

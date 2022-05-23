@@ -10,3 +10,4 @@ export const ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH =
   "/assets/images/augment-custom-method-original.jpg";
 
 export const AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE = 350;
+export const AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE = 232;

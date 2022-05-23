@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { selectorSavedAugmentCustomMethodParamValue } from "reduxes/customAugmentation/selector";
 import { AugmentCustomMethodParamValue } from "reduxes/customAugmentation/type";
 
+/* eslint-disable import/no-cycle */
 import { limitTooLongLineStyle } from "./ExpertAugmentationOption";
 import { prettyMethodName } from "../PreprocessingOption/ReferenceImageDialog";
 import { AugmentCustomMethodTriggerProps } from "./type";
@@ -18,18 +19,20 @@ const SelectedParamText = function ({
   if (selectedParam) {
     const { params } = selectedParam;
     return (
-      <>
+      <Box>
         {params.map((method) => (
           <Typography
+            key={`selected-param-text-value-of-${method.paramName}-${method.paramValue}`}
             variant="body2"
             color="text.secondary"
             noWrap
             sx={limitTooLongLineStyle}
+            textTransform="capitalize"
           >
             {`${method.paramName}: ${method.paramValue}`}
           </Typography>
         ))}
-      </>
+      </Box>
     );
   }
 
@@ -59,7 +62,7 @@ const AugmentCustomMethodTrigger = function ({
       <Typography variant="body1" fontWeight={500}>
         {prettyMethodName(methodName)}
       </Typography>
-      <Box display="flex" alignItems="flex-end">
+      <Box display="flex" alignItems="center" justifyContent="space-between">
         <SelectedParamText selectedParam={savedAugmentCustomMethodParamValue} />
         <IconButton
           size="small"

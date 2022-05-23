@@ -15,7 +15,10 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "reduxes";
 import { changeAugmentCustomMethodParamValue } from "reduxes/customAugmentation/action";
-import { selectorAugmentCustomMethodPreviewImageInfo } from "reduxes/customAugmentation/selector";
+import {
+  selectorAugmentCustomMethodPreviewImageInfo,
+  selectorSavedAugmentCustomMethodParamValue,
+} from "reduxes/customAugmentation/selector";
 
 import { ParamControlProps } from "./type";
 
@@ -25,27 +28,38 @@ const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
   const augmentCustomMethodPreviewImageInfo = useSelector((state: RootState) =>
     selectorAugmentCustomMethodPreviewImageInfo(methodId || "", state)
   );
+  const savedAugmentCustomMethodParamValue = useSelector((state: RootState) =>
+    selectorSavedAugmentCustomMethodParamValue(methodId || "", state)
+  );
 
   const onClickChangeSwitch = () => {
     setIsChecked(!isChecked);
+
+    dispatch(
+      changeAugmentCustomMethodParamValue({
+        methodId,
+        params: [
+          {
+            paramName,
+            paramValue: !isChecked,
+          },
+        ],
+      })
+    );
   };
 
   const onChangeSlider = (event: Event, newParamValue: number | number[]) => {
     if (typeof newParamValue !== "object") {
-      debounce(
-        () =>
-          dispatch(
-            changeAugmentCustomMethodParamValue({
-              methodId,
-              params: [
-                {
-                  paramName,
-                  paramValue: newParamValue,
-                },
-              ],
-            })
-          ),
-        1500
+      dispatch(
+        changeAugmentCustomMethodParamValue({
+          methodId,
+          params: [
+            {
+              paramName,
+              paramValue: newParamValue,
+            },
+          ],
+        })
       );
     }
   };
@@ -60,13 +74,26 @@ const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
 
     if (valueArray.length > 0) {
       const renderControl = () => {
+        const matchIndexOfSaveParamByMethod = savedAugmentCustomMethodParamValue
+          ? savedAugmentCustomMethodParamValue.params.findIndex(
+              (saveParamObject) => saveParamObject.paramName === paramName
+            )
+          : -1;
+
         switch (type) {
           case NUMBER_AUGMENT_CUSTOM_METHOD_PARAM_TYPE: {
             const forceValueArray = valueArray as number[];
             return (
               <Slider
-                // defaultValue={valueArray[0]}
-                onChange={onChangeSlider}
+                defaultValue={
+                  savedAugmentCustomMethodParamValue &&
+                  matchIndexOfSaveParamByMethod > -1
+                    ? (savedAugmentCustomMethodParamValue.params[
+                        matchIndexOfSaveParamByMethod
+                      ].paramValue as number)
+                    : undefined
+                }
+                onChange={debounce(onChangeSlider, 500)}
                 valueLabelDisplay="auto"
                 step={Number(step.toFixed(2)) || 0}
                 marks
@@ -79,7 +106,18 @@ const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
             return (
               <FormControlLabel
                 control={
-                  <Switch checked={isChecked} onChange={onClickChangeSwitch} />
+                  <Switch
+                    defaultChecked={
+                      savedAugmentCustomMethodParamValue &&
+                      matchIndexOfSaveParamByMethod > -1
+                        ? (savedAugmentCustomMethodParamValue.params[
+                            matchIndexOfSaveParamByMethod
+                          ].paramValue as boolean)
+                        : undefined
+                    }
+                    checked={isChecked}
+                    onChange={debounce(onClickChangeSwitch, 100)}
+                  />
                 }
                 label="Active?"
               />
