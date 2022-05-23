@@ -1,29 +1,31 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
-import EditIcon from "@mui/icons-material/Edit";
-import { Box, Divider, IconButton, Typography } from "@mui/material";
+
+import { Box, Divider } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
+import _ from "lodash";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  removeAugmentCustomMethodParamValue,
   setReferenceSeletectorDialog,
   setSelectedMethods,
 } from "reduxes/customAugmentation/action";
-import {
-  selectorReferenceAugmentationImage,
-  selectorSelectedMethodIds,
-} from "reduxes/customAugmentation/selector";
+import { selectorSelectedMethodIds } from "reduxes/customAugmentation/selector";
 import {
   selectorCurrentProjectId,
   selectorMethodList,
 } from "reduxes/project/selector";
 import DataSetSplit from "../DataSetSplit";
 import { prettyMethodName } from "../PreprocessingOption/ReferenceImageDialog";
-import ReferenceImageDialog from "./ReferenceImageDialog";
 
-const limitTooLongLineStyle = {
+/* eslint-disable import/no-cycle */
+import AugmentCustomMethodTrigger from "./AugmentCustomMethodTrigger";
+import AugmentPreviewImageDialog from "./AugmentPreviewImage";
+
+export const limitTooLongLineStyle = {
   display: "-webkit-box",
   WebkitBoxOrient: "vertical",
   WebkitLineClamp: 2,
@@ -44,11 +46,13 @@ const ExpertAugmentationOption = function () {
   useEffect(() => {
     dispatch(setSelectedMethods({ selectedMethodIds: [] }));
   }, [currentProjectId]);
-  const referenceAugmentationImage = useSelector(
-    selectorReferenceAugmentationImage
-  );
 
   const handleChangeSelectedMethods = (event: any, listMethod: string[]) => {
+    if (listMethod.length < selectedMethodIds.length) {
+      // NOTE: user remove selected method
+      const removeMethodIdList = _.difference(selectedMethodIds, listMethod);
+      dispatch(removeAugmentCustomMethodParamValue({ removeMethodIdList }));
+    }
     dispatch(setSelectedMethods({ selectedMethodIds: listMethod }));
   };
   const handleShowReferenceDialog = (methodId: string) => {
@@ -104,36 +108,19 @@ const ExpertAugmentationOption = function () {
             <Box display="flex" flexWrap="wrap" justifyContent="flex-start">
               {selectedMethodIds.map((methodId) => (
                 <Box key={methodId} flexBasis="33.33%" sx={{ p: 1 }}>
-                  <Typography variant="body1" fontWeight={500}>
-                    {prettyMethodName(getMethodName(methodId))}
-                  </Typography>
-                  <Box display="flex" alignItems="flex-end">
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      noWrap
-                      sx={limitTooLongLineStyle}
-                    >
-                      {referenceAugmentationImage[methodId]
-                        ? referenceAugmentationImage[methodId].filename
-                        : "Select your reference image"}
-                    </Typography>
-                    <IconButton
-                      size="small"
-                      sx={{ padding: "0 2px" }}
-                      color="primary"
-                      component="span"
-                      onClick={() => handleShowReferenceDialog(methodId)}
-                    >
-                      <EditIcon sx={{ width: 20 }} />
-                    </IconButton>
-                  </Box>
+                  <AugmentCustomMethodTrigger
+                    methodId={methodId}
+                    methodName={getMethodName(methodId)}
+                    handleShowReferenceDialog={() =>
+                      handleShowReferenceDialog(methodId)
+                    }
+                  />
                 </Box>
               ))}
             </Box>
           </Box>
         </Box>
-        <ReferenceImageDialog />
+        <AugmentPreviewImageDialog />
       </Box>
       <Box display="flex" width="100%" justifyContent="flex-end">
         <Box borderRadius={2} bgcolor="background.paper" flex={1}>

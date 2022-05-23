@@ -9,3 +9,24 @@ export const selectorReferenceSeletectorDialog = (state: RootState) =>
 
 export const selectorSelectedMethodIds = (state: RootState) =>
   state.customAugmentation.selectedMethodIds;
+
+export const selectorIsFetchingAugmentCustomMethodPreviewImage = (
+  state: RootState
+) => state.customAugmentation.isFetchingAugmentCustomMethodPreviewImage;
+
+export const selectorAugmentCustomMethodPreviewImageInfo = (
+  methodId: string,
+  state: RootState
+) =>
+  state.customAugmentation.augmentCustomMethodPreviewImageInfo
+    ? state.customAugmentation.augmentCustomMethodPreviewImageInfo[methodId]
+    : null;
+
+export const selectorSavedAugmentCustomMethodParamValue = (
+  methodId: string,
+  state: RootState
+) => state.customAugmentation.savedAugmentCustomMethodParamValue[methodId];
+
+export const selectorIsLoadingAugmentCustomMethodPreviewImage = (
+  state: RootState
+) => state.customAugmentation.isLoadingPreviewImage;
