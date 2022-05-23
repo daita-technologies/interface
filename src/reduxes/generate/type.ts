@@ -14,7 +14,7 @@ export type GenerateDataType =
   | typeof ORIGINAL_SOURCE
   | typeof PREPROCESS_SOURCE;
 
-export type generateMethodType =
+export type GenerateMethodType =
   | typeof PREPROCESSING_GENERATE_IMAGES_TYPE
   | typeof AUGMENT_GENERATE_IMAGES_TYPE;
 
@@ -30,18 +30,19 @@ export interface GenerateImagePayload {
   dataType: ImageSourceType;
   numberImageGeneratePerSource: number;
   dataNumber: Array<number>;
-  generateMethod: generateMethodType;
+  generateMethod: GenerateMethodType;
   processType: typeof PREPROCESS_SOURCE | typeof AUGMENT_SOURCE;
   referenceImages: Record<string, string>;
+  isNormalizeResolution?: boolean;
 }
 
 export interface GenerateImageSucceedPayload {
   taskId: string;
-  generateMethod?: generateMethodType;
+  generateMethod?: GenerateMethodType;
 }
 
 export interface GenerateImageFailedPayload {
-  generateMethod?: generateMethodType;
+  generateMethod?: GenerateMethodType;
 }
 
 export interface GenerateReducer {

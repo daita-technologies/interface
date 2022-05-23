@@ -12,6 +12,7 @@ import {
   PREPROCESSING_GENERATE_IMAGES_TYPE,
   PREPROCESS_SOURCE,
 } from "constants/defaultValues";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
 import { changePreprocessingExpertMode } from "reduxes/customPreprocessing/action";
@@ -41,6 +42,9 @@ import ExpertPreprocessingOption from "./ExpertPreprocessOption";
 import { PreprocessingOptionProps } from "./type";
 
 const PreprocessingOption = function (props: PreprocessingOptionProps) {
+  const [isNormalizeResolution, setIsNormalizeResolution] =
+    useState<boolean>(false);
+
   const dispatch = useDispatch();
   const projectId = useSelector(selectorCurrentProjectId);
   const projectName = useSelector(selectorCurrentProjectName);
@@ -106,6 +110,7 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
         numberImageGeneratePerSource: 1,
         dataNumber: [totalOriginalImages, 0, 0],
         generateMethod: PREPROCESSING_GENERATE_IMAGES_TYPE,
+        isNormalizeResolution,
       })
     );
   };
@@ -161,7 +166,11 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
     }
     return null;
   };
-
+  const handleChangeIsNormalizeResolution = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setIsNormalizeResolution(event.target.checked);
+  };
   return (
     <Box display="flex" flexDirection="column" flex={1}>
       <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -192,15 +201,20 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
           >
             Run
           </MyButton>
-          {!isPreprocessingExpertMode && (
+          {/* {!isPreprocessingExpertMode && (
             <Box display="flex" alignItems="center">
               <FormControlLabel
-                control={<Checkbox checked={false} />}
+                control={
+                  <Checkbox
+                    checked={isNormalizeResolution}
+                    onChange={handleChangeIsNormalizeResolution}
+                  />
+                }
                 label="Normalization"
               />
               <InfoTooltip title="Expert mode" />
             </Box>
-          )}
+          )} */}
         </Box>
       </Box>
 
