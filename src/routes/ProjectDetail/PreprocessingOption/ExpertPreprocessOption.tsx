@@ -76,7 +76,7 @@ const ExpertPreprocessingOption = function () {
           variant="contained"
           size="small"
           isLoading={isGenerateReferenceRequesting}
-          disabled={isGenerating || haveTaskRunning}
+          disabled={!currentProjectId||isGenerating || haveTaskRunning}
           onClick={handleClickGenerateReferenceImages}
         >
           Run
