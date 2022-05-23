@@ -201,7 +201,7 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
           >
             Run
           </MyButton>
-          {!isPreprocessingExpertMode && (
+          {/* {!isPreprocessingExpertMode && (
             <Box display="flex" alignItems="center">
               <FormControlLabel
                 control={
@@ -214,7 +214,7 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
               />
               <InfoTooltip title="Expert mode" />
             </Box>
-          )}
+          )} */}
         </Box>
       </Box>
 

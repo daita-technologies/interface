@@ -201,9 +201,9 @@ const projectApi = {
       num_aug_p_img: 1 || numberImageGeneratePerSource,
       data_number: dataNumber,
     };
-    if (isNormalizeResolution !== undefined) {
-      payload.is_normalize_resolution = isNormalizeResolution;
-    }
+    // if (isNormalizeResolution !== undefined) {
+    //   payload.is_normalize_resolution = isNormalizeResolution;
+    // }
     return axios.post(`${generateApiUrl}/generate/generate_images`, payload, {
       headers: getAuthHeader(),
     });
