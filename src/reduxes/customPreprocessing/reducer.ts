@@ -1,10 +1,17 @@
-import { TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE } from "constants/defaultValues";
+import {
+  ERROR_TASK_STATUS,
+  GENERATE_REFERENCE_IMAGE_TYPE,
+  TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE,
+} from "constants/defaultValues";
+import { FETCH_TASK_INFO } from "reduxes/project/constants";
+import { FetchTaskInfoSucceedPayload } from "reduxes/project/type";
 import { getLocalStorage, setLocalStorage } from "utils/general";
 import {
   CHANGE_PREPROCESSING_EXPERT_MODE,
   CHANGE_REFERENCE_PREPROCESSING_IMAGE,
   FETCH_REFERENCE_IMAGE_INFO,
   GENERATE_REFERENCE_IMAGES,
+  RESET_STATE_GENERATE_REFERENCE_IMAGE,
   SET_REFERENCE_SELECTOR_DIALOG,
   SET_SELECTED_METHODS,
 } from "./constants";
@@ -14,10 +21,12 @@ import {
   ReferenceImageInfoProps,
   ReferenceInfoApiFields,
   ReferencePreprocessImageRecord,
+  ResetGenerateReferenceImageProps,
   SelectedMethodProps,
 } from "./type";
 
 const inititalState: CustomPreprocessReducer = {
+  projectId: null,
   isPreprocessingExpertMode:
     getLocalStorage(TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE) === "true",
   referencePreprocessImage: {} as ReferencePreprocessImageRecord,
@@ -68,6 +77,13 @@ const customPreprocessingReducer = (
           ...state.referenceSeletectorDialog,
           ...payload,
         },
+      };
+    }
+    case RESET_STATE_GENERATE_REFERENCE_IMAGE: {
+      const { projectId } = payload as ResetGenerateReferenceImageProps;
+      return {
+        ...inititalState,
+        projectId,
       };
     }
     case SET_SELECTED_METHODS: {
@@ -149,6 +165,21 @@ const customPreprocessingReducer = (
         isGenerateReferenceRequesting: false,
         isGenerating: false,
       };
+    }
+    case FETCH_TASK_INFO.SUCCEEDED: {
+      const { taskInfo, projectId } = payload as FetchTaskInfoSucceedPayload;
+      if (
+        projectId === state.projectId &&
+        taskInfo.process_type === GENERATE_REFERENCE_IMAGE_TYPE &&
+        taskInfo.status === ERROR_TASK_STATUS
+      ) {
+        return {
+          ...state,
+          isGenerateReferenceRequesting: false,
+          isGenerating: false,
+        };
+      }
+      return state;
     }
     default:
       return state;
