@@ -22,6 +22,7 @@ import {
   selectorIsGenerateReferenceRequesting,
   selectorIsGenerating,
   selectorReferencePreprocessImage,
+  selectorReferencePreprocessProjectId,
   selectorSelectedMethodIds,
 } from "reduxes/customPreprocessing/selector";
 import {
@@ -50,6 +51,9 @@ const ExpertPreprocessingOption = function () {
   );
   const currentProjectId = useSelector(selectorCurrentProjectId);
   const selectedMethodIds = useSelector(selectorSelectedMethodIds);
+  const referencePreprocessProjectId = useSelector(
+    selectorReferencePreprocessProjectId
+  );
   const isGenerating = useSelector(selectorIsGenerating);
   const isGenerateReferenceRequesting = useSelector(
     selectorIsGenerateReferenceRequesting
@@ -57,7 +61,11 @@ const ExpertPreprocessingOption = function () {
   const methods = useSelector(selectorMethodList)?.preprocessing;
   const methodIds = methods ? methods.map((t) => t.method_id) : [];
   useEffect(() => {
-    dispatch(resetStateGenerateReferenceImage({ projectId: currentProjectId }));
+    if (currentProjectId && currentProjectId !== referencePreprocessProjectId) {
+      dispatch(
+        resetStateGenerateReferenceImage({ projectId: currentProjectId })
+      );
+    }
   }, [currentProjectId]);
   const haveTaskRunning = useSelector(selectorHaveTaskRunning);
 

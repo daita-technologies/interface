@@ -82,7 +82,14 @@ const customPreprocessingReducer = (
     case RESET_STATE_GENERATE_REFERENCE_IMAGE: {
       const { projectId } = payload as ResetGenerateReferenceImageProps;
       return {
-        ...inititalState,
+        ...state,
+        referencePreprocessImage: {} as ReferencePreprocessImageRecord,
+        referenceSeletectorDialog: {
+          isShow: false,
+        },
+        selectedMethodIds: [],
+        isGenerating: true,
+        isGenerateReferenceRequesting: false,
         projectId,
       };
     }
