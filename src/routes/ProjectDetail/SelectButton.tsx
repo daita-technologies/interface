@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Button,
@@ -8,27 +7,39 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
+import { InfoTooltip, MyButton } from "components";
+import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectorAlbumMode,
-  selectorIsDeletingImages,
-  selectorSelectedList,
-} from "reduxes/album/selector";
-import { ALBUM_SELECT_MODE, ALBUM_VIEW_MODE } from "reduxes/album/constants";
+import { toast } from "react-toastify";
 import {
   changeAlbumMode,
   deleteImages,
   resetSelectedList,
 } from "reduxes/album/action";
+import { ALBUM_SELECT_MODE, ALBUM_VIEW_MODE } from "reduxes/album/constants";
+import {
+  selectorAlbumMode,
+  selectorIsDeletingImages,
+  selectorSelectedList,
+} from "reduxes/album/selector";
 import { downloadSelectedFiles } from "reduxes/download/action";
 import {
   selectorDownloadImagesLength,
   selectorIsDownloadingSelectedFiles,
   selectorIsZippingSelectedFiles,
 } from "reduxes/download/selector";
-import { InfoTooltip, MyButton } from "components";
-import { selectorCurrentProjectId } from "reduxes/project/selector";
-import { toast } from "react-toastify";
+import {
+  selectorIsGenerateImagesAugmenting,
+  selectorIsGenerateImagesPreprocessing,
+} from "reduxes/generate/selector";
+import {
+  selectorCurrentProjectId,
+  selectorHaveTaskRunning,
+} from "reduxes/project/selector";
+import {
+  selectorIsChecking,
+  selectorIsUploading,
+} from "reduxes/upload/selector";
 
 const SelectButton = function () {
   const dispatch = useDispatch();
@@ -45,6 +56,33 @@ const SelectButton = function () {
 
   const isDeletingImages = useSelector(selectorIsDeletingImages);
 
+  const isUploadChecking = useSelector(selectorIsChecking);
+
+  const isUploading = useSelector(selectorIsUploading);
+
+  const haveTaskRunning = useSelector(selectorHaveTaskRunning);
+
+  const isGenerateImagesAugmenting = useSelector(
+    selectorIsGenerateImagesAugmenting
+  );
+  const isGenerateImagesPreprocessing = useSelector(
+    selectorIsGenerateImagesPreprocessing
+  );
+  const isDisabledSelectMode = useMemo(
+    () =>
+      isUploadChecking ||
+      isUploading ||
+      haveTaskRunning ||
+      !!isGenerateImagesPreprocessing ||
+      !!isGenerateImagesAugmenting,
+    [
+      isUploadChecking,
+      isUploading,
+      haveTaskRunning,
+      isGenerateImagesPreprocessing,
+      isGenerateImagesAugmenting,
+    ]
+  );
   const dowloadProgressValue = isDownloadingSelectedFiles
     ? (selectedDownloadedLength / selectedList.length) * 100
     : 0;
@@ -109,7 +147,7 @@ const SelectButton = function () {
             color="error"
             size="small"
             isLoading={!!isDeletingImages}
-            disabled={selectedList.length <= 0}
+            disabled={selectedList.length <= 0 || isDisabledSelectMode}
             onClick={onClickDeleteSelectedImages}
           >
             Delete{selectedList.length > 0 ? ` ${selectedList.length}` : ""}{" "}
