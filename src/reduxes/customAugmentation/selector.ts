@@ -22,10 +22,13 @@ export const selectorAugmentCustomMethodPreviewImageInfo = (
     ? state.customAugmentation.augmentCustomMethodPreviewImageInfo[methodId]
     : null;
 
-export const selectorSavedAugmentCustomMethodParamValue = (
+export const selectorSpecificSavedAugmentCustomMethodParamValue = (
   methodId: string,
   state: RootState
 ) => state.customAugmentation.savedAugmentCustomMethodParamValue[methodId];
+
+export const selectorSavedAugmentCustomMethodParamValue = (state: RootState) =>
+  state.customAugmentation.savedAugmentCustomMethodParamValue;
 
 export const selectorIsLoadingAugmentCustomMethodPreviewImage = (
   state: RootState

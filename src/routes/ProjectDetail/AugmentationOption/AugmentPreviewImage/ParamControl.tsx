@@ -17,7 +17,7 @@ import { RootState } from "reduxes";
 import { changeAugmentCustomMethodParamValue } from "reduxes/customAugmentation/action";
 import {
   selectorAugmentCustomMethodPreviewImageInfo,
-  selectorSavedAugmentCustomMethodParamValue,
+  selectorSpecificSavedAugmentCustomMethodParamValue,
 } from "reduxes/customAugmentation/selector";
 
 import { ParamControlProps } from "./type";
@@ -28,8 +28,9 @@ const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
   const augmentCustomMethodPreviewImageInfo = useSelector((state: RootState) =>
     selectorAugmentCustomMethodPreviewImageInfo(methodId || "", state)
   );
-  const savedAugmentCustomMethodParamValue = useSelector((state: RootState) =>
-    selectorSavedAugmentCustomMethodParamValue(methodId || "", state)
+  const specificSavedAugmentCustomMethodParamValue = useSelector(
+    (state: RootState) =>
+      selectorSpecificSavedAugmentCustomMethodParamValue(methodId || "", state)
   );
 
   const onClickChangeSwitch = () => {
@@ -74,11 +75,12 @@ const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
 
     if (valueArray.length > 0) {
       const renderControl = () => {
-        const matchIndexOfSaveParamByMethod = savedAugmentCustomMethodParamValue
-          ? savedAugmentCustomMethodParamValue.params.findIndex(
-              (saveParamObject) => saveParamObject.paramName === paramName
-            )
-          : -1;
+        const matchIndexOfSaveParamByMethod =
+          specificSavedAugmentCustomMethodParamValue
+            ? specificSavedAugmentCustomMethodParamValue.params.findIndex(
+                (saveParamObject) => saveParamObject.paramName === paramName
+              )
+            : -1;
 
         switch (type) {
           case NUMBER_AUGMENT_CUSTOM_METHOD_PARAM_TYPE: {
@@ -86,9 +88,9 @@ const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
             return (
               <Slider
                 defaultValue={
-                  savedAugmentCustomMethodParamValue &&
+                  specificSavedAugmentCustomMethodParamValue &&
                   matchIndexOfSaveParamByMethod > -1
-                    ? (savedAugmentCustomMethodParamValue.params[
+                    ? (specificSavedAugmentCustomMethodParamValue.params[
                         matchIndexOfSaveParamByMethod
                       ].paramValue as number)
                     : undefined
@@ -108,9 +110,9 @@ const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
                 control={
                   <Switch
                     defaultChecked={
-                      savedAugmentCustomMethodParamValue &&
+                      specificSavedAugmentCustomMethodParamValue &&
                       matchIndexOfSaveParamByMethod > -1
-                        ? (savedAugmentCustomMethodParamValue.params[
+                        ? (specificSavedAugmentCustomMethodParamValue.params[
                             matchIndexOfSaveParamByMethod
                           ].paramValue as boolean)
                         : undefined

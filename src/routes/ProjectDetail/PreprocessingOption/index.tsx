@@ -113,6 +113,7 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
         dataNumber: [totalOriginalImages, 0, 0],
         generateMethod: PREPROCESSING_GENERATE_IMAGES_TYPE,
         isNormalizeResolution,
+        augmentParameters: {},
       })
     );
   };
