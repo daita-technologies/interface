@@ -13,11 +13,11 @@ import {
   ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH,
 } from "constants/customMethod";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import { RootState } from "reduxes";
 import {
+  changeAugmentCustomMethodParamValue,
   getAugmentCustomMethodPreviewImageInfo,
   setReferenceSeletectorDialog,
 } from "reduxes/customAugmentation/action";
@@ -25,7 +25,9 @@ import {
   selectorAugmentCustomMethodPreviewImageInfo,
   selectorIsFetchingAugmentCustomMethodPreviewImage,
   selectorReferenceSeletectorDialog,
+  selectorSpecificSavedAugmentCustomMethodParamValue,
 } from "reduxes/customAugmentation/selector";
+import { AugmentCustomMethodParamValue } from "reduxes/customAugmentation/type";
 
 import { selectorMethodList } from "reduxes/project/selector";
 
@@ -44,12 +46,34 @@ const AugmentPreviewImageDialog = function () {
   const isFetchingAugmentCustomMethodPreviewImage = useSelector(
     selectorIsFetchingAugmentCustomMethodPreviewImage
   );
+
   const augmentCustomMethodPreviewImageInfo = useSelector((state: RootState) =>
     selectorAugmentCustomMethodPreviewImageInfo(methodId || "", state)
   );
 
+  const specificSavedAugmentCustomMethodParamValue = useSelector(
+    (state: RootState) =>
+      selectorSpecificSavedAugmentCustomMethodParamValue(methodId || "", state)
+  );
+
+  const [
+    localSpecificSavedAugmentCustomMethodParamValue,
+    setLocalSpecificSavedAugmentCustomMethodParamValue,
+  ] = useState<AugmentCustomMethodParamValue>();
+
+  useEffect(() => {
+    if (isShow) {
+      if (specificSavedAugmentCustomMethodParamValue) {
+        setLocalSpecificSavedAugmentCustomMethodParamValue(
+          specificSavedAugmentCustomMethodParamValue
+        );
+      }
+    }
+  }, [isShow, specificSavedAugmentCustomMethodParamValue]);
+
   const handleClose = (event: any, reason?: string) => {
     if (reason && reason === "backdropClick") return;
+    setLocalSpecificSavedAugmentCustomMethodParamValue(undefined);
     dispatch(setReferenceSeletectorDialog({ isShow: false }));
   };
 
@@ -61,11 +85,14 @@ const AugmentPreviewImageDialog = function () {
     }
   }, [methodId]);
 
-  const handleSubmit = () => {
-    if (methodId) {
+  const handleClickApply = () => {
+    if (localSpecificSavedAugmentCustomMethodParamValue) {
+      dispatch(
+        changeAugmentCustomMethodParamValue(
+          localSpecificSavedAugmentCustomMethodParamValue
+        )
+      );
       dispatch(setReferenceSeletectorDialog({ isShow: false }));
-    } else {
-      toast.error("Select your reference image");
     }
   };
 
@@ -76,7 +103,15 @@ const AugmentPreviewImageDialog = function () {
         return (
           <Box>
             <Box mb={2}>
-              <PreviewImage methodId={methodId} />
+              <PreviewImage
+                methodId={methodId}
+                localSpecificSavedAugmentCustomMethodParamValue={
+                  localSpecificSavedAugmentCustomMethodParamValue
+                }
+                setLocalSpecificSavedAugmentCustomMethodParamValue={
+                  setLocalSpecificSavedAugmentCustomMethodParamValue
+                }
+              />
             </Box>
 
             {ls_params_name.map((paramName: string, paramNameIndex: number) => (
@@ -84,7 +119,16 @@ const AugmentPreviewImageDialog = function () {
                 key={`param-control-${paramName}`}
                 mb={paramNameIndex === ls_params_name.length - 1 ? 2 : 0}
               >
-                <ParamControl methodId={methodId} paramName={paramName} />
+                <ParamControl
+                  methodId={methodId}
+                  paramName={paramName}
+                  localSpecificSavedAugmentCustomMethodParamValue={
+                    localSpecificSavedAugmentCustomMethodParamValue
+                  }
+                  setLocalSpecificSavedAugmentCustomMethodParamValue={
+                    setLocalSpecificSavedAugmentCustomMethodParamValue
+                  }
+                />
               </Box>
             ))}
           </Box>
@@ -138,18 +182,18 @@ const AugmentPreviewImageDialog = function () {
           </Box>
         </Box>
 
-        {/* {augmentCustomMethodPreviewImageInfo && (
+        {augmentCustomMethodPreviewImageInfo && (
           <Box display="flex" justifyContent="flex-end" marginTop={4}>
             <MyButton
               type="button"
               variant="contained"
               color="primary"
-              onClick={handleSubmit}
+              onClick={handleClickApply}
             >
               Aplly
             </MyButton>
           </Box>
-        )} */}
+        )}
       </Box>
     );
   };

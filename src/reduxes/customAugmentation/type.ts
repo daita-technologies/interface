@@ -21,11 +21,11 @@ export interface RemoveAugmentCustomMethodParamValueActionPayload {
 }
 
 export interface AugmentCustomMethodPreviewImageInfo {
-  [methodName: string]: GetAugmentCustomMethodPreviewImageResponse;
+  [methodId: string]: GetAugmentCustomMethodPreviewImageResponse;
 }
 
 export interface SavedAugmentCustomMethodParamValueType {
-  [methodName: string]: AugmentCustomMethodParamValue | undefined;
+  [methodId: string]: AugmentCustomMethodParamValue | undefined;
 }
 
 export interface CustomAugmentationReducer {
