@@ -5,6 +5,7 @@ import { Box, Divider } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
+
 import _ from "lodash";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,6 +25,7 @@ import { prettyMethodName } from "../PreprocessingOption/ReferenceImageDialog";
 /* eslint-disable import/no-cycle */
 import AugmentCustomMethodTrigger from "./AugmentCustomMethodTrigger";
 import AugmentPreviewImageDialog from "./AugmentPreviewImage";
+import RunAugmentButton from "./RunAugmentButton";
 
 export const limitTooLongLineStyle = {
   display: "-webkit-box",
@@ -64,6 +66,9 @@ const ExpertAugmentationOption = function () {
     methods?.find((t) => t.method_id === methodId)?.method_name;
   return (
     <Box mt={2} display="flex" flexDirection="column" gap={1}>
+      <Box textAlign="right">
+        <RunAugmentButton isExpertMode />
+      </Box>
       <Box p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
         <Box mt={2} display="flex" gap={1}>
           <Box borderRadius={2} bgcolor="background.paper" flex={2}>

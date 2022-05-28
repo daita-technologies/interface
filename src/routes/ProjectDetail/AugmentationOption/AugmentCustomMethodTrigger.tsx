@@ -3,7 +3,7 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import { RootState } from "reduxes";
 import { useSelector } from "react-redux";
-import { selectorSavedAugmentCustomMethodParamValue } from "reduxes/customAugmentation/selector";
+import { selectorSpecificSavedAugmentCustomMethodParamValue } from "reduxes/customAugmentation/selector";
 import { AugmentCustomMethodParamValue } from "reduxes/customAugmentation/type";
 
 /* eslint-disable import/no-cycle */
@@ -53,8 +53,9 @@ const AugmentCustomMethodTrigger = function ({
   methodName,
   handleShowReferenceDialog,
 }: AugmentCustomMethodTriggerProps) {
-  const savedAugmentCustomMethodParamValue = useSelector((state: RootState) =>
-    selectorSavedAugmentCustomMethodParamValue(methodId || "", state)
+  const specificSavedAugmentCustomMethodParamValue = useSelector(
+    (state: RootState) =>
+      selectorSpecificSavedAugmentCustomMethodParamValue(methodId || "", state)
   );
 
   return (
@@ -63,7 +64,9 @@ const AugmentCustomMethodTrigger = function ({
         {prettyMethodName(methodName)}
       </Typography>
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <SelectedParamText selectedParam={savedAugmentCustomMethodParamValue} />
+        <SelectedParamText
+          selectedParam={specificSavedAugmentCustomMethodParamValue}
+        />
         <IconButton
           size="small"
           sx={{ padding: "0 2px" }}
