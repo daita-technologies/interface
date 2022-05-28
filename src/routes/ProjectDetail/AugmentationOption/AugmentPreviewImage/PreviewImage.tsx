@@ -11,16 +11,16 @@ import { changeIsLoadingAugmentCustomMethodPreviewImage } from "reduxes/customAu
 import {
   selectorAugmentCustomMethodPreviewImageInfo,
   selectorIsLoadingAugmentCustomMethodPreviewImage,
-  selectorSpecificSavedAugmentCustomMethodParamValue,
 } from "reduxes/customAugmentation/selector";
 import { PreviewImageProps } from "./type";
 
-const PreviewImage = function ({ methodId }: PreviewImageProps) {
+const PreviewImage = function ({
+  methodId,
+  localSpecificSavedAugmentCustomMethodParamValue,
+  setLocalSpecificSavedAugmentCustomMethodParamValue,
+}: PreviewImageProps) {
   const dispatch = useDispatch();
-  const specificSavedAugmentCustomMethodParamValue = useSelector(
-    (state: RootState) =>
-      selectorSpecificSavedAugmentCustomMethodParamValue(methodId || "", state)
-  );
+
   const augmentCustomMethodPreviewImageInfo = useSelector((state: RootState) =>
     selectorAugmentCustomMethodPreviewImageInfo(methodId || "", state)
   );
@@ -39,10 +39,10 @@ const PreviewImage = function ({ methodId }: PreviewImageProps) {
     let targetDictIndex = "";
     if (
       augmentCustomMethodPreviewImageInfo &&
-      specificSavedAugmentCustomMethodParamValue
+      localSpecificSavedAugmentCustomMethodParamValue
     ) {
       const { params: selectedParams } =
-        specificSavedAugmentCustomMethodParamValue;
+        localSpecificSavedAugmentCustomMethodParamValue;
       const { ls_params_value, dict_aug_img, ls_params_name } =
         augmentCustomMethodPreviewImageInfo;
       ls_params_name.forEach((paramNameOrdered) => {
@@ -78,13 +78,14 @@ const PreviewImage = function ({ methodId }: PreviewImageProps) {
     }
     return "";
   }, [
-    specificSavedAugmentCustomMethodParamValue,
+    localSpecificSavedAugmentCustomMethodParamValue,
     augmentCustomMethodPreviewImageInfo,
+    setLocalSpecificSavedAugmentCustomMethodParamValue,
   ]);
 
   if (augmentCustomMethodPreviewImageInfo) {
     const renderImage = () => {
-      if (specificSavedAugmentCustomMethodParamValue) {
+      if (localSpecificSavedAugmentCustomMethodParamValue) {
         const imageSrc = getImageBaseOnSelectedParams();
         return (
           <Box

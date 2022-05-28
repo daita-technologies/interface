@@ -10,49 +10,98 @@ import {
   NUMBER_AUGMENT_CUSTOM_METHOD_PARAM_TYPE,
 } from "constants/customMethod";
 import { debounce } from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "reduxes";
-import { changeAugmentCustomMethodParamValue } from "reduxes/customAugmentation/action";
-import {
-  selectorAugmentCustomMethodPreviewImageInfo,
-  selectorSpecificSavedAugmentCustomMethodParamValue,
-} from "reduxes/customAugmentation/selector";
+import { selectorAugmentCustomMethodPreviewImageInfo } from "reduxes/customAugmentation/selector";
+import { AugmentCustomMethodParamValue } from "reduxes/customAugmentation/type";
 
 import { ParamControlProps } from "./type";
 
-const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
-  const dispatch = useDispatch();
+const ParamControl = function ({
+  methodId,
+  paramName,
+  localSpecificSavedAugmentCustomMethodParamValue,
+  setLocalSpecificSavedAugmentCustomMethodParamValue,
+}: ParamControlProps) {
   const [isChecked, setIsChecked] = useState(false);
   const augmentCustomMethodPreviewImageInfo = useSelector((state: RootState) =>
     selectorAugmentCustomMethodPreviewImageInfo(methodId || "", state)
   );
-  const specificSavedAugmentCustomMethodParamValue = useSelector(
-    (state: RootState) =>
-      selectorSpecificSavedAugmentCustomMethodParamValue(methodId || "", state)
-  );
+
+  const getMatchIndexOfSaveParamByMethod = (
+    locaParamValue?: AugmentCustomMethodParamValue
+  ) =>
+    locaParamValue
+      ? locaParamValue.params.findIndex(
+          (saveParamObject) => saveParamObject.paramName === paramName
+        )
+      : -1;
+
+  useEffect(() => {
+    // NOTE: set default value for boolean param
+    if (localSpecificSavedAugmentCustomMethodParamValue) {
+      if (augmentCustomMethodPreviewImageInfo) {
+        const { ls_param_info } = augmentCustomMethodPreviewImageInfo;
+
+        const { type } = ls_param_info[paramName];
+        if (type === BOOLEAN_AUGMENT_CUSTOM_METHOD_PARAM_TYPE) {
+          const matchIndexOfSaveParamByMethod =
+            getMatchIndexOfSaveParamByMethod(
+              localSpecificSavedAugmentCustomMethodParamValue
+            );
+          if (matchIndexOfSaveParamByMethod > -1) {
+            setIsChecked(
+              localSpecificSavedAugmentCustomMethodParamValue.params[
+                matchIndexOfSaveParamByMethod
+              ].paramValue as boolean
+            );
+          }
+        }
+      }
+    }
+  }, [localSpecificSavedAugmentCustomMethodParamValue]);
 
   const onClickChangeSwitch = () => {
     setIsChecked(!isChecked);
-
-    dispatch(
-      changeAugmentCustomMethodParamValue({
-        methodId,
-        params: [
-          {
-            paramName,
-            paramValue: !isChecked,
-          },
-        ],
-      })
-    );
+    setLocalSpecificSavedAugmentCustomMethodParamValue({
+      methodId,
+      params: [
+        {
+          paramName,
+          paramValue: !isChecked,
+        },
+      ],
+    });
   };
 
   const onChangeSlider = (event: Event, newParamValue: number | number[]) => {
     if (typeof newParamValue !== "object") {
-      dispatch(
-        changeAugmentCustomMethodParamValue({
+      if (localSpecificSavedAugmentCustomMethodParamValue) {
+        const cloneSelectedMethodParams = [
+          ...localSpecificSavedAugmentCustomMethodParamValue.params,
+        ];
+
+        const indexOfExistParam = cloneSelectedMethodParams.findIndex(
+          (inspectingParam) => inspectingParam.paramName === paramName
+        );
+        if (indexOfExistParam > -1) {
+          cloneSelectedMethodParams[indexOfExistParam].paramValue =
+            newParamValue;
+        } else {
+          cloneSelectedMethodParams.push({
+            paramName,
+            paramValue: newParamValue,
+          });
+        }
+
+        setLocalSpecificSavedAugmentCustomMethodParamValue({
+          methodId,
+          params: cloneSelectedMethodParams,
+        });
+      } else {
+        setLocalSpecificSavedAugmentCustomMethodParamValue({
           methodId,
           params: [
             {
@@ -60,8 +109,8 @@ const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
               paramValue: newParamValue,
             },
           ],
-        })
-      );
+        });
+      }
     }
   };
 
@@ -75,12 +124,9 @@ const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
 
     if (valueArray.length > 0) {
       const renderControl = () => {
-        const matchIndexOfSaveParamByMethod =
-          specificSavedAugmentCustomMethodParamValue
-            ? specificSavedAugmentCustomMethodParamValue.params.findIndex(
-                (saveParamObject) => saveParamObject.paramName === paramName
-              )
-            : -1;
+        const matchIndexOfSaveParamByMethod = getMatchIndexOfSaveParamByMethod(
+          localSpecificSavedAugmentCustomMethodParamValue
+        );
 
         switch (type) {
           case NUMBER_AUGMENT_CUSTOM_METHOD_PARAM_TYPE: {
@@ -88,9 +134,9 @@ const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
             return (
               <Slider
                 defaultValue={
-                  specificSavedAugmentCustomMethodParamValue &&
+                  localSpecificSavedAugmentCustomMethodParamValue &&
                   matchIndexOfSaveParamByMethod > -1
-                    ? (specificSavedAugmentCustomMethodParamValue.params[
+                    ? (localSpecificSavedAugmentCustomMethodParamValue.params[
                         matchIndexOfSaveParamByMethod
                       ].paramValue as number)
                     : undefined
@@ -109,14 +155,6 @@ const ParamControl = function ({ methodId, paramName }: ParamControlProps) {
               <FormControlLabel
                 control={
                   <Switch
-                    defaultChecked={
-                      specificSavedAugmentCustomMethodParamValue &&
-                      matchIndexOfSaveParamByMethod > -1
-                        ? (specificSavedAugmentCustomMethodParamValue.params[
-                            matchIndexOfSaveParamByMethod
-                          ].paramValue as boolean)
-                        : undefined
-                    }
                     checked={isChecked}
                     onChange={debounce(onClickChangeSwitch, 100)}
                   />
