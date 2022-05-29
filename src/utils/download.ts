@@ -3,6 +3,7 @@ export const triggerPresignedURLDownload = (
   defaultFileName: string
 ) => {
   const downloadBtn = document.createElement("a");
+  downloadBtn.setAttribute("target", "_blank");
   downloadBtn.setAttribute("download", `${defaultFileName}.zip`);
   downloadBtn.href = href;
   downloadBtn.style.display = "none";
