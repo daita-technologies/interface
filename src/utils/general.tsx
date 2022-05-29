@@ -1,3 +1,4 @@
+import moment from "moment";
 import CryptoJS from "crypto-js";
 import {
   REFRESH_TOKEN_NAME,
@@ -281,4 +282,12 @@ export const getProjectNameFromProjectId = (
   }
 
   return "";
+};
+
+export const getMomentWithCurrentTimeZone = (momentObject: moment.Moment) => {
+  const timezoneOffsetMinutes = new Date().getTimezoneOffset();
+  if (timezoneOffsetMinutes > 0) {
+    return momentObject.add(timezoneOffsetMinutes, "minutes");
+  }
+  return momentObject.subtract(timezoneOffsetMinutes, "minutes");
 };

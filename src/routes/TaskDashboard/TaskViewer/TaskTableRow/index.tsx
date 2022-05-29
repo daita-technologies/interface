@@ -38,6 +38,7 @@ import {
   capitalizeFirstLetter,
   getGenerateMethodLabel,
   getLocalStorage,
+  getMomentWithCurrentTimeZone,
 } from "utils/general";
 import { getTaskStatusMergedValue } from "utils/task";
 import TaskTableAction from "../TaskTableAction";
@@ -118,6 +119,7 @@ const TaskTableRow = function ({
     process_type,
     presign_url,
   } = taskInfo;
+
   const savedTaskStatus = useRef<TaskStatusType>();
   const dispatch = useDispatch();
 
@@ -281,7 +283,9 @@ const TaskTableRow = function ({
         </TableCell>
         <TableCell align="left">
           <Typography component="span" variant="body2">
-            {moment(created_time).format(SYSTEM_DATE_TIME_FORMAT)}
+            {getMomentWithCurrentTimeZone(moment(created_time)).format(
+              SYSTEM_DATE_TIME_FORMAT
+            )}
           </Typography>
         </TableCell>
 
