@@ -8,6 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { MyButton, Empty } from "components";
+import { SUPER_RESOLUTION_ID } from "components/ImageProcessing/type";
 import {
   AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE,
   AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE,
@@ -37,6 +38,7 @@ import {
 
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import { prettyMethodName } from "../../PreprocessingOption/ReferenceImageDialog";
+import SamplePreviewImageElement from "../SamplePreviewImageElement";
 import ParamControl from "./ParamControl";
 import PreviewImage from "./PreviewImage";
 
@@ -174,7 +176,8 @@ const AugmentPreviewImageDialog = function () {
         <Box marginTop={3} height="70%">
           <Box display="flex" justifyContent="space-between" height="90%">
             <Box mt={3} flex={2} width="100%" height="100%">
-              <img
+              <SamplePreviewImageElement
+                isShowResolution={methodId === SUPER_RESOLUTION_ID}
                 src={ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH}
                 width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
                 height={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}

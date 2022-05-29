@@ -9,11 +9,13 @@ import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "reduxes";
 import { changeIsLoadingAugmentCustomMethodPreviewImage } from "reduxes/customAugmentation/action";
+import { SUPER_RESOLUTION_ID } from "components/ImageProcessing/type";
 import {
   selectorAugmentCustomMethodPreviewImageInfo,
   selectorIsLoadingAugmentCustomMethodPreviewImage,
 } from "reduxes/customAugmentation/selector";
 import { PreviewImageProps } from "./type";
+import SamplePreviewImageElement from "../SamplePreviewImageElement";
 
 const PreviewImage = function ({
   methodId,
@@ -108,8 +110,8 @@ const PreviewImage = function ({
               <CircularProgress size={24} />
             </Box>
             {imageSrc ? (
-              <img
-                style={{ objectFit: "contain" }}
+              <SamplePreviewImageElement
+                isShowResolution={methodId === SUPER_RESOLUTION_ID}
                 width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
                 src={imageSrc}
                 onLoad={() => {
@@ -151,8 +153,8 @@ const PreviewImage = function ({
           alignItems="center"
           justifyContent="center"
         >
-          <img
-            style={{ objectFit: "contain" }}
+          <SamplePreviewImageElement
+            isShowResolution={methodId === SUPER_RESOLUTION_ID}
             width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
             height={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
             src={ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH}
