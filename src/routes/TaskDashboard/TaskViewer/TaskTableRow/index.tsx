@@ -86,6 +86,17 @@ const getProcessColor = (value: number): string => {
   return "success.dark";
 };
 
+const getNegativeStatusWord = (status: string) => {
+  switch (status) {
+    case FINISH_TASK_STATUS:
+      return `${FINISH_TASK_STATUS}ED`;
+    case CANCEL_TASK_STATUS:
+      return `${CANCEL_TASK_STATUS}ED`;
+    default:
+      return status;
+  }
+};
+
 const TaskTableRow = function ({
   taskId,
   processType,
@@ -281,7 +292,7 @@ const TaskTableRow = function ({
             color={`${getStyledStatus(getTaskStatusMergedValue(status))}.dark`}
             // color="success.first = (second) => {third}"
           >
-            {status.replace(/_/g, " ")}
+            {getNegativeStatusWord(status.replace(/_/g, " "))}
           </Typography>
         </TableCell>
         <TableCell align="right">
