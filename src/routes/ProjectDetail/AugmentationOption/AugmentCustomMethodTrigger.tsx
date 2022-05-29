@@ -5,6 +5,7 @@ import { RootState } from "reduxes";
 import { useSelector } from "react-redux";
 import { selectorSpecificSavedAugmentCustomMethodParamValue } from "reduxes/customAugmentation/selector";
 import { AugmentCustomMethodParamValue } from "reduxes/customAugmentation/type";
+import { selectorCurrentProjectId } from "reduxes/project/selector";
 
 /* eslint-disable import/no-cycle */
 import { limitTooLongLineStyle } from "./ExpertAugmentationOption";
@@ -53,9 +54,15 @@ const AugmentCustomMethodTrigger = function ({
   methodName,
   handleShowReferenceDialog,
 }: AugmentCustomMethodTriggerProps) {
+  const currentProjectId = useSelector(selectorCurrentProjectId);
+
   const specificSavedAugmentCustomMethodParamValue = useSelector(
     (state: RootState) =>
-      selectorSpecificSavedAugmentCustomMethodParamValue(methodId || "", state)
+      selectorSpecificSavedAugmentCustomMethodParamValue(
+        currentProjectId,
+        methodId || "",
+        state
+      )
   );
 
   return (

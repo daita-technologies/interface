@@ -12,6 +12,7 @@ import useConfirmDialog from "hooks/useConfirmDialog";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { RootState } from "reduxes";
 import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
 import { selectorSavedAugmentCustomMethodParamValue } from "reduxes/customAugmentation/selector";
 import {
@@ -133,8 +134,8 @@ const RunAugmentButton = function ({ isExpertMode }: RunAugmentButtonProps) {
 
   const { openConfirmDialog, closeConfirmDialog } = useConfirmDialog();
 
-  const savedAugmentCustomMethodParamValue = useSelector(
-    selectorSavedAugmentCustomMethodParamValue
+  const savedAugmentCustomMethodParamValue = useSelector((state: RootState) =>
+    selectorSavedAugmentCustomMethodParamValue(projectId, state)
   );
 
   const callRunAugmentation = (splitDataNumber: number[]) => {

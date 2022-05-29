@@ -29,7 +29,7 @@ import {
 } from "reduxes/customAugmentation/action";
 import {
   selectorReferenceAugmentationImage,
-  selectorReferenceSeletectorDialog,
+  selectorAugmentCustomMethodDialog,
 } from "reduxes/customAugmentation/selector";
 import { selectorS3 } from "reduxes/general/selector";
 import {
@@ -59,7 +59,7 @@ const ReferenceImageDialog = function () {
 
   const methods = useSelector(selectorMethodList)?.augmentation;
   const s3 = useSelector(selectorS3);
-  const { isShow, methodId } = useSelector(selectorReferenceSeletectorDialog);
+  const { isShow, methodId } = useSelector(selectorAugmentCustomMethodDialog);
   const handleClose = () => {
     dispatch(setReferenceSeletectorDialog({ isShow: false }));
   };

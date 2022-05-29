@@ -1,10 +1,4 @@
-import {
-  Box,
-  FormControlLabel,
-  Slider,
-  Switch,
-  Typography,
-} from "@mui/material";
+import { Box, FormControlLabel, Switch, Typography } from "@mui/material";
 import {
   BOOLEAN_AUGMENT_CUSTOM_METHOD_PARAM_TYPE,
   NUMBER_AUGMENT_CUSTOM_METHOD_PARAM_TYPE,
@@ -12,12 +6,14 @@ import {
 import { debounce } from "lodash";
 import { useEffect, useState } from "react";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "reduxes";
 import { selectorAugmentCustomMethodPreviewImageInfo } from "reduxes/customAugmentation/selector";
-import { AugmentCustomMethodParamValue } from "reduxes/customAugmentation/type";
+import { changeIsLoadingAugmentCustomMethodPreviewImage } from "reduxes/customAugmentation/action";
 
-import { ParamControlProps } from "./type";
+import { getMatchIndexOfSaveParamByMethod } from "utils/customAgument";
+import SliderControl from "./SliderControl";
+import { ParamControlProps } from "../type";
 
 const ParamControl = function ({
   methodId,
@@ -25,19 +21,11 @@ const ParamControl = function ({
   localSpecificSavedAugmentCustomMethodParamValue,
   setLocalSpecificSavedAugmentCustomMethodParamValue,
 }: ParamControlProps) {
+  const dispatch = useDispatch();
   const [isChecked, setIsChecked] = useState(false);
   const augmentCustomMethodPreviewImageInfo = useSelector((state: RootState) =>
     selectorAugmentCustomMethodPreviewImageInfo(methodId || "", state)
   );
-
-  const getMatchIndexOfSaveParamByMethod = (
-    locaParamValue?: AugmentCustomMethodParamValue
-  ) =>
-    locaParamValue
-      ? locaParamValue.params.findIndex(
-          (saveParamObject) => saveParamObject.paramName === paramName
-        )
-      : -1;
 
   useEffect(() => {
     // NOTE: set default value for boolean param
@@ -49,6 +37,7 @@ const ParamControl = function ({
         if (type === BOOLEAN_AUGMENT_CUSTOM_METHOD_PARAM_TYPE) {
           const matchIndexOfSaveParamByMethod =
             getMatchIndexOfSaveParamByMethod(
+              paramName,
               localSpecificSavedAugmentCustomMethodParamValue
             );
           if (matchIndexOfSaveParamByMethod > -1) {
@@ -65,6 +54,9 @@ const ParamControl = function ({
 
   const onClickChangeSwitch = () => {
     setIsChecked(!isChecked);
+    dispatch(
+      changeIsLoadingAugmentCustomMethodPreviewImage({ isLoading: true })
+    );
     setLocalSpecificSavedAugmentCustomMethodParamValue({
       methodId,
       params: [
@@ -76,41 +68,41 @@ const ParamControl = function ({
     });
   };
 
-  const onChangeSlider = (event: Event, newParamValue: number | number[]) => {
-    if (typeof newParamValue !== "object") {
-      if (localSpecificSavedAugmentCustomMethodParamValue) {
-        const cloneSelectedMethodParams = [
-          ...localSpecificSavedAugmentCustomMethodParamValue.params,
-        ];
+  const onChangeSlider = (newParamValue: number) => {
+    dispatch(
+      changeIsLoadingAugmentCustomMethodPreviewImage({ isLoading: true })
+    );
+    if (localSpecificSavedAugmentCustomMethodParamValue) {
+      const cloneSelectedMethodParams = [
+        ...localSpecificSavedAugmentCustomMethodParamValue.params,
+      ];
 
-        const indexOfExistParam = cloneSelectedMethodParams.findIndex(
-          (inspectingParam) => inspectingParam.paramName === paramName
-        );
-        if (indexOfExistParam > -1) {
-          cloneSelectedMethodParams[indexOfExistParam].paramValue =
-            newParamValue;
-        } else {
-          cloneSelectedMethodParams.push({
-            paramName,
-            paramValue: newParamValue,
-          });
-        }
-
-        setLocalSpecificSavedAugmentCustomMethodParamValue({
-          methodId,
-          params: cloneSelectedMethodParams,
-        });
+      const indexOfExistParam = cloneSelectedMethodParams.findIndex(
+        (inspectingParam) => inspectingParam.paramName === paramName
+      );
+      if (indexOfExistParam > -1) {
+        cloneSelectedMethodParams[indexOfExistParam].paramValue = newParamValue;
       } else {
-        setLocalSpecificSavedAugmentCustomMethodParamValue({
-          methodId,
-          params: [
-            {
-              paramName,
-              paramValue: newParamValue,
-            },
-          ],
+        cloneSelectedMethodParams.push({
+          paramName,
+          paramValue: newParamValue,
         });
       }
+
+      setLocalSpecificSavedAugmentCustomMethodParamValue({
+        methodId,
+        params: cloneSelectedMethodParams,
+      });
+    } else {
+      setLocalSpecificSavedAugmentCustomMethodParamValue({
+        methodId,
+        params: [
+          {
+            paramName,
+            paramValue: newParamValue,
+          },
+        ],
+      });
     }
   };
 
@@ -125,6 +117,7 @@ const ParamControl = function ({
     if (valueArray.length > 0) {
       const renderControl = () => {
         const matchIndexOfSaveParamByMethod = getMatchIndexOfSaveParamByMethod(
+          paramName,
           localSpecificSavedAugmentCustomMethodParamValue
         );
 
@@ -132,8 +125,8 @@ const ParamControl = function ({
           case NUMBER_AUGMENT_CUSTOM_METHOD_PARAM_TYPE: {
             const forceValueArray = valueArray as number[];
             return (
-              <Slider
-                defaultValue={
+              <SliderControl
+                forceValue={
                   localSpecificSavedAugmentCustomMethodParamValue &&
                   matchIndexOfSaveParamByMethod > -1
                     ? (localSpecificSavedAugmentCustomMethodParamValue.params[
@@ -141,8 +134,9 @@ const ParamControl = function ({
                       ].paramValue as number)
                     : undefined
                 }
-                onChange={debounce(onChangeSlider, 500)}
-                valueLabelDisplay="auto"
+                methodId={methodId}
+                paramName={paramName}
+                onChangeSlider={onChangeSlider}
                 step={Number(step.toFixed(2)) || 0}
                 marks
                 min={forceValueArray[0]}
