@@ -69,9 +69,7 @@ const PreviewImage = function ({
         if (resultImage) {
           return resultImage;
         }
-        dispatch(
-          changeIsLoadingAugmentCustomMethodPreviewImage({ isLoading: false })
-        );
+
         return "";
       }
       return "";

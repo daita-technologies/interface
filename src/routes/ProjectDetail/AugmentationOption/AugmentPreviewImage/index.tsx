@@ -24,12 +24,15 @@ import {
 import {
   selectorAugmentCustomMethodPreviewImageInfo,
   selectorIsFetchingAugmentCustomMethodPreviewImage,
-  selectorReferenceSeletectorDialog,
+  selectorAugmentCustomMethodDialog,
   selectorSpecificSavedAugmentCustomMethodParamValue,
 } from "reduxes/customAugmentation/selector";
 import { AugmentCustomMethodParamValue } from "reduxes/customAugmentation/type";
 
-import { selectorMethodList } from "reduxes/project/selector";
+import {
+  selectorCurrentProjectId,
+  selectorMethodList,
+} from "reduxes/project/selector";
 
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import { prettyMethodName } from "../../PreprocessingOption/ReferenceImageDialog";
@@ -38,10 +41,10 @@ import PreviewImage from "./PreviewImage";
 
 const AugmentPreviewImageDialog = function () {
   const dispatch = useDispatch();
-
+  const currentProjectId = useSelector(selectorCurrentProjectId);
   const methods = useSelector(selectorMethodList)?.augmentation;
 
-  const { isShow, methodId } = useSelector(selectorReferenceSeletectorDialog);
+  const { isShow, methodId } = useSelector(selectorAugmentCustomMethodDialog);
 
   const isFetchingAugmentCustomMethodPreviewImage = useSelector(
     selectorIsFetchingAugmentCustomMethodPreviewImage
@@ -53,7 +56,11 @@ const AugmentPreviewImageDialog = function () {
 
   const specificSavedAugmentCustomMethodParamValue = useSelector(
     (state: RootState) =>
-      selectorSpecificSavedAugmentCustomMethodParamValue(methodId || "", state)
+      selectorSpecificSavedAugmentCustomMethodParamValue(
+        currentProjectId,
+        methodId || "",
+        state
+      )
   );
 
   const [
@@ -88,11 +95,12 @@ const AugmentPreviewImageDialog = function () {
   const handleClickApply = () => {
     if (localSpecificSavedAugmentCustomMethodParamValue) {
       dispatch(
-        changeAugmentCustomMethodParamValue(
-          localSpecificSavedAugmentCustomMethodParamValue
-        )
+        changeAugmentCustomMethodParamValue({
+          projectId: currentProjectId,
+          ...localSpecificSavedAugmentCustomMethodParamValue,
+        })
       );
-      dispatch(setReferenceSeletectorDialog({ isShow: false }));
+      handleClose(null);
     }
   };
 
@@ -116,10 +124,11 @@ const AugmentPreviewImageDialog = function () {
 
             {ls_params_name.map((paramName: string, paramNameIndex: number) => (
               <Box
-                key={`param-control-${paramName}`}
+                key={`param-control-wrapper-${paramName}`}
                 mb={paramNameIndex === ls_params_name.length - 1 ? 2 : 0}
               >
                 <ParamControl
+                  key={`param-control-${paramName}`}
                   methodId={methodId}
                   paramName={paramName}
                   localSpecificSavedAugmentCustomMethodParamValue={

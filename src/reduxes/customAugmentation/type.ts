@@ -14,10 +14,18 @@ export type AugmentCustomMethodParamValue = {
 };
 
 export interface ChangeAugmentCustomMethodParamValueActionPayload
-  extends AugmentCustomMethodParamValue {}
+  extends AugmentCustomMethodParamValue {
+  projectId: string;
+}
 
 export interface RemoveAugmentCustomMethodParamValueActionPayload {
+  projectId: string;
   removeMethodIdList: string[];
+}
+
+export interface AddAugmentCustomMethodParamValueActionPayload {
+  projectId: string;
+  addMethodIdList: string[];
 }
 
 export interface AugmentCustomMethodPreviewImageInfo {
@@ -28,13 +36,17 @@ export interface SavedAugmentCustomMethodParamValueType {
   [methodId: string]: AugmentCustomMethodParamValue | undefined;
 }
 
+export interface SavedAugmentCustomMethodParamValueByProjectIdType {
+  [projectId: string]: SavedAugmentCustomMethodParamValueType;
+}
+
 export interface CustomAugmentationReducer {
   isAugmentationExpertMode: boolean;
   referenceAugmentationImage: ReferenceAugmentationgeRecord;
   referenceSeletectorDialog: ReferenceSeletectorDialog;
   selectedMethodIds: string[];
   augmentCustomMethodPreviewImageInfo: null | AugmentCustomMethodPreviewImageInfo;
-  savedAugmentCustomMethodParamValue: SavedAugmentCustomMethodParamValueType;
+  savedAugmentCustomMethodParamValueByProjectId: SavedAugmentCustomMethodParamValueByProjectIdType;
   isFetchingAugmentCustomMethodPreviewImage: boolean | null;
   isLoadingPreviewImage: boolean;
 }
@@ -55,10 +67,6 @@ export interface ReferenceSeletectorDialog {
   isShow: boolean;
   methodId?: string;
 }
-export interface SelectedMethodProps {
-  selectedMethodIds: string[];
-}
-
 export interface GetAugmentCustomMethodPreviewImageInfoRequestActionPayload
   extends GetAugmentCustomMethodPreviewImageParams {}
 

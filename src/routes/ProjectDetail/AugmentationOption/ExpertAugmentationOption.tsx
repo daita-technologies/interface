@@ -1,22 +1,23 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 
-import { Box, Divider } from "@mui/material";
+import { Box, CircularProgress, Divider } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
 
 import _ from "lodash";
-import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "reduxes";
 import {
+  addAugmentCustomMethodParamValue,
   removeAugmentCustomMethodParamValue,
   setReferenceSeletectorDialog,
-  setSelectedMethods,
 } from "reduxes/customAugmentation/action";
-import { selectorSelectedMethodIds } from "reduxes/customAugmentation/selector";
+import { selectorSelectedListCustomAugmentMethodId } from "reduxes/customAugmentation/selector";
 import {
   selectorCurrentProjectId,
+  selectorIsFetchingDetailProject,
   selectorMethodList,
 } from "reduxes/project/selector";
 import DataSetSplit from "../DataSetSplit";
@@ -42,20 +43,44 @@ const checkedIcon = <CheckBoxIcon />;
 const ExpertAugmentationOption = function () {
   const dispatch = useDispatch();
   const currentProjectId = useSelector(selectorCurrentProjectId);
-  const selectedMethodIds = useSelector(selectorSelectedMethodIds);
+  // const selectedMethodIds = useSelector(selectorSelectedMethodIds);
+  const selectedListCustomMethodId = useSelector((state: RootState) =>
+    selectorSelectedListCustomAugmentMethodId(currentProjectId, state)
+  );
+
+  const isFetchingDetailProject = useSelector(selectorIsFetchingDetailProject);
+  selectorIsFetchingDetailProject;
+
   const methods = useSelector(selectorMethodList)?.augmentation;
   const methodIds = methods ? methods.map((t) => t.method_id) : [];
-  useEffect(() => {
-    dispatch(setSelectedMethods({ selectedMethodIds: [] }));
-  }, [currentProjectId]);
 
   const handleChangeSelectedMethods = (event: any, listMethod: string[]) => {
-    if (listMethod.length < selectedMethodIds.length) {
+    if (listMethod.length < selectedListCustomMethodId.length) {
       // NOTE: user remove selected method
-      const removeMethodIdList = _.difference(selectedMethodIds, listMethod);
-      dispatch(removeAugmentCustomMethodParamValue({ removeMethodIdList }));
+      const removeMethodIdList = _.difference(
+        selectedListCustomMethodId,
+        listMethod
+      );
+
+      dispatch(
+        removeAugmentCustomMethodParamValue({
+          projectId: currentProjectId,
+          removeMethodIdList,
+        })
+      );
+    } else {
+      // TODO: add selected method
+      const addMethodIdList = _.difference(
+        listMethod,
+        selectedListCustomMethodId
+      );
+      dispatch(
+        addAugmentCustomMethodParamValue({
+          projectId: currentProjectId,
+          addMethodIdList,
+        })
+      );
     }
-    dispatch(setSelectedMethods({ selectedMethodIds: listMethod }));
   };
   const handleShowReferenceDialog = (methodId: string) => {
     dispatch(setReferenceSeletectorDialog({ isShow: true, methodId }));
@@ -64,6 +89,15 @@ const ExpertAugmentationOption = function () {
     option === value;
   const getMethodName = (methodId: string) =>
     methods?.find((t) => t.method_id === methodId)?.method_name;
+
+  if (isFetchingDetailProject) {
+    return (
+      <Box display="flex" alignItems="center" justifyContent="center" py={6}>
+        <CircularProgress size={24} />
+      </Box>
+    );
+  }
+
   return (
     <Box mt={2} display="flex" flexDirection="column" gap={1}>
       <Box textAlign="right">
@@ -76,7 +110,7 @@ const ExpertAugmentationOption = function () {
               multiple
               id="checkboxes-tags"
               options={methodIds}
-              value={selectedMethodIds || []}
+              value={selectedListCustomMethodId || []}
               disableCloseOnSelect
               getOptionLabel={(methodId) =>
                 prettyMethodName(getMethodName(methodId))
@@ -111,7 +145,7 @@ const ExpertAugmentationOption = function () {
           />
           <Box borderRadius={2} bgcolor="background.paper" flex={3}>
             <Box display="flex" flexWrap="wrap" justifyContent="flex-start">
-              {selectedMethodIds.map((methodId) => (
+              {selectedListCustomMethodId.map((methodId) => (
                 <Box key={methodId} flexBasis="33.33%" sx={{ p: 1 }}>
                   <AugmentCustomMethodTrigger
                     methodId={methodId}
