@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { MyButton, Empty } from "components";
 import {
+  AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE,
   AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE,
   ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH,
 } from "constants/customMethod";
@@ -176,6 +177,7 @@ const AugmentPreviewImageDialog = function () {
               <img
                 src={ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH}
                 width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+                height={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
                 alt="original"
               />
             </Box>

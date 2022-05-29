@@ -3,6 +3,7 @@ import HideImageIcon from "@mui/icons-material/HideImage";
 import {
   AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE,
   AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE,
+  ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH,
 } from "constants/customMethod";
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -88,7 +89,7 @@ const PreviewImage = function ({
         return (
           <Box
             position="relative"
-            minWidth={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+            width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
             minHeight={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
           >
             <Box
@@ -98,8 +99,8 @@ const PreviewImage = function ({
                 opacity: isLoadingAugmentCustomMethodPreviewImage ? 0.5 : 0,
               }}
               position="absolute"
-              height="100%"
-              width="100%"
+              width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+              minHeight={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
               display="flex"
               alignItems="center"
               justifyContent="center"
@@ -122,7 +123,7 @@ const PreviewImage = function ({
               />
             ) : (
               <Box
-                minWidth={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+                width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
                 minHeight={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
                 display="flex"
                 flexDirection="column"
@@ -144,21 +145,32 @@ const PreviewImage = function ({
 
       return (
         <Box
-          minWidth={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+          width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
           minHeight={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
           display="flex"
           alignItems="center"
           justifyContent="center"
         >
-          <Typography variant="body1" fontStyle="italic" color="text.secondary">
-            Make change to view result image
-          </Typography>
+          <img
+            style={{ objectFit: "contain" }}
+            width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+            height={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
+            src={ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH}
+            onLoad={() => {
+              dispatch(
+                changeIsLoadingAugmentCustomMethodPreviewImage({
+                  isLoading: false,
+                })
+              );
+            }}
+            alt="augment method preview"
+          />
         </Box>
       );
     };
     return (
       <Box
-        minWidth={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+        width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
         minHeight={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
       >
         {renderImage()}
