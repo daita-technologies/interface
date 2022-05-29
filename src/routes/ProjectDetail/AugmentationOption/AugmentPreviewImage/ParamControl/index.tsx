@@ -11,7 +11,11 @@ import { RootState } from "reduxes";
 import { selectorAugmentCustomMethodPreviewImageInfo } from "reduxes/customAugmentation/selector";
 import { changeIsLoadingAugmentCustomMethodPreviewImage } from "reduxes/customAugmentation/action";
 
-import { getMatchIndexOfSaveParamByMethod } from "utils/customAgument";
+import {
+  getDefaultParamValueForCustomMethodAugment,
+  getMatchIndexOfSaveParamByMethod,
+  mergeParamValueForCustomMethodAugment,
+} from "utils/customAugment";
 import SliderControl from "./SliderControl";
 import { ParamControlProps } from "../type";
 
@@ -57,52 +61,71 @@ const ParamControl = function ({
     dispatch(
       changeIsLoadingAugmentCustomMethodPreviewImage({ isLoading: true })
     );
-    setLocalSpecificSavedAugmentCustomMethodParamValue({
-      methodId,
-      params: [
-        {
-          paramName,
-          paramValue: !isChecked,
-        },
-      ],
-    });
+    if (augmentCustomMethodPreviewImageInfo) {
+      setLocalSpecificSavedAugmentCustomMethodParamValue({
+        methodId,
+        params: mergeParamValueForCustomMethodAugment(
+          [
+            {
+              paramName,
+              paramValue: !isChecked,
+            },
+          ],
+          getDefaultParamValueForCustomMethodAugment(
+            augmentCustomMethodPreviewImageInfo
+          )
+        ),
+      });
+    }
   };
 
   const onChangeSlider = (newParamValue: number) => {
-    dispatch(
-      changeIsLoadingAugmentCustomMethodPreviewImage({ isLoading: true })
-    );
-    if (localSpecificSavedAugmentCustomMethodParamValue) {
-      const cloneSelectedMethodParams = [
-        ...localSpecificSavedAugmentCustomMethodParamValue.params,
-      ];
-
-      const indexOfExistParam = cloneSelectedMethodParams.findIndex(
-        (inspectingParam) => inspectingParam.paramName === paramName
+    if (augmentCustomMethodPreviewImageInfo) {
+      dispatch(
+        changeIsLoadingAugmentCustomMethodPreviewImage({ isLoading: true })
       );
-      if (indexOfExistParam > -1) {
-        cloneSelectedMethodParams[indexOfExistParam].paramValue = newParamValue;
-      } else {
-        cloneSelectedMethodParams.push({
-          paramName,
-          paramValue: newParamValue,
-        });
-      }
+      const defaultParamValue = getDefaultParamValueForCustomMethodAugment(
+        augmentCustomMethodPreviewImageInfo
+      );
+      if (localSpecificSavedAugmentCustomMethodParamValue) {
+        const cloneSelectedMethodParams = [
+          ...localSpecificSavedAugmentCustomMethodParamValue.params,
+        ];
 
-      setLocalSpecificSavedAugmentCustomMethodParamValue({
-        methodId,
-        params: cloneSelectedMethodParams,
-      });
-    } else {
-      setLocalSpecificSavedAugmentCustomMethodParamValue({
-        methodId,
-        params: [
-          {
+        const indexOfExistParam = cloneSelectedMethodParams.findIndex(
+          (inspectingParam) => inspectingParam.paramName === paramName
+        );
+        if (indexOfExistParam > -1) {
+          cloneSelectedMethodParams[indexOfExistParam].paramValue =
+            newParamValue;
+        } else {
+          cloneSelectedMethodParams.push({
             paramName,
             paramValue: newParamValue,
-          },
-        ],
-      });
+          });
+        }
+
+        setLocalSpecificSavedAugmentCustomMethodParamValue({
+          methodId,
+          params: mergeParamValueForCustomMethodAugment(
+            cloneSelectedMethodParams,
+            defaultParamValue
+          ),
+        });
+      } else {
+        setLocalSpecificSavedAugmentCustomMethodParamValue({
+          methodId,
+          params: mergeParamValueForCustomMethodAugment(
+            [
+              {
+                paramName,
+                paramValue: newParamValue,
+              },
+            ],
+            defaultParamValue
+          ),
+        });
+      }
     }
   };
 
