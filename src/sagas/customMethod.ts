@@ -29,11 +29,11 @@ function* handleGenerateReferenceImages(action: {
   type: string;
   payload: GenerateReferenceImagesProps;
 }): any {
-  const { projectId } = action.payload;
+  const { projectId, selectedMethodIds, projectName } = action.payload;
   try {
     const genRefImagesResp = yield call(
       customMethodApi.generateReferenceImages,
-      { projectId }
+      { projectId, selectedMethodIds, projectName }
     );
     if (genRefImagesResp.error === false) {
       yield put(

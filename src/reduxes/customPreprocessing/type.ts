@@ -36,6 +36,8 @@ export interface SelectedMethodProps {
 }
 export interface GenerateReferenceImagesProps {
   projectId: string;
+  projectName: string;
+  selectedMethodIds: string[];
 }
 export interface ReferenceInfoApiFields {
   method_id: string;
