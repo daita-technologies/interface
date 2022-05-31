@@ -1,5 +1,6 @@
 import {
   AugmentCustomMethodParamValue,
+  SavedAugmentCustomMethodParamValueType,
   SelectedParamAugmentCustomMethod,
 } from "reduxes/customAugmentation/type";
 import { GetAugmentCustomMethodPreviewImageResponse } from "services/customMethodApi";
@@ -45,3 +46,46 @@ export const mergeParamValueForCustomMethodAugment = (
     }
     return defaultParamObject;
   });
+
+export const isSelectedMethodWhenRunExpertAugment = (
+  savedAugmentCustomMethodParamValue: SavedAugmentCustomMethodParamValueType
+) => {
+  if (savedAugmentCustomMethodParamValue) {
+    const methodIdList = Object.keys(savedAugmentCustomMethodParamValue);
+    if (methodIdList && methodIdList.length > 0) {
+      return true;
+    }
+
+    return false;
+  }
+  return false;
+};
+
+export const isFilledParamWhenRunExpertAugment = (
+  savedAugmentCustomMethodParamValue: SavedAugmentCustomMethodParamValueType,
+  verifyMethodId?: string
+) => {
+  if (savedAugmentCustomMethodParamValue) {
+    const methodIdList = Object.keys(savedAugmentCustomMethodParamValue);
+    if (methodIdList && methodIdList.length > 0) {
+      if (!verifyMethodId) {
+        // NOTE: check all methods
+        return !methodIdList.some(
+          (inspectingMethodId: string) =>
+            savedAugmentCustomMethodParamValue[inspectingMethodId] === undefined
+        );
+      }
+      return !!savedAugmentCustomMethodParamValue[verifyMethodId];
+    }
+
+    return false;
+  }
+
+  return false;
+};
+
+export const isAbleToRunExpertAugmentation = (
+  savedAugmentCustomMethodParamValue: SavedAugmentCustomMethodParamValueType
+) =>
+  isSelectedMethodWhenRunExpertAugment(savedAugmentCustomMethodParamValue) &&
+  isFilledParamWhenRunExpertAugment(savedAugmentCustomMethodParamValue);

@@ -3,7 +3,10 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import { RootState } from "reduxes";
 import { useSelector } from "react-redux";
-import { selectorSpecificSavedAugmentCustomMethodParamValue } from "reduxes/customAugmentation/selector";
+import {
+  selectorIsAbleToRunAgumentationError,
+  selectorSpecificSavedAugmentCustomMethodParamValue,
+} from "reduxes/customAugmentation/selector";
 import { AugmentCustomMethodParamValue } from "reduxes/customAugmentation/type";
 import { selectorCurrentProjectId } from "reduxes/project/selector";
 
@@ -17,6 +20,10 @@ const SelectedParamText = function ({
 }: {
   selectedParam: AugmentCustomMethodParamValue | undefined;
 }) {
+  const isAbleToRunAgumentationError = useSelector(
+    selectorIsAbleToRunAgumentationError
+  );
+
   if (selectedParam) {
     const { params } = selectedParam;
     return (
@@ -40,7 +47,7 @@ const SelectedParamText = function ({
   return (
     <Typography
       variant="body2"
-      color="text.secondary"
+      color={isAbleToRunAgumentationError ? "error" : "text.secondary"}
       noWrap
       sx={limitTooLongLineStyle}
     >

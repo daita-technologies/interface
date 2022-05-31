@@ -11,6 +11,7 @@ import {
   GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO,
   REMOVE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
   SET_REFERENCE_AUGMENTATION_SELECTOR_DIALOG,
+  UPDATE_IS_ABLE_TO_RUN_AUGMENTATION_ERROR,
 } from "./constants";
 import {
   AddAugmentCustomMethodParamValueActionPayload,
@@ -21,6 +22,7 @@ import {
   ReferenceAugmentationgeRecord,
   ReferenceAugmentationImage,
   RemoveAugmentCustomMethodParamValueActionPayload,
+  UpdateIsAbleToRunAgumentationErrorActionPayload,
 } from "./type";
 
 const inititalState: CustomAugmentationReducer = {
@@ -35,6 +37,7 @@ const inititalState: CustomAugmentationReducer = {
   savedAugmentCustomMethodParamValueByProjectId: {},
   isFetchingAugmentCustomMethodPreviewImage: null,
   isLoadingPreviewImage: false,
+  isAbleToRunAgumentationError: null,
 };
 
 const customAugementationReducer = (
@@ -228,6 +231,14 @@ const customAugementationReducer = (
         }
       }
       return state;
+    }
+    case UPDATE_IS_ABLE_TO_RUN_AUGMENTATION_ERROR: {
+      const { isError } =
+        payload as UpdateIsAbleToRunAgumentationErrorActionPayload;
+      return {
+        ...state,
+        isAbleToRunAgumentationError: isError,
+      };
     }
     default:
       return state;
