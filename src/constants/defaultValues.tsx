@@ -1,6 +1,5 @@
-import { getLocalToken } from "utils/general";
 import { encode } from "js-base64";
-
+import { getLocalToken } from "utils/general";
 import { TaskProcessType, TaskStatusMergedType } from "./taskType";
 
 export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
@@ -176,3 +175,6 @@ export const GRASCALE_PREPROCESS_METHOD_ALLOW_LIST = [
   "PRE-002",
   "PRE-000",
 ];
+
+export const LIMIT_IMAGE_WIDTH = 4000;
+export const LIMIT_IMAGE_HEIGHT = 4000;

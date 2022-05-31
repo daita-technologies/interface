@@ -61,7 +61,11 @@ import {
   selectorUploadedFileCount,
   selectorUploadFiles,
 } from "reduxes/upload/selector";
-import { CheckFileUploadParams, UploadFileParams } from "reduxes/upload/type";
+import {
+  CheckFileUploadParams,
+  UploadFileParams,
+  UploadFilesType,
+} from "reduxes/upload/type";
 import { projectApi } from "services";
 import {
   arrayBufferToWordArray,
@@ -338,7 +342,7 @@ function* handleUploadFile(action: {
   try {
     const { fileName, projectId, projectName, isReplace, isReplaceSingle } =
       action.payload;
-    const uploadFiles = yield select(selectorUploadFiles);
+    const uploadFiles: UploadFilesType = yield select(selectorUploadFiles);
     const s3 = yield select(selectorS3);
     const IDENTITY_ID = yield getLocalStorage(IDENTITY_ID_NAME) || "";
 
@@ -447,8 +451,12 @@ function* handleUploadFile(action: {
           );
         } else if (uploadedFile >= totalUploadFile) {
           yield toast.success("Images are successfully uploaded");
+          const listDeleteFile = Object.keys(uploadFiles).filter(
+            (nameOfFile) =>
+              uploadFiles[nameOfFile].status === UPLOADED_UPLOAD_FILE_STATUS
+          );
           yield put(
-            clearFileArray({ fileNameArray: Object.keys(uploadFiles) })
+            clearFileArray({ fileNameArray: [...listDeleteFile, fileName] })
           );
           yield put(
             setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
