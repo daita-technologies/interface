@@ -4,8 +4,8 @@ import { Box, Button, LinearProgress, Typography } from "@mui/material";
 import { BeforeUnload } from "components";
 import {
   COMPRESS_FILE_EXTENSIONS,
-  COMPRESS_IMAGE_EXTENSIONS,
   ID_TOKEN_NAME,
+  IMAGE_EXTENSIONS,
   LIMIT_IMAGE_HEIGHT,
   LIMIT_IMAGE_WIDTH,
   MAX_ALLOW_UPLOAD_IMAGES,
@@ -49,7 +49,7 @@ import {
   selectorUploadFiles,
   selectorUploadingFileCount,
 } from "reduxes/upload/selector";
-import { getLocalStorage } from "utils/general";
+import { getLocalStorage, isImageFile } from "utils/general";
 import { LoadImageResult, MousePosition, UploadFileProps } from "./type";
 import UploadFileItem from "./UploadFileItem";
 import UploadFromMenu from "./UploadFromMenu";
@@ -88,7 +88,7 @@ const dropZoneDisabledStyle = {
   opacity: 0.5,
 };
 const FILE_UPLOAD_EXTENSIONS = [
-  ...COMPRESS_IMAGE_EXTENSIONS,
+  ...IMAGE_EXTENSIONS,
   ...COMPRESS_FILE_EXTENSIONS,
 ];
 const UploadFile = function (props: UploadFileProps) {
@@ -190,9 +190,11 @@ const UploadFile = function (props: UploadFileProps) {
         Object.keys(files).forEach((fileName: string) => {
           if (files[fileName].status !== UPLOADED_UPLOAD_FILE_STATUS) {
             filesNeedCheck.push(fileName);
-            listPromiseLoadImages.push(
-              loadImage(files[fileName].file, fileName)
-            );
+            if (isImageFile(fileName)) {
+              listPromiseLoadImages.push(
+                loadImage(files[fileName].file, fileName)
+              );
+            }
           }
         });
         Promise.all(listPromiseLoadImages).then((values) => {

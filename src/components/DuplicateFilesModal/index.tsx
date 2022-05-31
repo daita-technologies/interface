@@ -1,12 +1,14 @@
-import { useDispatch, useSelector } from "react-redux";
-import { Modal, Typography, Box, IconButton, Button } from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { Box, Button, IconButton, Modal, Typography } from "@mui/material";
 import {
-  selectorIsOpenDuplicateModal,
-  selectorUploadFiles,
-} from "reduxes/upload/selector";
-
-import { modalCloseStyle, modalStyle } from "styles/generalStyle";
+  INVALID_FILE_STATUS,
+  QUEUEING_UPLOAD_FILE_STATUS,
+} from "constants/uploadFile";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectorCurrentProjectId,
+  selectorCurrentProjectName,
+} from "reduxes/project/selector";
 import {
   clearFileArray,
   setIsOpenDuplicateModal,
@@ -14,11 +16,11 @@ import {
   updateStatusFileArray,
   uploadFile,
 } from "reduxes/upload/actions";
-import { QUEUEING_UPLOAD_FILE_STATUS } from "constants/uploadFile";
 import {
-  selectorCurrentProjectId,
-  selectorCurrentProjectName,
-} from "reduxes/project/selector";
+  selectorIsOpenDuplicateModal,
+  selectorUploadFiles,
+} from "reduxes/upload/selector";
+import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 
 const DuplicateFilesModal = function () {
   const dispatch = useDispatch();
@@ -70,7 +72,9 @@ const DuplicateFilesModal = function () {
 
   const onClickReplaceAll = () => {
     if (uploadFiles) {
-      const fileNameArray = Object.keys(uploadFiles);
+      const fileNameArray = Object.keys(uploadFiles).filter(
+        (fileName) => uploadFiles[fileName].status !== INVALID_FILE_STATUS
+      );
       if (fileNameArray.length > 0) {
         handleClose();
 

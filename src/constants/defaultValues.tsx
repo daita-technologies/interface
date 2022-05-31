@@ -162,7 +162,7 @@ export const COMPRESS_FILE_EXTENSIONS = [".tar", ".gz", ".bz2", ".zip"];
 
 export const TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE = "custom_method_expert_mode";
 
-export const COMPRESS_IMAGE_EXTENSIONS = [".jpeg", ".png", ".jpg"];
+export const IMAGE_EXTENSIONS = [".jpeg", ".png", ".jpg"];
 export const MAXIMUM_ZIP_FILE_SIZE = 2000000000;
 
 export const VISIBLE_TOAST_MESSAGE_SECOND_TIME = 4000;
