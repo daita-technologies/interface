@@ -1,10 +1,4 @@
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  Switch,
-  Typography,
-} from "@mui/material";
+import { Box, Switch, Typography } from "@mui/material";
 import { InfoTooltip, MyButton } from "components";
 import {
   ID_TOKEN_NAME,
@@ -14,11 +8,13 @@ import {
 } from "constants/defaultValues";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
 import { changePreprocessingExpertMode } from "reduxes/customPreprocessing/action";
 import {
   selectorIsPreprocessingExpertMode,
   selectorReferencePreprocessImage,
+  selectorSelectedMethodIds,
 } from "reduxes/customPreprocessing/selector";
 import {
   selectorCurrentProjectIdDownloading,
@@ -79,6 +75,7 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
   const referencePreprocessImage = useSelector(
     selectorReferencePreprocessImage
   );
+  const selectedMethodIds = useSelector(selectorSelectedMethodIds);
   const handleChangePreprocessintExpertMode = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -92,6 +89,19 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
     const listMethodId = [] as string[];
     const referenceImages = {} as Record<string, string>;
     if (isPreprocessingExpertMode) {
+      selectedMethodIds.forEach((methodId) => {
+        if (referencePreprocessImage[methodId]) {
+          referenceImages[methodId] =
+            referencePreprocessImage[methodId].imageS3Path;
+          listMethodId.push(methodId);
+        }
+      });
+      if (selectedMethodIds.length > Object.keys(referenceImages).length) {
+        toast.error(
+          "There is a method that has not yet selected a reference image"
+        );
+        return;
+      }
       Object.keys(referencePreprocessImage).forEach((methodId) => {
         if (referencePreprocessImage[methodId]) {
           referenceImages[methodId] =
