@@ -2,7 +2,6 @@
 
 import { CircularProgress } from "@mui/material";
 import Box from "@mui/material/Box";
-
 import Paper from "@mui/material/Paper";
 // import { alpha } from "@mui/material/styles";
 import Table from "@mui/material/Table";
@@ -17,13 +16,14 @@ import Toolbar from "@mui/material/Toolbar";
 // import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { Empty } from "components";
+import { useMemo } from "react";
 // import { visuallyHidden } from "@mui/utils";
 // import { CircularProgressWithLabel } from "components";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "reduxes";
 import { selectorListProjects } from "reduxes/project/selector";
-
 import // TaskInfoApiFields,
+
 // TaskStatusType
 "reduxes/project/type";
 import {
@@ -358,6 +358,10 @@ const TaskViewer = function ({ projectId, taskProcessType }: TaskViewerProps) {
     // }, [filters]);
     // const emptyRows =
     //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    const maxPage = useMemo(
+      () => (ls_page_token.length >= 0 ? ls_page_token.length + 1 : 0),
+      [ls_page_token]
+    );
     return (
       <Box sx={{ width: "100%" }}>
         <Paper sx={{ width: "100%", mt: 2, mb: 5 }}>
@@ -390,11 +394,10 @@ const TaskViewer = function ({ projectId, taskProcessType }: TaskViewerProps) {
             rowsPerPage={TASK_LIST_PAGE_SIZE}
             page={Number(currentPage) || 0}
             onPageChange={handleChangePage}
-            labelDisplayedRows={({ page }) =>
-              `Page ${page + 1}/${
-                ls_page_token.length >= 0 ? ls_page_token.length + 1 : 0
-              }`
-            }
+            nextIconButtonProps={{
+              disabled: Number(currentPage) + 1 >= maxPage,
+            }}
+            labelDisplayedRows={({ page }) => `Page ${page + 1}/${maxPage}`}
 
             // onRowsPerPageChange={handleChangeRowsPerPage}
           />
