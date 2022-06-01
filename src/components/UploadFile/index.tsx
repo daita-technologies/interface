@@ -26,6 +26,7 @@ import {
   COMPRESS_IMAGE_EXTENSIONS,
   ID_TOKEN_NAME,
   MAX_ALLOW_UPLOAD_IMAGES,
+  MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME,
 } from "constants/defaultValues";
 
 import {
@@ -161,6 +162,16 @@ const UploadFile = function (props: UploadFileProps) {
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
+      if (acceptedFiles.length > MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME) {
+        toast.error(
+          <p>
+            The maximum number of uploaded images in a project at the same time
+            is {MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME}. Please, re-upload
+            with less than the number of image images.
+          </p>
+        );
+        return;
+      }
       if (acceptedFiles.length + totalOriginalImage > MAX_ALLOW_UPLOAD_IMAGES) {
         toast.warning(
           <p>
