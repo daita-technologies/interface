@@ -49,6 +49,7 @@ export interface CustomAugmentationReducer {
   savedAugmentCustomMethodParamValueByProjectId: SavedAugmentCustomMethodParamValueByProjectIdType;
   isFetchingAugmentCustomMethodPreviewImage: boolean | null;
   isLoadingPreviewImage: boolean;
+  isAbleToRunAgumentationError: boolean | null;
 }
 export type ReferenceAugmentationgeRecord = Record<
   string,
@@ -75,4 +76,8 @@ export interface GetAugmentCustomMethodPreviewImageInfoSucceededActionPayload
 
 export interface ChangeIsLoadingAugmentCustomMethodPreviewImageRequestActionPayload {
   isLoading: boolean;
+}
+
+export interface UpdateIsAbleToRunAgumentationErrorActionPayload {
+  isError: boolean;
 }

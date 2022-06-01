@@ -10,7 +10,7 @@ import {
   GRASCALE_PREPROCESS_METHOD_ALLOW_LIST,
   GRAYSCALE_METHOD_ID,
 } from "constants/defaultValues";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   generateReferenceImages,
@@ -84,6 +84,10 @@ const ExpertPreprocessingOption = function () {
   const handleClickGenerateReferenceImages = () => {
     dispatch(generateReferenceImages({ projectId: currentProjectId }));
   };
+  const isRunning = useMemo(
+    () => !currentProjectId || isGenerating || haveTaskRunning,
+    [currentProjectId, isGenerating, haveTaskRunning]
+  );
   const isOptionEqualToValue = (option: string, value: string) =>
     option === value;
   const getMethodName = (methodId: string) =>
@@ -95,7 +99,7 @@ const ExpertPreprocessingOption = function () {
           variant="contained"
           size="small"
           isLoading={isGenerateReferenceRequesting}
-          disabled={!currentProjectId || isGenerating || haveTaskRunning}
+          disabled={isRunning}
           onClick={handleClickGenerateReferenceImages}
         >
           Run
@@ -149,6 +153,7 @@ const ExpertPreprocessingOption = function () {
                 placeholder="Choose method"
               />
             )}
+            disabled={isRunning}
           />
         </Box>
         <Divider
@@ -181,6 +186,7 @@ const ExpertPreprocessingOption = function () {
                     color="primary"
                     component="span"
                     onClick={() => handleShowReferenceDialog(methodId)}
+                    disabled={isRunning}
                   >
                     <EditIcon sx={{ width: 20 }} />
                   </IconButton>

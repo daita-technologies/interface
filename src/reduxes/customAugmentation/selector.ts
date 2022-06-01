@@ -67,3 +67,6 @@ export const selectorSavedAugmentCustomMethodParamValue = (
 export const selectorIsLoadingAugmentCustomMethodPreviewImage = (
   state: RootState
 ) => state.customAugmentation.isLoadingPreviewImage;
+
+export const selectorIsAbleToRunAgumentationError = (state: RootState) =>
+  state.customAugmentation.isAbleToRunAgumentationError;

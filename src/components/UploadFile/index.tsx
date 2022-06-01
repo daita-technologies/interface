@@ -39,6 +39,20 @@ import {
   updateFile,
   uploadFile,
 } from "reduxes/upload/actions";
+
+import { getLocalStorage } from "utils/general";
+import {
+  COMPRESS_FILE_EXTENSIONS,
+  COMPRESS_IMAGE_EXTENSIONS,
+  ID_TOKEN_NAME,
+  MAX_ALLOW_UPLOAD_IMAGES,
+  MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME,
+} from "constants/defaultValues";
+
+import {
+  ADDED_UPLOAD_FILE_STATUS,
+  UPLOADED_UPLOAD_FILE_STATUS,
+} from "constants/uploadFile";
 import {
   selectorAddedStatusFileCount,
   selectorIsChecking,
@@ -49,9 +63,18 @@ import {
   selectorUploadFiles,
   selectorUploadingFileCount,
 } from "reduxes/upload/selector";
-import { getLocalStorage, isImageFile } from "utils/general";
-import { LoadImageResult, MousePosition, UploadFileProps } from "./type";
+import {
+  selectorCurrentProjectTotalOriginalImage,
+  selectorHaveTaskRunning,
+} from "reduxes/project/selector";
+import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
+import {
+  selectorIsGenerateImagesAugmenting,
+  selectorIsGenerateImagesPreprocessing,
+} from "reduxes/generate/selector";
+import { MousePosition, UploadFileProps } from "./type";
 import UploadFileItem from "./UploadFileItem";
+
 import UploadFromMenu from "./UploadFromMenu";
 import UploadGuideDialog from "./UploadGuideDialog";
 
@@ -171,6 +194,16 @@ const UploadFile = function (props: UploadFileProps) {
     });
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
+      if (acceptedFiles.length > MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME) {
+        toast.error(
+          <p>
+            The maximum number of uploaded images in a project at the same time
+            is {MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME}. Please, re-upload
+            with less than the number of image images.
+          </p>
+        );
+        return;
+      }
       if (acceptedFiles.length + totalOriginalImage > MAX_ALLOW_UPLOAD_IMAGES) {
         toast.warning(
           <p>
@@ -277,6 +310,7 @@ const UploadFile = function (props: UploadFileProps) {
         projectName,
         isReplace: true,
         isReplaceSingle: true,
+        isExist: true,
       })
     );
   };

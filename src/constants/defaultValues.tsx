@@ -143,6 +143,8 @@ export const LATEST_SELECTED_DATA_SOURCE_KEY_NAME =
   "latest_selected_data_source_key_name";
 
 export const MAX_ALLOW_UPLOAD_IMAGES = 1000;
+export const LIMIT_UPLOAD_IMAGE_SIZE = 5000000;
+export const MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME = 300;
 
 export const ALL_DOWNLOAD_TYPE = "ALL";
 export const PREPROCESS_DOWNLOAD_TYPE = "PREPROCESS";
@@ -178,3 +180,6 @@ export const GRASCALE_PREPROCESS_METHOD_ALLOW_LIST = [
 
 export const LIMIT_IMAGE_WIDTH = 4000;
 export const LIMIT_IMAGE_HEIGHT = 4000;
+
+export const AUGMENT_OPTION_TOOLTIP =
+  "Data source: Augmentation is only applied to the training dataset based on the data source you previously selected. For each augmentation run, you can define a new data source and a training/validation/test split.";

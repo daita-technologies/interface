@@ -1,9 +1,6 @@
 import CancelIcon from "@mui/icons-material/Cancel";
 import { Box, Button, IconButton, Modal, Typography } from "@mui/material";
-import {
-  INVALID_FILE_STATUS,
-  QUEUEING_UPLOAD_FILE_STATUS,
-} from "constants/uploadFile";
+import { INVALID_FILE_STATUS, QUEUEING_UPLOAD_FILE_STATUS } from "constants/uploadFile";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectorCurrentProjectId,
@@ -62,7 +59,13 @@ const DuplicateFilesModal = function () {
         fileNameArray.forEach((fileName: string) => {
           if (!uploadFiles[fileName].error) {
             dispatch(
-              uploadFile({ fileName, projectId, projectName, isReplace: true })
+              uploadFile({
+                fileName,
+                projectId,
+                projectName,
+                isReplace: true,
+                isExist: false,
+              })
             );
           }
         });
@@ -103,11 +106,19 @@ const DuplicateFilesModal = function () {
 
         duplicateFileNameArray.forEach((fileName: string) => {
           dispatch(
-            uploadFile({ fileName, projectId, projectName, isReplace: true })
+            uploadFile({
+              fileName,
+              projectId,
+              projectName,
+              isReplace: true,
+              isExist: true,
+            })
           );
         });
         newFileNameArray.forEach((fileName: string) => {
-          dispatch(uploadFile({ fileName, projectId, projectName }));
+          dispatch(
+            uploadFile({ fileName, projectId, projectName, isExist: false })
+          );
         });
       }
     }

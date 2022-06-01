@@ -7,6 +7,7 @@ import {
   GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO,
   REMOVE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
   SET_REFERENCE_AUGMENTATION_SELECTOR_DIALOG,
+  UPDATE_IS_ABLE_TO_RUN_AUGMENTATION_ERROR,
 } from "./constants";
 import {
   AddAugmentCustomMethodParamValueActionPayload,
@@ -18,6 +19,7 @@ import {
   ReferenceAugmentationImage,
   ReferenceSeletectorDialog,
   RemoveAugmentCustomMethodParamValueActionPayload,
+  UpdateIsAbleToRunAgumentationErrorActionPayload,
 } from "./type";
 
 export const changeAugmentationExpertMode = (
@@ -80,5 +82,12 @@ export const changeIsLoadingAugmentCustomMethodPreviewImage = (
   payload: ChangeIsLoadingAugmentCustomMethodPreviewImageRequestActionPayload
 ) => ({
   type: CHANGE_IS_LOADING_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE,
+  payload,
+});
+
+export const updateIsAbleToRunAgumentationError = (
+  payload: UpdateIsAbleToRunAgumentationErrorActionPayload
+) => ({
+  type: UPDATE_IS_ABLE_TO_RUN_AUGMENTATION_ERROR,
   payload,
 });
