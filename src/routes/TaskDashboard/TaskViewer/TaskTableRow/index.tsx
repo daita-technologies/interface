@@ -18,6 +18,7 @@ import {
   ID_TOKEN_NAME,
   PREPROCESS_SOURCE,
   PREPROCESS_TASK_PROCESS_TYPE,
+  PROGRESS_POOLING_INTERVAL,
   RUNNING_TASK_STATUS,
   SYSTEM_DATE_TIME_FORMAT,
   UPLOAD_TASK_PROCESS_TYPE,
@@ -42,7 +43,6 @@ import {
 } from "utils/general";
 import { getTaskStatusMergedValue } from "utils/task";
 import TaskTableAction from "../TaskTableAction";
-
 import { TaskTableRowProps } from "./type";
 
 const getStyledStatus = (taskStatus: TaskStatusMergedType) => {
@@ -154,7 +154,9 @@ const TaskTableRow = function ({
         })
       );
     },
-    getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS ? 10000 : null
+    getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS
+      ? PROGRESS_POOLING_INTERVAL
+      : null
   );
 
   const actionWhenTaskFinish = () => {

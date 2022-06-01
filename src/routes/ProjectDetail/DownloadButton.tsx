@@ -11,7 +11,11 @@ import {
 import DownloadIcon from "@mui/icons-material/Download";
 import { useDispatch, useSelector } from "react-redux";
 import { MyButton } from "components";
-import { ALL_DOWNLOAD_TYPE, ID_TOKEN_NAME } from "constants/defaultValues";
+import {
+  ALL_DOWNLOAD_TYPE,
+  ID_TOKEN_NAME,
+  PROGRESS_POOLING_INTERVAL,
+} from "constants/defaultValues";
 import {
   downloadZipEc2Create,
   downloadZipEc2Progress,
@@ -145,7 +149,7 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
         );
       }
     },
-    downloadZipEc2TaskId ? 5000 : null
+    downloadZipEc2TaskId ? PROGRESS_POOLING_INTERVAL : null
   );
 
   return (

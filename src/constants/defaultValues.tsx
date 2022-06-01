@@ -183,3 +183,5 @@ export const LIMIT_IMAGE_HEIGHT = 4000;
 
 export const AUGMENT_OPTION_TOOLTIP =
   "Data source: Augmentation is only applied to the training dataset based on the data source you previously selected. For each augmentation run, you can define a new data source and a training/validation/test split.";
+
+export const PROGRESS_POOLING_INTERVAL = 15000;

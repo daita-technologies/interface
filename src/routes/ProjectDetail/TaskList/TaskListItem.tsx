@@ -12,6 +12,7 @@ import {
   ORIGINAL_IMAGES_TAB,
   ORIGINAL_SOURCE,
   PREPROCESS_SOURCE,
+  PROGRESS_POOLING_INTERVAL,
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
   UPLOAD_TASK_PROCESS_TYPE,
@@ -41,7 +42,6 @@ import {
   HEALTH_CHECK_TASK_PLACEMENT_PAGE_NAME,
   PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME,
 } from "reduxes/task/constants";
-
 import {
   capitalizeFirstLetter,
   getGenerateMethodLabel,
@@ -296,7 +296,9 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         callFetchTaskInfo();
       }
     },
-    getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS ? 10000 : null
+    getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS
+      ? PROGRESS_POOLING_INTERVAL
+      : null
   );
 
   const actionWhenTaskFinish = () => {
