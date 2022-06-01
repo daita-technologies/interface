@@ -1,5 +1,6 @@
 import { TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE } from "constants/defaultValues";
 import { FETCH_DETAIL_PROJECT } from "reduxes/project/constants";
+import { ProjectInfo } from "reduxes/project/type";
 import { GetAugmentCustomMethodPreviewImageResponse } from "services/customMethodApi";
 import { getLocalStorage, setLocalStorage } from "utils/general";
 import {
@@ -22,6 +23,8 @@ import {
   ReferenceAugmentationgeRecord,
   ReferenceAugmentationImage,
   RemoveAugmentCustomMethodParamValueActionPayload,
+  SavedAugmentCustomMethodParamValueByProjectIdType,
+  SavedAugmentCustomMethodParamValueType,
   UpdateIsAbleToRunAgumentationErrorActionPayload,
 } from "./type";
 
@@ -219,16 +222,37 @@ const customAugementationReducer = (
       const { currentProjectInfo } = payload;
 
       if (currentProjectInfo) {
-        const projectId = currentProjectInfo.project_id;
-        if (!state.savedAugmentCustomMethodParamValueByProjectId[projectId]) {
-          return {
-            ...state,
-            savedAugmentCustomMethodParamValueByProjectId: {
-              ...state.savedAugmentCustomMethodParamValueByProjectId,
-              [projectId]: {},
-            },
+        const { aug_parameters, project_id } =
+          currentProjectInfo as ProjectInfo;
+
+        /* eslint-disable no-undef-init */
+        let targetSavedAugmentCustomMethodParamValueByProjectId:
+          | SavedAugmentCustomMethodParamValueByProjectIdType
+          | undefined = undefined;
+        const targetAugmentationParamValue: SavedAugmentCustomMethodParamValueType =
+          {};
+
+        Object.keys(aug_parameters).forEach((methodId) => {
+          targetAugmentationParamValue[methodId] = {
+            methodId,
+            params: Object.keys(aug_parameters[methodId]).map((paramName) => ({
+              paramName,
+              paramValue: aug_parameters[methodId][paramName],
+            })),
           };
-        }
+        });
+
+        targetSavedAugmentCustomMethodParamValueByProjectId = {
+          [project_id]: { ...targetAugmentationParamValue },
+        };
+
+        return {
+          ...state,
+          savedAugmentCustomMethodParamValueByProjectId: {
+            ...state.savedAugmentCustomMethodParamValueByProjectId,
+            ...targetSavedAugmentCustomMethodParamValueByProjectId,
+          },
+        };
       }
       return state;
     }
