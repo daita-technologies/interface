@@ -15,7 +15,10 @@ import {
 } from "constants/defaultValues";
 import { TaskProcessType } from "constants/taskType";
 import { ImageSourceType } from "reduxes/album/type";
-import { GenerateMethodType } from "reduxes/generate/type";
+import {
+  AugmentParameterApiField,
+  GenerateMethodType,
+} from "reduxes/generate/type";
 
 export type GENERATE_PROJECT_STATUS_TYPE =
   | typeof GENERATING_SAMPLE_PROJECT_STATUS
@@ -57,6 +60,7 @@ export interface ProjectInfo {
   ls_task: Array<TaskInfo>;
   is_sample: boolean;
   gen_status: GENERATE_PROJECT_STATUS_TYPE;
+  aug_parameters: AugmentParameterApiField;
 }
 
 export interface ApiListProjectsItem {
