@@ -35,6 +35,7 @@ export interface UploadFileParams {
   fileName: string;
   projectId: string;
   projectName: string;
+  isExist: boolean;
   isReplace?: boolean;
   isReplaceSingle?: boolean;
 }

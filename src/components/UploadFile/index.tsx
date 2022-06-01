@@ -240,6 +240,7 @@ const UploadFile = function (props: UploadFileProps) {
         projectName,
         isReplace: true,
         isReplaceSingle: true,
+        isExist: true,
       })
     );
   };
