@@ -336,8 +336,14 @@ function* handleUploadFile(action: {
   payload: UploadFileParams;
 }): any {
   try {
-    const { fileName, projectId, projectName, isReplace, isReplaceSingle } =
-      action.payload;
+    const {
+      fileName,
+      projectId,
+      projectName,
+      isReplace,
+      isReplaceSingle,
+      isExist,
+    } = action.payload;
     const uploadFiles = yield select(selectorUploadFiles);
     const s3 = yield select(selectorS3);
     const IDENTITY_ID = yield getLocalStorage(IDENTITY_ID_NAME) || "";
@@ -420,7 +426,7 @@ function* handleUploadFile(action: {
             updateInfo: {
               typeMethod: ORIGINAL_SOURCE,
               fileInfo: {
-                isExist: !!isReplace,
+                isExist,
                 size: uploadFiles[fileName].file.size,
                 sizeOld: Number(uploadFiles[fileName].sizeOld),
               },
