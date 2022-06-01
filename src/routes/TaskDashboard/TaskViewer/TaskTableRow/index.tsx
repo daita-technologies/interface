@@ -38,6 +38,7 @@ import {
   capitalizeFirstLetter,
   getGenerateMethodLabel,
   getLocalStorage,
+  getMomentWithCurrentTimeZone,
 } from "utils/general";
 import { getTaskStatusMergedValue } from "utils/task";
 import TaskTableAction from "../TaskTableAction";
@@ -86,6 +87,17 @@ const getProcessColor = (value: number): string => {
   return "success.dark";
 };
 
+const getNegativeStatusWord = (status: string) => {
+  switch (status) {
+    case FINISH_TASK_STATUS:
+      return `${FINISH_TASK_STATUS}ED`;
+    case CANCEL_TASK_STATUS:
+      return `${CANCEL_TASK_STATUS}ED`;
+    default:
+      return status;
+  }
+};
+
 const TaskTableRow = function ({
   taskId,
   processType,
@@ -107,6 +119,7 @@ const TaskTableRow = function ({
     process_type,
     presign_url,
   } = taskInfo;
+
   const savedTaskStatus = useRef<TaskStatusType>();
   const dispatch = useDispatch();
 
@@ -270,7 +283,9 @@ const TaskTableRow = function ({
         </TableCell>
         <TableCell align="left">
           <Typography component="span" variant="body2">
-            {moment(created_time).format(SYSTEM_DATE_TIME_FORMAT)}
+            {getMomentWithCurrentTimeZone(moment(created_time)).format(
+              SYSTEM_DATE_TIME_FORMAT
+            )}
           </Typography>
         </TableCell>
 
@@ -281,7 +296,7 @@ const TaskTableRow = function ({
             color={`${getStyledStatus(getTaskStatusMergedValue(status))}.dark`}
             // color="success.first = (second) => {third}"
           >
-            {status.replace(/_/g, " ")}
+            {getNegativeStatusWord(status.replace(/_/g, " "))}
           </Typography>
         </TableCell>
         <TableCell align="right">

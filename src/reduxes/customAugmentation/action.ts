@@ -1,14 +1,25 @@
 import {
+  ADD_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
   CHANGE_AUGMENTATION_EXPERT_MODE,
+  CHANGE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
+  CHANGE_IS_LOADING_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE,
   CHANGE_REFERENCE_AUGMENTATION_IMAGE,
-  SET_AUGMENTATION_SELECTED_METHOD,
+  GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO,
+  REMOVE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
   SET_REFERENCE_AUGMENTATION_SELECTOR_DIALOG,
+  UPDATE_IS_ABLE_TO_RUN_AUGMENTATION_ERROR,
 } from "./constants";
 import {
+  AddAugmentCustomMethodParamValueActionPayload,
   ChangeAugmentationxpertModePayload,
+  ChangeAugmentCustomMethodParamValueActionPayload,
+  ChangeIsLoadingAugmentCustomMethodPreviewImageRequestActionPayload,
+  GetAugmentCustomMethodPreviewImageInfoRequestActionPayload,
+  GetAugmentCustomMethodPreviewImageInfoSucceededActionPayload,
   ReferenceAugmentationImage,
   ReferenceSeletectorDialog,
-  SelectedMethodProps,
+  RemoveAugmentCustomMethodParamValueActionPayload,
+  UpdateIsAbleToRunAgumentationErrorActionPayload,
 } from "./type";
 
 export const changeAugmentationExpertMode = (
@@ -32,7 +43,51 @@ export const setReferenceAugmentationImage = (
   payload,
 });
 
-export const setSelectedMethods = (payload: SelectedMethodProps) => ({
-  type: SET_AUGMENTATION_SELECTED_METHOD,
+export const getAugmentCustomMethodPreviewImageInfo = (
+  payload: GetAugmentCustomMethodPreviewImageInfoRequestActionPayload
+) => ({
+  type: GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO.REQUESTED,
+  payload,
+});
+
+export const getAugmentCustomMethodPreviewImageInfoSucceeded = (
+  payload: GetAugmentCustomMethodPreviewImageInfoSucceededActionPayload
+) => ({
+  type: GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO.SUCCEEDED,
+  payload,
+});
+
+export const changeAugmentCustomMethodParamValue = (
+  payload: ChangeAugmentCustomMethodParamValueActionPayload
+) => ({
+  type: CHANGE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
+  payload,
+});
+
+export const addAugmentCustomMethodParamValue = (
+  payload: AddAugmentCustomMethodParamValueActionPayload
+) => ({
+  type: ADD_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
+  payload,
+});
+
+export const removeAugmentCustomMethodParamValue = (
+  payload: RemoveAugmentCustomMethodParamValueActionPayload
+) => ({
+  type: REMOVE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
+  payload,
+});
+
+export const changeIsLoadingAugmentCustomMethodPreviewImage = (
+  payload: ChangeIsLoadingAugmentCustomMethodPreviewImageRequestActionPayload
+) => ({
+  type: CHANGE_IS_LOADING_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE,
+  payload,
+});
+
+export const updateIsAbleToRunAgumentationError = (
+  payload: UpdateIsAbleToRunAgumentationErrorActionPayload
+) => ({
+  type: UPDATE_IS_ABLE_TO_RUN_AUGMENTATION_ERROR,
   payload,
 });

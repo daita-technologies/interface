@@ -72,3 +72,7 @@ export interface TriggerStopTaskProcessRequestActionPayload {
   // processType: TaskProcessType;
   projectId: string;
 }
+export interface GoToTaskDashboardAlertPayload {
+  message: string;
+  projectId: string;
+}

@@ -101,6 +101,7 @@ export const ALL_TASK_TYPE_ARRAY: TaskProcessType[] = [
   AUGMENT_TASK_PROCESS_TYPE,
   UPLOAD_TASK_PROCESS_TYPE,
   DOWNLOAD_TASK_PROCESS_TYPE,
+  GENERATE_REFERENCE_IMAGE_TYPE,
 ];
 
 export const MAX_AUGMENT_FREE_PLAN = 5;
@@ -144,6 +145,7 @@ export const LATEST_SELECTED_DATA_SOURCE_KEY_NAME =
 
 export const MAX_ALLOW_UPLOAD_IMAGES = 1000;
 export const LIMIT_UPLOAD_IMAGE_SIZE = 5000000;
+export const MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME = 300;
 
 export const ALL_DOWNLOAD_TYPE = "ALL";
 export const PREPROCESS_DOWNLOAD_TYPE = "PREPROCESS";
@@ -169,3 +171,13 @@ export const MAXIMUM_ZIP_FILE_SIZE = 2000000000;
 export const VISIBLE_TOAST_MESSAGE_SECOND_TIME = 4000;
 
 export const RESOLUTION_METHOD_ID = "PRE-009";
+export const GRAYSCALE_METHOD_ID = "PRE-001";
+export const GRASCALE_PREPROCESS_METHOD_ALLOW_LIST = [
+  GRAYSCALE_METHOD_ID,
+  "PRE-009",
+  "PRE-002",
+  "PRE-000",
+];
+
+export const AUGMENT_OPTION_TOOLTIP =
+  "Data source: Augmentation is only applied to the training dataset based on the data source you previously selected. For each augmentation run, you can define a new data source and a training/validation/test split.";

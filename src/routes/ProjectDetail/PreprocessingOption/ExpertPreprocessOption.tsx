@@ -6,10 +6,15 @@ import Autocomplete from "@mui/material/Autocomplete";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
 import { InfoTooltip, MyButton } from "components";
+import {
+  GRASCALE_PREPROCESS_METHOD_ALLOW_LIST,
+  GRAYSCALE_METHOD_ID,
+} from "constants/defaultValues";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   generateReferenceImages,
+  resetStateGenerateReferenceImage,
   setReferenceSeletectorDialog,
   setSelectedMethods,
 } from "reduxes/customPreprocessing/action";
@@ -17,6 +22,7 @@ import {
   selectorIsGenerateReferenceRequesting,
   selectorIsGenerating,
   selectorReferencePreprocessImage,
+  selectorReferencePreprocessProjectId,
   selectorSelectedMethodIds,
 } from "reduxes/customPreprocessing/selector";
 import {
@@ -45,6 +51,9 @@ const ExpertPreprocessingOption = function () {
   );
   const currentProjectId = useSelector(selectorCurrentProjectId);
   const selectedMethodIds = useSelector(selectorSelectedMethodIds);
+  const referencePreprocessProjectId = useSelector(
+    selectorReferencePreprocessProjectId
+  );
   const isGenerating = useSelector(selectorIsGenerating);
   const isGenerateReferenceRequesting = useSelector(
     selectorIsGenerateReferenceRequesting
@@ -52,7 +61,11 @@ const ExpertPreprocessingOption = function () {
   const methods = useSelector(selectorMethodList)?.preprocessing;
   const methodIds = methods ? methods.map((t) => t.method_id) : [];
   useEffect(() => {
-    dispatch(setSelectedMethods({ selectedMethodIds: [] }));
+    if (currentProjectId && currentProjectId !== referencePreprocessProjectId) {
+      dispatch(
+        resetStateGenerateReferenceImage({ projectId: currentProjectId })
+      );
+    }
   }, [currentProjectId]);
   const haveTaskRunning = useSelector(selectorHaveTaskRunning);
 
@@ -60,7 +73,13 @@ const ExpertPreprocessingOption = function () {
     dispatch(setReferenceSeletectorDialog({ isShow: true, methodId }));
   };
   const handleChangeSelectedMethods = (event: any, listMethod: string[]) => {
-    dispatch(setSelectedMethods({ selectedMethodIds: listMethod }));
+    let filteredListMethod = listMethod;
+    if (listMethod.indexOf(GRAYSCALE_METHOD_ID) !== -1) {
+      filteredListMethod = listMethod.filter(
+        (t) => GRASCALE_PREPROCESS_METHOD_ALLOW_LIST.indexOf(t) !== -1
+      );
+    }
+    dispatch(setSelectedMethods({ selectedMethodIds: filteredListMethod }));
   };
   const handleClickGenerateReferenceImages = () => {
     dispatch(generateReferenceImages({ projectId: currentProjectId }));
@@ -76,7 +95,7 @@ const ExpertPreprocessingOption = function () {
           variant="contained"
           size="small"
           isLoading={isGenerateReferenceRequesting}
-          disabled={isGenerating || haveTaskRunning}
+          disabled={!currentProjectId || isGenerating || haveTaskRunning}
           onClick={handleClickGenerateReferenceImages}
         >
           Run
@@ -97,17 +116,30 @@ const ExpertPreprocessingOption = function () {
             getOptionLabel={(methodId) =>
               prettyMethodName(getMethodName(methodId))
             }
-            renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox
-                  icon={icon}
-                  checkedIcon={checkedIcon}
-                  style={{ marginRight: 8 }}
-                  checked={selected}
-                />
-                {prettyMethodName(getMethodName(option))}
-              </li>
-            )}
+            renderOption={(props, option, { selected }) => {
+              const isDisable =
+                selectedMethodIds.indexOf(GRAYSCALE_METHOD_ID) !== -1 &&
+                GRASCALE_PREPROCESS_METHOD_ALLOW_LIST.indexOf(option) === -1;
+              let newProps = props;
+              if (isDisable) {
+                newProps = {
+                  ...props,
+                  style: { ...newProps.style, color: "gray" },
+                };
+              }
+              return (
+                <li {...newProps}>
+                  <Checkbox
+                    icon={icon}
+                    checkedIcon={checkedIcon}
+                    style={{ marginRight: 8 }}
+                    checked={selected}
+                    disabled={isDisable}
+                  />
+                  {prettyMethodName(getMethodName(option))}
+                </li>
+              );
+            }}
             isOptionEqualToValue={isOptionEqualToValue}
             onChange={handleChangeSelectedMethods}
             renderInput={(params) => (

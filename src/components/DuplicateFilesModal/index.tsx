@@ -1,12 +1,11 @@
-import { useDispatch, useSelector } from "react-redux";
-import { Modal, Typography, Box, IconButton, Button } from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { Box, Button, IconButton, Modal, Typography } from "@mui/material";
+import { QUEUEING_UPLOAD_FILE_STATUS } from "constants/uploadFile";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  selectorIsOpenDuplicateModal,
-  selectorUploadFiles,
-} from "reduxes/upload/selector";
-
-import { modalCloseStyle, modalStyle } from "styles/generalStyle";
+  selectorCurrentProjectId,
+  selectorCurrentProjectName,
+} from "reduxes/project/selector";
 import {
   clearFileArray,
   setIsOpenDuplicateModal,
@@ -14,11 +13,11 @@ import {
   updateStatusFileArray,
   uploadFile,
 } from "reduxes/upload/actions";
-import { QUEUEING_UPLOAD_FILE_STATUS } from "constants/uploadFile";
 import {
-  selectorCurrentProjectId,
-  selectorCurrentProjectName,
-} from "reduxes/project/selector";
+  selectorIsOpenDuplicateModal,
+  selectorUploadFiles,
+} from "reduxes/upload/selector";
+import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 
 const DuplicateFilesModal = function () {
   const dispatch = useDispatch();
@@ -60,7 +59,13 @@ const DuplicateFilesModal = function () {
         fileNameArray.forEach((fileName: string) => {
           if (!uploadFiles[fileName].error) {
             dispatch(
-              uploadFile({ fileName, projectId, projectName, isReplace: true })
+              uploadFile({
+                fileName,
+                projectId,
+                projectName,
+                isReplace: true,
+                isExist: false,
+              })
             );
           }
         });
@@ -99,11 +104,19 @@ const DuplicateFilesModal = function () {
 
         duplicateFileNameArray.forEach((fileName: string) => {
           dispatch(
-            uploadFile({ fileName, projectId, projectName, isReplace: true })
+            uploadFile({
+              fileName,
+              projectId,
+              projectName,
+              isReplace: true,
+              isExist: true,
+            })
           );
         });
         newFileNameArray.forEach((fileName: string) => {
-          dispatch(uploadFile({ fileName, projectId, projectName }));
+          dispatch(
+            uploadFile({ fileName, projectId, projectName, isExist: false })
+          );
         });
       }
     }

@@ -4,6 +4,9 @@ import {
 } from "constants/defaultValues";
 import { toast } from "react-toastify";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { getAugmentCustomMethodPreviewImageInfoSucceeded } from "reduxes/customAugmentation/action";
+import { GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO } from "reduxes/customAugmentation/constants";
+import { GetAugmentCustomMethodPreviewImageInfoRequestActionPayload } from "reduxes/customAugmentation/type";
 import { fetchReferenceImageInfoSuccess } from "reduxes/customPreprocessing/action";
 import {
   FETCH_REFERENCE_IMAGE_INFO,
@@ -16,6 +19,7 @@ import {
 import { fetchTaskInfo } from "reduxes/project/action";
 import { selectorMethodList } from "reduxes/project/selector";
 import { ListMethodType } from "reduxes/project/type";
+import { alertGoToTaskDashboard } from "reduxes/task/action";
 import customMethodApi, {
   ReferenceImagesParams,
 } from "services/customMethodApi";
@@ -38,6 +42,13 @@ function* handleGenerateReferenceImages(action: {
           taskId: genRefImagesResp.data.task_id,
           processType: GENERATE_REFERENCE_IMAGE_TYPE,
           isNotify: true,
+          projectId,
+        })
+      );
+      yield put(
+        alertGoToTaskDashboard({
+          message:
+            "Reference image generation successfully initiated. Please go to My Tasks for the details.",
           projectId,
         })
       );
@@ -94,6 +105,35 @@ function* handleFetchReferenceImageInfo(action: {
     toast.error(e.message);
   }
 }
+
+function* handleGetAugmentCustomMethodPreviewImageInfo(action: {
+  type: string;
+  payload: GetAugmentCustomMethodPreviewImageInfoRequestActionPayload;
+}): any {
+  try {
+    const getAugmentCustomMethodPreviewImageInfoResponse = yield call(
+      customMethodApi.getAugmentCustomMethodPreviewImage,
+      action.payload
+    );
+    if (getAugmentCustomMethodPreviewImageInfoResponse.error === false) {
+      yield put(
+        getAugmentCustomMethodPreviewImageInfoSucceeded(
+          getAugmentCustomMethodPreviewImageInfoResponse.data
+        )
+      );
+    } else {
+      yield put({
+        type: GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO.FAILED,
+      });
+      toast.error(getAugmentCustomMethodPreviewImageInfoResponse.message);
+    }
+  } catch (e: any) {
+    yield put({
+      type: GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO.FAILED,
+    });
+    toast.error(e.message);
+  }
+}
 function* customMethod() {
   yield all([
     takeLatest(
@@ -103,6 +143,10 @@ function* customMethod() {
     takeLatest(
       FETCH_REFERENCE_IMAGE_INFO.REQUESTED,
       handleFetchReferenceImageInfo
+    ),
+    takeLatest(
+      GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO.REQUESTED,
+      handleGetAugmentCustomMethodPreviewImageInfo
     ),
   ]);
 }

@@ -15,7 +15,7 @@ import {
 } from "constants/defaultValues";
 import { TaskProcessType } from "constants/taskType";
 import { ImageSourceType } from "reduxes/album/type";
-import { generateMethodType } from "reduxes/generate/type";
+import { GenerateMethodType } from "reduxes/generate/type";
 
 export type GENERATE_PROJECT_STATUS_TYPE =
   | typeof GENERATING_SAMPLE_PROJECT_STATUS
@@ -148,7 +148,7 @@ export interface FetchTaskInfoPayload {
   processType: TaskProcessType;
   projectId?: string;
   isNotify?: boolean;
-  generateMethod?: generateMethodType;
+  generateMethod?: GenerateMethodType;
 }
 
 export interface FetchTaskInfoSucceedPayload {

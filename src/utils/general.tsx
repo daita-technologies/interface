@@ -1,3 +1,4 @@
+import moment from "moment";
 import CryptoJS from "crypto-js";
 import {
   REFRESH_TOKEN_NAME,
@@ -23,7 +24,7 @@ import {
   ImageSourceType,
 } from "reduxes/album/type";
 import { S3_BUCKET_NAME } from "constants/s3Values";
-import { generateMethodType } from "reduxes/generate/type";
+import { GenerateMethodType } from "reduxes/generate/type";
 import { TokenStorageName, TokenStorageTypes } from "./type";
 
 export const asyncAction = (actionName: string) => ({
@@ -235,7 +236,7 @@ export function switchTabIdToSource(tabId: number) {
 }
 
 export function getGenerateMethodLabel(
-  type?: generateMethodType | ImageSourceType
+  type?: GenerateMethodType | ImageSourceType
 ) {
   switch (type) {
     case PREPROCESSING_GENERATE_IMAGES_TYPE:
@@ -281,4 +282,12 @@ export const getProjectNameFromProjectId = (
   }
 
   return "";
+};
+
+export const getMomentWithCurrentTimeZone = (momentObject: moment.Moment) => {
+  const timezoneOffsetMinutes = new Date().getTimezoneOffset();
+  if (timezoneOffsetMinutes > 0) {
+    return momentObject.add(timezoneOffsetMinutes, "minutes");
+  }
+  return momentObject.subtract(timezoneOffsetMinutes, "minutes");
 };
