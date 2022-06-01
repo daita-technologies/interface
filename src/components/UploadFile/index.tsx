@@ -1,14 +1,34 @@
-import { toast } from "react-toastify";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
-import { Box, Button, LinearProgress, Typography } from "@mui/material";
-import UploadIcon from "@mui/icons-material/Upload";
 import DownloadIcon from "@mui/icons-material/Download";
-
-import { useDropzone } from "react-dropzone";
+import UploadIcon from "@mui/icons-material/Upload";
+import { Box, Button, LinearProgress, Typography } from "@mui/material";
 import { BeforeUnload } from "components";
-
+import {
+  COMPRESS_FILE_EXTENSIONS,
+  ID_TOKEN_NAME,
+  IMAGE_EXTENSIONS,
+  LIMIT_IMAGE_HEIGHT,
+  LIMIT_IMAGE_WIDTH,
+  MAX_ALLOW_UPLOAD_IMAGES,
+  MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME,
+} from "constants/defaultValues";
+import {
+  ADDED_UPLOAD_FILE_STATUS,
+  INVALID_FILE_STATUS,
+  UPLOADED_UPLOAD_FILE_STATUS,
+} from "constants/uploadFile";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
+import {
+  selectorIsGenerateImagesAugmenting,
+  selectorIsGenerateImagesPreprocessing,
+} from "reduxes/generate/selector";
+import {
+  selectorCurrentProjectTotalOriginalImage,
+  selectorHaveTaskRunning,
+} from "reduxes/project/selector";
 import {
   addFile,
   checkFileUpload,
@@ -17,22 +37,9 @@ import {
   deleteFile,
   resetUploadState,
   setTotalUploadFileQuantity,
+  updateFile,
   uploadFile,
 } from "reduxes/upload/actions";
-
-import { getLocalStorage } from "utils/general";
-import {
-  COMPRESS_FILE_EXTENSIONS,
-  COMPRESS_IMAGE_EXTENSIONS,
-  ID_TOKEN_NAME,
-  MAX_ALLOW_UPLOAD_IMAGES,
-  MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME,
-} from "constants/defaultValues";
-
-import {
-  ADDED_UPLOAD_FILE_STATUS,
-  UPLOADED_UPLOAD_FILE_STATUS,
-} from "constants/uploadFile";
 import {
   selectorAddedStatusFileCount,
   selectorIsChecking,
@@ -43,18 +50,9 @@ import {
   selectorUploadFiles,
   selectorUploadingFileCount,
 } from "reduxes/upload/selector";
-import {
-  selectorCurrentProjectTotalOriginalImage,
-  selectorHaveTaskRunning,
-} from "reduxes/project/selector";
-import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
-import {
-  selectorIsGenerateImagesAugmenting,
-  selectorIsGenerateImagesPreprocessing,
-} from "reduxes/generate/selector";
-import { MousePosition, UploadFileProps } from "./type";
+import { getLocalStorage, isImageFile } from "utils/general";
+import { LoadImageResult, MousePosition, UploadFileProps } from "./type";
 import UploadFileItem from "./UploadFileItem";
-
 import UploadFromMenu from "./UploadFromMenu";
 import UploadGuideDialog from "./UploadGuideDialog";
 
@@ -91,7 +89,7 @@ const dropZoneDisabledStyle = {
   opacity: 0.5,
 };
 const FILE_UPLOAD_EXTENSIONS = [
-  ...COMPRESS_IMAGE_EXTENSIONS,
+  ...IMAGE_EXTENSIONS,
   ...COMPRESS_FILE_EXTENSIONS,
 ];
 const UploadFile = function (props: UploadFileProps) {
@@ -159,7 +157,19 @@ const UploadFile = function (props: UploadFileProps) {
         ).toFixed(0)
       : 0
   );
-
+  const loadImage = (file: File, fileName: string) =>
+    new Promise<LoadImageResult>((resolve) => {
+      const image = new Image();
+      const objectUrl = window.URL.createObjectURL(file);
+      image.onload = () => {
+        resolve({
+          image,
+          fileName,
+        });
+        window.URL.revokeObjectURL(objectUrl);
+      };
+      image.src = objectUrl;
+    });
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       if (acceptedFiles.length > MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME) {
@@ -187,21 +197,48 @@ const UploadFile = function (props: UploadFileProps) {
 
       if (files && Object.keys(files).length > 0) {
         const filesNeedCheck: Array<string> = [];
-
+        const listPromiseLoadImages: Promise<LoadImageResult>[] = [];
         Object.keys(files).forEach((fileName: string) => {
           if (files[fileName].status !== UPLOADED_UPLOAD_FILE_STATUS) {
             filesNeedCheck.push(fileName);
+            if (isImageFile(fileName)) {
+              listPromiseLoadImages.push(
+                loadImage(files[fileName].file, fileName)
+              );
+            }
           }
         });
+        Promise.all(listPromiseLoadImages).then((values) => {
+          values.forEach(({ image, fileName }) => {
+            if (
+              image.width > LIMIT_IMAGE_WIDTH ||
+              image.height > LIMIT_IMAGE_HEIGHT
+            ) {
+              dispatch(
+                updateFile({
+                  fileName,
+                  updateInfo: {
+                    error: `The image resolution (${image.width} x ${image.height}) exceeds the limit allowed ${LIMIT_IMAGE_WIDTH} x ${LIMIT_IMAGE_HEIGHT}. Please remove it to start a new uploading`,
+                    status: INVALID_FILE_STATUS,
+                  },
+                })
+              );
 
-        dispatch(
-          checkFileUpload({
-            idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-            projectId,
-            projectName,
-            listFileName: filesNeedCheck,
-          })
-        );
+              const indexOf = filesNeedCheck.indexOf(fileName);
+              if (indexOf !== -1) {
+                filesNeedCheck.splice(indexOf, 1);
+              }
+            }
+          });
+          dispatch(
+            checkFileUpload({
+              idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+              projectId,
+              projectName,
+              listFileName: filesNeedCheck,
+            })
+          );
+        });
       }
     }
   }, []);

@@ -1,6 +1,9 @@
 import CancelIcon from "@mui/icons-material/Cancel";
 import { Box, Button, IconButton, Modal, Typography } from "@mui/material";
-import { QUEUEING_UPLOAD_FILE_STATUS } from "constants/uploadFile";
+import {
+  INVALID_FILE_STATUS,
+  QUEUEING_UPLOAD_FILE_STATUS,
+} from "constants/uploadFile";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectorCurrentProjectId,
@@ -75,7 +78,9 @@ const DuplicateFilesModal = function () {
 
   const onClickReplaceAll = () => {
     if (uploadFiles) {
-      const fileNameArray = Object.keys(uploadFiles);
+      const fileNameArray = Object.keys(uploadFiles).filter(
+        (fileName) => uploadFiles[fileName].status !== INVALID_FILE_STATUS
+      );
       if (fileNameArray.length > 0) {
         handleClose();
 

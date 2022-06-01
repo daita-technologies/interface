@@ -1,30 +1,32 @@
-import moment from "moment";
-import CryptoJS from "crypto-js";
 import {
+  AUGMENT_GENERATE_IMAGES_TYPE,
+  AUGMENT_GENERATE_IMAGES_TYPE_LABEL,
+  AUGMENT_IMAGES_TAB,
+  AUGMENT_SOURCE,
+  COMPRESS_FILE_EXTENSIONS,
+  IMAGE_EXTENSIONS,
+  ORIGINAL_IMAGES_TAB,
+  ORIGINAL_SOURCE,
+  PREPROCESSING_GENERATE_IMAGES_TYPE,
+  PREPROCESSING_GENERATE_IMAGES_TYPE_LABEL,
+  PREPROCESS_IMAGES_TAB,
+  PREPROCESS_SOURCE,
   REFRESH_TOKEN_NAME,
+  TEMP_LOCAL_FULLNAME,
   TEMP_LOCAL_USERNAME,
   TOKEN_LIST,
   TOKEN_NAME,
-  PREPROCESS_IMAGES_TAB,
-  ORIGINAL_IMAGES_TAB,
-  AUGMENT_IMAGES_TAB,
-  AUGMENT_SOURCE,
-  ORIGINAL_SOURCE,
-  PREPROCESS_SOURCE,
-  AUGMENT_GENERATE_IMAGES_TYPE,
-  AUGMENT_GENERATE_IMAGES_TYPE_LABEL,
-  PREPROCESSING_GENERATE_IMAGES_TYPE,
-  PREPROCESSING_GENERATE_IMAGES_TYPE_LABEL,
-  TEMP_LOCAL_FULLNAME,
 } from "constants/defaultValues";
-import { ApiListProjectsItem } from "reduxes/project/type";
+import { S3_BUCKET_NAME } from "constants/s3Values";
+import CryptoJS from "crypto-js";
+import moment from "moment";
 import {
   AlbumImagesFields,
   ImageApiFields,
   ImageSourceType,
 } from "reduxes/album/type";
-import { S3_BUCKET_NAME } from "constants/s3Values";
 import { GenerateMethodType } from "reduxes/generate/type";
+import { ApiListProjectsItem } from "reduxes/project/type";
 import { TokenStorageName, TokenStorageTypes } from "./type";
 
 export const asyncAction = (actionName: string) => ({
@@ -290,4 +292,28 @@ export const getMomentWithCurrentTimeZone = (momentObject: moment.Moment) => {
     return momentObject.add(timezoneOffsetMinutes, "minutes");
   }
   return momentObject.subtract(timezoneOffsetMinutes, "minutes");
+};
+export const isZipFile = (fileName: string) => {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const compressFileExtension of COMPRESS_FILE_EXTENSIONS) {
+    if (
+      fileName.indexOf(compressFileExtension) ===
+      fileName.length - compressFileExtension.length
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+export const isImageFile = (fileName: string) => {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const compressFileExtension of IMAGE_EXTENSIONS) {
+    if (
+      fileName.indexOf(compressFileExtension) ===
+      fileName.length - compressFileExtension.length
+    ) {
+      return true;
+    }
+  }
+  return false;
 };

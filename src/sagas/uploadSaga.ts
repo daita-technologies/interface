@@ -1,8 +1,5 @@
-/* eslint-disable no-underscore-dangle */
 import { Upload } from "@aws-sdk/lib-storage";
 import {
-  COMPRESS_FILE_EXTENSIONS,
-  COMPRESS_IMAGE_EXTENSIONS,
   IDENTITY_ID_NAME,
   ID_TOKEN_NAME,
   LIMIT_UPLOAD_IMAGE_SIZE,
@@ -64,7 +61,11 @@ import {
   selectorUploadedFileCount,
   selectorUploadFiles,
 } from "reduxes/upload/selector";
-import { CheckFileUploadParams, UploadFileParams } from "reduxes/upload/type";
+import {
+  CheckFileUploadParams,
+  UploadFileParams,
+  UploadFilesType,
+} from "reduxes/upload/type";
 import { projectApi } from "services";
 import {
   arrayBufferToWordArray,
@@ -72,6 +73,8 @@ import {
   generatePhotoKey,
   generateZipFileKey,
   getLocalStorage,
+  isImageFile,
+  isZipFile,
   objectIndexOf,
   readAsArrayBuffer,
 } from "utils/general";
@@ -160,11 +163,7 @@ function* isZipFileValid(action: {
     let validateFileSizeCounter = 0;
     zip.forEach((relativePath: any, zipEntry: any) => {
       const { name } = zipEntry;
-      const ext = name.substring(name.lastIndexOf("."));
-      if (COMPRESS_IMAGE_EXTENSIONS.indexOf(ext) !== -1) {
-        if (zipEntry._data.uncompressedSize <= LIMIT_UPLOAD_IMAGE_SIZE) {
-          validateFileSizeCounter += 1;
-        }
+      if (isImageFile(name)) {
         countImages += 1;
       }
     });
@@ -220,6 +219,15 @@ function* isZipFileValid(action: {
     );
   }
   return false;
+}
+function* processUploadDone() {
+  const UpdatedUploadFiles: UploadFilesType = yield select(selectorUploadFiles);
+  const listDeleteFile = Object.keys(UpdatedUploadFiles).filter(
+    (nameOfFile) =>
+      UpdatedUploadFiles[nameOfFile].status === UPLOADED_UPLOAD_FILE_STATUS
+  );
+  yield put(clearFileArray({ fileNameArray: listDeleteFile }));
+  yield put(setTotalUploadFileQuantity({ totalUploadFileQuantity: null }));
 }
 function* handleUploadZipFile(action: {
   type: string;
@@ -324,12 +332,7 @@ function* handleUploadZipFile(action: {
               projectId,
             })
           );
-          yield put(
-            clearFileArray({ fileNameArray: Object.keys(uploadFiles) })
-          );
-          yield put(
-            setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
-          );
+          yield processUploadDone();
         }
       }
     } catch (err) {
@@ -505,9 +508,7 @@ function* handleUploadFile(action: {
           );
         } else if (uploadedFile >= totalUploadFile) {
           yield toast.success("Images are successfully uploaded");
-          yield put(
-            clearFileArray({ fileNameArray: Object.keys(uploadFiles) })
-          );
+          yield processUploadDone();
           yield put(
             setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
           );
@@ -636,18 +637,7 @@ function* handleUploadRequest(requestChannel: any) {
   while (true) {
     const { payload } = yield take(requestChannel);
     const { fileName } = payload;
-    let isZipUploadRequest = false;
-    // eslint-disable-next-line no-restricted-syntax
-    for (const compressFileExtension of COMPRESS_FILE_EXTENSIONS) {
-      if (
-        fileName.indexOf(compressFileExtension) ===
-        fileName.length - compressFileExtension.length
-      ) {
-        isZipUploadRequest = true;
-        break;
-      }
-    }
-    if (isZipUploadRequest) {
+    if (isZipFile(fileName)) {
       yield call(handleUploadZipFile, {
         type: UPLOAD_FILE.REQUESTED,
         payload,

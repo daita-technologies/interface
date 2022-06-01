@@ -7,6 +7,7 @@ import {
   ADDED_UPLOAD_FILE_STATUS,
   CHECKING_UPLOAD_FILE_STATUS,
   FAILED_UPLOAD_FILE_STATUS,
+  INVALID_FILE_STATUS,
   QUEUEING_UPLOAD_FILE_STATUS,
   UPLOADED_UPLOAD_FILE_STATUS,
   UPLOADING_UPLOAD_FILE_STATUS,
@@ -79,6 +80,8 @@ const UploadFileItem = function (props: UploadFileItemProps) {
           </Box>
         );
       case QUEUEING_UPLOAD_FILE_STATUS:
+        return deleteButton;
+      case INVALID_FILE_STATUS:
         return deleteButton;
       case ADDED_UPLOAD_FILE_STATUS:
       default:

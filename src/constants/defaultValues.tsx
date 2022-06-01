@@ -1,6 +1,5 @@
-import { getLocalToken } from "utils/general";
 import { encode } from "js-base64";
-
+import { getLocalToken } from "utils/general";
 import { TaskProcessType, TaskStatusMergedType } from "./taskType";
 
 export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
@@ -165,7 +164,7 @@ export const COMPRESS_FILE_EXTENSIONS = [".tar", ".gz", ".bz2", ".zip"];
 
 export const TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE = "custom_method_expert_mode";
 
-export const COMPRESS_IMAGE_EXTENSIONS = [".jpeg", ".png", ".jpg"];
+export const IMAGE_EXTENSIONS = [".jpeg", ".png", ".jpg"];
 export const MAXIMUM_ZIP_FILE_SIZE = 2000000000;
 
 export const VISIBLE_TOAST_MESSAGE_SECOND_TIME = 4000;
@@ -178,6 +177,9 @@ export const GRASCALE_PREPROCESS_METHOD_ALLOW_LIST = [
   "PRE-002",
   "PRE-000",
 ];
+
+export const LIMIT_IMAGE_WIDTH = 4000;
+export const LIMIT_IMAGE_HEIGHT = 4000;
 
 export const AUGMENT_OPTION_TOOLTIP =
   "Data source: Augmentation is only applied to the training dataset based on the data source you previously selected. For each augmentation run, you can define a new data source and a training/validation/test split.";
