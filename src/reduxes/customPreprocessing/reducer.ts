@@ -34,7 +34,7 @@ const inititalState: CustomPreprocessReducer = {
     isShow: false,
   },
   selectedMethodIds: [],
-  isGenerating: true,
+  isGenerating: false,
   isGenerateReferenceRequesting: false,
 };
 
@@ -88,7 +88,7 @@ const customPreprocessingReducer = (
           isShow: false,
         },
         selectedMethodIds: [],
-        isGenerating: true,
+        isGenerating: false,
         isGenerateReferenceRequesting: false,
         projectId,
       };
