@@ -9,6 +9,7 @@ import {
   LIMIT_IMAGE_HEIGHT,
   LIMIT_IMAGE_WIDTH,
   MAX_ALLOW_UPLOAD_IMAGES,
+  MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME,
 } from "constants/defaultValues";
 import {
   ADDED_UPLOAD_FILE_STATUS,
@@ -39,20 +40,6 @@ import {
   updateFile,
   uploadFile,
 } from "reduxes/upload/actions";
-
-import { getLocalStorage } from "utils/general";
-import {
-  COMPRESS_FILE_EXTENSIONS,
-  COMPRESS_IMAGE_EXTENSIONS,
-  ID_TOKEN_NAME,
-  MAX_ALLOW_UPLOAD_IMAGES,
-  MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME,
-} from "constants/defaultValues";
-
-import {
-  ADDED_UPLOAD_FILE_STATUS,
-  UPLOADED_UPLOAD_FILE_STATUS,
-} from "constants/uploadFile";
 import {
   selectorAddedStatusFileCount,
   selectorIsChecking,
@@ -63,18 +50,9 @@ import {
   selectorUploadFiles,
   selectorUploadingFileCount,
 } from "reduxes/upload/selector";
-import {
-  selectorCurrentProjectTotalOriginalImage,
-  selectorHaveTaskRunning,
-} from "reduxes/project/selector";
-import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
-import {
-  selectorIsGenerateImagesAugmenting,
-  selectorIsGenerateImagesPreprocessing,
-} from "reduxes/generate/selector";
-import { MousePosition, UploadFileProps } from "./type";
+import { getLocalStorage, isImageFile } from "utils/general";
+import { LoadImageResult, MousePosition, UploadFileProps } from "./type";
 import UploadFileItem from "./UploadFileItem";
-
 import UploadFromMenu from "./UploadFromMenu";
 import UploadGuideDialog from "./UploadGuideDialog";
 
