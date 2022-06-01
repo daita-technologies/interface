@@ -27,6 +27,7 @@ import {
 } from "reduxes/customPreprocessing/selector";
 import {
   selectorCurrentProjectId,
+  selectorCurrentProjectName,
   selectorHaveTaskRunning,
   selectorMethodList,
 } from "reduxes/project/selector";
@@ -50,6 +51,7 @@ const ExpertPreprocessingOption = function () {
     selectorReferencePreprocessImage
   );
   const currentProjectId = useSelector(selectorCurrentProjectId);
+  const currentProjectName = useSelector(selectorCurrentProjectName);
   const selectedMethodIds = useSelector(selectorSelectedMethodIds);
   const referencePreprocessProjectId = useSelector(
     selectorReferencePreprocessProjectId
@@ -82,7 +84,13 @@ const ExpertPreprocessingOption = function () {
     dispatch(setSelectedMethods({ selectedMethodIds: filteredListMethod }));
   };
   const handleClickGenerateReferenceImages = () => {
-    dispatch(generateReferenceImages({ projectId: currentProjectId }));
+    dispatch(
+      generateReferenceImages({
+        projectId: currentProjectId,
+        selectedMethodIds,
+        projectName: currentProjectName,
+      })
+    );
   };
   const isRunning = useMemo(
     () => !currentProjectId || isGenerating || haveTaskRunning,

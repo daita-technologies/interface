@@ -12,7 +12,12 @@ export interface ReferenceImagesParams {
   idToken?: string;
   projectId: string;
 }
-
+export interface GenerateReferenceImagesParams {
+  idToken?: string;
+  projectId: string;
+  selectedMethodIds: string[];
+  projectName: string;
+}
 export interface GetAugmentCustomMethodPreviewImageParams {
   idToken?: string;
   methodId: string;
@@ -38,12 +43,19 @@ export interface GetAugmentCustomMethodPreviewImageResponse {
 }
 
 const customMethodApi = {
-  generateReferenceImages: ({ idToken, projectId }: ReferenceImagesParams) =>
+  generateReferenceImages: ({
+    idToken,
+    projectId,
+    selectedMethodIds,
+    projectName,
+  }: GenerateReferenceImagesParams) =>
     axios.post(
       `${customMethodUrl}/reference_image/calculate`,
       {
         id_token: getLocalStorage(ID_TOKEN_NAME) || idToken || "",
         project_id: projectId,
+        ls_method_client_choose: selectedMethodIds,
+        project_name: projectName,
       },
       { headers: getAuthHeader() }
     ),
