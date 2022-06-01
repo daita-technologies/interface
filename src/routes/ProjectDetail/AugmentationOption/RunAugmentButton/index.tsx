@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { RootState } from "reduxes";
 import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
+import { updateIsAbleToRunAgumentationError } from "reduxes/customAugmentation/action";
 import { selectorSavedAugmentCustomMethodParamValue } from "reduxes/customAugmentation/selector";
 import {
   selectorCurrentProjectIdDownloading,
@@ -40,6 +41,7 @@ import {
   selectorSelectedDataSource,
 } from "reduxes/project/selector";
 import { selectorIsUploading } from "reduxes/upload/selector";
+import { isAbleToRunExpertAugmentation } from "utils/customAugment";
 import { getLocalStorage } from "utils/general";
 import { RunAugmentButtonProps } from "./type";
 
@@ -214,6 +216,18 @@ const RunAugmentButton = function ({ isExpertMode }: RunAugmentButtonProps) {
   };
 
   const onClickRunAugmentation = () => {
+    if (isExpertMode) {
+      const isAbleToRun = isAbleToRunExpertAugmentation(
+        savedAugmentCustomMethodParamValue
+      );
+      dispatch(updateIsAbleToRunAgumentationError({ isError: !isAbleToRun }));
+      if (!isAbleToRun) {
+        return toast.error(
+          "You need to complete custom your augmentation params first."
+        );
+      }
+    }
+
     if (isEditingSplitData) {
       return toast.error(
         "Please confirm Training/Validation/Test split data before run augmentation."

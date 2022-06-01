@@ -176,3 +176,6 @@ export const GRASCALE_PREPROCESS_METHOD_ALLOW_LIST = [
   "PRE-002",
   "PRE-000",
 ];
+
+export const AUGMENT_OPTION_TOOLTIP =
+  "Data source: Augmentation is only applied to the training dataset based on the data source you previously selected. For each augmentation run, you can define a new data source and a training/validation/test split.";

@@ -1,6 +1,9 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { InfoTooltip } from "components";
-import { MAX_AUGMENT_FREE_PLAN } from "constants/defaultValues";
+import {
+  AUGMENT_OPTION_TOOLTIP,
+  MAX_AUGMENT_FREE_PLAN,
+} from "constants/defaultValues";
 
 import { useSelector } from "react-redux";
 
@@ -81,10 +84,7 @@ const AugmentationOption = function (props: AugmentationOptionProps) {
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <Box display="flex" alignItems="center" justifyContent="center">
           <Typography fontWeight={500}>Augmentation Option</Typography>
-          <InfoTooltip
-            sx={{ ml: 1 }}
-            title="Data source: Augmentation is only applied to the training dataset based on the data source you previously selected. For each augmentation run, you can define a new data source and a training/validation/test split."
-          />
+          <InfoTooltip sx={{ ml: 1 }} title={AUGMENT_OPTION_TOOLTIP} />
         </Box>
         <RunAugmentButton isExpertMode={false} />
       </Box>
