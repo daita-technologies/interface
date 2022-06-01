@@ -20,6 +20,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { RootState } from "reduxes";
+import { selectorIsDeletingImages } from "reduxes/album/selector";
 import { selectorIsDownloading } from "reduxes/download/selector";
 import { changeActiveGenerateTab } from "reduxes/generate/action";
 import { selectorActiveGenerateTabId } from "reduxes/generate/selector";
@@ -45,9 +46,6 @@ import {
   separateNumber,
 } from "utils/general";
 import AlbumViewer from "./AlbumViewer";
-import AugmentationOption from "./AugmentationOption";
-// import AugmentationOutput from "./AugmentationOutput";
-import DataSetSplit from "./DataSetSplit";
 import ImageAugmentation from "./ImageAugmentation";
 import ProcessingOption from "./PreprocessingOption";
 import TaskList from "./TaskList";
@@ -69,6 +67,8 @@ const ProjectDetail = function () {
   const isDownloading = useSelector(selectorIsDownloading);
 
   const activeGenerateTabId = useSelector(selectorActiveGenerateTabId);
+
+  const isDeletingImages = useSelector(selectorIsDeletingImages);
 
   useEffect(() => {
     if (!methodList) {
@@ -393,6 +393,10 @@ const ProjectDetail = function () {
         isActive={!!isDownloading}
         message={`We are currently processing your data dowload.\r\nAre you sure you want to quit?`}
       /> */}
+      <BeforeUnload
+        isActive={!!isDeletingImages}
+        message="We are deleting your project, please wait for a while"
+      />
       <Typography variant="h4" component="h1">
         {projectName}
       </Typography>
