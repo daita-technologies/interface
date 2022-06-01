@@ -1,9 +1,11 @@
+/* eslint-disable no-underscore-dangle */
 import { Upload } from "@aws-sdk/lib-storage";
 import {
   COMPRESS_FILE_EXTENSIONS,
   COMPRESS_IMAGE_EXTENSIONS,
   IDENTITY_ID_NAME,
   ID_TOKEN_NAME,
+  LIMIT_UPLOAD_IMAGE_SIZE,
   MAXIMUM_ZIP_FILE_SIZE,
   MAX_ALLOW_UPLOAD_IMAGES,
   ORIGINAL_SOURCE,
@@ -13,6 +15,7 @@ import { S3_BUCKET_NAME } from "constants/s3Values";
 import {
   ADDED_UPLOAD_FILE_STATUS,
   CHECKING_UPLOAD_FILE_STATUS,
+  CHECK_IMAGE,
   CHECK_ZIP_FILE,
   FAILED_UPLOAD_FILE_STATUS,
   QUEUEING_UPLOAD_FILE_STATUS,
@@ -154,10 +157,14 @@ function* isZipFileValid(action: {
     }
     const zip = yield JSZip.loadAsync(file);
     let countImages = 0;
+    let validateFileSizeCounter = 0;
     zip.forEach((relativePath: any, zipEntry: any) => {
       const { name } = zipEntry;
       const ext = name.substring(name.lastIndexOf("."));
       if (COMPRESS_IMAGE_EXTENSIONS.indexOf(ext) !== -1) {
+        if (zipEntry._data.uncompressedSize <= LIMIT_UPLOAD_IMAGE_SIZE) {
+          validateFileSizeCounter += 1;
+        }
         countImages += 1;
       }
     });
@@ -167,6 +174,20 @@ function* isZipFileValid(action: {
           fileName,
           updateInfo: {
             error: `Not found any images in the zip files. Please remove it to start a new uploading`,
+            status: FAILED_UPLOAD_FILE_STATUS,
+          },
+        })
+      );
+      return false;
+    }
+    if (validateFileSizeCounter === 0) {
+      yield put(
+        updateFile({
+          fileName,
+          updateInfo: {
+            error: `Not found any images with a size of less than ${formatBytes(
+              LIMIT_UPLOAD_IMAGE_SIZE
+            )}. Please remove it to start a new uploading`,
             status: FAILED_UPLOAD_FILE_STATUS,
           },
         })
@@ -330,7 +351,31 @@ function* handleUploadZipFile(action: {
     toast.error(e.message);
   }
 }
-
+function* isImageValid(action: {
+  type: string;
+  payload: UploadFileParams;
+}): any {
+  const { fileName } = action.payload;
+  const uploadFiles = yield select(selectorUploadFiles);
+  const { file } = uploadFiles[fileName];
+  if (file.size > LIMIT_UPLOAD_IMAGE_SIZE) {
+    yield put(
+      updateFile({
+        fileName,
+        updateInfo: {
+          error: `The image size exceeds the limit allowed (${formatBytes(
+            file.size
+          )}/${formatBytes(
+            LIMIT_UPLOAD_IMAGE_SIZE
+          )}). Please remove it to start a new uploading`,
+          status: FAILED_UPLOAD_FILE_STATUS,
+        },
+      })
+    );
+    return false;
+  }
+  return true;
+}
 function* handleUploadFile(action: {
   type: string;
   payload: UploadFileParams;
@@ -356,6 +401,13 @@ function* handleUploadFile(action: {
 
     try {
       if (uploadFiles[fileName]) {
+        const isValid = yield call(isImageValid, {
+          type: CHECK_IMAGE,
+          payload: action.payload,
+        });
+        if (isValid === false) {
+          return;
+        }
         const uploadParams = {
           Bucket: S3_BUCKET_NAME,
           Key: photoKey,

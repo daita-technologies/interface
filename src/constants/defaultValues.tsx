@@ -144,6 +144,7 @@ export const LATEST_SELECTED_DATA_SOURCE_KEY_NAME =
   "latest_selected_data_source_key_name";
 
 export const MAX_ALLOW_UPLOAD_IMAGES = 1000;
+export const LIMIT_UPLOAD_IMAGE_SIZE = 5000000;
 export const MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME = 300;
 
 export const ALL_DOWNLOAD_TYPE = "ALL";
