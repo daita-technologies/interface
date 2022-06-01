@@ -50,6 +50,15 @@ export const darkTheme = createTheme({
         },
       },
     },
+    MuiTablePagination: {
+      styleOverrides: {
+        root: {
+          "button svg": {
+            color: "inherit"
+          },
+        },
+      },
+    }
   },
   palette: {
     primary: {
