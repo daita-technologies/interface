@@ -1,6 +1,7 @@
 import { Box, IconButton, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 
+import { useMemo } from "react";
 import { RootState } from "reduxes";
 import { useSelector } from "react-redux";
 import {
@@ -8,7 +9,11 @@ import {
   selectorSpecificSavedAugmentCustomMethodParamValue,
 } from "reduxes/customAugmentation/selector";
 import { AugmentCustomMethodParamValue } from "reduxes/customAugmentation/type";
-import { selectorCurrentProjectId } from "reduxes/project/selector";
+import {
+  selectorCurrentProjectId,
+  selectorHaveTaskRunning,
+} from "reduxes/project/selector";
+import { selectorIsGenerateImagesAugmenting } from "reduxes/generate/selector";
 
 /* eslint-disable import/no-cycle */
 import { limitTooLongLineStyle } from "./ExpertAugmentationOption";
@@ -72,8 +77,26 @@ const AugmentCustomMethodTrigger = function ({
       )
   );
 
+  const haveTaskRunning = useSelector(selectorHaveTaskRunning);
+  const isGenerateImagesAugmenting = useSelector(
+    selectorIsGenerateImagesAugmenting
+  );
+
+  const isRunning = useMemo(
+    () => !currentProjectId || haveTaskRunning || !!isGenerateImagesAugmenting,
+    [currentProjectId, haveTaskRunning, isGenerateImagesAugmenting]
+  );
+
   return (
-    <Box key={methodId} flexBasis="33.33%" sx={{ p: 1 }}>
+    <Box
+      key={methodId}
+      flexBasis="33.33%"
+      sx={{
+        p: 1,
+        backgroundColor: isRunning ? "rgba(255, 255, 255, 0.12)" : undefined,
+        borderRadius: "4px",
+      }}
+    >
       <Typography variant="body1" fontWeight={500}>
         {prettyMethodName(methodName)}
       </Typography>
@@ -87,6 +110,7 @@ const AugmentCustomMethodTrigger = function ({
           color="primary"
           component="span"
           onClick={() => handleShowReferenceDialog(methodId)}
+          disabled={isRunning}
         >
           <EditIcon sx={{ width: 20 }} />
         </IconButton>

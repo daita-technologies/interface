@@ -24,9 +24,11 @@ import {
   selectorIsAbleToRunAgumentationError,
   selectorSelectedListCustomAugmentMethodId,
 } from "reduxes/customAugmentation/selector";
+import { selectorIsGenerateImagesAugmenting } from "reduxes/generate/selector";
 import {
   selectorCurrentProjectAugmentedTimes,
   selectorCurrentProjectId,
+  selectorHaveTaskRunning,
   selectorIsFetchingDetailProject,
   selectorMethodList,
 } from "reduxes/project/selector";
@@ -68,6 +70,16 @@ const ExpertAugmentationOption = function () {
 
   const methods = useSelector(selectorMethodList)?.augmentation;
   const methodIds = methods ? methods.map((t) => t.method_id) : [];
+
+  const haveTaskRunning = useSelector(selectorHaveTaskRunning);
+  const isGenerateImagesAugmenting = useSelector(
+    selectorIsGenerateImagesAugmenting
+  );
+
+  const isRunning = useMemo(
+    () => !currentProjectId || haveTaskRunning || !!isGenerateImagesAugmenting,
+    [currentProjectId, haveTaskRunning, isGenerateImagesAugmenting]
+  );
 
   const isSelectedMethods = useMemo(
     () => selectedListCustomMethodId && selectedListCustomMethodId.length > 0,
@@ -160,6 +172,7 @@ const ExpertAugmentationOption = function () {
               )}
               isOptionEqualToValue={isOptionEqualToValue}
               onChange={handleChangeSelectedMethods}
+              disabled={isRunning}
               renderInput={(params) => (
                 <TextField
                   {...params}
