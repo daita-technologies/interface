@@ -164,6 +164,10 @@ function* isZipFileValid(action: {
     zip.forEach((relativePath: any, zipEntry: any) => {
       const { name } = zipEntry;
       if (isImageFile(name)) {
+        // eslint-disable-next-line no-underscore-dangle
+        if (zipEntry._data.uncompressedSize <= LIMIT_UPLOAD_IMAGE_SIZE) {
+          validateFileSizeCounter += 1;
+        }
         countImages += 1;
       }
     });
