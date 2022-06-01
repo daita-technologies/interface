@@ -395,7 +395,7 @@ const ProjectDetail = function () {
       /> */}
       <BeforeUnload
         isActive={!!isDeletingImages}
-        message="We are deleting your project, please wait for a while"
+        message="We are deleting your project, please wait for a while.\r\nAre you sure you want to quit?"
       />
       <Typography variant="h4" component="h1">
         {projectName}
