@@ -218,7 +218,7 @@ const UploadFile = function (props: UploadFileProps) {
                 updateFile({
                   fileName,
                   updateInfo: {
-                    error: `The image resolution (${image.width} x ${image.height}) exceeds the limit allowed ${LIMIT_IMAGE_WIDTH} x ${LIMIT_IMAGE_HEIGHT}. Please remove it to start a new uploading`,
+                    error: `The image resolution (${image.width} x ${image.height}) exceeds the limit allowed ${LIMIT_IMAGE_WIDTH} x ${LIMIT_IMAGE_HEIGHT}. Please remove it`,
                     status: INVALID_FILE_STATUS,
                   },
                 })
