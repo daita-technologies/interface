@@ -19,6 +19,7 @@ import {
   setSelectedMethods,
 } from "reduxes/customPreprocessing/action";
 import {
+  selectorIsAbleToRunPreprocessError,
   selectorIsGenerateReferenceRequesting,
   selectorIsGenerating,
   selectorReferencePreprocessImage,
@@ -31,6 +32,7 @@ import {
   selectorHaveTaskRunning,
   selectorMethodList,
 } from "reduxes/project/selector";
+import { constants } from "zlib";
 import ReferenceImageDialog, { prettyMethodName } from "./ReferenceImageDialog";
 
 const limitTooLongLineStyle = {
@@ -61,7 +63,14 @@ const ExpertPreprocessingOption = function () {
     selectorIsGenerateReferenceRequesting
   );
   const methods = useSelector(selectorMethodList)?.preprocessing;
-  const methodIds = methods ? methods.map((t) => t.method_id) : [];
+  const isAbleToRunPreprocessError = useSelector(
+    selectorIsAbleToRunPreprocessError
+  );
+
+  const methodIds = useMemo(
+    () => (methods ? methods.map((t) => t.method_id) : []),
+    [methods]
+  );
   useEffect(() => {
     if (currentProjectId && currentProjectId !== referencePreprocessProjectId) {
       dispatch(
@@ -70,7 +79,10 @@ const ExpertPreprocessingOption = function () {
     }
   }, [currentProjectId]);
   const haveTaskRunning = useSelector(selectorHaveTaskRunning);
-
+  const isSelectedMethods = useMemo(
+    () => selectedMethodIds && selectedMethodIds.length > 0,
+    [selectedMethodIds]
+  );
   const handleShowReferenceDialog = (methodId: string) => {
     dispatch(setReferenceSeletectorDialog({ isShow: true, methodId }));
   };
@@ -100,6 +112,74 @@ const ExpertPreprocessingOption = function () {
     option === value;
   const getMethodName = (methodId: string) =>
     methods?.find((t) => t.method_id === methodId)?.method_name;
+  const renderEditSelectReferenceImage = (methodId: string) => {
+    if (referencePreprocessImage[methodId]) {
+      return (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          noWrap
+          sx={limitTooLongLineStyle}
+        >
+          {referencePreprocessImage[methodId].filename}
+        </Typography>
+      );
+    }
+    return (
+      <Typography
+        variant="body2"
+        color={isAbleToRunPreprocessError ? "error" : "text.secondary"}
+        noWrap
+        sx={limitTooLongLineStyle}
+      >
+        Select your reference image
+      </Typography>
+    );
+  };
+  const renderItemContent = (
+    methodName: string,
+    props: React.HTMLAttributes<HTMLLIElement>,
+    isDisable: boolean,
+    selected: boolean
+  ) => {
+    if (isDisable) {
+      return (
+        <li {...props}>
+          <Checkbox
+            icon={icon}
+            checkedIcon={checkedIcon}
+            style={{ marginRight: 8 }}
+            checked={selected}
+            disabled
+          />
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            width="100%"
+            color="text.secondary"
+          >
+            <Typography variant="body2">{methodName}</Typography>
+            <Typography variant="caption" fontStyle="italic">
+              disabled due to current selection
+            </Typography>
+          </Box>
+        </li>
+      );
+    }
+    return (
+      <li {...props}>
+        <Checkbox
+          icon={icon}
+          checkedIcon={checkedIcon}
+          style={{ marginRight: 8 }}
+          checked={selected}
+        />
+        <Box>
+          <Typography variant="body2">{methodName}</Typography>
+        </Box>
+      </li>
+    );
+  };
   return (
     <Box>
       <Box display="flex" alignItems="center">
@@ -135,31 +215,20 @@ const ExpertPreprocessingOption = function () {
               const isDisable =
                 selectedMethodIds.indexOf(GRAYSCALE_METHOD_ID) !== -1 &&
                 GRASCALE_PREPROCESS_METHOD_ALLOW_LIST.indexOf(option) === -1;
-              let newProps = props;
-              if (isDisable) {
-                newProps = {
-                  ...props,
-                  style: { ...newProps.style, color: "gray" },
-                };
-              }
-              return (
-                <li {...newProps}>
-                  <Checkbox
-                    icon={icon}
-                    checkedIcon={checkedIcon}
-                    style={{ marginRight: 8 }}
-                    checked={selected}
-                    disabled={isDisable}
-                  />
-                  {prettyMethodName(getMethodName(option))}
-                </li>
-              );
+              const methodName = prettyMethodName(getMethodName(option));
+              return renderItemContent(methodName, props, isDisable, selected);
             }}
             isOptionEqualToValue={isOptionEqualToValue}
             onChange={handleChangeSelectedMethods}
             renderInput={(params) => (
               <TextField
                 {...params}
+                error={!!isAbleToRunPreprocessError && !isSelectedMethods}
+                helperText={
+                  !!isAbleToRunPreprocessError && !isSelectedMethods
+                    ? "Please select method!"
+                    : ""
+                }
                 label="Method"
                 placeholder="Choose method"
               />
@@ -181,16 +250,7 @@ const ExpertPreprocessingOption = function () {
                   {prettyMethodName(getMethodName(methodId))}
                 </Typography>
                 <Box display="flex" alignItems="flex-end">
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    noWrap
-                    sx={limitTooLongLineStyle}
-                  >
-                    {referencePreprocessImage[methodId]
-                      ? referencePreprocessImage[methodId].filename
-                      : "Select your reference image"}
-                  </Typography>
+                  {renderEditSelectReferenceImage(methodId)}
                   <IconButton
                     size="small"
                     sx={{ padding: "0 2px" }}

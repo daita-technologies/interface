@@ -10,7 +10,10 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
-import { changePreprocessingExpertMode } from "reduxes/customPreprocessing/action";
+import {
+  changePreprocessingExpertMode,
+  updateIsAbleToRunPreprocessError,
+} from "reduxes/customPreprocessing/action";
 import {
   selectorIsPreprocessingExpertMode,
   selectorReferencePreprocessImage,
@@ -89,6 +92,7 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
     const listMethodId = [] as string[];
     const referenceImages = {} as Record<string, string>;
     if (isPreprocessingExpertMode) {
+      let isError = false;
       selectedMethodIds.forEach((methodId) => {
         if (referencePreprocessImage[methodId]) {
           referenceImages[methodId] =
@@ -96,7 +100,15 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
           listMethodId.push(methodId);
         }
       });
-      if (selectedMethodIds.length > Object.keys(referenceImages).length) {
+      if (
+        selectedMethodIds.length === 0 ||
+        selectedMethodIds.length > Object.keys(referenceImages).length
+      ) {
+        isError = true;
+      }
+
+      dispatch(updateIsAbleToRunPreprocessError({ isError }));
+      if (isError) {
         toast.error(
           "There is at least one method that has not yet selected a reference image."
         );
