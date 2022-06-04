@@ -19,7 +19,7 @@ const TASK_STATUS_FILTER_OPTION_ARRAY: TaskStatusFilterOption[] = [
   },
   {
     value: FINISH_TASK_STATUS,
-    label: "Finish",
+    label: "Finished",
   },
   {
     value: ERROR_TASK_STATUS,
@@ -27,7 +27,7 @@ const TASK_STATUS_FILTER_OPTION_ARRAY: TaskStatusFilterOption[] = [
   },
   {
     value: CANCEL_TASK_STATUS,
-    label: "Cancel",
+    label: "Cancelled",
   },
 ];
 

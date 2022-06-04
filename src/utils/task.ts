@@ -44,13 +44,13 @@ export function mapProcessTypeToName(taskProcessType: TaskProcessType) {
     case AUGMENT_TASK_PROCESS_TYPE:
       return "Augmentation";
     case UPLOAD_TASK_PROCESS_TYPE:
-      return "Upload";
+      return "Data Upload";
     case DOWNLOAD_TASK_PROCESS_TYPE:
-      return "Download";
+      return "Data Download";
     case HEALTHCHECK_TASK_PROCESS_TYPE:
       return "Dataset Health Check";
     case GENERATE_REFERENCE_IMAGE_TYPE:
-      return "Reference image";
+      return "Reference Image Generation";
     default:
       return "";
   }

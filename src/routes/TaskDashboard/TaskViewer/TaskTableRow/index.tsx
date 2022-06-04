@@ -92,7 +92,7 @@ const getNegativeStatusWord = (status: string) => {
     case FINISH_TASK_STATUS:
       return `${FINISH_TASK_STATUS}ED`;
     case CANCEL_TASK_STATUS:
-      return `${CANCEL_TASK_STATUS}ED`;
+      return `${CANCEL_TASK_STATUS}LED`;
     default:
       return status;
   }
