@@ -1,3 +1,9 @@
+html {
+  scroll-behavior: smooth;
+}
+[id] {
+  scroll-margin-top: 22px;
+}
 body {
   background-color: #2a3648;
   color: #d7d7db;

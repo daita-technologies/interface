@@ -1,17 +1,18 @@
 import { useSelector } from "react-redux";
 import { Redirect, Route } from "react-router-dom";
-
 import { selectorIsLogged } from "reduxes/auth/selector";
 import {
   DashboardPage,
   ForgotPasswordPage,
+  HealthCheckPage,
   LoginPage,
   ProjectDetail,
   RegisterPage,
-  VerifyAccountPage,
   TaskDashboard,
-  HealthCheckPage,
+  VerifyAccountPage,
 } from "routes";
+import PrivacyPolicy from "routes/PrivacyPolicy";
+import Terms from "routes/Terms";
 import { CustomRouteProps } from "./type";
 
 export const CustomRoute = function ({
@@ -44,7 +45,20 @@ export const CustomRoute = function ({
 
   return <Redirect to="/login" />;
 };
-
+export const customLayoutRouteConfig = [
+  {
+    path: "/we-take-your-privacy-seriously",
+    component: PrivacyPolicy,
+    exact: true,
+    isPrivate: false,
+  },
+  {
+    path: "/terms",
+    component: Terms,
+    exact: true,
+    isPrivate: false,
+  },
+];
 const routeConfig = [
   {
     path: "/",
