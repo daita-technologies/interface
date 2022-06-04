@@ -166,7 +166,7 @@ const TaskDashboard = function () {
           <Empty
             description={
               <Box textAlign="center">
-                <Typography color="text.secondary"> No Project Yet.</Typography>
+                <Typography color="text.secondary"> No project yet.</Typography>
                 <Typography color="text.secondary">
                   Go to <Link to="/dashboard">Dashboard</Link> and create a new
                   project.

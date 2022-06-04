@@ -174,7 +174,8 @@ const HealthCheckMainContent = function ({
             alignItems="center"
           >
             <Typography>
-              Data Health Check is being generated, please wait for a while...
+              Dataset Health Check is being generated, please wait for a
+              while...
             </Typography>
             <CircularProgress sx={{ mt: 4 }} />
           </Box>
@@ -194,7 +195,7 @@ const HealthCheckMainContent = function ({
               <Typography>
                 {dataHealthCheckCurrentTotalImage <= 0
                   ? `You haven't had any images yet.`
-                  : "No information about your data health check yet."}
+                  : "No information about your dataset health check yet."}
               </Typography>
               {dataHealthCheckCurrentTotalImage <= 0 && (
                 <Typography>
@@ -212,7 +213,7 @@ const HealthCheckMainContent = function ({
                 isLoading={isRunningHealthCheck}
                 onClick={onClickRunHealthCheck}
               >
-                Run Data Health Check
+                Run Dataset Health Check
               </MyButton>
             </Box>
           }
@@ -238,7 +239,7 @@ const HealthCheckMainContent = function ({
           >
             {`${
               isDataHealthCheckGotTaskRunning ? "Re-Running" : "Re-run"
-            } Data Health Check`}
+            } Dataset Health Check`}
           </MyButton>
 
           <Autocomplete

@@ -331,8 +331,7 @@ function* handleUploadZipFile(action: {
         if (uploadedFile >= totalUploadFile) {
           yield put(
             alertGoToTaskDashboard({
-              message:
-                "Zip file uploading successfully initiated. Please wait for a while to unzip or go to My Task for details",
+              message: `Uploading of the ZIP file has been started successfully. Please wait a moment until we unzip the file. You can check the status under "My Tasks"`,
               projectId,
             })
           );
@@ -511,7 +510,7 @@ function* handleUploadFile(action: {
             setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
           );
         } else if (uploadedFile >= totalUploadFile) {
-          yield toast.success("Images are successfully uploaded");
+          yield toast.success("Images are successfully uploaded.");
           yield processUploadDone();
           yield put(
             setTotalUploadFileQuantity({ totalUploadFileQuantity: null })

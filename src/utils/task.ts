@@ -48,7 +48,7 @@ export function mapProcessTypeToName(taskProcessType: TaskProcessType) {
     case DOWNLOAD_TASK_PROCESS_TYPE:
       return "Download";
     case HEALTHCHECK_TASK_PROCESS_TYPE:
-      return "Data Health Check";
+      return "Dataset Health Check";
     case GENERATE_REFERENCE_IMAGE_TYPE:
       return "Reference image";
     default:

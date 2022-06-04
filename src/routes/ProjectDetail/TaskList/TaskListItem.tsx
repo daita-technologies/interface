@@ -308,7 +308,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         toast.success(
           `${capitalizeFirstLetter(
             getGenerateMethodLabel(process_type)
-          )} of the data set has been completed successfully.`
+          )} of the dataset has been completed successfully.`
         );
         break;
       case UPLOAD_TASK_PROCESS_TYPE:
@@ -333,7 +333,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
           })
         );
         toast.success(
-          `Data health check of ${getProjectNameByProjectId(
+          `Dataset health check of ${getProjectNameByProjectId(
             project_id
           )} has been completed successfully.`
         );
@@ -359,7 +359,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
                   className="text-link"
                   href={`/task-list/${getProjectNameByProjectId(project_id)}`}
                 >
-                  &quot;My Task&quot;
+                  &quot;My Tasks&quot;
                 </a>{" "}
                 to get it.
               </Typography>

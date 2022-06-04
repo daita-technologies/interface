@@ -92,7 +92,17 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
     handleClose();
     if (currentProjectTotalImage > 0) {
       toast.info(
-        "We are zipping your file and creating a download link. You will receive an automatic email notification when finished."
+        <Box>
+          <Typography fontSize={14}>
+            We are zipping your file and creating a download link. You will
+            receive an automatic email notification when finished. You can also
+            check the current status in{" "}
+            <a className="text-link" href={`/my-task/${currentProjectName}`}>
+              &quot;My Tasks&quot;
+            </a>
+            .
+          </Typography>
+        </Box>
       );
       dispatch(
         downloadZipEc2Create({
@@ -117,7 +127,17 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
     handleClose();
     if (currentProjectTotalImage > 0) {
       toast.info(
-        "We are zipping your file and creating a download link. You will receive an automatic email notification when finished."
+        <Box>
+          <Typography fontSize={14}>
+            We are zipping your file and creating a download link. You will
+            receive an automatic email notification when finished. You can also
+            check the current status in{" "}
+            <a className="text-link" href={`/my-task/${currentProjectName}`}>
+              &quot;My Tasks&quot;
+            </a>
+            .
+          </Typography>
+        </Box>
       );
       dispatch(
         downloadZipEc2Create({
