@@ -92,7 +92,7 @@ const getNegativeStatusWord = (status: string) => {
     case FINISH_TASK_STATUS:
       return `${FINISH_TASK_STATUS}ED`;
     case CANCEL_TASK_STATUS:
-      return `${CANCEL_TASK_STATUS}ED`;
+      return `${CANCEL_TASK_STATUS}LED`;
     default:
       return status;
   }
@@ -166,7 +166,7 @@ const TaskTableRow = function ({
         toast.success(
           `${capitalizeFirstLetter(
             getGenerateMethodLabel(process_type)
-          )} of the data set has been completed successfully.`
+          )} of the dataset has been completed successfully.`
         );
         break;
       case UPLOAD_TASK_PROCESS_TYPE:
@@ -174,7 +174,7 @@ const TaskTableRow = function ({
         break;
       case HEALTHCHECK_TASK_PROCESS_TYPE:
         toast.success(
-          `Data health check of ${currentProjectName} has been completed successfully.`
+          `Dataset health check of ${currentProjectName} has been completed successfully.`
         );
         break;
       case GENERATE_REFERENCE_IMAGE_TYPE:
@@ -192,7 +192,7 @@ const TaskTableRow = function ({
                   className="text-link"
                   href={`/task-list/${getProjectNameByProjectId(project_id)}`}
                 >
-                  &quot;My Task&quot;
+                  &quot;My Tasks&quot;
                 </a>{" "}
                 to get it.
               </Typography>

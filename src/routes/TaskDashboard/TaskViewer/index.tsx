@@ -106,7 +106,7 @@ const headCells: readonly HeadCell[] = [
     id: "created_time",
     align: "left",
     disablePadding: false,
-    label: "Created time",
+    label: "Created",
   },
   {
     id: "",

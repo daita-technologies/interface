@@ -195,7 +195,10 @@ const ExpertPreprocessingOption = function () {
         <Typography fontWeight={500} ml={1}>
           Generate the reference images
         </Typography>
-        <InfoTooltip sx={{ ml: 1 }} title="Expert mode" />
+        <InfoTooltip
+          sx={{ ml: 1 }}
+          title="If enabled, our system selects the most appropriate reference images for the selected methods of the preprocessing run."
+        />
       </Box>
       <Box mt={2} display="flex" gap={1}>
         <Box borderRadius={2} bgcolor="background.paper" flex={2}>

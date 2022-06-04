@@ -110,7 +110,7 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
       dispatch(updateIsAbleToRunPreprocessError({ isError }));
       if (isError) {
         toast.error(
-          "You need to complete custom your Preprocess params first."
+          "There is at least one method that has not yet selected a reference image."
         );
         return;
       }
@@ -149,17 +149,17 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
             alignItems="center"
             justifyContent="space-between"
           >
-            <Box display="flex" alignItems="center" justifyContent="center">
-              <Typography fontWeight={500}>Preprocessing Option </Typography>
+            {/* <Box display="flex" alignItems="center" justifyContent="center">
+              <Typography fontWeight={500}>Preprocessing Option</Typography>
 
               <InfoTooltip
                 sx={{ ml: 1 }}
                 title="Data source: Preprocessing is applied to the original dataset."
               />
-            </Box>
+            </Box> */}
           </Box>
           <Typography sx={{ mt: 2, mb: 1 }} variant="body2">
-            Methods:
+            Methods
           </Typography>
           <Box display="flex" flexWrap="wrap" justifyContent="flex-start">
             {listMethod?.preprocessing.map((preprocessMethod) => (
@@ -201,10 +201,10 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <Box>
           <Typography variant="body2" color="text.secondary">
-            All preprocessing methods are applied to the original dataset
+            All preprocessing methods are applied to the original dataset.
           </Typography>
-          <Typography variant="h6" fontWeight={400}>
-            Select your mode
+          <Typography mt={1} fontWeight={400}>
+            Select Your Mode
           </Typography>
         </Box>
         <Box display="flex" flexDirection="column" justifyContent="flex-end">
@@ -256,7 +256,10 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
             onChange={handleChangePreprocessintExpertMode}
           />
           <Typography fontWeight={500}>Expert Mode</Typography>
-          <InfoTooltip sx={{ ml: 1 }} title="Expert mode" />
+          <InfoTooltip
+            sx={{ ml: 1 }}
+            title="In Expert Mode, you can customise the preprocessing methods yourself."
+          />
         </Box>
       </Box>
 

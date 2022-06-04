@@ -38,7 +38,7 @@ function* handleRunHealthCheck(action: {
           projectId,
         } as RunHealthCheckSucceededActionPayload,
       });
-      yield toast.success(`Data health check successfully initiated.`);
+      yield toast.success(`Dataset health check successfully initiated.`);
 
       yield delay(2000);
 
@@ -58,7 +58,7 @@ function* handleRunHealthCheck(action: {
         type: RUN_HEALTH_CHECK.FAILED,
       });
       toast.error(
-        runHealthCheckResponse.message || "Unable to run data health check."
+        runHealthCheckResponse.message || "Unable to run dataset health check."
       );
     }
   } catch (e: any) {

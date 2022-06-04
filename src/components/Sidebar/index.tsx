@@ -124,7 +124,7 @@ const NavProjectItem = function (props: NavProjectItemProps) {
       return (
         <Box display="flex" justifyContent="center">
           <Typography variant="caption" fontStyle="italic">
-            No Project Yet
+            No project yet
           </Typography>
         </Box>
       );
@@ -259,7 +259,7 @@ const Sidebar = function () {
               subNav={listProjects}
             />
             <NavItem
-              name="Data Health Check"
+              name="Dataset Health Check"
               Icon={HealthAndSafetyIcon}
               to="/health-check"
               isActive={pathname.indexOf("/health-check") > -1}

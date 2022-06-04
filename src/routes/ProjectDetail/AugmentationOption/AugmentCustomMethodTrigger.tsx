@@ -56,7 +56,7 @@ const SelectedParamText = function ({
       noWrap
       sx={limitTooLongLineStyle}
     >
-      Select your param value
+      Select your param value(s)
     </Typography>
   );
 };
