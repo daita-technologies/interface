@@ -32,6 +32,7 @@ import {
   selectorHaveTaskRunning,
   selectorMethodList,
 } from "reduxes/project/selector";
+import { constants } from "zlib";
 import ReferenceImageDialog, { prettyMethodName } from "./ReferenceImageDialog";
 
 const limitTooLongLineStyle = {
@@ -135,6 +136,50 @@ const ExpertPreprocessingOption = function () {
       </Typography>
     );
   };
+  const renderItemContent = (
+    methodName: string,
+    props: React.HTMLAttributes<HTMLLIElement>,
+    isDisable: boolean,
+    selected: boolean
+  ) => {
+    if (isDisable) {
+      return (
+        <li {...props}>
+          <Checkbox
+            icon={icon}
+            checkedIcon={checkedIcon}
+            style={{ marginRight: 8 }}
+            checked={selected}
+            disabled
+          />
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            width="100%"
+            color="text.secondary"
+          >
+            <Typography variant="body2">{methodName}</Typography>
+            <Typography variant="caption" fontStyle="italic">
+              disabled due to current selection
+            </Typography>
+          </Box>
+        </li>
+      );
+    }
+    return (
+      <li {...props}>
+        <Checkbox
+          icon={icon}
+          checkedIcon={checkedIcon}
+          style={{ marginRight: 8 }}
+          checked={selected}
+        />
+        <Box>
+          <Typography variant="body2">{methodName}</Typography>
+        </Box>
+      </li>
+    );
+  };
   return (
     <Box>
       <Box display="flex" alignItems="center">
@@ -167,25 +212,8 @@ const ExpertPreprocessingOption = function () {
               const isDisable =
                 selectedMethodIds.indexOf(GRAYSCALE_METHOD_ID) !== -1 &&
                 GRASCALE_PREPROCESS_METHOD_ALLOW_LIST.indexOf(option) === -1;
-              let newProps = props;
-              if (isDisable) {
-                newProps = {
-                  ...props,
-                  style: { ...newProps.style, color: "gray" },
-                };
-              }
-              return (
-                <li {...newProps}>
-                  <Checkbox
-                    icon={icon}
-                    checkedIcon={checkedIcon}
-                    style={{ marginRight: 8 }}
-                    checked={selected}
-                    disabled={isDisable}
-                  />
-                  {prettyMethodName(getMethodName(option))}
-                </li>
-              );
+              const methodName = prettyMethodName(getMethodName(option));
+              return renderItemContent(methodName, props, isDisable, selected);
             }}
             isOptionEqualToValue={isOptionEqualToValue}
             onChange={handleChangeSelectedMethods}
