@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { MyButton } from "components";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -27,8 +28,20 @@ const UpdateProjectInfoDialog = function () {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<UpdateProjectInfo>({ mode: "onChange" });
+  useEffect(() => {
+    if (updateProjectInfoDialog) {
+      setValue("projectName", updateProjectInfoDialog.projectName || "");
+      setValue(
+        "description",
+        updateProjectInfoDialog.updateInfo
+          ? updateProjectInfoDialog.updateInfo.description
+          : ""
+      );
+    }
+  }, [updateProjectInfoDialog]);
   if (!updateProjectInfoDialog) {
     return null;
   }
