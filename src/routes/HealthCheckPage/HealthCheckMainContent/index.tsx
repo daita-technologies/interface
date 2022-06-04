@@ -194,7 +194,7 @@ const HealthCheckMainContent = function ({
             >
               <Typography>
                 {dataHealthCheckCurrentTotalImage <= 0
-                  ? `You haven't had any images yet.`
+                  ? `You haven't uploaded any images yet.`
                   : "No information about your dataset health check yet."}
               </Typography>
               {dataHealthCheckCurrentTotalImage <= 0 && (
