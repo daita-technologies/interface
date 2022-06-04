@@ -137,11 +137,11 @@ const DuplicateFilesModal = function () {
           Duplicate Files
         </Typography>
         <Typography mt={3} variant="body1">
-          Some filenames are existing in this project.
+          Multiple file names already exist in this project.
           <br />
-          Do you want to REPLACE or SKIP all of duplicate files?
+          Do you want to REPLACE ALL duplicate files or SKIP ALL of them?
           <br />
-          You can also CANCEL this action to manually check the upload list.
+          You can also CANCEL this action to check the upload list manually.
         </Typography>
 
         <Box display="flex" mt={5}>

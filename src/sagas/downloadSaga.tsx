@@ -367,7 +367,7 @@ function* handleDownloadZipEc2Progress(action: {
                 className="text-link"
                 href={`/task-list/${downloadZipEc2ProgressResponse.data.project_name}`}
               >
-                &quot;My Task&quot;
+                &quot;My Tasks&quot;
               </a>{" "}
               to get it.
             </Typography>

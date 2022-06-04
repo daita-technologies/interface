@@ -280,7 +280,7 @@ const ReferenceImageDialog = function () {
             color="primary"
             onClick={handleSubmit}
           >
-            Aplly
+            Apply
           </MyButton>
         </Box>
       </Box>

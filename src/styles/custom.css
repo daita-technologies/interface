@@ -5,9 +5,10 @@ body {
 }
 a,
 .MuiLink-underlineHover:hover {
-  text-decoration: none;
+  text-decoration: none !important;
   color: #1c78d3;
 }
+
 a.text-link {
   color: #ffffff;
   text-decoration: underline;

@@ -334,12 +334,11 @@ const UploadFile = function (props: UploadFileProps) {
           : "Drop your images here or click to upload"}
       </Typography>
       <Typography fontStyle="italic" variant="body2" color="text.secondary">
-        {FILE_UPLOAD_EXTENSIONS.join(" ,")}
+        Supported file formats: {FILE_UPLOAD_EXTENSIONS.join(" ,")}
       </Typography>
       <Typography
         sx={{ mt: 1 }}
         textAlign="center"
-        fontStyle="italic"
         variant="body2"
         color="text.secondary"
       >

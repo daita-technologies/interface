@@ -41,6 +41,7 @@ import { lightTheme } from "styles/theme";
 import { ForgotPasswordRequestFields } from "./type";
 import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
 import ReCAPTCHA from "react-google-recaptcha";
+import { Helmet } from "react-helmet";
 
 const ForgotPasswordPage = function () {
   const history = useHistory();
@@ -119,6 +120,9 @@ const ForgotPasswordPage = function () {
 
   return (
     <ThemeProvider theme={lightTheme}>
+      <Helmet>
+        <title>Forgot Password to DAITA's Platform</title>
+      </Helmet>
       <Container
         sx={{
           mt: 4,
@@ -266,7 +270,7 @@ const ForgotPasswordPage = function () {
                     required
                     fullWidth
                     margin="normal"
-                    label="Verify code"
+                    label="Your Verification Code"
                     {...register("confirmCode", {
                       required: true,
                       pattern: {
