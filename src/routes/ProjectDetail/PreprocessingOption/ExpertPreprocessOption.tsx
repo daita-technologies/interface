@@ -19,6 +19,7 @@ import {
   setSelectedMethods,
 } from "reduxes/customPreprocessing/action";
 import {
+  selectorIsAbleToRunPreprocessError,
   selectorIsGenerateReferenceRequesting,
   selectorIsGenerating,
   selectorReferencePreprocessImage,
@@ -61,7 +62,14 @@ const ExpertPreprocessingOption = function () {
     selectorIsGenerateReferenceRequesting
   );
   const methods = useSelector(selectorMethodList)?.preprocessing;
-  const methodIds = methods ? methods.map((t) => t.method_id) : [];
+  const isAbleToRunPreprocessError = useSelector(
+    selectorIsAbleToRunPreprocessError
+  );
+
+  const methodIds = useMemo(
+    () => (methods ? methods.map((t) => t.method_id) : []),
+    [methods]
+  );
   useEffect(() => {
     if (currentProjectId && currentProjectId !== referencePreprocessProjectId) {
       dispatch(
@@ -70,7 +78,10 @@ const ExpertPreprocessingOption = function () {
     }
   }, [currentProjectId]);
   const haveTaskRunning = useSelector(selectorHaveTaskRunning);
-
+  const isSelectedMethods = useMemo(
+    () => selectedMethodIds && selectedMethodIds.length > 0,
+    [selectedMethodIds]
+  );
   const handleShowReferenceDialog = (methodId: string) => {
     dispatch(setReferenceSeletectorDialog({ isShow: true, methodId }));
   };
@@ -100,6 +111,30 @@ const ExpertPreprocessingOption = function () {
     option === value;
   const getMethodName = (methodId: string) =>
     methods?.find((t) => t.method_id === methodId)?.method_name;
+  const renderEditSelectReferenceImage = (methodId: string) => {
+    if (referencePreprocessImage[methodId]) {
+      return (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          noWrap
+          sx={limitTooLongLineStyle}
+        >
+          {referencePreprocessImage[methodId].filename}
+        </Typography>
+      );
+    }
+    return (
+      <Typography
+        variant="body2"
+        color={isAbleToRunPreprocessError ? "error" : "text.secondary"}
+        noWrap
+        sx={limitTooLongLineStyle}
+      >
+        Select your reference image
+      </Typography>
+    );
+  };
   return (
     <Box>
       <Box display="flex" alignItems="center">
@@ -157,6 +192,12 @@ const ExpertPreprocessingOption = function () {
             renderInput={(params) => (
               <TextField
                 {...params}
+                error={!!isAbleToRunPreprocessError && !isSelectedMethods}
+                helperText={
+                  !!isAbleToRunPreprocessError && !isSelectedMethods
+                    ? "Please select method!"
+                    : ""
+                }
                 label="Method"
                 placeholder="Choose method"
               />
@@ -178,16 +219,7 @@ const ExpertPreprocessingOption = function () {
                   {prettyMethodName(getMethodName(methodId))}
                 </Typography>
                 <Box display="flex" alignItems="flex-end">
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    noWrap
-                    sx={limitTooLongLineStyle}
-                  >
-                    {referencePreprocessImage[methodId]
-                      ? referencePreprocessImage[methodId].filename
-                      : "Select your reference image"}
-                  </Typography>
+                  {renderEditSelectReferenceImage(methodId)}
                   <IconButton
                     size="small"
                     sx={{ padding: "0 2px" }}
