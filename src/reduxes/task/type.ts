@@ -7,6 +7,7 @@ import {
   UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
 import { TaskProcessType, TaskStatusMergedType } from "constants/taskType";
+import React from "react";
 import {
   GetTaskListFilterParams,
   TaskListEachProcessTypeResponseApiFields,
@@ -73,6 +74,6 @@ export interface TriggerStopTaskProcessRequestActionPayload {
   projectId: string;
 }
 export interface GoToTaskDashboardAlertPayload {
-  message: string;
+  message: string | React.ReactElement;
   projectId: string;
 }

@@ -222,9 +222,7 @@ const RunAugmentButton = function ({ isExpertMode }: RunAugmentButtonProps) {
       );
       dispatch(updateIsAbleToRunAgumentationError({ isError: !isAbleToRun }));
       if (!isAbleToRun) {
-        return toast.error(
-          "You need to complete custom your augmentation params first."
-        );
+        return toast.error("You must first configure your custom parameters.");
       }
     }
 

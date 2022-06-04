@@ -204,7 +204,7 @@ const AugmentPreviewImageDialog = function () {
               color="primary"
               onClick={handleClickApply}
             >
-              Aplly
+              Apply
             </MyButton>
           </Box>
         )}
