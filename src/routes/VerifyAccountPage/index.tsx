@@ -106,7 +106,7 @@ const VerifyAccountPage = function () {
               required
               fullWidth
               margin="normal"
-              label="Verify code"
+              label="Your Verification Code"
               {...register("confirm_code", {
                 required: true,
                 pattern: {

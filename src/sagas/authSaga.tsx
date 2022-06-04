@@ -278,7 +278,7 @@ function* handleForgotPasswordRequest(action: {
         });
 
         yield toast.success(
-          `Code has been sent to your email associate with username: ${username}`
+          `Code has been sent to your email associated with the username: ${username}.`
         );
       } else {
         yield put({
