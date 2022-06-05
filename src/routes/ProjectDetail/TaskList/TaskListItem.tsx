@@ -1,6 +1,7 @@
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { Box, LinearProgress, Typography } from "@mui/material";
 import {
+  AUGMENT_IMAGES_TAB,
   AUGMENT_SOURCE,
   DOWNLOAD_TASK_PROCESS_TYPE,
   ERROR_TASK_STATUS,
@@ -11,6 +12,7 @@ import {
   ID_TOKEN_NAME,
   ORIGINAL_IMAGES_TAB,
   ORIGINAL_SOURCE,
+  PREPROCESS_IMAGES_TAB,
   PREPROCESS_SOURCE,
   PROGRESS_POOLING_INTERVAL,
   RUNNING_TASK_STATUS,
@@ -23,6 +25,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { changeActiveImagesTab, fetchImages } from "reduxes/album/action";
 import { selectorActiveImagesTabId } from "reduxes/album/selector";
+import { TAB_ID_TYPE } from "reduxes/album/type";
 import { fetchReferenceImageInfo } from "reduxes/customPreprocessing/action";
 import { DOWNLOAD_ZIP_EC2 } from "reduxes/download/constants";
 import { getProjectHealthCheckInfoAction } from "reduxes/healthCheck/action";
@@ -300,11 +303,30 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
       ? PROGRESS_POOLING_INTERVAL
       : null
   );
-
+  const reloadCurentActiveTabAlbumIfAt = (tabId: TAB_ID_TYPE) => {
+    if (activeImagesTabId === tabId) {
+      dispatch(
+        fetchImages({
+          idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+          projectId: currentProjectId,
+          nextToken: "",
+          typeMethod: switchTabIdToSource(activeImagesTabId),
+        })
+      );
+    }
+  };
   const actionWhenTaskFinish = () => {
     switch (process_type) {
       case PREPROCESS_SOURCE:
+        reloadCurentActiveTabAlbumIfAt(PREPROCESS_IMAGES_TAB);
+        toast.success(
+          `${capitalizeFirstLetter(
+            getGenerateMethodLabel(process_type)
+          )} of the dataset has been completed successfully.`
+        );
+        break;
       case AUGMENT_SOURCE:
+        reloadCurentActiveTabAlbumIfAt(AUGMENT_IMAGES_TAB);
         toast.success(
           `${capitalizeFirstLetter(
             getGenerateMethodLabel(process_type)
@@ -312,16 +334,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         );
         break;
       case UPLOAD_TASK_PROCESS_TYPE:
-        if (activeImagesTabId === ORIGINAL_IMAGES_TAB) {
-          dispatch(
-            fetchImages({
-              idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-              projectId: currentProjectId,
-              nextToken: "",
-              typeMethod: switchTabIdToSource(activeImagesTabId),
-            })
-          );
-        }
+        reloadCurentActiveTabAlbumIfAt(ORIGINAL_IMAGES_TAB);
         toast.success("Images have been uploaded successfully.");
         break;
       case HEALTHCHECK_TASK_PROCESS_TYPE:

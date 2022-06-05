@@ -33,7 +33,10 @@ const UpdateProjectInfoDialog = function () {
   } = useForm<UpdateProjectInfo>({ mode: "onChange" });
   useEffect(() => {
     if (updateProjectInfoDialog) {
-      setValue("projectName", updateProjectInfoDialog.projectName || "");
+      setValue(
+        "projectName",
+        updateProjectInfoDialog.updateInfo?.projectName || ""
+      );
       setValue(
         "description",
         updateProjectInfoDialog.updateInfo

@@ -450,12 +450,18 @@ const projectReducer = (
       };
     }
     case UPDATE_PROJECT_INFO.REQUESTED: {
+      const { projectId, projectName, updateInfo } =
+        payload as SetIsOpenUpdateProjectInfoPayload;
       return {
         ...state,
         updateProjectInfoDialog: {
           ...state.updateProjectInfoDialog,
+          isOpen: true,
+          projectId,
+          projectName,
+          updateInfo,
           isProcessing: true,
-        } as SetIsOpenUpdateProjectInfoPayload,
+        },
       };
     }
     case UPDATE_PROJECT_INFO.SUCCEEDED: {
@@ -478,6 +484,15 @@ const projectReducer = (
     }
     case UPDATE_PROJECT_INFO.FAILED: {
       // const { projectId } = payload as UpdateProjectInfoPayload;
+      if (state.updateProjectInfoDialog) {
+        return {
+          ...state,
+          updateProjectInfoDialog: {
+            ...state.updateProjectInfoDialog,
+            isProcessing: false,
+          },
+        };
+      }
       return state;
     }
     default:
