@@ -14,6 +14,7 @@ import {
   RESET_STATE_GENERATE_REFERENCE_IMAGE,
   SET_REFERENCE_SELECTOR_DIALOG,
   SET_SELECTED_METHODS,
+  UPDATE_IS_ABLE_TO_RUN_PREPROCESS_ERROR,
 } from "./constants";
 import {
   ChangePreprocessingExpertModePayload,
@@ -23,6 +24,7 @@ import {
   ReferencePreprocessImageRecord,
   ResetGenerateReferenceImageProps,
   SelectedMethodProps,
+  UpdateIsAbleToRunPreprocessErrorActionPayload,
 } from "./type";
 
 const inititalState: CustomPreprocessReducer = {
@@ -36,6 +38,7 @@ const inititalState: CustomPreprocessReducer = {
   selectedMethodIds: [],
   isGenerating: false,
   isGenerateReferenceRequesting: false,
+  isAbleToRunPreprocessError: null,
 };
 
 const customPreprocessingReducer = (
@@ -187,6 +190,14 @@ const customPreprocessingReducer = (
         };
       }
       return state;
+    }
+    case UPDATE_IS_ABLE_TO_RUN_PREPROCESS_ERROR: {
+      const { isError } =
+        payload as UpdateIsAbleToRunPreprocessErrorActionPayload;
+      return {
+        ...state,
+        isAbleToRunPreprocessError: isError,
+      };
     }
     default:
       return state;

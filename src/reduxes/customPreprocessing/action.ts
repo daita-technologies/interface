@@ -7,6 +7,7 @@ import {
   RESET_STATE_GENERATE_REFERENCE_IMAGE,
   SET_REFERENCE_SELECTOR_DIALOG,
   SET_SELECTED_METHODS,
+  UPDATE_IS_ABLE_TO_RUN_PREPROCESS_ERROR,
 } from "./constants";
 import {
   ChangePreprocessingExpertModePayload,
@@ -16,6 +17,7 @@ import {
   ReferenceSeletectorDialog,
   ResetGenerateReferenceImageProps,
   SelectedMethodProps,
+  UpdateIsAbleToRunPreprocessErrorActionPayload,
 } from "./type";
 
 export const changePreprocessingExpertMode = (
@@ -64,5 +66,11 @@ export const fetchReferenceImageInfoSuccess = (
   payload: ReferenceInfoApiFields[]
 ) => ({
   type: FETCH_REFERENCE_IMAGE_INFO.SUCCEEDED,
+  payload,
+});
+export const updateIsAbleToRunPreprocessError = (
+  payload: UpdateIsAbleToRunPreprocessErrorActionPayload
+) => ({
+  type: UPDATE_IS_ABLE_TO_RUN_PREPROCESS_ERROR,
   payload,
 });

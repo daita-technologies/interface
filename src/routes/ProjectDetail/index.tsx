@@ -352,7 +352,7 @@ const ProjectDetail = function () {
                 aria-label="basic tabs example"
               >
                 <Tab
-                  label="Preprocess"
+                  label="Preprocessing"
                   {...a11yProps(TAB_GENERATE_NAME, PREPROCESS_GENERATE_TAB)}
                 />
                 <Tab

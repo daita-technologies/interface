@@ -55,7 +55,7 @@ const RegisterPage = function () {
         maxWidth="xs"
       >
         <Helmet>
-          <title>Sign up to DAITA's Platform</title>
+          <title>Sign Up to DAITA's Platform</title>
         </Helmet>
         <Box>
           <IconButton onClick={onClickBack}>

@@ -5,7 +5,7 @@ export const darkTheme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          fontSize: 14,
+          fontSize: 12,
         },
       },
     },
@@ -54,11 +54,11 @@ export const darkTheme = createTheme({
       styleOverrides: {
         root: {
           "button svg": {
-            color: "inherit"
+            color: "inherit",
           },
         },
       },
-    }
+    },
   },
   palette: {
     primary: {

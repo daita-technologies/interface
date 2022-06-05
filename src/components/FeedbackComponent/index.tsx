@@ -13,7 +13,7 @@ const FeedbackComponent = function () {
   const contentFeedback = useSelector(selectorContentFeedback);
   const dispath = useDispatch();
   const handleSendFeedbackSuccess = () => {
-    toast.success("You have successfully sent feedback");
+    toast.success("You have successfully sent feedback.");
     setOpenForm(false);
     dispath(resetFeedBack());
   };
@@ -27,7 +27,7 @@ const FeedbackComponent = function () {
   return (
     <FeedbackWidget
       isShow={openForm}
-      style={{ position: "fixed", bottom: 80, right: 30 }}
+      style={{ position: "fixed", bottom: 50, right: 30 }}
     >
       <FeedbackFormSlack
         style={{ width: 400 }}
