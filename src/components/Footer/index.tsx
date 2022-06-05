@@ -22,7 +22,6 @@ const Footer = function () {
             <Link
               href="/we-take-your-privacy-seriously"
               underline="none"
-              target="_blank"
               rel="noopener"
               color="inherit"
             >
@@ -30,13 +29,7 @@ const Footer = function () {
             </Link>
           </Box>
           <Box>
-            <Link
-              href="/terms"
-              underline="none"
-              target="_blank"
-              rel="noopener"
-              color="inherit"
-            >
+            <Link href="/terms" underline="none" rel="noopener" color="inherit">
               Terms of Service
             </Link>
           </Box>

@@ -5,11 +5,17 @@ import contentMd from "./content.md";
 
 const PrivacyPolicy = function () {
   const [content, setContent] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     fetch(contentMd)
       .then((response) => response.text())
       .then((text) => {
         setContent(text);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsLoading(false);
       });
   }, []);
   return (
@@ -27,7 +33,7 @@ const PrivacyPolicy = function () {
       >
         Privacy Policy
       </Box>
-      <MarkdownPage content={content} />
+      <MarkdownPage content={content} isLoading={isLoading} />
     </>
   );
 };

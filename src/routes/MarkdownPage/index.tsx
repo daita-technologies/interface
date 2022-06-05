@@ -1,4 +1,4 @@
-import { Container } from "@mui/material";
+import { Container, Skeleton, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import ReactMarkdown from "react-markdown";
 import { HeadingProps } from "react-markdown/lib/ast-to-react";
@@ -40,8 +40,55 @@ const ContentHeading = function ({
   };
   return <node.tagName {...newProps}>{children}</node.tagName>;
 };
-
-const MarkdownPage = function ({ content }: { content: string }) {
+const SkeletonToC = function () {
+  return (
+    <>
+      <Typography variant="h1">
+        <Skeleton />
+      </Typography>
+      <Typography>
+        <Skeleton />
+      </Typography>
+      <Typography>
+        <Skeleton />
+      </Typography>
+      <Typography>
+        <Skeleton />
+      </Typography>
+      <Typography>
+        <Skeleton />
+      </Typography>
+    </>
+  );
+};
+const SkeletonContent = function () {
+  return (
+    <>
+      <Typography variant="h1">
+        <Skeleton />
+      </Typography>
+      <Typography>
+        <Skeleton />
+      </Typography>
+      <Typography>
+        <Skeleton />
+      </Typography>
+      <Typography>
+        <Skeleton />
+      </Typography>
+      <Typography>
+        <Skeleton />
+      </Typography>
+    </>
+  );
+};
+const MarkdownPage = function ({
+  content,
+  isLoading,
+}: {
+  content: string;
+  isLoading?: boolean;
+}) {
   const emptyFunc = () => null;
 
   return (
@@ -50,49 +97,63 @@ const MarkdownPage = function ({ content }: { content: string }) {
         <Box display="flex" flexDirection="row">
           <Box flex={1} pr={1}>
             <Box
+              id="tocMarkdown"
               sx={{
                 position: "sticky",
                 top: 0,
-                maxHeight: "100vh",
+                maxHeight: "calc(100vh - 66px)",
                 overflowY: "auto",
+                paddingTop: 3,
+                paddingBottom: 3,
               }}
             >
+              {isLoading ? (
+                <SkeletonToC />
+              ) : (
+                <ReactMarkdown
+                  components={{
+                    a: emptyFunc,
+                    p: emptyFunc,
+                    ul: emptyFunc,
+                    text: emptyFunc,
+                    h1: ToCHeading,
+                    h2: ToCHeading,
+                    h3: ToCHeading,
+                    h4: ToCHeading,
+                    h5: ToCHeading,
+                    h6: ToCHeading,
+                  }}
+                >
+                  {content}
+                </ReactMarkdown>
+              )}
+            </Box>
+          </Box>
+          <Box flex={2} lineHeight={1.5} mt={2} mb={4}>
+            {isLoading ? (
+              <SkeletonContent />
+            ) : (
               <ReactMarkdown
                 components={{
-                  a: emptyFunc,
-                  p: emptyFunc,
-                  text: emptyFunc,
-                  h1: ToCHeading,
-                  h2: ToCHeading,
-                  h3: ToCHeading,
-                  h4: ToCHeading,
-                  h5: ToCHeading,
-                  h6: ToCHeading,
+                  p: FormatedPTag,
+                  h1: ContentHeading,
+                  h2: ContentHeading,
+                  h3: ContentHeading,
+                  h4: ContentHeading,
+                  h5: ContentHeading,
+                  h6: ContentHeading,
                 }}
               >
                 {content}
               </ReactMarkdown>
-            </Box>
-          </Box>
-          <Box flex={2} lineHeight={1.5} mb={2}>
-            <ReactMarkdown
-              components={{
-                p: FormatedPTag,
-                h1: ContentHeading,
-                h2: ContentHeading,
-                h3: ContentHeading,
-                h4: ContentHeading,
-                h5: ContentHeading,
-                h6: ContentHeading,
-              }}
-            >
-              {content}
-            </ReactMarkdown>
+            )}
           </Box>
         </Box>
       </Box>
     </Container>
   );
 };
-
+MarkdownPage.defaultProps = {
+  isLoading: false,
+};
 export default MarkdownPage;

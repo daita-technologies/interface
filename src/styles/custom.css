@@ -69,3 +69,32 @@ input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 30px transparent inset !important;
 }
 /* END disabled chrome autofill background */
+
+#tocMarkdown h1 {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+#tocMarkdown h2 {
+  font-weight: 700;
+  font-size: 16px;
+}
+#tocMarkdown h3 {
+  font-weight: 700;
+  padding-left: 1rem;
+  font-size: 16px;
+}
+#tocMarkdown h4 {
+  font-weight: 600;
+  padding-left: 2rem;
+  font-size: 16px;
+}
+#tocMarkdown h5 {
+  font-weight: 500;
+  padding-left: 3rem;
+  font-size: 16px;
+}
+#tocMarkdown h6 {
+  padding-left: 4rem;
+  font-size: 16px;
+}
