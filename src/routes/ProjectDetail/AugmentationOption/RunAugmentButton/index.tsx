@@ -249,6 +249,11 @@ const RunAugmentButton = function ({ isExpertMode }: RunAugmentButtonProps) {
       }
       totalImage = totalOriginalImages;
     }
+    
+    if (!splitDataNumberBySource) {
+      return toast.error("You haven't split your dataset yet.");
+    }
+
     if (
       splitDataNumberBySource &&
       splitDataNumberBySource[0] +
