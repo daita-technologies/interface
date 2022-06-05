@@ -4,7 +4,7 @@ import { Link as MuiLink } from "@mui/material";
 const Link = (props: any) => {
   const { children, ...restProps } = props;
   return (
-    <MuiLink component={RouterLink} {...restProps}>
+    <MuiLink className="text-link" component={RouterLink} {...restProps}>
       {children}
     </MuiLink>
   );
