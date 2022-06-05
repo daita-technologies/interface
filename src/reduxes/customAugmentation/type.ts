@@ -14,18 +14,30 @@ export type AugmentCustomMethodParamValue = {
 };
 
 export interface ChangeAugmentCustomMethodParamValueActionPayload
-  extends AugmentCustomMethodParamValue {}
+  extends AugmentCustomMethodParamValue {
+  projectId: string;
+}
 
 export interface RemoveAugmentCustomMethodParamValueActionPayload {
+  projectId: string;
   removeMethodIdList: string[];
 }
 
+export interface AddAugmentCustomMethodParamValueActionPayload {
+  projectId: string;
+  addMethodIdList: string[];
+}
+
 export interface AugmentCustomMethodPreviewImageInfo {
-  [methodName: string]: GetAugmentCustomMethodPreviewImageResponse;
+  [methodId: string]: GetAugmentCustomMethodPreviewImageResponse;
 }
 
 export interface SavedAugmentCustomMethodParamValueType {
-  [methodName: string]: AugmentCustomMethodParamValue | undefined;
+  [methodId: string]: AugmentCustomMethodParamValue | undefined;
+}
+
+export interface SavedAugmentCustomMethodParamValueByProjectIdType {
+  [projectId: string]: SavedAugmentCustomMethodParamValueType;
 }
 
 export interface CustomAugmentationReducer {
@@ -34,9 +46,10 @@ export interface CustomAugmentationReducer {
   referenceSeletectorDialog: ReferenceSeletectorDialog;
   selectedMethodIds: string[];
   augmentCustomMethodPreviewImageInfo: null | AugmentCustomMethodPreviewImageInfo;
-  savedAugmentCustomMethodParamValue: SavedAugmentCustomMethodParamValueType;
+  savedAugmentCustomMethodParamValueByProjectId: SavedAugmentCustomMethodParamValueByProjectIdType;
   isFetchingAugmentCustomMethodPreviewImage: boolean | null;
   isLoadingPreviewImage: boolean;
+  isAbleToRunAgumentationError: boolean | null;
 }
 export type ReferenceAugmentationgeRecord = Record<
   string,
@@ -55,10 +68,6 @@ export interface ReferenceSeletectorDialog {
   isShow: boolean;
   methodId?: string;
 }
-export interface SelectedMethodProps {
-  selectedMethodIds: string[];
-}
-
 export interface GetAugmentCustomMethodPreviewImageInfoRequestActionPayload
   extends GetAugmentCustomMethodPreviewImageParams {}
 
@@ -67,4 +76,8 @@ export interface GetAugmentCustomMethodPreviewImageInfoSucceededActionPayload
 
 export interface ChangeIsLoadingAugmentCustomMethodPreviewImageRequestActionPayload {
   isLoading: boolean;
+}
+
+export interface UpdateIsAbleToRunAgumentationErrorActionPayload {
+  isError: boolean;
 }

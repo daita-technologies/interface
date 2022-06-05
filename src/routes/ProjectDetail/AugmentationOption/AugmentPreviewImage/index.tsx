@@ -8,48 +8,82 @@ import {
   Typography,
 } from "@mui/material";
 import { MyButton, Empty } from "components";
+import { SUPER_RESOLUTION_ID } from "components/ImageProcessing/type";
 import {
+  AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE,
   AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE,
   ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH,
 } from "constants/customMethod";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import { RootState } from "reduxes";
 import {
+  changeAugmentCustomMethodParamValue,
   getAugmentCustomMethodPreviewImageInfo,
   setReferenceSeletectorDialog,
 } from "reduxes/customAugmentation/action";
 import {
   selectorAugmentCustomMethodPreviewImageInfo,
   selectorIsFetchingAugmentCustomMethodPreviewImage,
-  selectorReferenceSeletectorDialog,
+  selectorAugmentCustomMethodDialog,
+  selectorSpecificSavedAugmentCustomMethodParamValue,
 } from "reduxes/customAugmentation/selector";
+import { AugmentCustomMethodParamValue } from "reduxes/customAugmentation/type";
 
-import { selectorMethodList } from "reduxes/project/selector";
+import {
+  selectorCurrentProjectId,
+  selectorMethodList,
+} from "reduxes/project/selector";
 
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import { prettyMethodName } from "../../PreprocessingOption/ReferenceImageDialog";
+import SamplePreviewImageElement from "../SamplePreviewImageElement";
 import ParamControl from "./ParamControl";
 import PreviewImage from "./PreviewImage";
 
 const AugmentPreviewImageDialog = function () {
   const dispatch = useDispatch();
-
+  const currentProjectId = useSelector(selectorCurrentProjectId);
   const methods = useSelector(selectorMethodList)?.augmentation;
 
-  const { isShow, methodId } = useSelector(selectorReferenceSeletectorDialog);
+  const { isShow, methodId } = useSelector(selectorAugmentCustomMethodDialog);
 
   const isFetchingAugmentCustomMethodPreviewImage = useSelector(
     selectorIsFetchingAugmentCustomMethodPreviewImage
   );
+
   const augmentCustomMethodPreviewImageInfo = useSelector((state: RootState) =>
     selectorAugmentCustomMethodPreviewImageInfo(methodId || "", state)
   );
 
+  const specificSavedAugmentCustomMethodParamValue = useSelector(
+    (state: RootState) =>
+      selectorSpecificSavedAugmentCustomMethodParamValue(
+        currentProjectId,
+        methodId || "",
+        state
+      )
+  );
+
+  const [
+    localSpecificSavedAugmentCustomMethodParamValue,
+    setLocalSpecificSavedAugmentCustomMethodParamValue,
+  ] = useState<AugmentCustomMethodParamValue>();
+
+  useEffect(() => {
+    if (isShow) {
+      if (specificSavedAugmentCustomMethodParamValue) {
+        setLocalSpecificSavedAugmentCustomMethodParamValue(
+          specificSavedAugmentCustomMethodParamValue
+        );
+      }
+    }
+  }, [isShow, specificSavedAugmentCustomMethodParamValue]);
+
   const handleClose = (event: any, reason?: string) => {
     if (reason && reason === "backdropClick") return;
+    setLocalSpecificSavedAugmentCustomMethodParamValue(undefined);
     dispatch(setReferenceSeletectorDialog({ isShow: false }));
   };
 
@@ -61,11 +95,15 @@ const AugmentPreviewImageDialog = function () {
     }
   }, [methodId]);
 
-  const handleSubmit = () => {
-    if (methodId) {
-      dispatch(setReferenceSeletectorDialog({ isShow: false }));
-    } else {
-      toast.error("Select your reference image");
+  const handleClickApply = () => {
+    if (localSpecificSavedAugmentCustomMethodParamValue) {
+      dispatch(
+        changeAugmentCustomMethodParamValue({
+          projectId: currentProjectId,
+          ...localSpecificSavedAugmentCustomMethodParamValue,
+        })
+      );
+      handleClose(null);
     }
   };
 
@@ -76,15 +114,33 @@ const AugmentPreviewImageDialog = function () {
         return (
           <Box>
             <Box mb={2}>
-              <PreviewImage methodId={methodId} />
+              <PreviewImage
+                methodId={methodId}
+                localSpecificSavedAugmentCustomMethodParamValue={
+                  localSpecificSavedAugmentCustomMethodParamValue
+                }
+                setLocalSpecificSavedAugmentCustomMethodParamValue={
+                  setLocalSpecificSavedAugmentCustomMethodParamValue
+                }
+              />
             </Box>
 
             {ls_params_name.map((paramName: string, paramNameIndex: number) => (
               <Box
-                key={`param-control-${paramName}`}
+                key={`param-control-wrapper-${paramName}`}
                 mb={paramNameIndex === ls_params_name.length - 1 ? 2 : 0}
               >
-                <ParamControl methodId={methodId} paramName={paramName} />
+                <ParamControl
+                  key={`param-control-${paramName}`}
+                  methodId={methodId}
+                  paramName={paramName}
+                  localSpecificSavedAugmentCustomMethodParamValue={
+                    localSpecificSavedAugmentCustomMethodParamValue
+                  }
+                  setLocalSpecificSavedAugmentCustomMethodParamValue={
+                    setLocalSpecificSavedAugmentCustomMethodParamValue
+                  }
+                />
               </Box>
             ))}
           </Box>
@@ -120,9 +176,11 @@ const AugmentPreviewImageDialog = function () {
         <Box marginTop={3} height="70%">
           <Box display="flex" justifyContent="space-between" height="90%">
             <Box mt={3} flex={2} width="100%" height="100%">
-              <img
+              <SamplePreviewImageElement
+                isShowResolution={methodId === SUPER_RESOLUTION_ID}
                 src={ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH}
                 width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+                height={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
                 alt="original"
               />
             </Box>
@@ -138,18 +196,18 @@ const AugmentPreviewImageDialog = function () {
           </Box>
         </Box>
 
-        {/* {augmentCustomMethodPreviewImageInfo && (
+        {augmentCustomMethodPreviewImageInfo && (
           <Box display="flex" justifyContent="flex-end" marginTop={4}>
             <MyButton
               type="button"
               variant="contained"
               color="primary"
-              onClick={handleSubmit}
+              onClick={handleClickApply}
             >
-              Aplly
+              Apply
             </MyButton>
           </Box>
-        )} */}
+        )}
       </Box>
     );
   };

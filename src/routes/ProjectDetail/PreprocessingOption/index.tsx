@@ -1,10 +1,4 @@
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  Switch,
-  Typography,
-} from "@mui/material";
+import { Box, Switch, Typography } from "@mui/material";
 import { InfoTooltip, MyButton } from "components";
 import {
   ID_TOKEN_NAME,
@@ -14,11 +8,16 @@ import {
 } from "constants/defaultValues";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
-import { changePreprocessingExpertMode } from "reduxes/customPreprocessing/action";
+import {
+  changePreprocessingExpertMode,
+  updateIsAbleToRunPreprocessError,
+} from "reduxes/customPreprocessing/action";
 import {
   selectorIsPreprocessingExpertMode,
   selectorReferencePreprocessImage,
+  selectorSelectedMethodIds,
 } from "reduxes/customPreprocessing/selector";
 import {
   selectorCurrentProjectIdDownloading,
@@ -79,6 +78,7 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
   const referencePreprocessImage = useSelector(
     selectorReferencePreprocessImage
   );
+  const selectedMethodIds = useSelector(selectorSelectedMethodIds);
   const handleChangePreprocessintExpertMode = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -92,6 +92,28 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
     const listMethodId = [] as string[];
     const referenceImages = {} as Record<string, string>;
     if (isPreprocessingExpertMode) {
+      let isError = false;
+      selectedMethodIds.forEach((methodId) => {
+        if (referencePreprocessImage[methodId]) {
+          referenceImages[methodId] =
+            referencePreprocessImage[methodId].imageS3Path;
+          listMethodId.push(methodId);
+        }
+      });
+      if (
+        selectedMethodIds.length === 0 ||
+        selectedMethodIds.length > Object.keys(referenceImages).length
+      ) {
+        isError = true;
+      }
+
+      dispatch(updateIsAbleToRunPreprocessError({ isError }));
+      if (isError) {
+        toast.error(
+          "There is at least one method that has not yet selected a reference image."
+        );
+        return;
+      }
       Object.keys(referencePreprocessImage).forEach((methodId) => {
         if (referencePreprocessImage[methodId]) {
           referenceImages[methodId] =
@@ -113,6 +135,7 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
         dataNumber: [totalOriginalImages, 0, 0],
         generateMethod: PREPROCESSING_GENERATE_IMAGES_TYPE,
         isNormalizeResolution,
+        augmentParameters: {},
       })
     );
   };
@@ -126,17 +149,17 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
             alignItems="center"
             justifyContent="space-between"
           >
-            <Box display="flex" alignItems="center" justifyContent="center">
-              <Typography fontWeight={500}>Preprocessing Option </Typography>
+            {/* <Box display="flex" alignItems="center" justifyContent="center">
+              <Typography fontWeight={500}>Preprocessing Option</Typography>
 
               <InfoTooltip
                 sx={{ ml: 1 }}
                 title="Data source: Preprocessing is applied to the original dataset."
               />
-            </Box>
+            </Box> */}
           </Box>
           <Typography sx={{ mt: 2, mb: 1 }} variant="body2">
-            Methods:
+            Methods
           </Typography>
           <Box display="flex" flexWrap="wrap" justifyContent="flex-start">
             {listMethod?.preprocessing.map((preprocessMethod) => (
@@ -178,10 +201,10 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <Box>
           <Typography variant="body2" color="text.secondary">
-            All preprocessing methods are applied to the original dataset
+            All preprocessing methods are applied to the original dataset.
           </Typography>
-          <Typography variant="h6" fontWeight={400}>
-            Select your mode
+          <Typography mt={1} fontWeight={400}>
+            Select Your Mode
           </Typography>
         </Box>
         <Box display="flex" flexDirection="column" justifyContent="flex-end">
@@ -233,7 +256,10 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
             onChange={handleChangePreprocessintExpertMode}
           />
           <Typography fontWeight={500}>Expert Mode</Typography>
-          <InfoTooltip sx={{ ml: 1 }} title="Expert mode" />
+          <InfoTooltip
+            sx={{ ml: 1 }}
+            title="In Expert Mode, you can customise the preprocessing methods yourself."
+          />
         </Box>
       </Box>
 

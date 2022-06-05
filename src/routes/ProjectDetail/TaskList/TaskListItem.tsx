@@ -14,6 +14,7 @@ import {
   ORIGINAL_SOURCE,
   PREPROCESS_IMAGES_TAB,
   PREPROCESS_SOURCE,
+  PROGRESS_POOLING_INTERVAL,
   RUNNING_TASK_STATUS,
   UPLOADING_TASK_STATUS,
   UPLOAD_TASK_PROCESS_TYPE,
@@ -298,7 +299,9 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         callFetchTaskInfo();
       }
     },
-    getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS ? 10000 : null
+    getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS
+      ? PROGRESS_POOLING_INTERVAL
+      : null
   );
   const reloadCurentActiveTabAlbumIfAt = (tabId: TAB_ID_TYPE) => {
     if (activeImagesTabId === tabId) {
@@ -327,7 +330,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         toast.success(
           `${capitalizeFirstLetter(
             getGenerateMethodLabel(process_type)
-          )} of the data set has been completed successfully.`
+          )} of the dataset has been completed successfully.`
         );
         break;
       case UPLOAD_TASK_PROCESS_TYPE:
@@ -343,7 +346,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
           })
         );
         toast.success(
-          `Data health check of ${getProjectNameByProjectId(
+          `Dataset health check of ${getProjectNameByProjectId(
             project_id
           )} has been completed successfully.`
         );
@@ -369,7 +372,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
                   className="text-link"
                   href={`/task-list/${getProjectNameByProjectId(project_id)}`}
                 >
-                  &quot;My Task&quot;
+                  &quot;My Tasks&quot;
                 </a>{" "}
                 to get it.
               </Typography>

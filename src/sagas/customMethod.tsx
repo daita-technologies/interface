@@ -2,6 +2,7 @@ import {
   GENERATE_REFERENCE_IMAGE_TYPE,
   ID_TOKEN_NAME,
 } from "constants/defaultValues";
+import { Box, Typography } from "@mui/material";
 import { toast } from "react-toastify";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getAugmentCustomMethodPreviewImageInfoSucceeded } from "reduxes/customAugmentation/action";
@@ -29,11 +30,11 @@ function* handleGenerateReferenceImages(action: {
   type: string;
   payload: GenerateReferenceImagesProps;
 }): any {
-  const { projectId } = action.payload;
+  const { projectId, selectedMethodIds, projectName } = action.payload;
   try {
     const genRefImagesResp = yield call(
       customMethodApi.generateReferenceImages,
-      { projectId }
+      { projectId, selectedMethodIds, projectName }
     );
     if (genRefImagesResp.error === false) {
       yield put(
@@ -45,10 +46,20 @@ function* handleGenerateReferenceImages(action: {
           projectId,
         })
       );
+
       yield put(
         alertGoToTaskDashboard({
-          message:
-            "Reference image generation successfully initiated. Please go to My Tasks for the details.",
+          message: (
+            <Box>
+              <Typography fontSize={14}>
+                Reference image generation successfully initiated. Please go to{" "}
+                <a className="text-link" href={`/my-task/${projectName}`}>
+                  &quot;My Tasks&quot;
+                </a>{" "}
+                for the details
+              </Typography>
+            </Box>
+          ),
           projectId,
         })
       );

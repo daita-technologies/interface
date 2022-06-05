@@ -22,6 +22,11 @@ export type TabGenerateIdType =
   | typeof PREPROCESS_GENERATE_TAB
   | typeof AUGMENTATION_GENERATE_TAB;
 
+export type AugmentParameterApiField = {
+  [methodId: string]: {
+    [paramName: string]: number | boolean;
+  };
+};
 export interface GenerateImagePayload {
   idToken: string;
   projectId: string;
@@ -34,6 +39,7 @@ export interface GenerateImagePayload {
   processType: typeof PREPROCESS_SOURCE | typeof AUGMENT_SOURCE;
   referenceImages: Record<string, string>;
   isNormalizeResolution?: boolean;
+  augmentParameters: AugmentParameterApiField;
 }
 
 export interface GenerateImageSucceedPayload {

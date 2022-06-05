@@ -1,21 +1,35 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 
-import { Box, Divider } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
-import _ from "lodash";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { InfoTooltip } from "components";
 import {
+  AUGMENT_OPTION_TOOLTIP,
+  MAX_AUGMENT_FREE_PLAN,
+} from "constants/defaultValues";
+
+import _ from "lodash";
+import { useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "reduxes";
+import {
+  addAugmentCustomMethodParamValue,
   removeAugmentCustomMethodParamValue,
   setReferenceSeletectorDialog,
-  setSelectedMethods,
 } from "reduxes/customAugmentation/action";
-import { selectorSelectedMethodIds } from "reduxes/customAugmentation/selector";
 import {
+  selectorIsAbleToRunAgumentationError,
+  selectorSelectedListCustomAugmentMethodId,
+} from "reduxes/customAugmentation/selector";
+import { selectorIsGenerateImagesAugmenting } from "reduxes/generate/selector";
+import {
+  selectorCurrentProjectAugmentedTimes,
   selectorCurrentProjectId,
+  selectorHaveTaskRunning,
+  selectorIsFetchingDetailProject,
   selectorMethodList,
 } from "reduxes/project/selector";
 import DataSetSplit from "../DataSetSplit";
@@ -24,6 +38,7 @@ import { prettyMethodName } from "../PreprocessingOption/ReferenceImageDialog";
 /* eslint-disable import/no-cycle */
 import AugmentCustomMethodTrigger from "./AugmentCustomMethodTrigger";
 import AugmentPreviewImageDialog from "./AugmentPreviewImage";
+import RunAugmentButton from "./RunAugmentButton";
 
 export const limitTooLongLineStyle = {
   display: "-webkit-box",
@@ -40,20 +55,64 @@ const checkedIcon = <CheckBoxIcon />;
 const ExpertAugmentationOption = function () {
   const dispatch = useDispatch();
   const currentProjectId = useSelector(selectorCurrentProjectId);
-  const selectedMethodIds = useSelector(selectorSelectedMethodIds);
+
+  const generateTimes = useSelector(selectorCurrentProjectAugmentedTimes);
+
+  const selectedListCustomMethodId = useSelector((state: RootState) =>
+    selectorSelectedListCustomAugmentMethodId(currentProjectId, state)
+  );
+
+  const isAbleToRunAgumentationError = useSelector(
+    selectorIsAbleToRunAgumentationError
+  );
+
+  const isFetchingDetailProject = useSelector(selectorIsFetchingDetailProject);
+
   const methods = useSelector(selectorMethodList)?.augmentation;
   const methodIds = methods ? methods.map((t) => t.method_id) : [];
-  useEffect(() => {
-    dispatch(setSelectedMethods({ selectedMethodIds: [] }));
-  }, [currentProjectId]);
+
+  const haveTaskRunning = useSelector(selectorHaveTaskRunning);
+  const isGenerateImagesAugmenting = useSelector(
+    selectorIsGenerateImagesAugmenting
+  );
+
+  const isRunning = useMemo(
+    () => !currentProjectId || haveTaskRunning || !!isGenerateImagesAugmenting,
+    [currentProjectId, haveTaskRunning, isGenerateImagesAugmenting]
+  );
+
+  const isSelectedMethods = useMemo(
+    () => selectedListCustomMethodId && selectedListCustomMethodId.length > 0,
+    [selectedListCustomMethodId]
+  );
 
   const handleChangeSelectedMethods = (event: any, listMethod: string[]) => {
-    if (listMethod.length < selectedMethodIds.length) {
+    if (listMethod.length < selectedListCustomMethodId.length) {
       // NOTE: user remove selected method
-      const removeMethodIdList = _.difference(selectedMethodIds, listMethod);
-      dispatch(removeAugmentCustomMethodParamValue({ removeMethodIdList }));
+      const removeMethodIdList = _.difference(
+        selectedListCustomMethodId,
+        listMethod
+      );
+
+      dispatch(
+        removeAugmentCustomMethodParamValue({
+          projectId: currentProjectId,
+          removeMethodIdList,
+        })
+      );
+    } else {
+      // TODO: add selected method
+      const addMethodIdList = _.difference(
+        listMethod,
+        selectedListCustomMethodId
+      );
+      dispatch(
+        addAugmentCustomMethodParamValue({
+          projectId: currentProjectId,
+          addMethodIdList,
+        })
+      );
     }
-    dispatch(setSelectedMethods({ selectedMethodIds: listMethod }));
   };
   const handleShowReferenceDialog = (methodId: string) => {
     dispatch(setReferenceSeletectorDialog({ isShow: true, methodId }));
@@ -62,16 +121,40 @@ const ExpertAugmentationOption = function () {
     option === value;
   const getMethodName = (methodId: string) =>
     methods?.find((t) => t.method_id === methodId)?.method_name;
+
+  if (isFetchingDetailProject) {
+    return (
+      <Box display="flex" alignItems="center" justifyContent="center" py={6}>
+        <CircularProgress size={24} />
+      </Box>
+    );
+  }
+
   return (
     <Box mt={2} display="flex" flexDirection="column" gap={1}>
-      <Box p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
+      <Box display="flex" justifyContent="space-between">
+        <Box display="flex" alignItems="center">
+          <Typography fontWeight={500}>Augmentation Option</Typography>
+          <InfoTooltip sx={{ ml: 1 }} title={AUGMENT_OPTION_TOOLTIP} />
+        </Box>
+        <Box textAlign="right">
+          <RunAugmentButton isExpertMode />
+          <Box>
+            <Typography sx={{ mt: 2 }} variant="body2">
+              Number of Augmentation Runs: {generateTimes}/
+              {MAX_AUGMENT_FREE_PLAN}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+      <Box borderRadius={2} bgcolor="background.paper" flex={1}>
         <Box mt={2} display="flex" gap={1}>
           <Box borderRadius={2} bgcolor="background.paper" flex={2}>
             <Autocomplete
               multiple
               id="checkboxes-tags"
               options={methodIds}
-              value={selectedMethodIds || []}
+              value={selectedListCustomMethodId || []}
               disableCloseOnSelect
               getOptionLabel={(methodId) =>
                 prettyMethodName(getMethodName(methodId))
@@ -89,24 +172,26 @@ const ExpertAugmentationOption = function () {
               )}
               isOptionEqualToValue={isOptionEqualToValue}
               onChange={handleChangeSelectedMethods}
+              disabled={isRunning}
               renderInput={(params) => (
                 <TextField
                   {...params}
+                  error={!!isAbleToRunAgumentationError && !isSelectedMethods}
+                  helperText={
+                    !!isAbleToRunAgumentationError && !isSelectedMethods
+                      ? "Please select method!"
+                      : ""
+                  }
+                  // sx={{ border: "red" }}
                   label="Method"
                   placeholder="Choose method"
                 />
               )}
             />
           </Box>
-          <Divider
-            orientation="vertical"
-            variant="middle"
-            flexItem
-            sx={{ backgroundColor: "text.secondary", margin: 0 }}
-          />
           <Box borderRadius={2} bgcolor="background.paper" flex={3}>
             <Box display="flex" flexWrap="wrap" justifyContent="flex-start">
-              {selectedMethodIds.map((methodId) => (
+              {selectedListCustomMethodId.map((methodId) => (
                 <Box key={methodId} flexBasis="33.33%" sx={{ p: 1 }}>
                   <AugmentCustomMethodTrigger
                     methodId={methodId}
@@ -122,19 +207,14 @@ const ExpertAugmentationOption = function () {
         </Box>
         <AugmentPreviewImageDialog />
       </Box>
-      <Box display="flex" width="100%" justifyContent="flex-end">
+      <Box display="flex" width="100%" justifyContent="flex-end" mt={3}>
         <Box borderRadius={2} bgcolor="background.paper" flex={1}>
           <Box mt={2} display="flex" gap={1}>
-            <Box borderRadius={2} bgcolor="background.paper" flex={2} />
-            <Divider
-              orientation="vertical"
-              variant="middle"
-              flexItem
-              sx={{ backgroundColor: "text.secondary", margin: 0 }}
-            />
-            <Box bgcolor="background.paper" flex={3}>
+            <Box bgcolor="background.paper" flex={2}>
               <DataSetSplit />
             </Box>
+
+            <Box borderRadius={2} bgcolor="background.paper" flex={3} />
           </Box>
         </Box>
       </Box>

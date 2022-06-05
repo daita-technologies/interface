@@ -166,7 +166,7 @@ const TaskDashboard = function () {
           <Empty
             description={
               <Box textAlign="center">
-                <Typography color="text.secondary"> No Project Yet.</Typography>
+                <Typography color="text.secondary"> No project yet.</Typography>
                 <Typography color="text.secondary">
                   Go to <Link to="/dashboard">Dashboard</Link> and create a new
                   project.
@@ -239,7 +239,7 @@ const TaskDashboard = function () {
   return (
     <Box mt={4} mb={10}>
       <Typography variant="h4" component="h1">
-        Task List
+        My Task List
       </Typography>
       {renderPageContent()}
     </Box>

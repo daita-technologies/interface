@@ -1,17 +1,21 @@
 import { TEMP_LOCAL_CUSTOM_METHOD_EXPERT_MODE } from "constants/defaultValues";
+import { FETCH_DETAIL_PROJECT } from "reduxes/project/constants";
+import { ProjectInfo } from "reduxes/project/type";
 import { GetAugmentCustomMethodPreviewImageResponse } from "services/customMethodApi";
 import { getLocalStorage, setLocalStorage } from "utils/general";
 import {
+  ADD_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
   CHANGE_AUGMENTATION_EXPERT_MODE,
   CHANGE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
   CHANGE_IS_LOADING_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE,
   CHANGE_REFERENCE_AUGMENTATION_IMAGE,
   GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO,
   REMOVE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
-  SET_AUGMENTATION_SELECTED_METHOD,
   SET_REFERENCE_AUGMENTATION_SELECTOR_DIALOG,
+  UPDATE_IS_ABLE_TO_RUN_AUGMENTATION_ERROR,
 } from "./constants";
 import {
+  AddAugmentCustomMethodParamValueActionPayload,
   ChangeAugmentationxpertModePayload,
   ChangeAugmentCustomMethodParamValueActionPayload,
   ChangeIsLoadingAugmentCustomMethodPreviewImageRequestActionPayload,
@@ -19,7 +23,9 @@ import {
   ReferenceAugmentationgeRecord,
   ReferenceAugmentationImage,
   RemoveAugmentCustomMethodParamValueActionPayload,
-  SelectedMethodProps,
+  SavedAugmentCustomMethodParamValueByProjectIdType,
+  SavedAugmentCustomMethodParamValueType,
+  UpdateIsAbleToRunAgumentationErrorActionPayload,
 } from "./type";
 
 const inititalState: CustomAugmentationReducer = {
@@ -31,9 +37,10 @@ const inititalState: CustomAugmentationReducer = {
   },
   selectedMethodIds: [],
   augmentCustomMethodPreviewImageInfo: null,
-  savedAugmentCustomMethodParamValue: {},
+  savedAugmentCustomMethodParamValueByProjectId: {},
   isFetchingAugmentCustomMethodPreviewImage: null,
   isLoadingPreviewImage: false,
+  isAbleToRunAgumentationError: null,
 };
 
 const customAugementationReducer = (
@@ -55,19 +62,7 @@ const customAugementationReducer = (
         isAugmentationExpertMode,
       };
     }
-    case SET_AUGMENTATION_SELECTED_METHOD: {
-      const { selectedMethodIds } = payload as SelectedMethodProps;
-      const referenceAugmentationImage = {} as ReferenceAugmentationgeRecord;
-      selectedMethodIds.forEach((selectedMethod) => {
-        referenceAugmentationImage[selectedMethod] =
-          state.referenceAugmentationImage[selectedMethod];
-      });
-      return {
-        ...state,
-        selectedMethodIds,
-        referenceAugmentationImage,
-      };
-    }
+
     case CHANGE_REFERENCE_AUGMENTATION_IMAGE: {
       const { methodId } = payload as ReferenceAugmentationImage;
       return {
@@ -96,17 +91,8 @@ const customAugementationReducer = (
       };
     }
     case GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO.SUCCEEDED: {
-      const {
-        method_id,
-        //  ls_params_name, ls_params_value
-      } = payload as GetAugmentCustomMethodPreviewImageResponse;
-      // const defaultSavedParams: SelectedParamAugmentCustomMethod[] = [];
-      // ls_params_name.forEach((paramName) =>
-      //   defaultSavedParams.push({
-      //     paramName,
-      //     paramValue: ls_params_value[paramName][0],
-      //   })
-      // );
+      const { method_id } =
+        payload as GetAugmentCustomMethodPreviewImageResponse;
 
       return {
         ...state,
@@ -115,13 +101,6 @@ const customAugementationReducer = (
           ...state.augmentCustomMethodPreviewImageInfo,
           [method_id]: payload,
         },
-        // savedAugmentCustomMethodParamValue: {
-        //   ...state.savedAugmentCustomMethodParamValue,
-        //   [method_id]: {
-        //     methodId: method_id,
-        //     params: defaultSavedParams,
-        //   },
-        // },
       };
     }
     case GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO.FAILED: {
@@ -131,11 +110,13 @@ const customAugementationReducer = (
       };
     }
     case CHANGE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE: {
-      const { methodId, params } =
+      const { methodId, params, projectId } =
         payload as ChangeAugmentCustomMethodParamValueActionPayload;
 
       const cloneSavedMethodParamValue =
-        state.savedAugmentCustomMethodParamValue[methodId];
+        state.savedAugmentCustomMethodParamValueByProjectId[projectId][
+          methodId
+        ];
       if (cloneSavedMethodParamValue) {
         const cloneSelectedMethodParams = [
           ...cloneSavedMethodParamValue.params,
@@ -159,11 +140,14 @@ const customAugementationReducer = (
 
         return {
           ...state,
-          savedAugmentCustomMethodParamValue: {
-            ...state.savedAugmentCustomMethodParamValue,
-            [methodId]: {
-              methodId,
-              params: cloneSelectedMethodParams,
+          savedAugmentCustomMethodParamValueByProjectId: {
+            ...state.savedAugmentCustomMethodParamValueByProjectId,
+            [projectId]: {
+              ...state.savedAugmentCustomMethodParamValueByProjectId[projectId],
+              [methodId]: {
+                methodId,
+                params: cloneSelectedMethodParams,
+              },
             },
           },
           isLoadingPreviewImage: true,
@@ -172,21 +156,45 @@ const customAugementationReducer = (
 
       return {
         ...state,
-        savedAugmentCustomMethodParamValue: {
-          ...state.savedAugmentCustomMethodParamValue,
-          [methodId]: {
-            methodId,
-            params,
+        savedAugmentCustomMethodParamValueByProjectId: {
+          ...state.savedAugmentCustomMethodParamValueByProjectId,
+          [projectId]: {
+            ...state.savedAugmentCustomMethodParamValueByProjectId[projectId],
+            [methodId]: {
+              methodId,
+              params,
+            },
           },
         },
         isLoadingPreviewImage: true,
       };
     }
+
+    case ADD_AUGMENT_CUSTOM_METHOD_PARAM_VALUE: {
+      const { addMethodIdList, projectId } =
+        payload as AddAugmentCustomMethodParamValueActionPayload;
+      const cloneSavedAugmentCustomMethodParamValue = {
+        ...state.savedAugmentCustomMethodParamValueByProjectId[projectId],
+      };
+      addMethodIdList.forEach((addMethodId) => {
+        cloneSavedAugmentCustomMethodParamValue[addMethodId] = undefined;
+      });
+
+      return {
+        ...state,
+        savedAugmentCustomMethodParamValueByProjectId: {
+          ...state.savedAugmentCustomMethodParamValueByProjectId,
+          [projectId]: {
+            ...cloneSavedAugmentCustomMethodParamValue,
+          },
+        },
+      };
+    }
     case REMOVE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE: {
-      const { removeMethodIdList } =
+      const { removeMethodIdList, projectId } =
         payload as RemoveAugmentCustomMethodParamValueActionPayload;
       const cloneSavedAugmentCustomMethodParamValue = {
-        ...state.savedAugmentCustomMethodParamValue,
+        ...state.savedAugmentCustomMethodParamValueByProjectId[projectId],
       };
       removeMethodIdList.forEach(
         (removeMethodId) =>
@@ -194,8 +202,11 @@ const customAugementationReducer = (
       );
       return {
         ...state,
-        savedAugmentCustomMethodParamValue: {
-          ...cloneSavedAugmentCustomMethodParamValue,
+        savedAugmentCustomMethodParamValueByProjectId: {
+          ...state.savedAugmentCustomMethodParamValueByProjectId,
+          [projectId]: {
+            ...cloneSavedAugmentCustomMethodParamValue,
+          },
         },
       };
     }
@@ -207,7 +218,52 @@ const customAugementationReducer = (
         isLoadingPreviewImage: isLoading,
       };
     }
+    case FETCH_DETAIL_PROJECT.SUCCEEDED: {
+      const { currentProjectInfo } = payload;
 
+      if (currentProjectInfo) {
+        const { aug_parameters, project_id } =
+          currentProjectInfo as ProjectInfo;
+
+        /* eslint-disable no-undef-init */
+        let targetSavedAugmentCustomMethodParamValueByProjectId:
+          | SavedAugmentCustomMethodParamValueByProjectIdType
+          | undefined = undefined;
+        const targetAugmentationParamValue: SavedAugmentCustomMethodParamValueType =
+          {};
+
+        Object.keys(aug_parameters).forEach((methodId) => {
+          targetAugmentationParamValue[methodId] = {
+            methodId,
+            params: Object.keys(aug_parameters[methodId]).map((paramName) => ({
+              paramName,
+              paramValue: aug_parameters[methodId][paramName],
+            })),
+          };
+        });
+
+        targetSavedAugmentCustomMethodParamValueByProjectId = {
+          [project_id]: { ...targetAugmentationParamValue },
+        };
+
+        return {
+          ...state,
+          savedAugmentCustomMethodParamValueByProjectId: {
+            ...state.savedAugmentCustomMethodParamValueByProjectId,
+            ...targetSavedAugmentCustomMethodParamValueByProjectId,
+          },
+        };
+      }
+      return state;
+    }
+    case UPDATE_IS_ABLE_TO_RUN_AUGMENTATION_ERROR: {
+      const { isError } =
+        payload as UpdateIsAbleToRunAgumentationErrorActionPayload;
+      return {
+        ...state,
+        isAbleToRunAgumentationError: isError,
+      };
+    }
     default:
       return state;
   }

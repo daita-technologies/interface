@@ -11,7 +11,11 @@ import {
 import DownloadIcon from "@mui/icons-material/Download";
 import { useDispatch, useSelector } from "react-redux";
 import { MyButton } from "components";
-import { ALL_DOWNLOAD_TYPE, ID_TOKEN_NAME } from "constants/defaultValues";
+import {
+  ALL_DOWNLOAD_TYPE,
+  ID_TOKEN_NAME,
+  PROGRESS_POOLING_INTERVAL,
+} from "constants/defaultValues";
 import {
   downloadZipEc2Create,
   downloadZipEc2Progress,
@@ -88,7 +92,17 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
     handleClose();
     if (currentProjectTotalImage > 0) {
       toast.info(
-        "We are zipping your file and creating a download link. You will receive an automatic email notification when finished."
+        <Box>
+          <Typography fontSize={14}>
+            We are zipping your file and creating a download link. You will
+            receive an automatic email notification when finished. You can also
+            check the current status in{" "}
+            <a className="text-link" href={`/my-task/${currentProjectName}`}>
+              &quot;My Tasks&quot;
+            </a>
+            .
+          </Typography>
+        </Box>
       );
       dispatch(
         downloadZipEc2Create({
@@ -113,7 +127,17 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
     handleClose();
     if (currentProjectTotalImage > 0) {
       toast.info(
-        "We are zipping your file and creating a download link. You will receive an automatic email notification when finished."
+        <Box>
+          <Typography fontSize={14}>
+            We are zipping your file and creating a download link. You will
+            receive an automatic email notification when finished. You can also
+            check the current status in{" "}
+            <a className="text-link" href={`/my-task/${currentProjectName}`}>
+              &quot;My Tasks&quot;
+            </a>
+            .
+          </Typography>
+        </Box>
       );
       dispatch(
         downloadZipEc2Create({
@@ -145,7 +169,7 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
         );
       }
     },
-    downloadZipEc2TaskId ? 5000 : null
+    downloadZipEc2TaskId ? PROGRESS_POOLING_INTERVAL : null
   );
 
   return (

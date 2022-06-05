@@ -187,6 +187,7 @@ const projectApi = {
     dataNumber,
     processType,
     referenceImages,
+    augmentParameters,
     isNormalizeResolution,
   }: GenerateImagePayload) => {
     const payload: any = {
@@ -198,8 +199,9 @@ const projectApi = {
       process_type: processType,
       reference_images: referenceImages,
       // NOTE: TODO: pass number will generate per source later
-      num_aug_p_img: 1 || numberImageGeneratePerSource,
+      num_aug_per_imgs: 1 || numberImageGeneratePerSource,
       data_number: dataNumber,
+      aug_parameters: augmentParameters,
     };
     // if (isNormalizeResolution !== undefined) {
     //   payload.is_normalize_resolution = isNormalizeResolution;

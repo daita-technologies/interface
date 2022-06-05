@@ -8,6 +8,7 @@ export interface CustomPreprocessReducer {
   selectedMethodIds: string[];
   isGenerating: boolean;
   isGenerateReferenceRequesting: boolean;
+  isAbleToRunPreprocessError: boolean | null;
 }
 export type ReferencePreprocessImageRecord = Record<
   string,
@@ -36,6 +37,8 @@ export interface SelectedMethodProps {
 }
 export interface GenerateReferenceImagesProps {
   projectId: string;
+  projectName: string;
+  selectedMethodIds: string[];
 }
 export interface ReferenceInfoApiFields {
   method_id: string;
@@ -47,4 +50,7 @@ export interface ReferenceInfoApiFields {
 }
 export interface ResetGenerateReferenceImageProps {
   projectId: string;
+}
+export interface UpdateIsAbleToRunPreprocessErrorActionPayload {
+  isError: boolean;
 }

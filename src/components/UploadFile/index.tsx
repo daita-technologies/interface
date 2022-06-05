@@ -1,14 +1,34 @@
-import { toast } from "react-toastify";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
-import { Box, Button, LinearProgress, Typography } from "@mui/material";
-import UploadIcon from "@mui/icons-material/Upload";
 import DownloadIcon from "@mui/icons-material/Download";
-
-import { useDropzone } from "react-dropzone";
+import UploadIcon from "@mui/icons-material/Upload";
+import { Box, Button, LinearProgress, Typography } from "@mui/material";
 import { BeforeUnload } from "components";
-
+import {
+  COMPRESS_FILE_EXTENSIONS,
+  ID_TOKEN_NAME,
+  IMAGE_EXTENSIONS,
+  LIMIT_IMAGE_HEIGHT,
+  LIMIT_IMAGE_WIDTH,
+  MAX_ALLOW_UPLOAD_IMAGES,
+  MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME,
+} from "constants/defaultValues";
+import {
+  ADDED_UPLOAD_FILE_STATUS,
+  INVALID_FILE_STATUS,
+  UPLOADED_UPLOAD_FILE_STATUS,
+} from "constants/uploadFile";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
+import {
+  selectorIsGenerateImagesAugmenting,
+  selectorIsGenerateImagesPreprocessing,
+} from "reduxes/generate/selector";
+import {
+  selectorCurrentProjectTotalOriginalImage,
+  selectorHaveTaskRunning,
+} from "reduxes/project/selector";
 import {
   addFile,
   checkFileUpload,
@@ -17,21 +37,9 @@ import {
   deleteFile,
   resetUploadState,
   setTotalUploadFileQuantity,
+  updateFile,
   uploadFile,
 } from "reduxes/upload/actions";
-
-import { getLocalStorage } from "utils/general";
-import {
-  COMPRESS_FILE_EXTENSIONS,
-  COMPRESS_IMAGE_EXTENSIONS,
-  ID_TOKEN_NAME,
-  MAX_ALLOW_UPLOAD_IMAGES,
-} from "constants/defaultValues";
-
-import {
-  ADDED_UPLOAD_FILE_STATUS,
-  UPLOADED_UPLOAD_FILE_STATUS,
-} from "constants/uploadFile";
 import {
   selectorAddedStatusFileCount,
   selectorIsChecking,
@@ -42,18 +50,9 @@ import {
   selectorUploadFiles,
   selectorUploadingFileCount,
 } from "reduxes/upload/selector";
-import {
-  selectorCurrentProjectTotalOriginalImage,
-  selectorHaveTaskRunning,
-} from "reduxes/project/selector";
-import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
-import {
-  selectorIsGenerateImagesAugmenting,
-  selectorIsGenerateImagesPreprocessing,
-} from "reduxes/generate/selector";
-import { MousePosition, UploadFileProps } from "./type";
+import { getLocalStorage, isImageFile } from "utils/general";
+import { LoadImageResult, MousePosition, UploadFileProps } from "./type";
 import UploadFileItem from "./UploadFileItem";
-
 import UploadFromMenu from "./UploadFromMenu";
 import UploadGuideDialog from "./UploadGuideDialog";
 
@@ -90,7 +89,7 @@ const dropZoneDisabledStyle = {
   opacity: 0.5,
 };
 const FILE_UPLOAD_EXTENSIONS = [
-  ...COMPRESS_IMAGE_EXTENSIONS,
+  ...IMAGE_EXTENSIONS,
   ...COMPRESS_FILE_EXTENSIONS,
 ];
 const UploadFile = function (props: UploadFileProps) {
@@ -158,9 +157,31 @@ const UploadFile = function (props: UploadFileProps) {
         ).toFixed(0)
       : 0
   );
-
+  const loadImage = (file: File, fileName: string) =>
+    new Promise<LoadImageResult>((resolve) => {
+      const image = new Image();
+      const objectUrl = window.URL.createObjectURL(file);
+      image.onload = () => {
+        resolve({
+          image,
+          fileName,
+        });
+        window.URL.revokeObjectURL(objectUrl);
+      };
+      image.src = objectUrl;
+    });
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
+      if (acceptedFiles.length > MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME) {
+        toast.error(
+          <p>
+            The maximum number of uploaded images in a project at the same time
+            is {MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME}. Please, re-upload
+            with less than the number of image images.
+          </p>
+        );
+        return;
+      }
       if (acceptedFiles.length + totalOriginalImage > MAX_ALLOW_UPLOAD_IMAGES) {
         toast.warning(
           <p>
@@ -176,21 +197,48 @@ const UploadFile = function (props: UploadFileProps) {
 
       if (files && Object.keys(files).length > 0) {
         const filesNeedCheck: Array<string> = [];
-
+        const listPromiseLoadImages: Promise<LoadImageResult>[] = [];
         Object.keys(files).forEach((fileName: string) => {
           if (files[fileName].status !== UPLOADED_UPLOAD_FILE_STATUS) {
             filesNeedCheck.push(fileName);
+            if (isImageFile(fileName)) {
+              listPromiseLoadImages.push(
+                loadImage(files[fileName].file, fileName)
+              );
+            }
           }
         });
+        Promise.all(listPromiseLoadImages).then((values) => {
+          values.forEach(({ image, fileName }) => {
+            if (
+              image.width > LIMIT_IMAGE_WIDTH ||
+              image.height > LIMIT_IMAGE_HEIGHT
+            ) {
+              dispatch(
+                updateFile({
+                  fileName,
+                  updateInfo: {
+                    error: `The image resolution (${image.width} x ${image.height}) exceeds the limit allowed ${LIMIT_IMAGE_WIDTH} x ${LIMIT_IMAGE_HEIGHT}. Please remove it`,
+                    status: INVALID_FILE_STATUS,
+                  },
+                })
+              );
 
-        dispatch(
-          checkFileUpload({
-            idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-            projectId,
-            projectName,
-            listFileName: filesNeedCheck,
-          })
-        );
+              const indexOf = filesNeedCheck.indexOf(fileName);
+              if (indexOf !== -1) {
+                filesNeedCheck.splice(indexOf, 1);
+              }
+            }
+          });
+          dispatch(
+            checkFileUpload({
+              idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+              projectId,
+              projectName,
+              listFileName: filesNeedCheck,
+            })
+          );
+        });
       }
     }
   }, []);
@@ -240,6 +288,7 @@ const UploadFile = function (props: UploadFileProps) {
         projectName,
         isReplace: true,
         isReplaceSingle: true,
+        isExist: true,
       })
     );
   };
@@ -285,12 +334,11 @@ const UploadFile = function (props: UploadFileProps) {
           : "Drop your images here or click to upload"}
       </Typography>
       <Typography fontStyle="italic" variant="body2" color="text.secondary">
-        {FILE_UPLOAD_EXTENSIONS.join(" ,")}
+        Supported file formats: {FILE_UPLOAD_EXTENSIONS.join(" ,")}
       </Typography>
       <Typography
         sx={{ mt: 1 }}
         textAlign="center"
-        fontStyle="italic"
         variant="body2"
         color="text.secondary"
       >
@@ -384,7 +432,7 @@ const UploadFile = function (props: UploadFileProps) {
             <input {...getInputProps()} multiple />
             {renderDropzoneContent()}
           </Box>
-          <Typography mt={1} fontStyle="italic" variant="body2" fontSize={14}>
+          {/* <Typography mt={1} fontStyle="italic" variant="body2" fontSize={14}>
             * If you would like to upload your dataset programmatically,{" "}
             <Typography
               component="span"
@@ -395,7 +443,7 @@ const UploadFile = function (props: UploadFileProps) {
               click here{" "}
             </Typography>
             for more information.
-          </Typography>
+          </Typography> */}
           <UploadGuideDialog
             onClose={handleCloseUploadGuideDialog}
             isOpen={isOpenUploadGuideDialog}

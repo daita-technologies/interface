@@ -12,3 +12,7 @@ export const selectorIsGenerating = (state: RootState) =>
   state.customPreprocessing.isGenerating;
 export const selectorIsGenerateReferenceRequesting = (state: RootState) =>
   state.customPreprocessing.isGenerateReferenceRequesting;
+export const selectorReferencePreprocessProjectId = (state: RootState) =>
+  state.customPreprocessing.projectId;
+export const selectorIsAbleToRunPreprocessError = (state: RootState) =>
+  state.customPreprocessing.isAbleToRunPreprocessError;

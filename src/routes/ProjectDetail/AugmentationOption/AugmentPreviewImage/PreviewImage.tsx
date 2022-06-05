@@ -3,23 +3,27 @@ import HideImageIcon from "@mui/icons-material/HideImage";
 import {
   AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE,
   AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE,
+  ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH,
 } from "constants/customMethod";
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "reduxes";
 import { changeIsLoadingAugmentCustomMethodPreviewImage } from "reduxes/customAugmentation/action";
+import { SUPER_RESOLUTION_ID } from "components/ImageProcessing/type";
 import {
   selectorAugmentCustomMethodPreviewImageInfo,
   selectorIsLoadingAugmentCustomMethodPreviewImage,
-  selectorSavedAugmentCustomMethodParamValue,
 } from "reduxes/customAugmentation/selector";
 import { PreviewImageProps } from "./type";
+import SamplePreviewImageElement from "../SamplePreviewImageElement";
 
-const PreviewImage = function ({ methodId }: PreviewImageProps) {
+const PreviewImage = function ({
+  methodId,
+  localSpecificSavedAugmentCustomMethodParamValue,
+  setLocalSpecificSavedAugmentCustomMethodParamValue,
+}: PreviewImageProps) {
   const dispatch = useDispatch();
-  const savedAugmentCustomMethodParamValue = useSelector((state: RootState) =>
-    selectorSavedAugmentCustomMethodParamValue(methodId || "", state)
-  );
+
   const augmentCustomMethodPreviewImageInfo = useSelector((state: RootState) =>
     selectorAugmentCustomMethodPreviewImageInfo(methodId || "", state)
   );
@@ -38,9 +42,10 @@ const PreviewImage = function ({ methodId }: PreviewImageProps) {
     let targetDictIndex = "";
     if (
       augmentCustomMethodPreviewImageInfo &&
-      savedAugmentCustomMethodParamValue
+      localSpecificSavedAugmentCustomMethodParamValue
     ) {
-      const { params: selectedParams } = savedAugmentCustomMethodParamValue;
+      const { params: selectedParams } =
+        localSpecificSavedAugmentCustomMethodParamValue;
       const { ls_params_value, dict_aug_img, ls_params_name } =
         augmentCustomMethodPreviewImageInfo;
       ls_params_name.forEach((paramNameOrdered) => {
@@ -67,24 +72,26 @@ const PreviewImage = function ({ methodId }: PreviewImageProps) {
         if (resultImage) {
           return resultImage;
         }
-        dispatch(
-          changeIsLoadingAugmentCustomMethodPreviewImage({ isLoading: false })
-        );
+
         return "";
       }
       return "";
     }
     return "";
-  }, [savedAugmentCustomMethodParamValue, augmentCustomMethodPreviewImageInfo]);
+  }, [
+    localSpecificSavedAugmentCustomMethodParamValue,
+    augmentCustomMethodPreviewImageInfo,
+    setLocalSpecificSavedAugmentCustomMethodParamValue,
+  ]);
 
   if (augmentCustomMethodPreviewImageInfo) {
     const renderImage = () => {
-      if (savedAugmentCustomMethodParamValue) {
+      if (localSpecificSavedAugmentCustomMethodParamValue) {
         const imageSrc = getImageBaseOnSelectedParams();
         return (
           <Box
             position="relative"
-            minWidth={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+            width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
             minHeight={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
           >
             <Box
@@ -94,8 +101,8 @@ const PreviewImage = function ({ methodId }: PreviewImageProps) {
                 opacity: isLoadingAugmentCustomMethodPreviewImage ? 0.5 : 0,
               }}
               position="absolute"
-              height="100%"
-              width="100%"
+              width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+              minHeight={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
               display="flex"
               alignItems="center"
               justifyContent="center"
@@ -103,8 +110,8 @@ const PreviewImage = function ({ methodId }: PreviewImageProps) {
               <CircularProgress size={24} />
             </Box>
             {imageSrc ? (
-              <img
-                style={{ objectFit: "contain" }}
+              <SamplePreviewImageElement
+                isShowResolution={methodId === SUPER_RESOLUTION_ID}
                 width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
                 src={imageSrc}
                 onLoad={() => {
@@ -118,7 +125,7 @@ const PreviewImage = function ({ methodId }: PreviewImageProps) {
               />
             ) : (
               <Box
-                minWidth={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+                width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
                 minHeight={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
                 display="flex"
                 flexDirection="column"
@@ -140,21 +147,32 @@ const PreviewImage = function ({ methodId }: PreviewImageProps) {
 
       return (
         <Box
-          minWidth={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+          width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
           minHeight={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
           display="flex"
           alignItems="center"
           justifyContent="center"
         >
-          <Typography variant="body1" fontStyle="italic" color="text.secondary">
-            Make change to view result image
-          </Typography>
+          <SamplePreviewImageElement
+            isShowResolution={methodId === SUPER_RESOLUTION_ID}
+            width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+            height={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
+            src={ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH}
+            onLoad={() => {
+              dispatch(
+                changeIsLoadingAugmentCustomMethodPreviewImage({
+                  isLoading: false,
+                })
+              );
+            }}
+            alt="augment method preview"
+          />
         </Box>
       );
     };
     return (
       <Box
-        minWidth={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
+        width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
         minHeight={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
       >
         {renderImage()}

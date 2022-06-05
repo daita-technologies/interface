@@ -28,3 +28,7 @@ export interface MousePosition {
   top: number;
   left: number;
 }
+export interface LoadImageResult {
+  image: HTMLImageElement;
+  fileName: string;
+}

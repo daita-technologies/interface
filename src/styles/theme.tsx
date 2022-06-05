@@ -5,7 +5,7 @@ export const darkTheme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          fontSize: 14,
+          fontSize: 12,
         },
       },
     },
@@ -46,6 +46,15 @@ export const darkTheme = createTheme({
           "[disabled]": {
             backgroundColor: "#667181",
             borderRadius: 4,
+          },
+        },
+      },
+    },
+    MuiTablePagination: {
+      styleOverrides: {
+        root: {
+          "button svg": {
+            color: "inherit",
           },
         },
       },

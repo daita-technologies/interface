@@ -1,9 +1,8 @@
 import { Upload } from "@aws-sdk/lib-storage";
 import {
-  COMPRESS_FILE_EXTENSIONS,
-  COMPRESS_IMAGE_EXTENSIONS,
   IDENTITY_ID_NAME,
   ID_TOKEN_NAME,
+  LIMIT_UPLOAD_IMAGE_SIZE,
   MAXIMUM_ZIP_FILE_SIZE,
   MAX_ALLOW_UPLOAD_IMAGES,
   ORIGINAL_SOURCE,
@@ -13,6 +12,7 @@ import { S3_BUCKET_NAME } from "constants/s3Values";
 import {
   ADDED_UPLOAD_FILE_STATUS,
   CHECKING_UPLOAD_FILE_STATUS,
+  CHECK_IMAGE,
   CHECK_ZIP_FILE,
   FAILED_UPLOAD_FILE_STATUS,
   QUEUEING_UPLOAD_FILE_STATUS,
@@ -61,7 +61,11 @@ import {
   selectorUploadedFileCount,
   selectorUploadFiles,
 } from "reduxes/upload/selector";
-import { CheckFileUploadParams, UploadFileParams } from "reduxes/upload/type";
+import {
+  CheckFileUploadParams,
+  UploadFileParams,
+  UploadFilesType,
+} from "reduxes/upload/type";
 import { projectApi } from "services";
 import {
   arrayBufferToWordArray,
@@ -69,6 +73,8 @@ import {
   generatePhotoKey,
   generateZipFileKey,
   getLocalStorage,
+  isImageFile,
+  isZipFile,
   objectIndexOf,
   readAsArrayBuffer,
 } from "utils/general";
@@ -154,10 +160,14 @@ function* isZipFileValid(action: {
     }
     const zip = yield JSZip.loadAsync(file);
     let countImages = 0;
+    let validateFileSizeCounter = 0;
     zip.forEach((relativePath: any, zipEntry: any) => {
       const { name } = zipEntry;
-      const ext = name.substring(name.lastIndexOf("."));
-      if (COMPRESS_IMAGE_EXTENSIONS.indexOf(ext) !== -1) {
+      if (isImageFile(name)) {
+        // eslint-disable-next-line no-underscore-dangle
+        if (zipEntry._data.uncompressedSize <= LIMIT_UPLOAD_IMAGE_SIZE) {
+          validateFileSizeCounter += 1;
+        }
         countImages += 1;
       }
     });
@@ -167,6 +177,20 @@ function* isZipFileValid(action: {
           fileName,
           updateInfo: {
             error: `Not found any images in the zip files. Please remove it to start a new uploading`,
+            status: FAILED_UPLOAD_FILE_STATUS,
+          },
+        })
+      );
+      return false;
+    }
+    if (validateFileSizeCounter === 0) {
+      yield put(
+        updateFile({
+          fileName,
+          updateInfo: {
+            error: `Not found any images with a size of less than ${formatBytes(
+              LIMIT_UPLOAD_IMAGE_SIZE
+            )}. Please remove it to start a new uploading`,
             status: FAILED_UPLOAD_FILE_STATUS,
           },
         })
@@ -199,6 +223,15 @@ function* isZipFileValid(action: {
     );
   }
   return false;
+}
+function* processUploadDone() {
+  const UpdatedUploadFiles: UploadFilesType = yield select(selectorUploadFiles);
+  const listDeleteFile = Object.keys(UpdatedUploadFiles).filter(
+    (nameOfFile) =>
+      UpdatedUploadFiles[nameOfFile].status === UPLOADED_UPLOAD_FILE_STATUS
+  );
+  yield put(clearFileArray({ fileNameArray: listDeleteFile }));
+  yield put(setTotalUploadFileQuantity({ totalUploadFileQuantity: null }));
 }
 function* handleUploadZipFile(action: {
   type: string;
@@ -298,17 +331,11 @@ function* handleUploadZipFile(action: {
         if (uploadedFile >= totalUploadFile) {
           yield put(
             alertGoToTaskDashboard({
-              message:
-                "Zip file uploading successfully initiated. Please wait for a while to unzip or go to My Task for details",
+              message: `Uploading of the ZIP file has been started successfully. Please wait a moment until we unzip the file. You can check the status under "My Tasks"`,
               projectId,
             })
           );
-          yield put(
-            clearFileArray({ fileNameArray: Object.keys(uploadFiles) })
-          );
-          yield put(
-            setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
-          );
+          yield processUploadDone();
         }
       }
     } catch (err) {
@@ -330,14 +357,44 @@ function* handleUploadZipFile(action: {
     toast.error(e.message);
   }
 }
-
+function* isImageValid(action: {
+  type: string;
+  payload: UploadFileParams;
+}): any {
+  const { fileName } = action.payload;
+  const uploadFiles = yield select(selectorUploadFiles);
+  const { file } = uploadFiles[fileName];
+  if (file.size > LIMIT_UPLOAD_IMAGE_SIZE) {
+    yield put(
+      updateFile({
+        fileName,
+        updateInfo: {
+          error: `The image size exceeds the limit allowed (${formatBytes(
+            file.size
+          )}/${formatBytes(
+            LIMIT_UPLOAD_IMAGE_SIZE
+          )}). Please remove it to start a new uploading`,
+          status: FAILED_UPLOAD_FILE_STATUS,
+        },
+      })
+    );
+    return false;
+  }
+  return true;
+}
 function* handleUploadFile(action: {
   type: string;
   payload: UploadFileParams;
 }): any {
   try {
-    const { fileName, projectId, projectName, isReplace, isReplaceSingle } =
-      action.payload;
+    const {
+      fileName,
+      projectId,
+      projectName,
+      isReplace,
+      isReplaceSingle,
+      isExist,
+    } = action.payload;
     const uploadFiles = yield select(selectorUploadFiles);
     const s3 = yield select(selectorS3);
     const IDENTITY_ID = yield getLocalStorage(IDENTITY_ID_NAME) || "";
@@ -350,6 +407,13 @@ function* handleUploadFile(action: {
 
     try {
       if (uploadFiles[fileName]) {
+        const isValid = yield call(isImageValid, {
+          type: CHECK_IMAGE,
+          payload: action.payload,
+        });
+        if (isValid === false) {
+          return;
+        }
         const uploadParams = {
           Bucket: S3_BUCKET_NAME,
           Key: photoKey,
@@ -420,7 +484,7 @@ function* handleUploadFile(action: {
             updateInfo: {
               typeMethod: ORIGINAL_SOURCE,
               fileInfo: {
-                isExist: !!isReplace,
+                isExist,
                 size: uploadFiles[fileName].file.size,
                 sizeOld: Number(uploadFiles[fileName].sizeOld),
               },
@@ -446,10 +510,8 @@ function* handleUploadFile(action: {
             setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
           );
         } else if (uploadedFile >= totalUploadFile) {
-          yield toast.success("Images are successfully uploaded");
-          yield put(
-            clearFileArray({ fileNameArray: Object.keys(uploadFiles) })
-          );
+          yield toast.success("Images are successfully uploaded.");
+          yield processUploadDone();
           yield put(
             setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
           );
@@ -578,18 +640,7 @@ function* handleUploadRequest(requestChannel: any) {
   while (true) {
     const { payload } = yield take(requestChannel);
     const { fileName } = payload;
-    let isZipUploadRequest = false;
-    // eslint-disable-next-line no-restricted-syntax
-    for (const compressFileExtension of COMPRESS_FILE_EXTENSIONS) {
-      if (
-        fileName.indexOf(compressFileExtension) ===
-        fileName.length - compressFileExtension.length
-      ) {
-        isZipUploadRequest = true;
-        break;
-      }
-    }
-    if (isZipUploadRequest) {
+    if (isZipFile(fileName)) {
       yield call(handleUploadZipFile, {
         type: UPLOAD_FILE.REQUESTED,
         payload,

@@ -117,7 +117,7 @@ const LoginPage = function () {
   return (
     <Container maxWidth="xs">
       <Helmet>
-        <title>Log in to DAITA's Platform</title>
+        <title>Log In to DAITA's Platform</title>
       </Helmet>
       <PageLoading />
       <LoginForm />

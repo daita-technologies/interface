@@ -1,14 +1,16 @@
 import {
+  ADD_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
   CHANGE_AUGMENTATION_EXPERT_MODE,
   CHANGE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
   CHANGE_IS_LOADING_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE,
   CHANGE_REFERENCE_AUGMENTATION_IMAGE,
   GET_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE_INFO,
   REMOVE_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
-  SET_AUGMENTATION_SELECTED_METHOD,
   SET_REFERENCE_AUGMENTATION_SELECTOR_DIALOG,
+  UPDATE_IS_ABLE_TO_RUN_AUGMENTATION_ERROR,
 } from "./constants";
 import {
+  AddAugmentCustomMethodParamValueActionPayload,
   ChangeAugmentationxpertModePayload,
   ChangeAugmentCustomMethodParamValueActionPayload,
   ChangeIsLoadingAugmentCustomMethodPreviewImageRequestActionPayload,
@@ -17,7 +19,7 @@ import {
   ReferenceAugmentationImage,
   ReferenceSeletectorDialog,
   RemoveAugmentCustomMethodParamValueActionPayload,
-  SelectedMethodProps,
+  UpdateIsAbleToRunAgumentationErrorActionPayload,
 } from "./type";
 
 export const changeAugmentationExpertMode = (
@@ -38,11 +40,6 @@ export const setReferenceAugmentationImage = (
   payload: ReferenceAugmentationImage
 ) => ({
   type: CHANGE_REFERENCE_AUGMENTATION_IMAGE,
-  payload,
-});
-
-export const setSelectedMethods = (payload: SelectedMethodProps) => ({
-  type: SET_AUGMENTATION_SELECTED_METHOD,
   payload,
 });
 
@@ -67,6 +64,13 @@ export const changeAugmentCustomMethodParamValue = (
   payload,
 });
 
+export const addAugmentCustomMethodParamValue = (
+  payload: AddAugmentCustomMethodParamValueActionPayload
+) => ({
+  type: ADD_AUGMENT_CUSTOM_METHOD_PARAM_VALUE,
+  payload,
+});
+
 export const removeAugmentCustomMethodParamValue = (
   payload: RemoveAugmentCustomMethodParamValueActionPayload
 ) => ({
@@ -78,5 +82,12 @@ export const changeIsLoadingAugmentCustomMethodPreviewImage = (
   payload: ChangeIsLoadingAugmentCustomMethodPreviewImageRequestActionPayload
 ) => ({
   type: CHANGE_IS_LOADING_AUGMENT_CUSTOM_METHOD_PREVIEW_IMAGE,
+  payload,
+});
+
+export const updateIsAbleToRunAgumentationError = (
+  payload: UpdateIsAbleToRunAgumentationErrorActionPayload
+) => ({
+  type: UPDATE_IS_ABLE_TO_RUN_AUGMENTATION_ERROR,
   payload,
 });

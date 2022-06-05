@@ -528,10 +528,13 @@ const AlbumViewer = function (props: AlbumViewerProps) {
         >
           <Tab label="Original" {...a11yProps(TAB_NAME, ORIGINAL_IMAGES_TAB)} />
           <Tab
-            label="Preprocess"
+            label="Preprocessing"
             {...a11yProps(TAB_NAME, PREPROCESS_IMAGES_TAB)}
           />
-          <Tab label="Augment" {...a11yProps(TAB_NAME, AUGMENT_IMAGES_TAB)} />
+          <Tab
+            label="Augmentation"
+            {...a11yProps(TAB_NAME, AUGMENT_IMAGES_TAB)}
+          />
         </Tabs>
       </Box>
       <TabPanel
@@ -563,13 +566,15 @@ const AlbumViewer = function (props: AlbumViewerProps) {
       {renderPreviewImage()}
       <Box p={2} bgcolor="background.paper" borderRadius={2}>
         <Box display="flex" alignItems="center">
-          <Typography fontSize={18}>Images</Typography>
+          <Typography fontSize={18}>Your Images</Typography>
           <Box ml={8}>
             <SelectButton />
           </Box>
           <Box ml="auto" display="flex" alignItems="center">
             <MyButton>
-              <Link to={`/health-check/${projectName}`}>Health Check</Link>
+              <Link to={`/health-check/${projectName}`}>
+                Dataset Health Check
+              </Link>
             </MyButton>
             <Box ml={3}>
               <DownloadButton projectId={projectId} />

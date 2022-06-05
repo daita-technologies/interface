@@ -1,10 +1,19 @@
 import { Box, IconButton, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 
+import { useMemo } from "react";
 import { RootState } from "reduxes";
 import { useSelector } from "react-redux";
-import { selectorSavedAugmentCustomMethodParamValue } from "reduxes/customAugmentation/selector";
+import {
+  selectorIsAbleToRunAgumentationError,
+  selectorSpecificSavedAugmentCustomMethodParamValue,
+} from "reduxes/customAugmentation/selector";
 import { AugmentCustomMethodParamValue } from "reduxes/customAugmentation/type";
+import {
+  selectorCurrentProjectId,
+  selectorHaveTaskRunning,
+} from "reduxes/project/selector";
+import { selectorIsGenerateImagesAugmenting } from "reduxes/generate/selector";
 
 /* eslint-disable import/no-cycle */
 import { limitTooLongLineStyle } from "./ExpertAugmentationOption";
@@ -16,6 +25,10 @@ const SelectedParamText = function ({
 }: {
   selectedParam: AugmentCustomMethodParamValue | undefined;
 }) {
+  const isAbleToRunAgumentationError = useSelector(
+    selectorIsAbleToRunAgumentationError
+  );
+
   if (selectedParam) {
     const { params } = selectedParam;
     return (
@@ -39,11 +52,11 @@ const SelectedParamText = function ({
   return (
     <Typography
       variant="body2"
-      color="text.secondary"
+      color={isAbleToRunAgumentationError ? "error" : "text.secondary"}
       noWrap
       sx={limitTooLongLineStyle}
     >
-      Select your param value
+      Select your param value(s)
     </Typography>
   );
 };
@@ -53,23 +66,51 @@ const AugmentCustomMethodTrigger = function ({
   methodName,
   handleShowReferenceDialog,
 }: AugmentCustomMethodTriggerProps) {
-  const savedAugmentCustomMethodParamValue = useSelector((state: RootState) =>
-    selectorSavedAugmentCustomMethodParamValue(methodId || "", state)
+  const currentProjectId = useSelector(selectorCurrentProjectId);
+
+  const specificSavedAugmentCustomMethodParamValue = useSelector(
+    (state: RootState) =>
+      selectorSpecificSavedAugmentCustomMethodParamValue(
+        currentProjectId,
+        methodId || "",
+        state
+      )
+  );
+
+  const haveTaskRunning = useSelector(selectorHaveTaskRunning);
+  const isGenerateImagesAugmenting = useSelector(
+    selectorIsGenerateImagesAugmenting
+  );
+
+  const isRunning = useMemo(
+    () => !currentProjectId || haveTaskRunning || !!isGenerateImagesAugmenting,
+    [currentProjectId, haveTaskRunning, isGenerateImagesAugmenting]
   );
 
   return (
-    <Box key={methodId} flexBasis="33.33%" sx={{ p: 1 }}>
+    <Box
+      key={methodId}
+      flexBasis="33.33%"
+      sx={{
+        p: 1,
+        backgroundColor: isRunning ? "rgba(255, 255, 255, 0.12)" : undefined,
+        borderRadius: "4px",
+      }}
+    >
       <Typography variant="body1" fontWeight={500}>
         {prettyMethodName(methodName)}
       </Typography>
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <SelectedParamText selectedParam={savedAugmentCustomMethodParamValue} />
+        <SelectedParamText
+          selectedParam={specificSavedAugmentCustomMethodParamValue}
+        />
         <IconButton
           size="small"
           sx={{ padding: "0 2px" }}
           color="primary"
           component="span"
           onClick={() => handleShowReferenceDialog(methodId)}
+          disabled={isRunning}
         >
           <EditIcon sx={{ width: 20 }} />
         </IconButton>
