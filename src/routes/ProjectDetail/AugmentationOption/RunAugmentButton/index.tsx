@@ -235,19 +235,36 @@ const RunAugmentButton = function ({ isExpertMode }: RunAugmentButtonProps) {
     if (splitDataNumberBySource && splitDataNumberBySource[0] === 0) {
       return toast.error("The number of training image must be greater than 0");
     }
-
+    let totalImage;
     if (selectedDataSource === PREPROCESS_SOURCE) {
       if (totalPreprocessImages <= 0) {
         return toast.error(
           "Generate preprocessed images before run augmentation."
         );
       }
+      totalImage = totalPreprocessImages;
     } else if (selectedDataSource === ORIGINAL_SOURCE) {
       if (totalOriginalImages <= 0) {
         return toast.error("Upload original images before run augmentation.");
       }
+      totalImage = totalOriginalImages;
+    }
+    
+    if (!splitDataNumberBySource) {
+      return toast.error("You haven't split your dataset yet.");
     }
 
+    if (
+      splitDataNumberBySource &&
+      splitDataNumberBySource[0] +
+        splitDataNumberBySource[1] +
+        splitDataNumberBySource[2] !==
+        totalImage
+    ) {
+      return toast.error(
+        "The total of Training/Validation/Test images must be equal total images. Please split your dataset again."
+      );
+    }
     if (listMethod) {
       if (splitDataNumberBySource) {
         callRunAugmentation(splitDataNumberBySource);
@@ -258,7 +275,16 @@ const RunAugmentButton = function ({ isExpertMode }: RunAugmentButtonProps) {
 
     return null;
   };
-
+  console.log(
+    "test",
+    !isAllowRunAugmentation,
+    isFetchingDetailProject === null,
+    isFetchingDetailProject === true,
+    isUploading,
+    isAlbumSelectMode,
+    !!isGenerateImagesPreprocessing,
+    !!isDownloading && projectId === currentProjectIdDownloading
+  );
   return (
     <MyButton
       color="primary"
