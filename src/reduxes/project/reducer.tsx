@@ -478,6 +478,15 @@ const projectReducer = (
     }
     case UPDATE_PROJECT_INFO.FAILED: {
       // const { projectId } = payload as UpdateProjectInfoPayload;
+      if (state.updateProjectInfoDialog) {
+        return {
+          ...state,
+          updateProjectInfoDialog: {
+            ...state.updateProjectInfoDialog,
+            isProcessing: false,
+          },
+        };
+      }
       return state;
     }
     default:
