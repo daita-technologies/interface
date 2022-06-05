@@ -322,7 +322,7 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
         toast.success(
           `${capitalizeFirstLetter(
             getGenerateMethodLabel(process_type)
-          )} of the data set has been completed successfully.`
+          )} of the dataset has been completed successfully.`
         );
         break;
       case AUGMENT_SOURCE:
