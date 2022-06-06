@@ -9,24 +9,24 @@ export const FILE_NAME_HEALTH_CHECK_FIELD = {
 };
 export const STN_GREEN_HEALTH_CHECK_FIELD = {
   value: "signal_to_noise_green_channel" as keyof HealthCheckFields,
-  label: "Signal-To-Noise Ratio (SnR) - Green channel",
+  label: "Signal-to-Noise Ratio (SnR) - Green Channel",
   description:
-    "Measures the signal-to-noise ratio of only green channel in an RGB image.",
-  unit: "SNR",
+    "Measures the signal-to-noise ratio (SnR) of the green channel in an RGB image.",
+  unit: "SnR",
 };
 export const STN_RED_HEALTH_CHECK_FIELD = {
   value: "signal_to_noise_red_channel" as keyof HealthCheckFields,
-  label: "Signal-To-Noise Ratio (SnR) - Red channel",
+  label: "Signal-to-Noise Ratio (SnR) - Red Channel",
   description:
-    "Measures the signal-to-noise ratio of only red channel in an RGB image.",
-  unit: "SNR",
+    "Measures the signal-to-noise ratio (SnR) of the red channel in an RGB image.",
+  unit: "SnR",
 };
 export const STN_BLUE_HEALTH_CHECK_FIELD = {
   value: "signal_to_noise_blue_channel" as keyof HealthCheckFields,
-  label: "Signal-To-Noise Ratio (SnR) - Blue channel",
+  label: "Signal-to-Noise Ratio (SnR) - Blue Channel",
   description:
-    "Measures the signal-to-noise ratio of only  blue channel in an RGB image.",
-  unit: "SNR",
+    "Measures the signal-to-noise ratio (SnR) of the blue channel in an RGB image.",
+  unit: "SnR",
 };
 export const SHARPNESS_HEALTH_CHECK_FIELD = {
   value: "sharpness" as keyof HealthCheckFields,
@@ -34,7 +34,6 @@ export const SHARPNESS_HEALTH_CHECK_FIELD = {
   description: "Measures the sharpness of an image.",
   unit: "S",
 };
-
 export const LUMINANCE_HEALTH_CHECK_FIELD = {
   value: "luminance" as keyof HealthCheckFields,
   label: "Luminance",
@@ -44,14 +43,14 @@ export const LUMINANCE_HEALTH_CHECK_FIELD = {
 export const WIDTH_HEALTH_CHECK_FIELD = {
   value: "width" as keyof HealthCheckFields,
   label: "Width",
-  description: "Width of an image.",
-  unit: "pixels",
+  description: "Measures the width of an image.",
+  unit: "px",
 };
 export const HEIGHT_HEALTH_CHECK_FIELD = {
   value: "height" as keyof HealthCheckFields,
   label: "Height",
-  description: "Height of an image.",
-  unit: "pixels",
+  description: "Measures the height of an image.",
+  unit: "px",
 };
 export const ASPECT_RATIO_HEALTH_CHECK_FIELD = {
   value: "aspect_ratio" as keyof HealthCheckFields,
@@ -62,13 +61,13 @@ export const ASPECT_RATIO_HEALTH_CHECK_FIELD = {
 export const FILE_SIZE_HEALTH_CHECK_FIELD = {
   value: "file_size" as keyof HealthCheckFields,
   label: "File Size",
-  description: "Size of an image.",
-  unit: "Megabytes",
+  description: "Measures the size of an image.",
+  unit: "MB",
 };
 export const EXTENSION_HEALTH_CHECK_FIELD = {
   value: "extension" as keyof HealthCheckFields,
   label: "File Extension",
-  description: "File extension.",
+  description: "Lists the used file extensions.",
   unit: "",
 };
 export const CONTRAST_HEALTH_CHECK_FIELD = {
@@ -80,19 +79,19 @@ export const CONTRAST_HEALTH_CHECK_FIELD = {
 export const MEAN_RED_CHANNEL_HEALTH_CHECK_FIELD = {
   value: "mean_red_channel" as keyof HealthCheckFields,
   label: "Mean Red Channel",
-  description: "Measures the mean value of only red channel in an RGB image.",
+  description: "Measures the mean value of the red channel in an RGB image.",
   unit: "M",
 };
 export const MEAN_BLUE_CHANNEL_HEALTH_CHECK_FIELD = {
   value: "mean_blue_channel" as keyof HealthCheckFields,
   label: "Mean Blue Channel",
-  description: "Measures the mean value of only blue channel in an RGB image.",
+  description: "Measures the mean value of the blue channel in an RGB image.",
   unit: "M",
 };
 export const MEAN_GREEN_CHANNEL_HEALTH_CHECK_FIELD = {
   value: "mean_green_channel" as keyof HealthCheckFields,
   label: "Mean Green Channel",
-  description: "Measures the mean value of only green channel in an RGB image.",
+  description: "Measures the mean value of the green channel in an RGB image.",
   unit: "M",
 };
 

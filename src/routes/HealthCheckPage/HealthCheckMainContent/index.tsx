@@ -174,8 +174,7 @@ const HealthCheckMainContent = function ({
             alignItems="center"
           >
             <Typography>
-              Dataset Health Check is being generated, please wait for a
-              while...
+              Dataset health check is being generated, please hang on a moment...
             </Typography>
             <CircularProgress sx={{ mt: 4 }} />
           </Box>
