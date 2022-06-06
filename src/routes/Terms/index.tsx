@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import MarkdownPage from "routes/MarkdownPage";
 
 
@@ -19,7 +20,10 @@ const Terms = function () {
       });
   }, []);
   return (
-    <>
+    <Box>
+      <Helmet>
+        <title>Terms of Service | DAITA Platform</title>
+      </Helmet>
       <Box
         sx={{
           bgcolor: "#808785",
@@ -34,7 +38,7 @@ const Terms = function () {
         Terms of Service
       </Box>
       <MarkdownPage content={content} isLoading={isLoading} />
-    </>
+    </Box>
   );
 };
 

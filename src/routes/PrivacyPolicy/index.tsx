@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import MarkdownPage from "routes/MarkdownPage";
 
 const PrivacyPolicy = function () {
@@ -18,7 +19,10 @@ const PrivacyPolicy = function () {
       });
   }, []);
   return (
-    <>
+    <Box>
+      <Helmet>
+        <title>Privacy Policy | DAITA Platform</title>
+      </Helmet>
       <Box
         sx={{
           bgcolor: "#808785",
@@ -33,7 +37,7 @@ const PrivacyPolicy = function () {
         Privacy Policy
       </Box>
       <MarkdownPage content={content} isLoading={isLoading} />
-    </>
+    </Box>
   );
 };
 
