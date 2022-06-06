@@ -1,14 +1,13 @@
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import MarkdownPage from "routes/MarkdownPage";
-import contentMd from "./content.md";
 
 const PrivacyPolicy = function () {
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(contentMd)
+    fetch('/assets/doc/privacy.md')
       .then((response) => response.text())
       .then((text) => {
         setContent(text);
