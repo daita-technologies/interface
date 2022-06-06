@@ -31,7 +31,7 @@ export interface ImageApiFields {
   s3_key: string;
   photoKey: string;
   typeOfImage: ImageSourceType;
-  gen_id?: string[];
+  gen_id?: string[] | string;
   classtype?: string;
   blob?: Blob;
   url?: string;

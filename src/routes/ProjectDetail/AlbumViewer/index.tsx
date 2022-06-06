@@ -286,7 +286,17 @@ const AlbumViewer = function (props: AlbumViewerProps) {
       }
 
       if (usingListMethod) {
-        const genIdArray = image.gen_id || [];
+        let genIdArray = [];
+
+        if (typeof image.gen_id === 'string') {
+          try {
+            genIdArray = JSON.parse(image.gen_id.replace(/'/g, '"'))
+          } catch {
+            // 
+          }
+        } else {
+          genIdArray = image.gen_id || [];
+        }
 
         return genIdArray.map((methodCode: string) => {
           if (usingListMethod) {
