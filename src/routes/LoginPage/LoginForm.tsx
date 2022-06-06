@@ -207,7 +207,7 @@ const LoginForm = function () {
               <Link
                 to="/forgot-password"
                 variant="body2"
-                sx={{ fontWeight: "bold", textDecoration: "none" }}
+                sx={{ fontWeight: "bold", textDecoration: "none", fontSize: 14 }}
               >
                 Forgot password?
               </Link>
@@ -229,7 +229,7 @@ const LoginForm = function () {
               </Typography>
               <Link
                 to={isLogging ? "/" : "/register"}
-                sx={{ fontWeight: "bold", textDecoration: "none" }}
+                sx={{ fontWeight: "bold", textDecoration: "none", fontSize: 14 }}
                 variant="body2"
               >
                 Sign up
