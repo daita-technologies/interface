@@ -286,7 +286,7 @@ const AlbumViewer = function (props: AlbumViewerProps) {
       }
 
       if (usingListMethod) {
-        const genIdArray = JSON.parse(image.gen_id.replace(/'/g, '"')) || [];
+        const genIdArray = image.gen_id || [];
 
         return genIdArray.map((methodCode: string) => {
           if (usingListMethod) {
