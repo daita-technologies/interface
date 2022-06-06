@@ -20,12 +20,12 @@ const Footer = function () {
             </Typography>
           </Box>
           <Box>
-            <Link to="/we-take-your-privacy-seriously" color="inherit">
+            <Link to="/we-take-your-privacy-seriously" variant='text'>
               Privacy Policy
             </Link>
           </Box>
           <Box>
-            <Link to="/terms">Terms of Service</Link>
+            <Link to="/terms" variant='text'>Terms of Service</Link>
           </Box>
           <Box display="flex" alignItems="center">
             <LanguageIcon sx={{ mr: 1 }} />
