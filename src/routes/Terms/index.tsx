@@ -31,7 +31,7 @@ const Terms = function () {
         textAlign="center"
         fontSize={30}
       >
-        Terms
+        Terms of Service
       </Box>
       <MarkdownPage content={content} isLoading={isLoading} />
     </>
