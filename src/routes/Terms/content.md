@@ -22,7 +22,7 @@ DAITA does not control and does not have any obligation to monitor any content m
 
 ## 5. Term and Termination
 
-These Terms and Conditions are effective beginning when you accept these Terms and Conditions or first access or use the Site, and ending when terminated as described below. If you violate any provision of these Terms and Conditions, your authorisation to access the Site and these Terms and Conditions automatically terminate. In addition, DAITA may, at its sole discretion, terminate these Terms and Conditions or suspend or terminate your access to the Site, at any time for any reason or no reason, with or without notice. You may terminate these Terms and Conditions at any time by emailing contact@daita.tech. Upon termination of these Terms: (a) your license rights will terminate and you must immediately cease all use of the Site. Sections 2, 6, 7, 8, and 10 will survive.
+These Terms and Conditions are effective beginning when you accept these Terms and Conditions or first access or use the Site, and ending when terminated as described below. If you violate any provision of these Terms and Conditions, your authorisation to access the Site and these Terms and Conditions automatically terminate. In addition, DAITA may, at its sole discretion, terminate these Terms and Conditions or suspend or terminate your access to the Site, at any time for any reason or no reason, with or without notice. You may terminate these Terms and Conditions at any time by emailing [contact@daita.tech](mailto:contact@daita.tech?subject=DAITA%20Platform%20User%20Enquiry). Upon termination of these Terms: (a) your license rights will terminate and you must immediately cease all use of the Site. Sections 2, 6, 7, 8, and 10 will survive.
 
 ## 6. Indemnification
 
@@ -53,4 +53,4 @@ We are under no obligation to provide support for the Site. In instances where W
 
 ## 12. Contact Information
 
-If You have any questions about these Terms and Conditions, You may contact Us by emailing Us at contact@daita.tech.
+If You have any questions about these Terms and Conditions, You may contact Us by emailing Us at [contact@daita.tech](mailto:contact@daita.tech?subject=DAITA%20Platform%20User%20Enquiry).

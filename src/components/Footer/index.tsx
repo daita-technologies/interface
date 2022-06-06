@@ -1,5 +1,6 @@
 import LanguageIcon from "@mui/icons-material/Language";
-import { Box, Container, Link, Typography } from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
+import Link from "components/common/Link";
 
 const Footer = function () {
   return (
@@ -19,19 +20,12 @@ const Footer = function () {
             </Typography>
           </Box>
           <Box>
-            <Link
-              href="/we-take-your-privacy-seriously"
-              underline="none"
-              rel="noopener"
-              color="inherit"
-            >
+            <Link to="/we-take-your-privacy-seriously" color="inherit">
               Privacy Policy
             </Link>
           </Box>
           <Box>
-            <Link href="/terms" underline="none" rel="noopener" color="inherit">
-              Terms of Service
-            </Link>
+            <Link to="/terms">Terms of Service</Link>
           </Box>
           <Box display="flex" alignItems="center">
             <LanguageIcon sx={{ mr: 1 }} />

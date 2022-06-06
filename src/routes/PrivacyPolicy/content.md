@@ -166,4 +166,4 @@ You are advised to review this Privacy Policy periodically for any changes. Chan
 
 ## 7. Contact Information
 
-If You have any questions about this Privacy Policy, You may contact Us by emailing Us at contact@daita.tech.
+If You have any questions about this Privacy Policy, You may contact Us by emailing Us at [contact@daita.tech](mailto:contact@daita.tech?subject=DAITA%20Platform%20User%20Enquiry).

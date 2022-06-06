@@ -1,5 +1,6 @@
 import { Container, Skeleton, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
+import _ from "lodash";
 import ReactMarkdown from "react-markdown";
 import { HeadingProps } from "react-markdown/lib/ast-to-react";
 
@@ -43,42 +44,25 @@ const ContentHeading = function ({
 const SkeletonToC = function () {
   return (
     <>
-      <Typography variant="h1">
-        <Skeleton />
-      </Typography>
-      <Typography>
-        <Skeleton />
-      </Typography>
-      <Typography>
-        <Skeleton />
-      </Typography>
-      <Typography>
-        <Skeleton />
-      </Typography>
-      <Typography>
-        <Skeleton />
-      </Typography>
+      {_.times(9, (i) => (
+        <Typography key={i}>
+          <Skeleton />
+        </Typography>
+      ))}
     </>
   );
 };
 const SkeletonContent = function () {
   return (
     <>
-      <Typography variant="h1">
+      <Typography variant="h1" mb="16px">
         <Skeleton />
       </Typography>
-      <Typography>
-        <Skeleton />
-      </Typography>
-      <Typography>
-        <Skeleton />
-      </Typography>
-      <Typography>
-        <Skeleton />
-      </Typography>
-      <Typography>
-        <Skeleton />
-      </Typography>
+      {_.times(4, (i) => (
+        <Typography key={i}>
+          <Skeleton />
+        </Typography>
+      ))}
     </>
   );
 };
@@ -94,8 +78,8 @@ const MarkdownPage = function ({
   return (
     <Container maxWidth="lg">
       <Box>
-        <Box display="flex" flexDirection="row">
-          <Box flex={1} pr={1}>
+        <Box display="flex" flexDirection="row" columnGap={2}>
+          <Box flex={1}>
             <Box
               id="tocMarkdown"
               sx={{
