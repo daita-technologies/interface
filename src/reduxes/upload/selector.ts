@@ -1,6 +1,8 @@
 import {
   ADDED_UPLOAD_FILE_STATUS,
   CHECKING_UPLOAD_FILE_STATUS,
+  FAILED_UPLOAD_FILE_STATUS,
+  INVALID_FILE_STATUS,
   QUEUEING_UPLOAD_FILE_STATUS,
   UPLOADED_UPLOAD_FILE_STATUS,
   UPLOADING_UPLOAD_FILE_STATUS,
@@ -69,7 +71,12 @@ export const selectorQueueingFileCount = (state: RootState) =>
     (fileName: string) =>
       state.uploadReducer.files[fileName].status === QUEUEING_UPLOAD_FILE_STATUS
   ).length || 0;
-
+export const selectorFailAndInvalidFileCount = (state: RootState) =>
+  Object.keys(state.uploadReducer.files).filter(
+    (fileName: string) =>
+      state.uploadReducer.files[fileName].status === INVALID_FILE_STATUS ||
+      state.uploadReducer.files[fileName].status === FAILED_UPLOAD_FILE_STATUS
+  ).length || 0;
 export const selectorIsOpenDuplicateModal = (state: RootState) =>
   state.uploadReducer.isOpenDuplicateModal;
 
