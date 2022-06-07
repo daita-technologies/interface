@@ -1,15 +1,22 @@
-import { Box } from "@mui/material";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Container,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import { Link } from "components";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import MarkdownPage from "routes/MarkdownPage";
-
 
 const Terms = function () {
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/assets/doc/terms.md')
+    fetch("/assets/doc/terms.md")
       .then((response) => response.text())
       .then((text) => {
         setContent(text);
@@ -24,18 +31,46 @@ const Terms = function () {
       <Helmet>
         <title>Terms of Service | DAITA Platform</title>
       </Helmet>
-      <Box
-        sx={{
-          bgcolor: "#808785",
-          background:
-            "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgb(96 96 144) 35%, rgb(62 74 93) 100%)",
-        }}
-        height="9vh"
-        lineHeight="9vh"
-        textAlign="center"
-        fontSize={30}
-      >
-        Terms of Service
+      <Box sx={{ flexGrow: 1 }}>
+        <AppBar
+          position="static"
+          sx={{
+            bgcolor: "#808785",
+            background:
+              "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgb(96 96 144) 35%, rgb(62 74 93) 100%)",
+          }}
+        >
+          <Container maxWidth="lg">
+            <Toolbar>
+              <Link to="/">
+                <Avatar
+                  sx={{
+                    my: 1,
+                    mb: 1,
+                    mx: "auto",
+                    width: 56,
+                    height: 56,
+                    backgroundColor: "#232528",
+                  }}
+                  src="/assets/images/logo.png"
+                  variant="square"
+                />
+              </Link>
+              <Typography variant="h5" fontWeight={600} component="div" pl={1}>
+                DAITA Platform
+              </Typography>
+              <Box
+                height="9vh"
+                lineHeight="9vh"
+                textAlign="center"
+                fontSize={30}
+                sx={{ flexGrow: 1 }}
+              >
+                Terms of Service
+              </Box>
+            </Toolbar>
+          </Container>
+        </AppBar>
       </Box>
       <MarkdownPage content={content} isLoading={isLoading} />
     </Box>
