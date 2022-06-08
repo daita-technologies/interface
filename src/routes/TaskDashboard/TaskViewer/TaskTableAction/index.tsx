@@ -8,7 +8,9 @@ import {
 } from "constants/defaultValues";
 import { useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 import { triggerStopTaskProcess } from "reduxes/task/action";
+import downloadApi from "services/downloadApi";
 import { TaskItemApiFields } from "services/taskApi";
 import { triggerPresignedURLDownload } from "utils/download";
 import { getTaskStatusMergedValue } from "utils/task";
@@ -35,8 +37,17 @@ function TaskTableActionWithAction({
 
   const handleClickOnDownloadAction = () => {
     if (presign_url) {
-      triggerPresignedURLDownload(presign_url, project_id);
-      setOpen(false);
+      downloadApi
+        .headRequestDownloadLink({ url: presign_url })
+        .then((resp) => {
+          if (resp.ok) {
+            triggerPresignedURLDownload(presign_url, project_id);
+            setOpen(false);
+          } else {
+            toast.error("Your link is expired. Please, generate it again.");
+          }
+        })
+        .catch(() => toast.error("There was an error downloading your data"));
     }
   };
 
