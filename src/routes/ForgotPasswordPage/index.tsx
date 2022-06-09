@@ -1,33 +1,28 @@
-import { useEffect, useRef, useState } from "react";
-import { useHistory } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-
-import {
-  Box,
-  Container,
-  IconButton,
-  Avatar,
-  Typography,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  InputAdornment,
-  FormHelperText,
-  TextField,
-  ThemeProvider,
-} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
-import { RootState } from "reduxes";
-
+import {
+  Avatar,
+  Box,
+  Container,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  TextField,
+  ThemeProvider,
+  Typography,
+} from "@mui/material";
+import { MyButton, ReCaptchaInput } from "components";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+import { Helmet } from "react-helmet";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { PASSWORD_STRENGTH_REGEX } from "constants/defaultValues";
-
-import { ReCaptchaInput, MyButton } from "components";
-
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { RootState } from "reduxes";
 import {
   forgotPasswordChange,
   forgotPasswordRequest,
@@ -37,15 +32,26 @@ import {
   selectorIsForgotRequestStep,
   selectorIsFormRequesting,
 } from "reduxes/auth/selector";
+import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
+import {
+  CheckCaseText,
+  eightChars,
+  lowerCase,
+  oneDigit,
+  specialChar,
+  upperCase,
+} from "routes/RegisterPage/UserInfoForm";
 import { lightTheme } from "styles/theme";
 import { ForgotPasswordRequestFields } from "./type";
-import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
-import ReCAPTCHA from "react-google-recaptcha";
-import { Helmet } from "react-helmet";
 
 const ForgotPasswordPage = function () {
   const history = useHistory();
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isEightChars, setIsEightChars] = useState(false);
+  const [isLowerCase, setIsLowerCase] = useState(false);
+  const [isUpperCase, setIsUpperCase] = useState(false);
+  const [isOneDigit, setIsOneDigit] = useState(false);
+  const [isSpecialChar, setIsSpecialChar] = useState(false);
   const dispatch = useDispatch();
   const {
     register,
@@ -54,6 +60,7 @@ const ForgotPasswordPage = function () {
     handleSubmit,
     formState: { errors },
     setValue,
+    trigger,
   } = useForm<ForgotPasswordRequestFields>({ mode: "onChange" });
   const recaptchaRef = useRef<ReCAPTCHA>(null);
 
@@ -189,9 +196,22 @@ const ForgotPasswordPage = function () {
                     <OutlinedInput
                       {...register("password", {
                         required: true,
-                        pattern: {
-                          value: PASSWORD_STRENGTH_REGEX,
-                          message: "Password did not conform with policy",
+                        validate: {
+                          eightChars,
+                          lowerCase,
+                          upperCase,
+                          oneDigit,
+                          specialChar,
+                        },
+                        onChange: (e: ChangeEvent<HTMLInputElement>) => {
+                          const inputValue = e.target.value;
+                          setValue("password", inputValue);
+                          trigger("password");
+                          setIsEightChars(eightChars(inputValue));
+                          setIsLowerCase(lowerCase(inputValue));
+                          setIsUpperCase(upperCase(inputValue));
+                          setIsOneDigit(oneDigit(inputValue));
+                          setIsSpecialChar(specialChar(inputValue));
                         },
                       })}
                       type={isShowPassword ? "text" : "password"}
@@ -211,14 +231,43 @@ const ForgotPasswordPage = function () {
                       }
                       label="Password"
                       disabled={isFormRequesting}
-                      autoComplete="new-password"
-                      autoFocus
                     />
-                    <FormHelperText>
-                      Should have 1 lowercase letter, 1 uppercase letter, 1
-                      number, 1 special character and be at least 8 characters
-                      long
-                    </FormHelperText>
+                    {errors.password?.message && (
+                      <FormHelperText error>
+                        {errors.password?.message}
+                      </FormHelperText>
+                    )}
+                    <Box mt={1}>
+                      <Typography
+                        sx={{ mb: 1 }}
+                        variant="body2"
+                        color="text.secondary"
+                      >
+                        Your password must contain:
+                      </Typography>
+                      <Box ml={1}>
+                        <CheckCaseText
+                          text="At least 8 characters"
+                          isPassed={isEightChars}
+                        />
+                        <CheckCaseText
+                          text="Lower case letters (a-z)"
+                          isPassed={isLowerCase}
+                        />
+                        <CheckCaseText
+                          text="Upper case letters (A-Z)"
+                          isPassed={isUpperCase}
+                        />
+                        <CheckCaseText
+                          text="Number (0-9)"
+                          isPassed={isOneDigit}
+                        />
+                        <CheckCaseText
+                          text="Special characters (ex. !@#$%^&*)"
+                          isPassed={isSpecialChar}
+                        />
+                      </Box>
+                    </Box>
                   </FormControl>
                 )}
 

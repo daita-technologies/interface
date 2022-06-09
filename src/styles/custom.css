@@ -20,6 +20,10 @@ a.text-link {
   text-decoration: underline;
 }
 
+a.text-link:hover {
+  color: #ffffffcc;
+}
+
 /* .MuiSvgIcon-root {
   color: #d7d7db;
 } */
