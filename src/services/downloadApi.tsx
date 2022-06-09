@@ -58,6 +58,13 @@ const downloadApi = {
         headers: getAuthHeader(),
       }
     ),
+  headRequestDownloadLink: ({ url }: { url: string }) =>
+    fetch(url, {
+      method: "GET",
+      headers: {
+        range: "bytes=0-0",
+      },
+    }),
 };
 
 export default downloadApi;
