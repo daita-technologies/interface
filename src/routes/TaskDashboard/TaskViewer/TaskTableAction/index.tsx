@@ -1,5 +1,12 @@
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { Box, IconButton, ListItemText, Menu, MenuItem } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  IconButton,
+  ListItemText,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import {
   AUGMENT_TASK_PROCESS_TYPE,
   DOWNLOAD_TASK_PROCESS_TYPE,
@@ -21,6 +28,9 @@ function TaskTableActionWithAction({
   taskInfo: TaskItemApiFields;
 }) {
   const dispatch = useDispatch();
+
+  const [isGettingDownloadLinkStatus, setIsGettingDownloadLinkStatus] =
+    useState(false);
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { task_id, process_type, presign_url, project_id, status } = taskInfo;
@@ -37,17 +47,25 @@ function TaskTableActionWithAction({
 
   const handleClickOnDownloadAction = () => {
     if (presign_url) {
+      setIsGettingDownloadLinkStatus(true);
       downloadApi
         .headRequestDownloadLink({ url: presign_url })
         .then((resp) => {
+          setIsGettingDownloadLinkStatus(false);
+          handleClose();
           if (resp.ok) {
             triggerPresignedURLDownload(presign_url, project_id);
-            setOpen(false);
           } else {
-            toast.error("Your link is expired. Please, generate it again.");
+            toast.error(
+              "Your download link has expired. Please, generate a new one."
+            );
           }
         })
-        .catch(() => toast.error("There was an error downloading your data"));
+        .catch(() => {
+          setIsGettingDownloadLinkStatus(false);
+          handleClose();
+          toast.error("There was an error downloading your data.");
+        });
     }
   };
 
@@ -95,10 +113,15 @@ function TaskTableActionWithAction({
             )}
           {process_type === DOWNLOAD_TASK_PROCESS_TYPE && (
             <MenuItem
-              disabled={!presign_url}
+              disabled={!presign_url || isGettingDownloadLinkStatus}
               onClick={handleClickOnDownloadAction}
             >
-              <ListItemText>Download</ListItemText>
+              <Box display="flex" alignItems="center">
+                {isGettingDownloadLinkStatus && (
+                  <CircularProgress sx={{ mr: 1 }} size={16} />
+                )}
+                <ListItemText>Download</ListItemText>
+              </Box>
             </MenuItem>
           )}
         </Menu>
@@ -106,8 +129,9 @@ function TaskTableActionWithAction({
     );
   }
 
-  return null;
+  return <Box mr={2}>-</Box>;
 }
+
 function TaskTableAction({ taskInfo }: { taskInfo: TaskItemApiFields }) {
   const { process_type } = taskInfo;
   if (
