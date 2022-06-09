@@ -6,6 +6,7 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  Typography,
 } from "@mui/material";
 import {
   AUGMENT_TASK_PROCESS_TYPE,
@@ -13,7 +14,8 @@ import {
   PREPROCESS_TASK_PROCESS_TYPE,
   RUNNING_TASK_STATUS,
 } from "constants/defaultValues";
-import { useMemo, useState } from "react";
+import useConfirmDialog from "hooks/useConfirmDialog";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { triggerStopTaskProcess } from "reduxes/task/action";
@@ -34,15 +36,43 @@ function TaskTableActionWithAction({
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { task_id, process_type, presign_url, project_id, status } = taskInfo;
+  const [isStopping, setIsStopping] = useState(false);
+  const { openConfirmDialog, closeConfirmDialog } = useConfirmDialog();
+
+  useEffect(() => {
+    if (
+      process_type === PREPROCESS_TASK_PROCESS_TYPE ||
+      process_type === AUGMENT_TASK_PROCESS_TYPE
+    ) {
+      setIsStopping(false);
+    }
+  }, [status]);
 
   const handleStopActionClick = () => {
-    dispatch(
-      triggerStopTaskProcess({
-        taskId: task_id,
-        projectId: project_id,
-      })
-    );
-    setOpen(false);
+    openConfirmDialog({
+      content: (
+        <Box lineHeight={1.5}>
+          <Typography>
+            Your old files in PREPROCESS will be deleted. Are you OK with the
+            CANCEL?
+          </Typography>
+        </Box>
+      ),
+      negativeText: "Cancel",
+      positiveText: "Ok",
+      onClickNegative: closeConfirmDialog,
+      onClickPositive: () => {
+        dispatch(
+          triggerStopTaskProcess({
+            taskId: task_id,
+            projectId: project_id,
+          })
+        );
+        setIsStopping(true);
+        setOpen(false);
+        closeConfirmDialog();
+      },
+    });
   };
 
   const handleClickOnDownloadAction = () => {
@@ -107,7 +137,7 @@ function TaskTableActionWithAction({
           {getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS &&
             (process_type === PREPROCESS_TASK_PROCESS_TYPE ||
               process_type === AUGMENT_TASK_PROCESS_TYPE) && (
-              <MenuItem onClick={handleStopActionClick}>
+              <MenuItem onClick={handleStopActionClick} disabled={isStopping}>
                 <ListItemText>Stop</ListItemText>
               </MenuItem>
             )}
