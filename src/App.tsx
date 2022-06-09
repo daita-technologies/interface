@@ -6,7 +6,7 @@ import routeConfig, {
   CustomRoute,
 } from "config/routeConfig";
 import { TOKEN_NAME } from "constants/defaultValues";
-import { Route, Router, Switch } from "react-router-dom";
+import { Redirect, Route, Router, Switch } from "react-router-dom";
 import history from "routerHistory";
 
 window.addEventListener("storage", (event: StorageEvent) => {
@@ -16,6 +16,10 @@ window.addEventListener("storage", (event: StorageEvent) => {
     }
   }
 });
+
+function RedirectToHompage() {
+  return <Redirect to="/" />;
+}
 
 const App = function () {
   // eslint-disable-next-line no-console
@@ -67,6 +71,7 @@ Apply here: contact@daita.tech
                     isPrivate={isPrivate}
                   />
                 ))}
+                <Route component={RedirectToHompage} />
               </Switch>
             </Layout>
           </Route>
