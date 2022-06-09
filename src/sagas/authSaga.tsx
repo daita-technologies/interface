@@ -286,7 +286,7 @@ function* handleForgotPasswordRequest(action: {
         });
         yield toast.error(
           forgotPasswordRequestResponse.message ||
-            "Can not sent forgot password request."
+            "Forgot password request cannot be sent."
         );
       }
     }
