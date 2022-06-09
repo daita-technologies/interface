@@ -43,22 +43,30 @@ const Terms = function () {
           <Container maxWidth="lg">
             <Toolbar>
               <Link to="/">
-                <Avatar
-                  sx={{
-                    my: 1,
-                    mb: 1,
-                    mx: "auto",
-                    width: 56,
-                    height: 56,
-                    backgroundColor: "#232528",
-                  }}
-                  src="/assets/images/logo.png"
-                  variant="square"
-                />
+                <Box display="flex" alignItems="center">
+                  <Avatar
+                    sx={{
+                      my: 1,
+                      mb: 1,
+                      mx: "auto",
+                      width: 56,
+                      height: 56,
+                      backgroundColor: "#232528",
+                    }}
+                    src="/assets/images/logo.png"
+                    variant="square"
+                  />
+                  <Typography
+                    variant="h5"
+                    fontWeight={600}
+                    component="div"
+                    color="text.primary"
+                    pl={1}
+                  >
+                    DAITA Platform
+                  </Typography>
+                </Box>
               </Link>
-              <Typography variant="h5" fontWeight={600} component="div" pl={1}>
-                DAITA Platform
-              </Typography>
               <Box
                 height="9vh"
                 lineHeight="9vh"
