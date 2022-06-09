@@ -58,9 +58,6 @@ const ParamControl = function ({
 
   const onClickChangeSwitch = () => {
     setIsChecked(!isChecked);
-    dispatch(
-      changeIsLoadingAugmentCustomMethodPreviewImage({ isLoading: true })
-    );
     if (augmentCustomMethodPreviewImageInfo) {
       setLocalSpecificSavedAugmentCustomMethodParamValue({
         methodId,
@@ -81,9 +78,6 @@ const ParamControl = function ({
 
   const onChangeSlider = (newParamValue: number) => {
     if (augmentCustomMethodPreviewImageInfo) {
-      dispatch(
-        changeIsLoadingAugmentCustomMethodPreviewImage({ isLoading: true })
-      );
       const defaultParamValue = getDefaultParamValueForCustomMethodAugment(
         augmentCustomMethodPreviewImageInfo
       );
@@ -113,6 +107,9 @@ const ParamControl = function ({
           ),
         });
       } else {
+        dispatch(
+          changeIsLoadingAugmentCustomMethodPreviewImage({ isLoading: true })
+        );
         setLocalSpecificSavedAugmentCustomMethodParamValue({
           methodId,
           params: mergeParamValueForCustomMethodAugment(
