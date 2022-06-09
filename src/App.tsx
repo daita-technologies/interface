@@ -40,8 +40,25 @@ Apply here: contact@daita.tech
         <Switch>
           <Route path={customLayoutRouteConfig.map((t) => t.path)}>
             <GuestLayout>
-              {customLayoutRouteConfig.map(
-                ({ path, exact, component, isPrivate }) => (
+              <Switch>
+                {customLayoutRouteConfig.map(
+                  ({ path, exact, component, isPrivate }) => (
+                    <CustomRoute
+                      key={`route-${path}`}
+                      path={path}
+                      exact={exact}
+                      component={component}
+                      isPrivate={isPrivate}
+                    />
+                  )
+                )}
+              </Switch>
+            </GuestLayout>
+          </Route>
+          <Route path={routeConfig.map((t) => t.path)}>
+            <Layout>
+              <Switch>
+                {routeConfig.map(({ path, exact, component, isPrivate }) => (
                   <CustomRoute
                     key={`route-${path}`}
                     path={path}
@@ -49,21 +66,8 @@ Apply here: contact@daita.tech
                     component={component}
                     isPrivate={isPrivate}
                   />
-                )
-              )}
-            </GuestLayout>
-          </Route>
-          <Route>
-            <Layout>
-              {routeConfig.map(({ path, exact, component, isPrivate }) => (
-                <CustomRoute
-                  key={`route-${path}`}
-                  path={path}
-                  exact={exact}
-                  component={component}
-                  isPrivate={isPrivate}
-                />
-              ))}
+                ))}
+              </Switch>
             </Layout>
           </Route>
         </Switch>
