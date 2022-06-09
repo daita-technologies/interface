@@ -257,11 +257,6 @@ export function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export const getLoadImageContentToDownloadActionName = (index: number) =>
-  `LOAD_IMAGE_CONTENT_TO_DOWNLOAD${
-    index % 10 === 0 ? "" : index % 10
-  }_REQUESTED`;
-
 export function typedKeys<T>(o: T): (keyof T)[] {
   return Object.keys(o) as (keyof T)[];
 }

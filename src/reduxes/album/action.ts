@@ -1,14 +1,4 @@
-import {
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD2,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD3,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD4,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD5,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD6,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD7,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD8,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD9,
-} from "reduxes/download/constants";
+import { LOAD_IMAGE_CONTENT_TO_DOWNLOAD } from "reduxes/download/constants";
 import {
   ADD_IMAGE_TO_ALBUM_FROM_FILE,
   CHANGE_ACTIVE_IMAGES_TAB,
@@ -46,54 +36,6 @@ export const loadImageContentToDownload = (
   payload: LoadImageContentPayload
 ) => ({
   type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD.REQUESTED,
-  payload,
-});
-export const loadImageContentToDownload2 = (
-  payload: LoadImageContentPayload
-) => ({
-  type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD2.REQUESTED,
-  payload,
-});
-export const loadImageContentToDownload3 = (
-  payload: LoadImageContentPayload
-) => ({
-  type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD3.REQUESTED,
-  payload,
-});
-export const loadImageContentToDownload4 = (
-  payload: LoadImageContentPayload
-) => ({
-  type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD4.REQUESTED,
-  payload,
-});
-export const loadImageContentToDownload5 = (
-  payload: LoadImageContentPayload
-) => ({
-  type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD5.REQUESTED,
-  payload,
-});
-export const loadImageContentToDownload6 = (
-  payload: LoadImageContentPayload
-) => ({
-  type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD6.REQUESTED,
-  payload,
-});
-export const loadImageContentToDownload7 = (
-  payload: LoadImageContentPayload
-) => ({
-  type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD7.REQUESTED,
-  payload,
-});
-export const loadImageContentToDownload8 = (
-  payload: LoadImageContentPayload
-) => ({
-  type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD8.REQUESTED,
-  payload,
-});
-export const loadImageContentToDownload9 = (
-  payload: LoadImageContentPayload
-) => ({
-  type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD9.REQUESTED,
   payload,
 });
 
