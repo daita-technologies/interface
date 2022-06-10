@@ -41,6 +41,7 @@ import {
   selectorIsChecking,
   selectorIsUploading,
 } from "reduxes/upload/selector";
+import { MY_TASKS_ROUTE_NAME } from "constants/routeName";
 
 const DownloadButton = function ({ projectId }: { projectId: string }) {
   const dispatch = useDispatch();
@@ -97,7 +98,10 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
             We are zipping your file and creating a download link. You will
             receive an automatic email notification when finished. You can also
             check the current status in{" "}
-            <a className="text-link" href={`/my-task/${currentProjectName}`}>
+            <a
+              className="text-link"
+              href={`/${MY_TASKS_ROUTE_NAME}/${currentProjectName}`}
+            >
               &quot;My Tasks&quot;
             </a>
             .
@@ -132,7 +136,10 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
             We are zipping your file and creating a download link. You will
             receive an automatic email notification when finished. You can also
             check the current status in{" "}
-            <a className="text-link" href={`/my-task/${currentProjectName}`}>
+            <a
+              className="text-link"
+              href={`/${MY_TASKS_ROUTE_NAME}/${currentProjectName}`}
+            >
               &quot;My Tasks&quot;
             </a>
             .

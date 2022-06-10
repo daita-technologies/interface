@@ -13,6 +13,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { CircularProgress } from "@mui/material";
 import { a11yProps } from "utils/general";
 import { resetDataHealthCheckState } from "reduxes/healthCheck/action";
+import { DATASET_HEALTH_CHECK_ROUTE_NAME } from "constants/routeName";
 import { Empty, TabPanel, Link } from "components";
 import HealthCheckMainContent from "./HealthCheckMainContent";
 
@@ -31,7 +32,9 @@ const HealthCheckPage = function () {
     dispatch(resetDataHealthCheckState());
 
     if (newValue > -1 && listProject[newValue]) {
-      history.push(`/health-check/${listProject[newValue].project_name}`);
+      history.push(
+        `/${DATASET_HEALTH_CHECK_ROUTE_NAME}/${listProject[newValue].project_name}`
+      );
     }
   };
 
@@ -44,10 +47,14 @@ const HealthCheckPage = function () {
         setSelectedTabIndex(indexOf);
 
         if (indexOf > -1 && projectName !== listProject[indexOf].project_name) {
-          history.push(`/health-check/${listProject[indexOf].project_name}`);
+          history.push(
+            `/${DATASET_HEALTH_CHECK_ROUTE_NAME}/${listProject[indexOf].project_name}`
+          );
         }
       } else {
-        history.push(`/health-check/${listProject[0].project_name}`);
+        history.push(
+          `/${DATASET_HEALTH_CHECK_ROUTE_NAME}/${listProject[0].project_name}`
+        );
       }
     }
   }, [listProject]);

@@ -36,6 +36,10 @@ import {
 } from "reduxes/project/constants";
 import { getLocalStorage } from "utils/general";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
+import {
+  DATASET_HEALTH_CHECK_ROUTE_NAME,
+  MY_TASKS_ROUTE_NAME,
+} from "constants/routeName";
 import { ApiListProjectsItem } from "reduxes/project/type";
 import { setIsOpenInviteFriend } from "reduxes/invite/action";
 import { LOG_OUT } from "reduxes/auth/constants";
@@ -261,10 +265,15 @@ const Sidebar = function () {
             <NavItem
               name="Dataset Health Check"
               Icon={HealthAndSafetyIcon}
-              to="/health-check"
-              isActive={pathname.indexOf("/health-check") > -1}
+              to={`/${DATASET_HEALTH_CHECK_ROUTE_NAME}`}
+              isActive={pathname.indexOf(DATASET_HEALTH_CHECK_ROUTE_NAME) > -1}
             />
-            <NavItem name="My Tasks" Icon={TaskIcon} to="/task-list" />
+            <NavItem
+              name="My Tasks"
+              Icon={TaskIcon}
+              to={`/${MY_TASKS_ROUTE_NAME}`}
+              isActive={pathname.indexOf(MY_TASKS_ROUTE_NAME) > -1}
+            />
             <NavItem
               name="Invite a Friend"
               Icon={ShareIcon}

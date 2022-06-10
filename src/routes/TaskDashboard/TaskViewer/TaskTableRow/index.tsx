@@ -23,6 +23,7 @@ import {
   SYSTEM_DATE_TIME_FORMAT,
   UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
+import { MY_TASKS_ROUTE_NAME } from "constants/routeName";
 import { TaskStatusMergedType } from "constants/taskType";
 import useInterval from "hooks/useInterval";
 import moment from "moment";
@@ -190,7 +191,9 @@ const TaskTableRow = function ({
                 Your download link is ready, you can go to{" "}
                 <a
                   className="text-link"
-                  href={`/task-list/${getProjectNameByProjectId(project_id)}`}
+                  href={`/${MY_TASKS_ROUTE_NAME}/${getProjectNameByProjectId(
+                    project_id
+                  )}`}
                 >
                   &quot;My Tasks&quot;
                 </a>{" "}

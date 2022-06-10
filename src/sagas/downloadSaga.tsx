@@ -67,6 +67,7 @@ import {
 } from "services/downloadApi";
 import { triggerPresignedURLDownload } from "utils/download";
 import { Box, Typography } from "@mui/material";
+import { MY_TASKS_ROUTE_NAME } from "constants/routeName";
 
 const ALL_SOURCE_TYPES = [ORIGINAL_SOURCE, PREPROCESS_SOURCE, AUGMENT_SOURCE];
 
@@ -355,7 +356,7 @@ function* handleDownloadZipEc2Progress(action: {
               Your download link is ready, you can go to{" "}
               <a
                 className="text-link"
-                href={`/task-list/${downloadZipEc2ProgressResponse.data.project_name}`}
+                href={`/${MY_TASKS_ROUTE_NAME}/${downloadZipEc2ProgressResponse.data.project_name}`}
               >
                 &quot;My Tasks&quot;
               </a>{" "}

@@ -19,6 +19,7 @@ import {
   UPLOADING_TASK_STATUS,
   UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
+import { MY_TASKS_ROUTE_NAME } from "constants/routeName";
 import useInterval from "hooks/useInterval";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -370,7 +371,9 @@ const TaskListItem = function ({ taskInfo, pageName }: TaskListItemProps) {
                 Your download link is ready, please go to{" "}
                 <a
                   className="text-link"
-                  href={`/task-list/${getProjectNameByProjectId(project_id)}`}
+                  href={`/${MY_TASKS_ROUTE_NAME}/${getProjectNameByProjectId(
+                    project_id
+                  )}`}
                 >
                   &quot;My Tasks&quot;
                 </a>{" "}

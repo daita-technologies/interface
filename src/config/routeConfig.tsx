@@ -1,3 +1,9 @@
+import {
+  DATASET_HEALTH_CHECK_ROUTE_NAME,
+  MY_TASKS_ROUTE_NAME,
+  OLD_DATASET_HEALTH_CHECK_ROUTE_NAME,
+  OLD_MY_TASK_ROUTE_NAME,
+} from "constants/routeName";
 import { useSelector } from "react-redux";
 import { Redirect, Route } from "react-router-dom";
 import { selectorIsLogged } from "reduxes/auth/selector";
@@ -98,27 +104,57 @@ const routeConfig = [
     isPrivate: true,
   },
   {
-    path: "/task-list",
+    path: `/${MY_TASKS_ROUTE_NAME}`,
     component: TaskDashboard,
     exact: true,
     isPrivate: true,
   },
   {
-    path: "/task-list/:projectName",
+    path: `/${MY_TASKS_ROUTE_NAME}/:projectName`,
     component: TaskDashboard,
     exact: false,
     isPrivate: true,
   },
   {
-    path: "/health-check",
+    path: `/${OLD_MY_TASK_ROUTE_NAME}`,
+    component: () => <Redirect to={`/${MY_TASKS_ROUTE_NAME}`} />,
+    exact: true,
+    isPrivate: true,
+  },
+  {
+    path: `/${OLD_MY_TASK_ROUTE_NAME}/:projectName`,
+    component: ({ match }: any) => (
+      <Redirect to={`/${MY_TASKS_ROUTE_NAME}/${match.params.projectName}`} />
+    ),
+    exact: false,
+    isPrivate: true,
+  },
+  {
+    path: `/${DATASET_HEALTH_CHECK_ROUTE_NAME}`,
     component: HealthCheckPage,
     exact: true,
     isPrivate: true,
   },
   {
-    path: "/health-check/:projectName",
+    path: `/${DATASET_HEALTH_CHECK_ROUTE_NAME}/:projectName`,
     component: HealthCheckPage,
     exact: true,
+    isPrivate: true,
+  },
+  {
+    path: `/${OLD_DATASET_HEALTH_CHECK_ROUTE_NAME}`,
+    component: () => <Redirect to={`/${DATASET_HEALTH_CHECK_ROUTE_NAME}`} />,
+    exact: true,
+    isPrivate: true,
+  },
+  {
+    path: `/${OLD_DATASET_HEALTH_CHECK_ROUTE_NAME}/:projectName`,
+    component: ({ match }: any) => (
+      <Redirect
+        to={`/${DATASET_HEALTH_CHECK_ROUTE_NAME}/${match.params.projectName}`}
+      />
+    ),
+    exact: false,
     isPrivate: true,
   },
 ];
