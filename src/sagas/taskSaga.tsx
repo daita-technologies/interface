@@ -237,10 +237,6 @@ function* generateSaga() {
     TRIGGER_STOP_TASK_PROCESS.REQUESTED,
     handleTriggerStopTaskProcess
   );
-  yield takeEvery(
-    TRIGGER_STOP_TASK_PROCESS.REQUESTED,
-    handleTriggerStopTaskProcess
-  );
   yield takeEvery(GOTO_TASK_DASHBOARD_ALERT, handleGotoTaskDashboardAlert);
 }
 
