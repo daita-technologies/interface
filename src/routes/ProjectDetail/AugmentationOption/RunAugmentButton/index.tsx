@@ -249,7 +249,7 @@ const RunAugmentButton = function ({ isExpertMode }: RunAugmentButtonProps) {
       }
       totalImage = totalOriginalImages;
     }
-    
+
     if (!splitDataNumberBySource) {
       return toast.error("You haven't split your dataset yet.");
     }
@@ -275,16 +275,7 @@ const RunAugmentButton = function ({ isExpertMode }: RunAugmentButtonProps) {
 
     return null;
   };
-  console.log(
-    "test",
-    !isAllowRunAugmentation,
-    isFetchingDetailProject === null,
-    isFetchingDetailProject === true,
-    isUploading,
-    isAlbumSelectMode,
-    !!isGenerateImagesPreprocessing,
-    !!isDownloading && projectId === currentProjectIdDownloading
-  );
+
   return (
     <MyButton
       color="primary"

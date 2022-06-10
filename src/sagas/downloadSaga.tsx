@@ -1,7 +1,14 @@
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { toast } from "react-toastify";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  put,
+  select,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   AlbumImagesFields,
   FetchImagesParams,
@@ -19,19 +26,18 @@ import {
   DOWNLOAD_ZIP_EC2_CREATE,
   DOWNLOAD_ZIP_EC2_PROGRESS,
   FETCH_IMAGES_TO_DOWNLOAD,
+  LOAD_IMAGE_CONTENT_TO_DOWNLOAD,
   ZIP_ALL_FILES,
   ZIP_SELECTED_FILES,
 } from "reduxes/download/constants";
 import {
   selectorDownloadImages,
+  selectorDownloadImagesLength,
   selectorTotalSelectedFilesNeedDownload,
 } from "reduxes/download/selector";
 
 import { projectApi, downloadApi } from "services";
-import {
-  convertArrayAlbumImageToObjectKeyFileName,
-  getLoadImageContentToDownloadActionName,
-} from "utils/general";
+import { convertArrayAlbumImageToObjectKeyFileName } from "utils/general";
 import {
   AUGMENT_SOURCE,
   ERROR_TASK_STATUS,
@@ -123,9 +129,9 @@ function* handleDownloadAllFiles(action: {
             });
 
             yield all(
-              Object.keys(images).map((fileName: string, index: number) =>
+              Object.keys(images).map((fileName: string) =>
                 put({
-                  type: getLoadImageContentToDownloadActionName(index),
+                  type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD.REQUESTED,
                   payload: {
                     typeMethod,
                     imageInfo: images[fileName],
@@ -250,14 +256,14 @@ function* handleDownloadSelectedFiles(action: {
     const albumImages: AlbumImagesFields = yield select(selectorImages);
 
     yield all(
-      selectedList.map(function* (fileName: string, index: number) {
+      selectedList.map((fileName: string) => {
         const image = albumImages[fileName];
 
         if (image.url) {
           const { blob } = image;
           if (blob) {
-            return yield put({
-              type: getLoadImageContentToDownloadActionName(index),
+            return put({
+              type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD.REQUESTED,
               payload: { fileName, imageInfo: image, isSelectedDownload: true },
             });
           }
@@ -266,22 +272,6 @@ function* handleDownloadSelectedFiles(action: {
         return null;
       })
     );
-
-    const totalSelectedFilesNeedDownload = yield select(
-      selectorTotalSelectedFilesNeedDownload
-    );
-    const projectId = yield select(selectorCurrentProjectId);
-    const projectName = yield select(selectorCurrentProjectName);
-
-    if (totalSelectedFilesNeedDownload === selectedList.length) {
-      yield put(
-        zipSelectedFiles({
-          projectId,
-          projectName,
-          isDownloadSelectedFiles: true,
-        })
-      );
-    }
   } catch (e: any) {
     yield put({
       type: DOWNLOAD_ALL_FILES.FAILED,
@@ -395,6 +385,29 @@ function* handleDownloadZipEc2Progress(action: {
   }
 }
 
+function* handleWatchLoadImageContentToDownloadSucceeded(): any {
+  try {
+    const totalSelectedFilesNeedDownload = yield select(
+      selectorTotalSelectedFilesNeedDownload
+    );
+    const downloadedImagesLength = yield select(selectorDownloadImagesLength);
+    const projectId = yield select(selectorCurrentProjectId);
+    const projectName = yield select(selectorCurrentProjectName);
+
+    if (totalSelectedFilesNeedDownload === downloadedImagesLength) {
+      yield put(
+        zipSelectedFiles({
+          projectId,
+          projectName,
+          isDownloadSelectedFiles: true,
+        })
+      );
+    }
+  } catch {
+    //
+  }
+}
+
 function* downloadSaga() {
   yield takeLatest(DOWNLOAD_ALL_FILES.REQUESTED, handleDownloadAllFiles);
   yield takeLatest(
@@ -410,6 +423,11 @@ function* downloadSaga() {
   yield takeLatest(
     DOWNLOAD_ZIP_EC2_PROGRESS.REQUESTED,
     handleDownloadZipEc2Progress
+  );
+
+  yield takeEvery(
+    LOAD_IMAGE_CONTENT_TO_DOWNLOAD.SUCCEEDED,
+    handleWatchLoadImageContentToDownloadSucceeded
   );
 }
 
