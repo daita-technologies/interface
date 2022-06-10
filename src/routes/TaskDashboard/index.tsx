@@ -22,6 +22,7 @@ import {
   PREPROCESS_TASK_PROCESS_TYPE,
   UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
+import { MY_TASKS_ROUTE_NAME } from "constants/routeName";
 
 import { TASK_LIST_PAGE_SIZE } from "reduxes/task/constants";
 import TaskViewer from "./TaskViewer";
@@ -55,10 +56,12 @@ const TaskDashboard = function () {
     // NOTE: newValue is index include "0 - All projects"
     if (newValue > -1) {
       if (newValue === 0) {
-        history.push(`/task-list`);
+        history.push(`/${MY_TASKS_ROUTE_NAME}`);
       } else if (listProject[newValue - 1]) {
         // NOTE: -1 because of first index is "All projects"
-        history.push(`/task-list/${listProject[newValue - 1].project_name}`);
+        history.push(
+          `/${MY_TASKS_ROUTE_NAME}/${listProject[newValue - 1].project_name}`
+        );
       }
     }
   };
@@ -89,16 +92,18 @@ const TaskDashboard = function () {
         if (indexOf > -1) {
           // NOTE: +1 because of first index is "All projects"
           setSelectedTabIndex(indexOf + 1);
-          history.push(`/task-list/${listProject[indexOf].project_name}`);
+          history.push(
+            `/${MY_TASKS_ROUTE_NAME}/${listProject[indexOf].project_name}`
+          );
           handleFetchTaskListInfo(listProject[indexOf].project_id);
         } else {
           setSelectedTabIndex(0);
-          history.push(`/task-list`);
+          history.push(`/${MY_TASKS_ROUTE_NAME}`);
           handleFetchTaskListInfo();
         }
       } else {
         setSelectedTabIndex(0);
-        history.push(`/task-list`);
+        history.push(`/${MY_TASKS_ROUTE_NAME}`);
         handleFetchTaskListInfo();
       }
     }

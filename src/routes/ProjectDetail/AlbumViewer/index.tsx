@@ -42,6 +42,7 @@ import {
   ORIGINAL_IMAGES_TAB,
   PREPROCESS_IMAGES_TAB,
 } from "constants/defaultValues";
+import { DATASET_HEALTH_CHECK_ROUTE_NAME } from "constants/routeName";
 
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import { RootState } from "reduxes";
@@ -288,11 +289,11 @@ const AlbumViewer = function (props: AlbumViewerProps) {
       if (usingListMethod) {
         let genIdArray = [];
 
-        if (typeof image.gen_id === 'string') {
+        if (typeof image.gen_id === "string") {
           try {
-            genIdArray = JSON.parse(image.gen_id.replace(/'/g, '"'))
+            genIdArray = JSON.parse(image.gen_id.replace(/'/g, '"'));
           } catch {
-            // 
+            //
           }
         } else {
           genIdArray = image.gen_id || [];
@@ -582,7 +583,7 @@ const AlbumViewer = function (props: AlbumViewerProps) {
           </Box>
           <Box ml="auto" display="flex" alignItems="center">
             <MyButton>
-              <Link to={`/health-check/${projectName}`}>
+              <Link to={`/${DATASET_HEALTH_CHECK_ROUTE_NAME}/${projectName}`}>
                 Dataset Health Check
               </Link>
             </MyButton>

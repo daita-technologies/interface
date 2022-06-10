@@ -25,6 +25,7 @@ import customMethodApi, {
   ReferenceImagesParams,
 } from "services/customMethodApi";
 import { getLocalStorage } from "utils/general";
+import { MY_TASKS_ROUTE_NAME } from "constants/routeName";
 
 function* handleGenerateReferenceImages(action: {
   type: string;
@@ -53,7 +54,10 @@ function* handleGenerateReferenceImages(action: {
             <Box>
               <Typography fontSize={14}>
                 Reference image generation successfully initiated. Please go to{" "}
-                <a className="text-link" href={`/my-task/${projectName}`}>
+                <a
+                  className="text-link"
+                  href={`/${MY_TASKS_ROUTE_NAME}/${projectName}`}
+                >
                   &quot;My Tasks&quot;
                 </a>{" "}
                 for the details

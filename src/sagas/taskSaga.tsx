@@ -1,4 +1,5 @@
 import { Box, Typography } from "@mui/material";
+import { MY_TASKS_ROUTE_NAME } from "constants/routeName";
 import { toast } from "react-toastify";
 import { call, put, select, takeEvery, takeLatest } from "redux-saga/effects";
 import { RootState } from "reduxes";
@@ -211,7 +212,10 @@ function* handleGotoTaskDashboardAlert(action: {
 
   const taskDashboardHref = yield `${
     window.location.origin
-  }/task-list/${getProjectNameFromProjectId(listProjects, payload.projectId)}`;
+  }/${MY_TASKS_ROUTE_NAME}/${getProjectNameFromProjectId(
+    listProjects,
+    payload.projectId
+  )}`;
 
   yield toast.success(payload.message);
 
