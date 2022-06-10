@@ -20,7 +20,7 @@ const ImageAugmentation = function () {
     );
   };
   const renderNormalMode = () => (
-    <Box mt={2} display="flex" gap={1}>
+    <Box mt={0} display="flex" gap={1}>
       <Box p={2} borderRadius={2} bgcolor="background.paper" flex={1}>
         <DataSetSplit />
       </Box>
@@ -32,7 +32,7 @@ const ImageAugmentation = function () {
   return (
     <Box display="flex" flexDirection="column" flex={1}>
       <Box
-        sx={{ mt: 1, mb: 2 }}
+        sx={{ mt: 1 }}
         display="flex"
         alignItems="center"
         justifyContent="space-between"
@@ -43,8 +43,13 @@ const ImageAugmentation = function () {
             size="small"
             onChange={handleChangeExpertMode}
           />
-          <Typography fontWeight={500}>Expert Mode</Typography>
-          <InfoTooltip sx={{ ml: 1 }} title="Expert mode" />
+          <Typography fontWeight={500} variant="body2">
+            Expert Mode
+          </Typography>
+          <InfoTooltip
+            sx={{ ml: 1 }}
+            title="In Expert Mode, you can customise the augmentation methods yourself."
+          />
         </Box>
       </Box>
       {isExpertMode ? <ExpertAugmentationOption /> : renderNormalMode()}

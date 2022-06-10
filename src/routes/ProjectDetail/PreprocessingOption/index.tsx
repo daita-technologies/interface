@@ -260,7 +260,9 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
             size="small"
             onChange={handleChangePreprocessintExpertMode}
           />
-          <Typography fontWeight={500}>Expert Mode</Typography>
+          <Typography fontWeight={500} variant="body2">
+            Expert Mode
+          </Typography>
           <InfoTooltip
             sx={{ ml: 1 }}
             title="In Expert Mode, you can customise the preprocessing methods yourself."

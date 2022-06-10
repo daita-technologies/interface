@@ -32,7 +32,7 @@ const AugmentationOption = function (props: AugmentationOptionProps) {
 
     return (
       <Box>
-        <Typography sx={{ mt: 2 }} variant="body2">
+        <Typography sx={{ mt: 1 }} variant="body2" textAlign="right">
           Number of Augmentation Runs: {generateTimes}/{MAX_AUGMENT_FREE_PLAN}
         </Typography>
       </Box>
