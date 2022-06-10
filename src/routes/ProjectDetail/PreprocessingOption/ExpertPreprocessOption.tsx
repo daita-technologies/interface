@@ -26,6 +26,7 @@ import {
   selectorReferencePreprocessProjectId,
   selectorSelectedMethodIds,
 } from "reduxes/customPreprocessing/selector";
+import { selectorIsGenerateImagesPreprocessing } from "reduxes/generate/selector";
 import {
   selectorCurrentProjectId,
   selectorCurrentProjectName,
@@ -62,6 +63,10 @@ const ExpertPreprocessingOption = function () {
   const isGenerateReferenceRequesting = useSelector(
     selectorIsGenerateReferenceRequesting
   );
+  const isGenerateImagesPreprocessing = useSelector(
+    selectorIsGenerateImagesPreprocessing
+  );
+
   const methods = useSelector(selectorMethodList)?.preprocessing;
   const isAbleToRunPreprocessError = useSelector(
     selectorIsAbleToRunPreprocessError
@@ -105,8 +110,17 @@ const ExpertPreprocessingOption = function () {
     );
   };
   const isRunning = useMemo(
-    () => !currentProjectId || isGenerating || haveTaskRunning,
-    [currentProjectId, isGenerating, haveTaskRunning]
+    () =>
+      !currentProjectId ||
+      isGenerating ||
+      haveTaskRunning ||
+      !!isGenerateImagesPreprocessing,
+    [
+      currentProjectId,
+      isGenerating,
+      haveTaskRunning,
+      isGenerateImagesPreprocessing,
+    ]
   );
   const isOptionEqualToValue = (option: string, value: string) =>
     option === value;
