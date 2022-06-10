@@ -5,7 +5,7 @@ import {
   AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE,
   ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH,
 } from "constants/customMethod";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "reduxes";
 import { changeIsLoadingAugmentCustomMethodPreviewImage } from "reduxes/customAugmentation/action";
@@ -84,10 +84,24 @@ const PreviewImage = function ({
     setLocalSpecificSavedAugmentCustomMethodParamValue,
   ]);
 
+  const imageSrc = useMemo(
+    () => getImageBaseOnSelectedParams(),
+    [
+      localSpecificSavedAugmentCustomMethodParamValue,
+      augmentCustomMethodPreviewImageInfo,
+      setLocalSpecificSavedAugmentCustomMethodParamValue,
+    ]
+  );
+
+  useEffect(() => {
+    dispatch(
+      changeIsLoadingAugmentCustomMethodPreviewImage({ isLoading: true })
+    );
+  }, [imageSrc]);
+
   if (augmentCustomMethodPreviewImageInfo) {
     const renderImage = () => {
       if (localSpecificSavedAugmentCustomMethodParamValue) {
-        const imageSrc = getImageBaseOnSelectedParams();
         return (
           <Box
             position="relative"
@@ -112,6 +126,10 @@ const PreviewImage = function ({
             {imageSrc ? (
               <SamplePreviewImageElement
                 isShowResolution={methodId === SUPER_RESOLUTION_ID}
+                isOriginalSampleImage={false}
+                selectedSupperResolutionParamValue={
+                  localSpecificSavedAugmentCustomMethodParamValue
+                }
                 width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
                 src={imageSrc}
                 onLoad={() => {
@@ -155,6 +173,7 @@ const PreviewImage = function ({
         >
           <SamplePreviewImageElement
             isShowResolution={methodId === SUPER_RESOLUTION_ID}
+            isOriginalSampleImage
             width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
             height={AUGMENT_CUSTOM_METHOD_IMAGE_MIN_HEIGHT_SIZE}
             src={ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH}

@@ -177,6 +177,7 @@ const AugmentPreviewImageDialog = function () {
           <Box display="flex" justifyContent="space-between" height="90%">
             <Box mt={3} flex={2} width="100%" height="100%">
               <SamplePreviewImageElement
+                isOriginalSampleImage
                 isShowResolution={methodId === SUPER_RESOLUTION_ID}
                 src={ORIGINAL_IMAGE_AUGMENT_CUSTOM_METHOD_LOCAL_PATH}
                 width={AUGMENT_CUSTOM_METHOD_IMAGE_WIDTH_SIZE}
