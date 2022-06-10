@@ -20,6 +20,7 @@ import {
   COGNITO_CLIENT_ID,
   COGNITO_REDIRECT_URI,
   EMAIL_OR_USERNAME_REGEX,
+  GITHUB_IDENTITY_PROVIDER,
   LOGIN_SOCIAL_CALLBACK_URL,
 } from "constants/defaultValues";
 import { useEffect, useRef, useState } from "react";
@@ -207,7 +208,11 @@ const LoginForm = function () {
               <Link
                 to="/forgot-password"
                 variant="body2"
-                sx={{ fontWeight: "bold", textDecoration: "none", fontSize: 14 }}
+                sx={{
+                  fontWeight: "bold",
+                  textDecoration: "none",
+                  fontSize: 14,
+                }}
               >
                 Forgot password?
               </Link>
@@ -229,7 +234,11 @@ const LoginForm = function () {
               </Typography>
               <Link
                 to={isLogging ? "/" : "/register"}
-                sx={{ fontWeight: "bold", textDecoration: "none", fontSize: 14 }}
+                sx={{
+                  fontWeight: "bold",
+                  textDecoration: "none",
+                  fontSize: 14,
+                }}
                 variant="body2"
               >
                 Sign up
@@ -264,7 +273,7 @@ const LoginForm = function () {
               <a
                 className="login-link"
                 style={{ width: "100%" }}
-                href={`${API_AMAZON_COGNITO}?identity_provider=Github&redirect_uri=${COGNITO_REDIRECT_URI}&response_type=CODE&client_id=${COGNITO_CLIENT_ID}&scope=email openid phone profile&state=${LOGIN_SOCIAL_CALLBACK_URL}`}
+                href={`${API_AMAZON_COGNITO}?identity_provider=${GITHUB_IDENTITY_PROVIDER}&redirect_uri=${COGNITO_REDIRECT_URI}&response_type=CODE&client_id=${COGNITO_CLIENT_ID}&scope=email openid phone profile&state=${LOGIN_SOCIAL_CALLBACK_URL}`}
                 onClick={onClickLoginSocial}
               >
                 {renderGitHubLogin}

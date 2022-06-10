@@ -28,6 +28,8 @@ export const LOGOUT_SOCIAL_API = `${process.env.REACT_APP_API_LOGOUT_SOCIAL}&log
 export const API_AMAZON_COGNITO = process.env.REACT_APP_API_AMAZON_COGNITO;
 export const COGNITO_REDIRECT_URI = process.env.REACT_APP_COGNITO_REDIRECT_URI;
 export const COGNITO_CLIENT_ID = process.env.REACT_APP_COGNITO_CLIENTID;
+export const GITHUB_IDENTITY_PROVIDER =
+  process.env.REACT_APP_GITHUB_IDENTITY_PROVIDER;
 
 export const LOGIN_SOCIAL_CODE_NAME = "code";
 
