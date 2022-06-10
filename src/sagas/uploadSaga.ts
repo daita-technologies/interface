@@ -57,6 +57,7 @@ import {
   UPLOAD_FILE,
 } from "reduxes/upload/constants";
 import {
+  selectorFailAndInvalidFileCount,
   selectorTotalUploadFileQuantity,
   selectorUploadedFileCount,
   selectorUploadFiles,
@@ -328,7 +329,10 @@ function* handleUploadZipFile(action: {
         }
         const uploadedFile = yield select(selectorUploadedFileCount);
         const totalUploadFile = yield select(selectorTotalUploadFileQuantity);
-        if (uploadedFile >= totalUploadFile) {
+        const failAndInvalidFileCount = yield select(
+          selectorFailAndInvalidFileCount
+        );
+        if (uploadedFile + failAndInvalidFileCount >= totalUploadFile) {
           yield put(
             alertGoToTaskDashboard({
               message: `Uploading of the ZIP file has been started successfully. Please wait a moment until we unzip the file. You can check the status under "My Tasks"`,
@@ -503,13 +507,15 @@ function* handleUploadFile(action: {
         });
         const uploadedFile = yield select(selectorUploadedFileCount);
         const totalUploadFile = yield select(selectorTotalUploadFileQuantity);
-
+        const failAndInvalidFileCount = yield select(
+          selectorFailAndInvalidFileCount
+        );
         if (isReplaceSingle) {
           yield put(clearFileArray({ fileNameArray: [fileName] }));
           yield put(
             setTotalUploadFileQuantity({ totalUploadFileQuantity: null })
           );
-        } else if (uploadedFile >= totalUploadFile) {
+        } else if (uploadedFile + failAndInvalidFileCount >= totalUploadFile) {
           yield toast.success("Images are successfully uploaded.");
           yield processUploadDone();
           yield put(
