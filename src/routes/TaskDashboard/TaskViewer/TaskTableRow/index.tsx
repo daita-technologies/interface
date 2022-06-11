@@ -256,10 +256,10 @@ const TaskTableRow = function ({
 
         return <LinearProgress />;
       }
-      return "-";
+      return <Box textAlign="center">-</Box>;
     }
 
-    return isTaskRunning ? <LinearProgress /> : "-";
+    return isTaskRunning ? <LinearProgress /> : <Box textAlign="center">-</Box>;
   };
 
   if (taskInfo) {
@@ -279,14 +279,14 @@ const TaskTableRow = function ({
             {task_id}
           </Typography>
         </TableCell> */}
-        <TableCell align="left">
+        <TableCell align="left" width="30%">
           <Link to={`/project/${currentProjectName}`}>
             <Typography sx={limitTwoLineStyle} component="span" variant="body2">
               {getProjectNameByProjectId(project_id)}
             </Typography>
           </Link>
         </TableCell>
-        <TableCell align="left">
+        <TableCell align="left" width="30%">
           <Typography component="span" variant="body2">
             {getMomentWithCurrentTimeZone(moment(created_time)).format(
               SYSTEM_DATE_TIME_FORMAT
@@ -294,8 +294,10 @@ const TaskTableRow = function ({
           </Typography>
         </TableCell>
 
-        <TableCell align="center">{renderProcessCell()}</TableCell>
-        <TableCell align="center">
+        <TableCell align="center" width="14%">
+          {renderProcessCell()}
+        </TableCell>
+        <TableCell align="center" width="14%">
           <Typography
             variant="body2"
             color={`${getStyledStatus(getTaskStatusMergedValue(status))}.dark`}
@@ -304,7 +306,7 @@ const TaskTableRow = function ({
             {getNegativeStatusWord(status.replace(/_/g, " "))}
           </Typography>
         </TableCell>
-        <TableCell align="right">
+        <TableCell align="right" width="12%">
           <TaskTableAction taskInfo={taskInfo} />
         </TableCell>
       </TableRow>

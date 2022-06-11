@@ -101,24 +101,28 @@ const headCells: readonly HeadCell[] = [
     align: "left",
     disablePadding: false,
     label: "Project Name",
+    width: "30%",
   },
   {
     id: "created_time",
     align: "left",
     disablePadding: false,
     label: "Created",
+    width: "30%",
   },
   {
     id: "",
-    align: "right",
+    align: "center",
     disablePadding: false,
     label: "Process",
+    width: "14%",
   },
   {
     id: "status",
     align: "center",
     disablePadding: false,
     label: "Status",
+    width: "14%",
   },
 ];
 
@@ -148,6 +152,7 @@ function EnhancedTableHead() {
             key={headCell.id}
             align={headCell.align}
             padding={headCell.disablePadding ? "none" : "normal"}
+            width={headCell.width}
             // sortDirection={orderBy === headCell.id ? order : false}
           >
             {/* <TableSortLabel
@@ -164,7 +169,9 @@ function EnhancedTableHead() {
             {/* </TableSortLabel> */}
           </TableCell>
         ))}
-        <TableCell align="right">Actions</TableCell>
+        <TableCell align="right" width="12%">
+          Actions
+        </TableCell>
       </TableRow>
     </TableHead>
   );

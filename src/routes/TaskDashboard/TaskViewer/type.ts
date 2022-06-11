@@ -16,4 +16,5 @@ export interface HeadCell {
   id: keyof TaskItemApiFields | string;
   label: string;
   align: "left" | "center" | "right";
+  width: string;
 }
