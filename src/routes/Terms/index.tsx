@@ -52,7 +52,7 @@ const Terms = function () {
                       width: 56,
                       height: 56,
                     }}
-                    src="/assets/images/logo.png"
+                    src="/assets/images/logo_white.png"
                     variant="square"
                   />
                   <Typography
