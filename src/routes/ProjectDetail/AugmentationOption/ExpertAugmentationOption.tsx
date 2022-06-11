@@ -132,24 +132,24 @@ const ExpertAugmentationOption = function () {
 
   return (
     <Box mt={2} display="flex" flexDirection="column" gap={1}>
-      <Box display="flex" justifyContent="space-between">
-        <Box display="flex" alignItems="center">
+      <Box display="flex" justifyContent="space-between" px={2}>
+        <Box display="flex">
           <Typography fontWeight={500}>Augmentation Option</Typography>
           <InfoTooltip sx={{ ml: 1 }} title={AUGMENT_OPTION_TOOLTIP} />
         </Box>
         <Box textAlign="right">
           <RunAugmentButton isExpertMode />
           <Box>
-            <Typography sx={{ mt: 2 }} variant="body2">
+            <Typography sx={{ mt: 1 }} variant="body2">
               Number of Augmentation Runs: {generateTimes}/
               {MAX_AUGMENT_FREE_PLAN}
             </Typography>
           </Box>
         </Box>
       </Box>
-      <Box borderRadius={2} bgcolor="background.paper" flex={1}>
-        <Box mt={2} display="flex" gap={1}>
-          <Box borderRadius={2} bgcolor="background.paper" flex={2}>
+      <Box borderRadius={2} bgcolor="background.paper" flex={1} px={2}>
+        <Box mt={0} display="flex" gap={2}>
+          <Box borderRadius={2} bgcolor="background.paper" flex={1}>
             <Autocomplete
               multiple
               id="checkboxes-tags"
@@ -189,7 +189,7 @@ const ExpertAugmentationOption = function () {
               )}
             />
           </Box>
-          <Box borderRadius={2} bgcolor="background.paper" flex={3}>
+          <Box borderRadius={2} bgcolor="background.paper" flex={1}>
             <Box display="flex" flexWrap="wrap" justifyContent="flex-start">
               {selectedListCustomMethodId.map((methodId) => (
                 <Box key={methodId} flexBasis="33.33%" sx={{ p: 1 }}>
@@ -207,14 +207,14 @@ const ExpertAugmentationOption = function () {
         </Box>
         <AugmentPreviewImageDialog />
       </Box>
-      <Box display="flex" width="100%" justifyContent="flex-end" mt={3}>
+      <Box display="flex" width="100%" justifyContent="flex-end" mt={3} px={2}>
         <Box borderRadius={2} bgcolor="background.paper" flex={1}>
-          <Box mt={2} display="flex" gap={1}>
-            <Box bgcolor="background.paper" flex={2}>
+          <Box mt={0} display="flex" gap={2}>
+            <Box bgcolor="background.paper" flex={1}>
               <DataSetSplit />
             </Box>
 
-            <Box borderRadius={2} bgcolor="background.paper" flex={3} />
+            <Box borderRadius={2} bgcolor="background.paper" flex={1} />
           </Box>
         </Box>
       </Box>

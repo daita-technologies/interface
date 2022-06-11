@@ -15,6 +15,7 @@ import {
   updateIsAbleToRunPreprocessError,
 } from "reduxes/customPreprocessing/action";
 import {
+  selectorIsGenerating,
   selectorIsPreprocessingExpertMode,
   selectorReferencePreprocessImage,
   selectorSelectedMethodIds,
@@ -79,6 +80,9 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
     selectorReferencePreprocessImage
   );
   const selectedMethodIds = useSelector(selectorSelectedMethodIds);
+
+  const isGeneratingReferenceImage = useSelector(selectorIsGenerating);
+
   const handleChangePreprocessintExpertMode = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -219,6 +223,7 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
               isUploading ||
               isAlbumSelectMode ||
               !!isGenerateImagesAugmenting ||
+              isGeneratingReferenceImage ||
               (!!isDownloading && projectId === currentProjectIdDownloading)
             }
             sx={{ justifyContent: "flex-end" }}
@@ -255,7 +260,9 @@ const PreprocessingOption = function (props: PreprocessingOptionProps) {
             size="small"
             onChange={handleChangePreprocessintExpertMode}
           />
-          <Typography fontWeight={500}>Expert Mode</Typography>
+          <Typography fontWeight={500} variant="body2">
+            Expert Mode
+          </Typography>
           <InfoTooltip
             sx={{ ml: 1 }}
             title="In Expert Mode, you can customise the preprocessing methods yourself."

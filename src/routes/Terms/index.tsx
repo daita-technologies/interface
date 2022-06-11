@@ -51,7 +51,6 @@ const Terms = function () {
                       mx: "auto",
                       width: 56,
                       height: 56,
-                      backgroundColor: "#232528",
                     }}
                     src="/assets/images/logo.png"
                     variant="square"
