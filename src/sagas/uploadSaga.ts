@@ -335,7 +335,7 @@ function* handleUploadZipFile(action: {
         if (uploadedFile + failAndInvalidFileCount >= totalUploadFile) {
           yield put(
             alertGoToTaskDashboard({
-              message: `Uploading of the ZIP file has been started successfully. Please wait a moment until we unzip the file. You can check the status under "My Tasks"`,
+              message: `Uploading of the ZIP file has been started successfully. Please wait a moment until we unzip the file. You can check the status under "My Tasks".`,
               projectId,
             })
           );

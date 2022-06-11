@@ -179,7 +179,7 @@ const ExpertAugmentationOption = function () {
                   error={!!isAbleToRunAgumentationError && !isSelectedMethods}
                   helperText={
                     !!isAbleToRunAgumentationError && !isSelectedMethods
-                      ? "Please select method!"
+                      ? "Please select at least one method!"
                       : ""
                   }
                   // sx={{ border: "red" }}

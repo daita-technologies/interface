@@ -53,8 +53,7 @@ function TaskTableActionWithAction({
       content: (
         <Box lineHeight={1.5}>
           <Typography>
-            Your old files in PREPROCESS will be deleted. Are you OK with the
-            CANCEL?
+            If you stop this service, all data already processed will be lost. Do you still want to CANCEL?
           </Typography>
         </Box>
       ),
@@ -87,7 +86,7 @@ function TaskTableActionWithAction({
             triggerPresignedURLDownload(presign_url, project_id);
           } else {
             toast.error(
-              "Your download link has expired. Please, generate a new one."
+              "Your download link has expired. Please generate a new one."
             );
           }
         })

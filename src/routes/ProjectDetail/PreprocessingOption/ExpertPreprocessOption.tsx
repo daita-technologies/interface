@@ -207,7 +207,7 @@ const ExpertPreprocessingOption = function () {
           Run
         </MyButton>
         <Typography fontWeight={500} ml={1}>
-          Generate the reference images
+          Generate the Reference Images
         </Typography>
         <InfoTooltip
           sx={{ ml: 1 }}
@@ -240,7 +240,7 @@ const ExpertPreprocessingOption = function () {
                 error={!!isAbleToRunPreprocessError && !isSelectedMethods}
                 helperText={
                   !!isAbleToRunPreprocessError && !isSelectedMethods
-                    ? "Please select method!"
+                    ? "Please select at least one method!"
                     : ""
                 }
                 label="Method"

@@ -60,7 +60,7 @@ function* handleGenerateReferenceImages(action: {
                 >
                   &quot;My Tasks&quot;
                 </a>{" "}
-                for the details
+                for the details.
               </Typography>
             </Box>
           ),
