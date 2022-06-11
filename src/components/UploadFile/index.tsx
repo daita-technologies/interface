@@ -339,7 +339,7 @@ const UploadFile = function (props: UploadFileProps) {
         color="text.secondary"
         textAlign="center"
       >
-        Supported file formats: {FILE_UPLOAD_EXTENSIONS.join(" ,")}
+        Supported file formats: {FILE_UPLOAD_EXTENSIONS.join(", ")}
       </Typography>
       <Typography
         sx={{ mt: 1 }}
