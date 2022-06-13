@@ -265,6 +265,7 @@ const TaskTableRow = function ({
   if (taskInfo) {
     return (
       <TableRow
+        sx={{ height: 73 }}
         hover
         role="checkbox"
         // aria-checked={isItemSelected}
