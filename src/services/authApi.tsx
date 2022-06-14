@@ -2,13 +2,21 @@
 import axios from "axios";
 // @ts-ignore
 import { Service } from "axios-middleware";
-import { apiURL, getAuthHeader } from "constants/defaultValues";
+import {
+  getAuthHeader,
+  authApiURL,
+  reactAppDevEnv,
+  reactAppEnv,
+} from "constants/defaultValues";
 import { removeListToken } from "utils/general";
 
 import { VerifyFormInputs } from "routes/VerifyAccountPage/type";
 import history from "routerHistory";
 import store from "store";
 import { LOG_OUT } from "reduxes/auth/constants";
+
+const targetAuthApiUrl =
+  reactAppEnv === reactAppDevEnv ? `${authApiURL}/auth` : authApiURL;
 
 export interface LoginParams {
   username: string;
@@ -92,47 +100,54 @@ service.register({
 
 const authApi = {
   login: ({ username, password, captcha }: LoginParams) =>
-    axios.post(`${apiURL}/user_login`, {
+    axios.post(`${targetAuthApiUrl}/user_login`, {
       username,
       password,
       captcha,
     }),
   register: ({ username, password, email, captcha }: RegisterParams) =>
-    axios.post(`${apiURL}/user_signup`, {
-      username,
+    axios.post(`${targetAuthApiUrl}/user_signup`, {
+      username: username.toLowerCase(),
       password,
       email,
       captcha,
     }),
   logout: () =>
-    axios.post(`${apiURL}/user_logout`, {}, { headers: getAuthHeader() }),
+    axios.post(
+      `${targetAuthApiUrl}/user_logout`,
+      {},
+      { headers: getAuthHeader() }
+    ),
   verify: (body: VerifyFormInputs) =>
-    axios.post(`${apiURL}/auth_confirm`, body),
+    axios.post(`${targetAuthApiUrl}/auth_confirm`, body),
   getUserInfo: () =>
-    axios.get(`${apiURL}/user/info`, { headers: getAuthHeader() }),
+    axios.get(`${targetAuthApiUrl}/user/info`, { headers: getAuthHeader() }),
   updateUserInfo: (body: Object) =>
-    axios.post(`${apiURL}/user/info/update`, body, {
+    axios.post(`${targetAuthApiUrl}/user/info/update`, body, {
       headers: getAuthHeader(),
     }),
   resendRegisterCode: (body: ResendRegisterCodeParams) =>
-    axios.post(`${apiURL}/resend_confirmcode`, body),
+    axios.post(`${targetAuthApiUrl}/resend_confirmcode`, body),
   forgotPasswordRequest: ({ username, captcha }: ForgotPasswordRequestParams) =>
-    axios.post(`${apiURL}/forgot_password`, { username, captcha }),
+    axios.post(`${targetAuthApiUrl}/forgot_password`, { username, captcha }),
   forgotPasswordChange: ({
     username,
     password,
     confirmCode,
   }: ForgotPasswordChangeParams) =>
-    axios.post(`${apiURL}/confirm_code_forgot_password`, {
+    axios.post(`${targetAuthApiUrl}/confirm_code_forgot_password`, {
       username,
       password,
       confirm_code: confirmCode,
     }),
   refreshToken: ({ username, refreshToken }: RefreshTokenParams) =>
-    axios.post(`${apiURL}/refresh_token`, {
+    axios.post(`${targetAuthApiUrl}/refresh_token`, {
       username,
       refresh_token: refreshToken,
     }),
+  loginSocial: (code: string) =>
+    axios.post(`${targetAuthApiUrl}/credential`, {
+      code,
+    }),
 };
-
 export default authApi;

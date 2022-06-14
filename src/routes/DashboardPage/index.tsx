@@ -34,7 +34,7 @@ const EmptyDashboardMessage = function ({
   };
 
   return (
-    <Box mt={4} textAlign="center">
+    <Box mt={projectCount <= 0 ? 12 : 4} textAlign="center">
       {projectCount <= 0 && (
         <Typography variant="h4" component="h1">
           👋 Welcome to DAITA, let's get started.
@@ -114,33 +114,35 @@ const Dashboard = function () {
   return (
     <Container maxWidth="lg">
       <Box pb={6}>
-        <Box
-          mt={4}
-          px={3}
-          py={2}
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          borderRadius={2}
-          bgcolor="background.paper"
-          maxWidth={200}
-        >
-          <AssignmentIcon fontSize="large" />
+        {projectCount > 0 && (
+          <Box
+            mt={4}
+            px={3}
+            py={2}
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            borderRadius={2}
+            bgcolor="background.paper"
+            maxWidth={200}
+          >
+            <AssignmentIcon fontSize="large" />
 
-          {isFetchingProjects === null || isFetchingProjects === true ? (
-            <CircularProgress size={20} />
-          ) : (
-            <>
-              <Typography sx={{ mt: 2 }} variant="h5" component="p">
-                {projectCount}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                # of Projects
-              </Typography>
-            </>
-          )}
-        </Box>
+            {isFetchingProjects === null || isFetchingProjects === true ? (
+              <CircularProgress size={20} />
+            ) : (
+              <>
+                <Typography sx={{ mt: 2 }} variant="h5" component="p">
+                  {projectCount}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  # of Projects
+                </Typography>
+              </>
+            )}
+          </Box>
+        )}
         {renderEmptyDashboardMessage()}
         <Box mt={6}>
           <ProjectList />

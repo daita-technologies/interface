@@ -7,4 +7,5 @@ export interface CreateProjectFields {
   idToken: string;
   accessToken: string;
   projectName: string;
+  description: string;
 }

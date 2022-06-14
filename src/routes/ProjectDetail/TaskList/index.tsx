@@ -9,6 +9,7 @@ import {
   selectorCurrentTaskListInfo,
   selectorIsFetchingProjectTaskList,
 } from "reduxes/project/selector";
+import { PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME } from "reduxes/task/constants";
 import { getLocalStorage } from "utils/general";
 import TaskListItem from "./TaskListItem";
 import { TaskListProps } from "./type";
@@ -50,6 +51,7 @@ const TaskList = function (props: TaskListProps) {
         {Object.keys(currentTaskListInfo).map((taskId: string) => (
           <TaskListItem
             key={`task-list-item-${taskId}`}
+            pageName={PROJECT_DETAIL_TASK_PLACEMENT_PAGE_NAME}
             taskInfo={currentTaskListInfo[taskId]}
           />
         ))}

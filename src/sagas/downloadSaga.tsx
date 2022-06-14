@@ -1,7 +1,14 @@
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { toast } from "react-toastify";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  put,
+  select,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   AlbumImagesFields,
   FetchImagesParams,
@@ -19,21 +26,21 @@ import {
   DOWNLOAD_ZIP_EC2_CREATE,
   DOWNLOAD_ZIP_EC2_PROGRESS,
   FETCH_IMAGES_TO_DOWNLOAD,
+  LOAD_IMAGE_CONTENT_TO_DOWNLOAD,
   ZIP_ALL_FILES,
   ZIP_SELECTED_FILES,
 } from "reduxes/download/constants";
 import {
   selectorDownloadImages,
+  selectorDownloadImagesLength,
   selectorTotalSelectedFilesNeedDownload,
 } from "reduxes/download/selector";
 
-import { projectApi } from "services";
-import {
-  convertArrayAlbumImageToObjectKeyFileName,
-  getLoadImageContentToDownloadActionName,
-} from "utils/general";
+import { projectApi, downloadApi } from "services";
+import { convertArrayAlbumImageToObjectKeyFileName } from "utils/general";
 import {
   AUGMENT_SOURCE,
+  ERROR_TASK_STATUS,
   MAXIMUM_FETCH_IMAGES_AMOUNT,
   ORIGINAL_SOURCE,
   PREPROCESS_SOURCE,
@@ -53,11 +60,14 @@ import {
   selectorCurrentProjectTotalPreprocessImage,
 } from "reduxes/project/selector";
 import { selectorImages } from "reduxes/album/selector";
-import { downloadApi } from "services";
+
 import {
   DownloadZipEc2Params,
   DownloadZipEc2Progress,
 } from "services/downloadApi";
+import { triggerPresignedURLDownload } from "utils/download";
+import { Box, Typography } from "@mui/material";
+import { MY_TASKS_ROUTE_NAME } from "constants/routeName";
 
 const ALL_SOURCE_TYPES = [ORIGINAL_SOURCE, PREPROCESS_SOURCE, AUGMENT_SOURCE];
 
@@ -120,9 +130,9 @@ function* handleDownloadAllFiles(action: {
             });
 
             yield all(
-              Object.keys(images).map((fileName: string, index: number) =>
+              Object.keys(images).map((fileName: string) =>
                 put({
-                  type: getLoadImageContentToDownloadActionName(index),
+                  type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD.REQUESTED,
                   payload: {
                     typeMethod,
                     imageInfo: images[fileName],
@@ -247,14 +257,14 @@ function* handleDownloadSelectedFiles(action: {
     const albumImages: AlbumImagesFields = yield select(selectorImages);
 
     yield all(
-      selectedList.map(function* (fileName: string, index: number) {
+      selectedList.map((fileName: string) => {
         const image = albumImages[fileName];
 
         if (image.url) {
           const { blob } = image;
           if (blob) {
-            return yield put({
-              type: getLoadImageContentToDownloadActionName(index),
+            return put({
+              type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD.REQUESTED,
               payload: { fileName, imageInfo: image, isSelectedDownload: true },
             });
           }
@@ -263,22 +273,6 @@ function* handleDownloadSelectedFiles(action: {
         return null;
       })
     );
-
-    const totalSelectedFilesNeedDownload = yield select(
-      selectorTotalSelectedFilesNeedDownload
-    );
-    const projectId = yield select(selectorCurrentProjectId);
-    const projectName = yield select(selectorCurrentProjectName);
-
-    if (totalSelectedFilesNeedDownload === selectedList.length) {
-      yield put(
-        zipSelectedFiles({
-          projectId,
-          projectName,
-          isDownloadSelectedFiles: true,
-        })
-      );
-    }
   } catch (e: any) {
     yield put({
       type: DOWNLOAD_ALL_FILES.FAILED,
@@ -291,7 +285,6 @@ function* handleDownloadZipEc2Create(action: {
   type: string;
   payload: DownloadZipEc2Params;
 }): any {
-  const { idToken } = action.payload;
   try {
     const downloadZipEc2Response = yield call(
       downloadApi.downloadCreate,
@@ -306,7 +299,7 @@ function* handleDownloadZipEc2Create(action: {
           taskId: resTaskId,
         },
       });
-      yield put(downloadZipEc2Progress({ idToken, taskId: resTaskId }));
+      yield put(downloadZipEc2Progress({ taskId: resTaskId }));
     } else {
       yield put({
         type: DOWNLOAD_ZIP_EC2_CREATE.FAILED,
@@ -340,21 +333,42 @@ function* handleDownloadZipEc2Progress(action: {
       downloadZipEc2ProgressResponse.error === false &&
       downloadZipEc2ProgressResponse.data
     ) {
-      yield put({ type: DOWNLOAD_ZIP_EC2_PROGRESS.SUCCEEDED });
+      yield put({
+        type: DOWNLOAD_ZIP_EC2_PROGRESS.SUCCEEDED,
+        payload: downloadZipEc2ProgressResponse.data,
+      });
+
+      if (downloadZipEc2ProgressResponse.data.status === ERROR_TASK_STATUS) {
+        yield toast.error(
+          "Unexpected error occurred when downloading your images."
+        );
+        yield put({
+          type: DOWNLOAD_ALL_FILES.FAILED,
+        });
+      }
 
       if (downloadZipEc2ProgressResponse.data.presign_url) {
         yield put({ type: DOWNLOAD_ZIP_EC2.SUCCEEDED });
 
-        const downloadBtn = document.createElement("a");
-        downloadBtn.setAttribute("download", `${projectId}.zip`);
-        downloadBtn.href = downloadZipEc2ProgressResponse.data.presign_url;
-        downloadBtn.style.display = "none";
-        document.documentElement.appendChild(downloadBtn);
-        downloadBtn.click();
-
-        setTimeout(() => {
-          document.documentElement.removeChild(downloadBtn);
-        }, 1000);
+        yield toast.success(
+          <Box>
+            <Typography fontSize={14}>
+              Your download link is ready, you can go to{" "}
+              <a
+                className="text-link"
+                href={`/${MY_TASKS_ROUTE_NAME}/${downloadZipEc2ProgressResponse.data.project_name}`}
+              >
+                &quot;My Tasks&quot;
+              </a>{" "}
+              to get it.
+            </Typography>
+          </Box>
+        );
+        // NOTE: If user still keep the current site, not navigate to any where then trigger download
+        yield triggerPresignedURLDownload(
+          downloadZipEc2ProgressResponse.data.presign_url,
+          projectId
+        );
       }
     } else {
       yield put({
@@ -368,7 +382,30 @@ function* handleDownloadZipEc2Progress(action: {
     yield put({
       type: DOWNLOAD_ZIP_EC2_PROGRESS.FAILED,
     });
-    yield toast.error(e.message);
+    // yield toast.error(e.message);
+  }
+}
+
+function* handleWatchLoadImageContentToDownloadSucceeded(): any {
+  try {
+    const totalSelectedFilesNeedDownload = yield select(
+      selectorTotalSelectedFilesNeedDownload
+    );
+    const downloadedImagesLength = yield select(selectorDownloadImagesLength);
+    const projectId = yield select(selectorCurrentProjectId);
+    const projectName = yield select(selectorCurrentProjectName);
+
+    if (totalSelectedFilesNeedDownload === downloadedImagesLength) {
+      yield put(
+        zipSelectedFiles({
+          projectId,
+          projectName,
+          isDownloadSelectedFiles: true,
+        })
+      );
+    }
+  } catch {
+    //
   }
 }
 
@@ -387,6 +424,11 @@ function* downloadSaga() {
   yield takeLatest(
     DOWNLOAD_ZIP_EC2_PROGRESS.REQUESTED,
     handleDownloadZipEc2Progress
+  );
+
+  yield takeEvery(
+    LOAD_IMAGE_CONTENT_TO_DOWNLOAD.SUCCEEDED,
+    handleWatchLoadImageContentToDownloadSucceeded
   );
 }
 

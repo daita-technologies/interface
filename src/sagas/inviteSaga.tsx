@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { call, put, takeEvery, takeLatest, delay } from "redux-saga/effects";
+import { call, put, takeEvery, takeLatest } from "redux-saga/effects";
 
 import { setIsOpenInviteFriend } from "reduxes/invite/action";
 import {

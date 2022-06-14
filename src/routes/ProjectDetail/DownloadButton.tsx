@@ -11,7 +11,11 @@ import {
 import DownloadIcon from "@mui/icons-material/Download";
 import { useDispatch, useSelector } from "react-redux";
 import { MyButton } from "components";
-import { ALL_DOWNLOAD_TYPE, ID_TOKEN_NAME } from "constants/defaultValues";
+import {
+  ALL_DOWNLOAD_TYPE,
+  ID_TOKEN_NAME,
+  PROGRESS_POOLING_INTERVAL,
+} from "constants/defaultValues";
 import {
   downloadZipEc2Create,
   downloadZipEc2Progress,
@@ -37,6 +41,7 @@ import {
   selectorIsChecking,
   selectorIsUploading,
 } from "reduxes/upload/selector";
+import { MY_TASKS_ROUTE_NAME } from "constants/routeName";
 
 const DownloadButton = function ({ projectId }: { projectId: string }) {
   const dispatch = useDispatch();
@@ -88,7 +93,20 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
     handleClose();
     if (currentProjectTotalImage > 0) {
       toast.info(
-        "Preparing download and zipping files. Please, do not close or refresh the page."
+        <Box>
+          <Typography fontSize={14}>
+            We are zipping your file and creating a download link. You will
+            receive an automatic email notification when finished. You can also
+            check the current status in{" "}
+            <a
+              className="text-link"
+              href={`/${MY_TASKS_ROUTE_NAME}/${currentProjectName}`}
+            >
+              &quot;My Tasks&quot;
+            </a>
+            .
+          </Typography>
+        </Box>
       );
       dispatch(
         downloadZipEc2Create({
@@ -113,7 +131,20 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
     handleClose();
     if (currentProjectTotalImage > 0) {
       toast.info(
-        "Preparing download and zipping files. Please, do not close or refresh the page."
+        <Box>
+          <Typography fontSize={14}>
+            We are zipping your file and creating a download link. You will
+            receive an automatic email notification when finished. You can also
+            check the current status in{" "}
+            <a
+              className="text-link"
+              href={`/${MY_TASKS_ROUTE_NAME}/${currentProjectName}`}
+            >
+              &quot;My Tasks&quot;
+            </a>
+            .
+          </Typography>
+        </Box>
       );
       dispatch(
         downloadZipEc2Create({
@@ -140,13 +171,12 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
       if (downloadZipEc2TaskId) {
         dispatch(
           downloadZipEc2Progress({
-            idToken: getLocalStorage(ID_TOKEN_NAME) || "",
             taskId: downloadZipEc2TaskId,
           })
         );
       }
     },
-    downloadZipEc2TaskId ? 5000 : null
+    downloadZipEc2TaskId ? PROGRESS_POOLING_INTERVAL : null
   );
 
   return (

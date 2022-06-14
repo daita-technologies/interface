@@ -3,6 +3,9 @@ import {
   PREPROCESS_SOURCE,
   AUGMENT_GENERATE_IMAGES_TYPE,
   PREPROCESSING_GENERATE_IMAGES_TYPE,
+  PREPROCESS_GENERATE_TAB,
+  AUGMENTATION_GENERATE_TAB,
+  AUGMENT_SOURCE,
 } from "constants/defaultValues";
 import { ImageSourceType } from "reduxes/album/type";
 
@@ -11,10 +14,19 @@ export type GenerateDataType =
   | typeof ORIGINAL_SOURCE
   | typeof PREPROCESS_SOURCE;
 
-export type generateMethodType =
+export type GenerateMethodType =
   | typeof PREPROCESSING_GENERATE_IMAGES_TYPE
   | typeof AUGMENT_GENERATE_IMAGES_TYPE;
 
+export type TabGenerateIdType =
+  | typeof PREPROCESS_GENERATE_TAB
+  | typeof AUGMENTATION_GENERATE_TAB;
+
+export type AugmentParameterApiField = {
+  [methodId: string]: {
+    [paramName: string]: number | boolean;
+  };
+};
 export interface GenerateImagePayload {
   idToken: string;
   projectId: string;
@@ -23,20 +35,29 @@ export interface GenerateImagePayload {
   dataType: ImageSourceType;
   numberImageGeneratePerSource: number;
   dataNumber: Array<number>;
-  generateMethod: generateMethodType;
+  generateMethod: GenerateMethodType;
+  processType: typeof PREPROCESS_SOURCE | typeof AUGMENT_SOURCE;
+  referenceImages: Record<string, string>;
+  isNormalizeResolution?: boolean;
+  augmentParameters: AugmentParameterApiField;
 }
 
 export interface GenerateImageSucceedPayload {
   taskId: string;
-  generateMethod?: generateMethodType;
+  generateMethod?: GenerateMethodType;
 }
 
 export interface GenerateImageFailedPayload {
-  generateMethod?: generateMethodType;
+  generateMethod?: GenerateMethodType;
 }
 
 export interface GenerateReducer {
   isGeneratingImages: boolean | null;
   isGenerateImagesPreprocessing: boolean | null;
   isGenerateImagesAugmenting: boolean | null;
+  activeTabId: TabGenerateIdType;
+}
+
+export interface ChangeActiveGenerateTabIdPayload {
+  tabId: TabGenerateIdType;
 }

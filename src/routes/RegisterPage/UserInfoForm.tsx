@@ -1,38 +1,34 @@
-import { ChangeEvent, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
-import {
-  Box,
-  TextField,
-  OutlinedInput,
-  FormControl,
-  InputLabel,
-  InputAdornment,
-  IconButton,
-  FormHelperText,
-  Typography,
-} from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { ReCaptchaInput, MyButton, PageLoading } from "components";
-
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-
-import { useForm, SubmitHandler } from "react-hook-form";
-
-import { UPDATE_USER_INFO } from "reduxes/auth/constants";
-import { RootState } from "reduxes";
-import { useRef, useState } from "react";
-import moment from "moment";
-
+import {
+  Box,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { MyButton, PageLoading, ReCaptchaInput } from "components";
 import {
   EMAIL_REGEX,
   // PASSWORD_STRENGTH_REGEX,
   SYSTEM_DATE_FORMAT,
   SYSTEM_DATE_TIME_FORMAT,
+  USERNAME_REGEX,
 } from "constants/defaultValues";
-
+import moment from "moment";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "reduxes";
 import { registerAction } from "reduxes/auth/actions";
+import { UPDATE_USER_INFO } from "reduxes/auth/constants";
+import { selectorReloadRecaptchaTrigger } from "reduxes/general/selector";
 import { CheckCaseTextProps, UserInfoFormProps } from "./type";
 
 type RegisterFormFields = {
@@ -43,7 +39,11 @@ type RegisterFormFields = {
   captcha: string;
 };
 
-const CheckCaseText = function ({ sx, text, isPassed }: CheckCaseTextProps) {
+export const CheckCaseText = function ({
+  sx,
+  text,
+  isPassed,
+}: CheckCaseTextProps) {
   return (
     <Box sx={sx} display="flex" alignItems="center">
       <CheckCircleIcon
@@ -57,12 +57,14 @@ const CheckCaseText = function ({ sx, text, isPassed }: CheckCaseTextProps) {
   );
 };
 
-const eightChars = (value: string) => !!(value && value.length >= 8);
-const lowerCase = (value: string) => /(?=.*[a-z])/.test(value);
-const upperCase = (value: string) => /(?=.*[A-Z])/.test(value);
-const oneDigit = (value: string) => /(?=.*\d)/.test(value);
-const specialChar = (value: string) =>
+export const eightChars = (value: string) => !!(value && value.length >= 8);
+export const lowerCase = (value: string) => /(?=.*[a-z])/.test(value);
+export const upperCase = (value: string) => /(?=.*[A-Z])/.test(value);
+export const oneDigit = (value: string) => /(?=.*\d)/.test(value);
+export const specialChar = (value: string) =>
   /(?=.*[!@#$%^&*()\\[\]{}\-_+=~`|:;"'<>,./?])/.test(value);
+const MAX_USERNAME_LENGTH = 20;
+const MIN_USERNAME_LENGTH = 3;
 
 const UserInfoForm = function ({
   autoComplete = false,
@@ -83,7 +85,7 @@ const UserInfoForm = function ({
     handleSubmit,
     trigger,
     formState: { errors },
-  } = useForm<RegisterFormFields>();
+  } = useForm<RegisterFormFields>({ mode: "onChange" });
 
   const [isEightChars, setIsEightChars] = useState(false);
   const [isLowerCase, setIsLowerCase] = useState(false);
@@ -93,6 +95,13 @@ const UserInfoForm = function ({
 
   const password = useRef({});
   password.current = watch("password", "");
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const reloadRecaptchaTrigger = useSelector(selectorReloadRecaptchaTrigger);
+
+  useEffect(() => {
+    recaptchaRef.current?.reset();
+    setValue("captcha", "");
+  }, [reloadRecaptchaTrigger]);
 
   const onSubmit: SubmitHandler<RegisterFormFields> = (data) => {
     const { username, email, password: passwordValue, captcha } = data;
@@ -156,11 +165,28 @@ const UserInfoForm = function ({
           fullWidth
           margin="normal"
           label="Username"
-          {...register("username", { required: true })}
+          {...register("username", {
+            required: true,
+            maxLength: {
+              value: MAX_USERNAME_LENGTH,
+              message: `Your username must be at the most ${MAX_USERNAME_LENGTH} characters long.`,
+            },
+            minLength: {
+              value: MIN_USERNAME_LENGTH,
+              message: `Your username must be at least ${MIN_USERNAME_LENGTH} characters long.`,
+            },
+            pattern: {
+              value: USERNAME_REGEX,
+              message: "Username accepts Alphanumeric characters, @^$.!`-#+'~_",
+            },
+          })}
           autoFocus
           disabled={isFormRequesting || editMode}
           autoComplete={autoCompleteString}
           defaultValue={(userInfo && editMode && userInfo.username) || null}
+          error={!!errors.username}
+          helperText={(errors.username && errors.username.message) || ""}
+          inputProps={{ style: { textTransform: "lowercase" } }}
         />
 
         <TextField
@@ -176,7 +202,7 @@ const UserInfoForm = function ({
             required: true,
             pattern: {
               value: EMAIL_REGEX,
-              message: "Email formatting is not correct.",
+              message: "Please enter a valid email address.",
             },
           })}
           disabled={isFormRequesting || (editMode && userInfo.email)}
@@ -304,7 +330,11 @@ const UserInfoForm = function ({
           </FormControl>
         )}
 
-        <ReCaptchaInput control={control} register={register} />
+        <ReCaptchaInput
+          recaptchaRef={recaptchaRef}
+          control={control}
+          register={register}
+        />
 
         <Box
           sx={{

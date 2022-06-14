@@ -2,12 +2,11 @@ import {
   AUGMENT_SOURCE,
   ORIGINAL_SOURCE,
   PREPROCESS_SOURCE,
-} from "constants/defaultValues";
-import {
   AUGMENT_IMAGES_TAB,
   ORIGINAL_IMAGES_TAB,
   PREPROCESS_IMAGES_TAB,
 } from "constants/defaultValues";
+
 import { ALBUM_SELECT_MODE, ALBUM_VIEW_MODE } from "./constants";
 
 export interface S3Image {
@@ -32,7 +31,7 @@ export interface ImageApiFields {
   s3_key: string;
   photoKey: string;
   typeOfImage: ImageSourceType;
-  gen_id?: string;
+  gen_id?: string[] | string;
   classtype?: string;
   blob?: Blob;
   url?: string;

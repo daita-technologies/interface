@@ -1,13 +1,13 @@
 import { Link as RouterLink } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 
-const Link = (props: any) => {
-  const { children, ...restProps } = props;
+
+function Link({ children, variant = 'default', ...restProps }: any) {
   return (
-    <MuiLink component={RouterLink} {...restProps}>
+    <MuiLink className={variant === 'text' ? 'text-link' : ''} component={RouterLink} {...restProps}>
       {children}
     </MuiLink>
   );
-};
+}
 
 export default Link;

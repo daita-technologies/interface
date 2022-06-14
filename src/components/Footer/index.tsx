@@ -1,6 +1,6 @@
-import { Box, Container, Typography } from "@mui/material";
-
 import LanguageIcon from "@mui/icons-material/Language";
+import { Box, Container, Typography } from "@mui/material";
+import Link from "components/common/Link";
 
 const Footer = function () {
   return (
@@ -18,6 +18,14 @@ const Footer = function () {
             <Typography>
               © 2022 DAITA Technologies. All Rights Reserved.
             </Typography>
+          </Box>
+          <Box>
+            <Link to="/we-take-your-privacy-seriously" variant='text'>
+              Privacy Policy
+            </Link>
+          </Box>
+          <Box>
+            <Link to="/terms" variant='text'>Terms of Service</Link>
           </Box>
           <Box display="flex" alignItems="center">
             <LanguageIcon sx={{ mr: 1 }} />

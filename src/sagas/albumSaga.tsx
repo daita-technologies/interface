@@ -41,15 +41,6 @@ import { zipAllFiles } from "reduxes/download/action";
 import {
   FETCH_IMAGES_TO_DOWNLOAD,
   LOAD_IMAGE_CONTENT_TO_DOWNLOAD,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD1,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD2,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD3,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD4,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD5,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD6,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD7,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD8,
-  LOAD_IMAGE_CONTENT_TO_DOWNLOAD9,
 } from "reduxes/download/constants";
 import {
   selectorDownloadImagesLength,
@@ -134,6 +125,7 @@ function* handleLoadImageContent(action: {
             const totalNeedDownload = yield select(selectorTotalNeedDownload);
 
             const projectName = yield select(selectorCurrentProjectName);
+
             // const isZipping = yield select(selectorIsZipping);
 
             if (totalNeedDownload === downloadImagesLength) {
@@ -402,15 +394,9 @@ function* handleDeleteImages(action: {
   }
 }
 
-function* watchLoadImageContentToDownload() {
-  // @ts-ignore
-  const requestChan = yield actionChannel(
-    LOAD_IMAGE_CONTENT_TO_DOWNLOAD.REQUESTED
-  );
-
+function* handleLoadImageContentToDownloadChannel(requestChannel: any) {
   while (true) {
-    const { payload } = yield take(requestChan);
-
+    const { payload } = yield take(requestChannel);
     yield call(handleLoadImageContent, {
       type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD.REQUESTED,
       payload,
@@ -418,172 +404,27 @@ function* watchLoadImageContentToDownload() {
   }
 }
 
-function* watchLoadImageContentToDownload1() {
+function* watchLoadImageContentToDownload() {
   // @ts-ignore
-  const requestChan = yield actionChannel(
-    LOAD_IMAGE_CONTENT_TO_DOWNLOAD1.REQUESTED
+  const loadImageContentRequestChan = yield actionChannel(
+    LOAD_IMAGE_CONTENT_TO_DOWNLOAD.REQUESTED
   );
-
-  while (true) {
-    const { payload } = yield take(requestChan);
-
-    yield call(handleLoadImageContent, {
-      type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD1.REQUESTED,
-      payload,
-    });
-  }
-}
-
-function* watchLoadImageContentToDownload2() {
-  // @ts-ignore
-  const requestChan = yield actionChannel(
-    LOAD_IMAGE_CONTENT_TO_DOWNLOAD2.REQUESTED
-  );
-
-  while (true) {
-    const { payload } = yield take(requestChan);
-
-    yield call(handleLoadImageContent, {
-      type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD2.REQUESTED,
-      payload,
-    });
-  }
-}
-
-function* watchLoadImageContentToDownload3() {
-  // @ts-ignore
-  const requestChan = yield actionChannel(
-    LOAD_IMAGE_CONTENT_TO_DOWNLOAD3.REQUESTED
-  );
-
-  while (true) {
-    const { payload } = yield take(requestChan);
-
-    yield call(handleLoadImageContent, {
-      type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD3.REQUESTED,
-      payload,
-    });
-  }
-}
-
-function* watchLoadImageContentToDownload4() {
-  // @ts-ignore
-  const requestChan = yield actionChannel(
-    LOAD_IMAGE_CONTENT_TO_DOWNLOAD4.REQUESTED
-  );
-
-  while (true) {
-    const { payload } = yield take(requestChan);
-
-    yield call(handleLoadImageContent, {
-      type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD4.REQUESTED,
-      payload,
-    });
-  }
-}
-
-function* watchLoadImageContentToDownload5() {
-  // @ts-ignore
-  const requestChan = yield actionChannel(
-    LOAD_IMAGE_CONTENT_TO_DOWNLOAD5.REQUESTED
-  );
-
-  while (true) {
-    const { payload } = yield take(requestChan);
-
-    yield call(handleLoadImageContent, {
-      type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD5.REQUESTED,
-      payload,
-    });
-  }
-}
-
-function* watchLoadImageContentToDownload6() {
-  // @ts-ignore
-  const requestChan = yield actionChannel(
-    LOAD_IMAGE_CONTENT_TO_DOWNLOAD6.REQUESTED
-  );
-
-  while (true) {
-    const { payload } = yield take(requestChan);
-
-    yield call(handleLoadImageContent, {
-      type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD6.REQUESTED,
-      payload,
-    });
-  }
-}
-
-function* watchLoadImageContentToDownload7() {
-  // @ts-ignore
-  const requestChan = yield actionChannel(
-    LOAD_IMAGE_CONTENT_TO_DOWNLOAD7.REQUESTED
-  );
-
-  while (true) {
-    const { payload } = yield take(requestChan);
-
-    yield call(handleLoadImageContent, {
-      type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD7.REQUESTED,
-      payload,
-    });
-  }
-}
-
-function* watchLoadImageContentToDownload8() {
-  // @ts-ignore
-  const requestChan = yield actionChannel(
-    LOAD_IMAGE_CONTENT_TO_DOWNLOAD8.REQUESTED
-  );
-
-  while (true) {
-    const { payload } = yield take(requestChan);
-
-    yield call(handleLoadImageContent, {
-      type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD8.REQUESTED,
-      payload,
-    });
-  }
-}
-
-function* watchLoadImageContentToDownload9() {
-  // @ts-ignore
-  const requestChan = yield actionChannel(
-    LOAD_IMAGE_CONTENT_TO_DOWNLOAD9.REQUESTED
-  );
-
-  while (true) {
-    const { payload } = yield take(requestChan);
-
-    yield call(handleLoadImageContent, {
-      type: LOAD_IMAGE_CONTENT_TO_DOWNLOAD9.REQUESTED,
-      payload,
-    });
+  for (let i = 0; i < 6; i += 1) {
+    yield fork(
+      handleLoadImageContentToDownloadChannel,
+      loadImageContentRequestChan
+    );
   }
 }
 
 function* albumSaga() {
-  // yield takeEvery(
-  //   LOAD_IMAGE_CONTENT_TO_DOWNLOAD.REQUESTED,
-  //   handleLoadImageContent
-  // );
-
   yield all([
     takeEvery(LOAD_IMAGE_CONTENT.REQUESTED, handleLoadImageContent),
     takeEvery(FETCH_IMAGES.REQUESTED, handleFetchImages),
     takeEvery(FETCH_IMAGES_TO_DOWNLOAD.REQUESTED, handleFetchImages),
     takeEvery(CHANGE_ACTIVE_IMAGES_TAB, handleChangeActiveImagesTab),
     takeEvery(DELETE_IMAGES.REQUESTED, handleDeleteImages),
-    fork(watchLoadImageContentToDownload),
-    fork(watchLoadImageContentToDownload1),
-    fork(watchLoadImageContentToDownload2),
-    fork(watchLoadImageContentToDownload3),
-    fork(watchLoadImageContentToDownload4),
-    fork(watchLoadImageContentToDownload5),
-    fork(watchLoadImageContentToDownload6),
-    fork(watchLoadImageContentToDownload7),
-    fork(watchLoadImageContentToDownload8),
-    fork(watchLoadImageContentToDownload9),
+    watchLoadImageContentToDownload(),
   ]);
 }
 

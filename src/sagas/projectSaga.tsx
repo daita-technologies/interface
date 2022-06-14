@@ -1,4 +1,11 @@
-import { ID_TOKEN_NAME } from "constants/defaultValues";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import {
+  DOWNLOAD_TASK_PROCESS_TYPE,
+  GENERATE_REFERENCE_IMAGE_TYPE,
+  HEALTHCHECK_TASK_PROCESS_TYPE,
+  ID_TOKEN_NAME,
+  UPLOAD_TASK_PROCESS_TYPE,
+} from "constants/defaultValues";
 import { toast } from "react-toastify";
 import {
   all,
@@ -8,10 +15,9 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import { Box, Typography } from "@mui/material";
-
+import { fetchReferenceImageInfoSuccess } from "reduxes/customPreprocessing/action";
+import { selectorS3 } from "reduxes/general/selector";
+import { GENERATE_IMAGES } from "reduxes/generate/constants";
 import {
   CREATE_PROJECT,
   CREATE_SAMPLE_PROJECT,
@@ -23,11 +29,9 @@ import {
   FETCH_TASK_INFO,
   LOAD_PROJECT_THUMBNAIL_IMAGE,
   SET_IS_OPEN_CREATE_PROJECT_MODAL,
+  UPDATE_PROJECT_INFO,
 } from "reduxes/project/constants";
-import {
-  selectorCurrentProjectId,
-  selectorCurrentTaskList,
-} from "reduxes/project/selector";
+import { selectorCurrentTaskList } from "reduxes/project/selector";
 import {
   ApiListProjectsItem,
   CreateSamplePayload,
@@ -36,13 +40,13 @@ import {
   FetchProjectTaskListPayload,
   FetchTaskInfoPayload,
   LoadProjectThumbnailImagePayload,
+  TaskInfo,
+  UpdateProjectInfoPayload,
 } from "reduxes/project/type";
 import history from "routerHistory";
-import { projectApi } from "services";
+import { downloadApi, healthCheckApi, projectApi } from "services";
+import customMethodApi from "services/customMethodApi";
 import { getLocalStorage } from "utils/general";
-import { GENERATE_IMAGES } from "reduxes/generate/constants";
-import { selectorS3 } from "reduxes/general/selector";
-import { GetObjectCommand } from "@aws-sdk/client-s3";
 
 function* handleCreateProject(action: any): any {
   try {
@@ -62,6 +66,7 @@ function* handleCreateProject(action: any): any {
         is_sample: createProjectResponse.data.is_sample,
         gen_status: createProjectResponse.data.gen_status,
         thum_key: "",
+        description: "",
       };
       yield put({
         type: CREATE_PROJECT.SUCCEEDED,
@@ -129,6 +134,21 @@ function* handleFetchDetailProject(action: any): any {
           currentProjectInfo: fetchDetailProjectResponse.data,
         },
       });
+
+      const referenceImages = fetchDetailProjectResponse.data.reference_images;
+      const referenceInfoApiFields: any = [];
+
+      if (Object.keys(referenceImages).length !== 0) {
+        Object.entries(referenceImages).forEach(([key, value]) => {
+          const ref = value as any;
+          referenceInfoApiFields.push({
+            method_id: key,
+            filename: ref.filename,
+            image_s3_path: ref.s3_path,
+          });
+        });
+      }
+      yield put(fetchReferenceImageInfoSuccess(referenceInfoApiFields));
     } else {
       yield put({
         type: FETCH_DETAIL_PROJECT.FAILED,
@@ -175,18 +195,47 @@ function* handleFetchTaskInfo(action: {
   type: string;
   payload: FetchTaskInfoPayload;
 }): any {
-  const { generateMethod, projectId, taskId } = action.payload;
   try {
-    const fetchTaskInfoResponse = yield call(
-      projectApi.getTaskInfo,
-      action.payload
-    );
+    const { idToken, generateMethod, projectId, taskId, processType } =
+      action.payload;
+
+    let fetchTaskInfoResponse;
+    if (processType === UPLOAD_TASK_PROCESS_TYPE) {
+      fetchTaskInfoResponse = yield call(
+        projectApi.getUploadZipTaskInfo,
+        action.payload
+      );
+    } else if (processType === HEALTHCHECK_TASK_PROCESS_TYPE) {
+      fetchTaskInfoResponse = yield call(
+        healthCheckApi.getRunHealthCheckStatus,
+        { idToken, taskId }
+      );
+    } else if (processType === GENERATE_REFERENCE_IMAGE_TYPE) {
+      fetchTaskInfoResponse = yield call(
+        customMethodApi.getReferenceImagesTaskInfo,
+        { idToken, taskId }
+      );
+    } else if (processType === DOWNLOAD_TASK_PROCESS_TYPE) {
+      fetchTaskInfoResponse = yield call(downloadApi.downloadUpdate, {
+        taskId,
+      });
+    } else {
+      fetchTaskInfoResponse = yield call(
+        projectApi.getTaskInfo,
+        action.payload
+      );
+    }
 
     if (fetchTaskInfoResponse.error === false) {
       yield put({
         type: FETCH_TASK_INFO.SUCCEEDED,
         payload: {
-          taskInfo: fetchTaskInfoResponse.data,
+          taskInfo: {
+            task_id: taskId,
+            project_id: projectId,
+            process_type: processType,
+            ...fetchTaskInfoResponse.data,
+          },
           projectId: fetchTaskInfoResponse.data.project_id,
         },
       });
@@ -200,24 +249,6 @@ function* handleFetchTaskInfo(action: {
               generateMethod,
             },
           });
-        }
-
-        const currentProjectId = yield select(selectorCurrentProjectId);
-
-        if (projectId === currentProjectId) {
-          yield toast.info(
-            <Box display="flex" alignItems="center">
-              <ArrowUpwardIcon sx={{ mr: 1, width: 32, height: 32 }} />
-              <Typography>
-                Please scroll to the top of the page to watch the progress.
-              </Typography>
-            </Box>,
-            {
-              position: "bottom-right",
-              onClick: () =>
-                window.scrollTo({ behavior: "smooth", top: 0, left: 0 }),
-            }
-          );
         }
       }
     } else {
@@ -241,12 +272,17 @@ function* handleFetchProjectTaskList(action: {
   const { projectId } = action.payload;
   try {
     const idToken = yield getLocalStorage(ID_TOKEN_NAME);
-    const currentTaskList = yield select(selectorCurrentTaskList);
+    const currentTaskList: TaskInfo[] = yield select(selectorCurrentTaskList);
     yield all(
-      currentTaskList.map((taskId: string) =>
+      currentTaskList.map(({ task_id, process_type }: TaskInfo) =>
         call(handleFetchTaskInfo, {
           type: FETCH_TASK_INFO.REQUESTED,
-          payload: { idToken, taskId, projectId },
+          payload: {
+            idToken,
+            taskId: task_id,
+            projectId,
+            processType: process_type,
+          },
         })
       )
     );
@@ -383,6 +419,35 @@ function* handleLoadProjectThumbnailImage(action: {
   }
 }
 
+function* handleUpdateProjectInfo(action: {
+  type: string;
+  payload: UpdateProjectInfoPayload;
+}): any {
+  try {
+    const updateProjectInfoResponse = yield call(
+      projectApi.updateProjectInfo,
+      action.payload
+    );
+    if (!updateProjectInfoResponse.error) {
+      yield put({
+        type: UPDATE_PROJECT_INFO.SUCCEEDED,
+        payload: {
+          ...updateProjectInfoResponse.data,
+        },
+      });
+      yield toast.success(
+        `The project ${action.payload.updateInfo.projectName} was successfully updated.`
+      );
+      yield history.push("/dashboard");
+    } else {
+      yield put({ type: UPDATE_PROJECT_INFO.FAILED });
+      toast.error(updateProjectInfoResponse.message);
+    }
+  } catch (e: any) {
+    yield put({ type: UPDATE_PROJECT_INFO.FAILED });
+    toast.error(e.message);
+  }
+}
 function* createProjectSaga() {
   yield takeLatest(CREATE_PROJECT.REQUESTED, handleCreateProject);
   yield takeLatest(FETCH_LIST_PROJECTS.REQUESTED, handleFetchListProjects);
@@ -399,6 +464,7 @@ function* createProjectSaga() {
     LOAD_PROJECT_THUMBNAIL_IMAGE.REQUESTED,
     handleLoadProjectThumbnailImage
   );
+  yield takeLatest(UPDATE_PROJECT_INFO.REQUESTED, handleUpdateProjectInfo);
 }
 
 export default createProjectSaga;

@@ -1,11 +1,15 @@
 import axios from "axios";
+import { CreateProjectFields } from "components/CreateProjectModal/type";
 import {
   projectApiUrl,
   getAuthHeader,
   VIEW_ALBUM_PAGE_SIZE,
+  uploadZipApiUrl,
+  generateApiUrl,
 } from "constants/defaultValues";
 import { FetchImagesParams, ImageSourceType } from "reduxes/album/type";
 import { GenerateImagePayload } from "reduxes/generate/type";
+import { UpdateProjectInfoPayload } from "reduxes/project/type";
 
 export interface UploadUpdateListObjectInfo {
   // NOTE: <bucket>/<identity_id>/<project_id>/<data_name>
@@ -70,17 +74,15 @@ const projectApi = {
     idToken,
     accessToken,
     projectName,
-  }: {
-    idToken: string;
-    accessToken: string;
-    projectName: string;
-  }) =>
+    description,
+  }: CreateProjectFields) =>
     axios.post(
       `${projectApiUrl}/projects/create`,
       {
         id_token: idToken,
         access_token: accessToken,
         project_name: projectName,
+        project_info: description,
       },
       { headers: getAuthHeader() }
     ),
@@ -169,7 +171,7 @@ const projectApi = {
     ),
   listMethod: ({ idToken }: GetListMethodRequestBody) =>
     axios.post(
-      `${projectApiUrl}/generate/list_method`,
+      `${generateApiUrl}/generate/list_method`,
       {
         id_token: idToken,
       },
@@ -183,37 +185,54 @@ const projectApi = {
     dataType,
     numberImageGeneratePerSource,
     dataNumber,
-  }: GenerateImagePayload) =>
-    axios.post(
-      `${projectApiUrl}/generate/images`,
-      {
-        id_token: idToken,
-        project_id: projectId,
-        project_name: projectName,
-        ls_method_id: listMethodId,
-        data_type: dataType,
-        // NOTE: TODO: pass number will generate per source later
-        num_aug_p_img: 1 || numberImageGeneratePerSource,
-        data_number: dataNumber,
-      },
-      { headers: getAuthHeader() }
-    ),
+    processType,
+    referenceImages,
+    augmentParameters,
+    isNormalizeResolution,
+  }: GenerateImagePayload) => {
+    const payload: any = {
+      id_token: idToken,
+      project_id: projectId,
+      project_name: projectName,
+      ls_method_id: listMethodId,
+      data_type: dataType,
+      process_type: processType,
+      reference_images: referenceImages,
+      // NOTE: TODO: pass number will generate per source later
+      num_aug_per_imgs: 1 || numberImageGeneratePerSource,
+      data_number: dataNumber,
+      aug_parameters: augmentParameters,
+    };
+    // if (isNormalizeResolution !== undefined) {
+    //   payload.is_normalize_resolution = isNormalizeResolution;
+    // }
+    return axios.post(`${generateApiUrl}/generate/generate_images`, payload, {
+      headers: getAuthHeader(),
+    });
+  },
   getTaskInfo: ({ idToken, taskId }: GetTaskProgressRequestBody) =>
     axios.post(
-      `${projectApiUrl}/generate/task_progress`,
+      `${generateApiUrl}/generate/task_progress`,
       {
         id_token: idToken,
         task_id: taskId,
       },
       { headers: getAuthHeader() }
     ),
+  getUploadZipTaskInfo: ({ idToken, taskId }: GetTaskProgressRequestBody) =>
+    axios.get(`${uploadZipApiUrl}/dataflow/get_decompress_task`, {
+      params: {
+        id_token: idToken,
+        task_id: taskId,
+      },
+    }),
   deleteProject: ({
     idToken,
     projectId,
     projectName,
   }: DeleteProjectRequestBody) =>
     axios.post(
-      `${projectApiUrl}/projects/delete`,
+      `${generateApiUrl}/projects/delete`,
       {
         id_token: idToken,
         project_id: projectId,
@@ -236,11 +255,51 @@ const projectApi = {
     listObjectInfo,
   }: DeleteImagesRequestBody) =>
     axios.post(
-      `${projectApiUrl}/projects/delete_images`,
+      `${generateApiUrl}/projects/delete_images`,
       {
         id_token: idToken,
         project_id: projectId,
         ls_object_info: listObjectInfo,
+      },
+      { headers: getAuthHeader() }
+    ),
+  updateProjectInfo: ({
+    idToken,
+    projectName,
+    updateInfo,
+  }: UpdateProjectInfoPayload) =>
+    axios.post(
+      `${projectApiUrl}/projects/update_info`,
+      {
+        id_token: idToken,
+        cur_project_name: projectName,
+        new_project_name:
+          projectName === updateInfo.projectName ? "" : updateInfo.projectName,
+        new_description: updateInfo.description,
+      },
+      { headers: getAuthHeader() }
+    ),
+  uploadZipFile: ({
+    idToken,
+    projectId,
+    projectName,
+    typeMethod,
+    fileUrl,
+  }: {
+    idToken: string;
+    projectId: string;
+    projectName: string;
+    typeMethod: string;
+    fileUrl: string;
+  }) =>
+    axios.post(
+      `${uploadZipApiUrl}/dataflow/create_decompress_task`,
+      {
+        id_token: idToken,
+        project_id: projectId,
+        project_name: projectName,
+        type_method: typeMethod,
+        file_url: fileUrl,
       },
       { headers: getAuthHeader() }
     ),

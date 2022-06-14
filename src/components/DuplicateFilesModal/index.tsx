@@ -1,12 +1,14 @@
-import { useDispatch, useSelector } from "react-redux";
-import { Modal, Typography, Box, IconButton, Button } from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { Box, Button, IconButton, Modal, Typography } from "@mui/material";
 import {
-  selectorIsOpenDuplicateModal,
-  selectorUploadFiles,
-} from "reduxes/upload/selector";
-
-import { modalCloseStyle, modalStyle } from "styles/generalStyle";
+  INVALID_FILE_STATUS,
+  QUEUEING_UPLOAD_FILE_STATUS,
+} from "constants/uploadFile";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectorCurrentProjectId,
+  selectorCurrentProjectName,
+} from "reduxes/project/selector";
 import {
   clearFileArray,
   setIsOpenDuplicateModal,
@@ -14,11 +16,11 @@ import {
   updateStatusFileArray,
   uploadFile,
 } from "reduxes/upload/actions";
-import { QUEUEING_UPLOAD_FILE_STATUS } from "constants/uploadFile";
 import {
-  selectorCurrentProjectId,
-  selectorCurrentProjectName,
-} from "reduxes/project/selector";
+  selectorIsOpenDuplicateModal,
+  selectorUploadFiles,
+} from "reduxes/upload/selector";
+import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 
 const DuplicateFilesModal = function () {
   const dispatch = useDispatch();
@@ -60,7 +62,13 @@ const DuplicateFilesModal = function () {
         fileNameArray.forEach((fileName: string) => {
           if (!uploadFiles[fileName].error) {
             dispatch(
-              uploadFile({ fileName, projectId, projectName, isReplace: true })
+              uploadFile({
+                fileName,
+                projectId,
+                projectName,
+                isReplace: true,
+                isExist: false,
+              })
             );
           }
         });
@@ -70,7 +78,9 @@ const DuplicateFilesModal = function () {
 
   const onClickReplaceAll = () => {
     if (uploadFiles) {
-      const fileNameArray = Object.keys(uploadFiles);
+      const fileNameArray = Object.keys(uploadFiles).filter(
+        (fileName) => uploadFiles[fileName].status !== INVALID_FILE_STATUS
+      );
       if (fileNameArray.length > 0) {
         handleClose();
 
@@ -99,11 +109,19 @@ const DuplicateFilesModal = function () {
 
         duplicateFileNameArray.forEach((fileName: string) => {
           dispatch(
-            uploadFile({ fileName, projectId, projectName, isReplace: true })
+            uploadFile({
+              fileName,
+              projectId,
+              projectName,
+              isReplace: true,
+              isExist: true,
+            })
           );
         });
         newFileNameArray.forEach((fileName: string) => {
-          dispatch(uploadFile({ fileName, projectId, projectName }));
+          dispatch(
+            uploadFile({ fileName, projectId, projectName, isExist: false })
+          );
         });
       }
     }
@@ -119,11 +137,11 @@ const DuplicateFilesModal = function () {
           Duplicate Files
         </Typography>
         <Typography mt={3} variant="body1">
-          Some filenames are existing in this project.
+          Multiple file names already exist in this project.
           <br />
-          Do you want to REPLACE or SKIP all of duplicate files?
+          Do you want to REPLACE ALL duplicate files or SKIP ALL of them?
           <br />
-          You can also CANCEL this action to manually check the upload list.
+          You can also CANCEL this action to check the upload list manually.
         </Typography>
 
         <Box display="flex" mt={5}>

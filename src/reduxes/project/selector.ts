@@ -37,11 +37,47 @@ export const selectorCurrentTaskList = (state: RootState) => {
   return [];
 };
 
+export const selectorTaskList = (state: RootState, projectId: string) => {
+  const { listProjects } = state.projectReducer;
+  if (listProjects) {
+    const matchIndex = listProjects.findIndex(
+      (project) => project.project_id === projectId
+    );
+
+    if (matchIndex > -1) {
+      return listProjects[matchIndex].ls_task;
+    }
+
+    return [];
+  }
+
+  return [];
+};
+
 export const selectorCurrentProjectId = (state: RootState) =>
   state.projectReducer.currentProjectInfo?.project_id || "";
 
 export const selectorCurrentProjectName = (state: RootState) =>
   state.projectReducer.currentProjectInfo?.project_name || "";
+
+export const selectorProjectNameFromId = (
+  state: RootState,
+  projectId: string
+) => {
+  if (projectId) {
+    const matchProjectIndex = objectIndexOf(
+      state.projectReducer.listProjects,
+      projectId,
+      "project_id"
+    );
+    if (matchProjectIndex > 0) {
+      return state.projectReducer.listProjects[matchProjectIndex].project_name;
+    }
+    return null;
+  }
+
+  return null;
+};
 
 export const selectorCurrentProjectTotalOriginalImage = (state: RootState) => {
   const { currentProjectInfo } = state.projectReducer;
@@ -187,3 +223,5 @@ export const selectorIsEditingSplitData = (state: RootState) =>
 export const selectorProjectThumbnail =
   (projectId: string) => (state: RootState) =>
     state.projectReducer.thumbnails[projectId];
+export const selectorUpdateProjectInfoDialog = (state: RootState) =>
+  state.projectReducer.updateProjectInfoDialog;

@@ -1,5 +1,5 @@
-import { GENERATE_IMAGES } from "./constants";
-import { GenerateImagePayload } from "./type";
+import { CHANGE_ACTIVE_GENERATE_TAB, GENERATE_IMAGES } from "./constants";
+import { ChangeActiveGenerateTabIdPayload, GenerateImagePayload } from "./type";
 
 export const generateImages = (payload: GenerateImagePayload) => ({
   type: GENERATE_IMAGES.REQUESTED,
@@ -8,5 +8,12 @@ export const generateImages = (payload: GenerateImagePayload) => ({
 
 export const generateImages2 = (payload: GenerateImagePayload) => ({
   type: GENERATE_IMAGES.REQUESTED,
+  payload,
+});
+
+export const changeActiveGenerateTab = (
+  payload: ChangeActiveGenerateTabIdPayload
+) => ({
+  type: CHANGE_ACTIVE_GENERATE_TAB,
   payload,
 });

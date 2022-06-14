@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import lodash from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -24,7 +25,7 @@ import {
   Typography,
 } from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { TabPanel } from "components";
+import { Link, TabPanel, MyButton } from "components";
 
 import {
   a11yProps,
@@ -37,7 +38,11 @@ import {
   AUGMENT_SOURCE,
   ID_TOKEN_NAME,
   PREPROCESS_SOURCE,
+  AUGMENT_IMAGES_TAB,
+  ORIGINAL_IMAGES_TAB,
+  PREPROCESS_IMAGES_TAB,
 } from "constants/defaultValues";
+import { DATASET_HEALTH_CHECK_ROUTE_NAME } from "constants/routeName";
 
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import { RootState } from "reduxes";
@@ -59,15 +64,9 @@ import {
 } from "reduxes/album/selector";
 import { ImageApiFields, TAB_ID_TYPE } from "reduxes/album/type";
 
-import {
-  AUGMENT_IMAGES_TAB,
-  ORIGINAL_IMAGES_TAB,
-  PREPROCESS_IMAGES_TAB,
-} from "constants/defaultValues";
 import { ALBUM_SELECT_MODE } from "reduxes/album/constants";
 import { selectorMethodList } from "reduxes/project/selector";
 import { MethodInfoFields } from "reduxes/project/type";
-import _ from "lodash";
 
 import DownloadButton from "../DownloadButton";
 import { AlbumViewerProps } from "../type";
@@ -157,6 +156,8 @@ const ImageRow = function ({
 };
 
 const AlbumViewer = function (props: AlbumViewerProps) {
+  const { projectName } = useParams<{ projectName: string }>();
+
   const dispatch = useDispatch();
   const isFetchingInitialLoad = useSelector(selectorIsFetchingInitialLoad);
   const images = useSelector(selectorImages);
@@ -171,7 +172,6 @@ const AlbumViewer = function (props: AlbumViewerProps) {
   const activeImagesTabId = useSelector(selectorActiveImagesTabId);
 
   const s3 = useSelector((state: RootState) => state.generalReducer.s3);
-
   const hasMore = nextToken !== null;
 
   const listMethod = useSelector(selectorMethodList);
@@ -287,7 +287,17 @@ const AlbumViewer = function (props: AlbumViewerProps) {
       }
 
       if (usingListMethod) {
-        const genIdArray = JSON.parse(image.gen_id.replace(/'/g, '"')) || [];
+        let genIdArray = [];
+
+        if (typeof image.gen_id === "string") {
+          try {
+            genIdArray = JSON.parse(image.gen_id.replace(/'/g, '"'));
+          } catch {
+            //
+          }
+        } else {
+          genIdArray = image.gen_id || [];
+        }
 
         return genIdArray.map((methodCode: string) => {
           if (usingListMethod) {
@@ -298,7 +308,7 @@ const AlbumViewer = function (props: AlbumViewerProps) {
             );
             if (matchMethodIndex > -1) {
               if (image.typeOfImage === PREPROCESS_SOURCE) {
-                return _.startCase(
+                return lodash.startCase(
                   usingListMethod[matchMethodIndex].method_name.replace(
                     /_/g,
                     " "
@@ -307,7 +317,7 @@ const AlbumViewer = function (props: AlbumViewerProps) {
               }
 
               if (image.typeOfImage === AUGMENT_SOURCE) {
-                return _.startCase(
+                return lodash.startCase(
                   usingListMethod[matchMethodIndex].method_name
                     .replace(/_/g, " ")
                     .replace(/random/g, "")
@@ -467,22 +477,6 @@ const AlbumViewer = function (props: AlbumViewerProps) {
                   <CircularProgress size={20} />
                 </Box>
               }
-              endMessage={
-                <Box
-                  mt={2}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Typography
-                    fontStyle="italic"
-                    color="text.secondary"
-                    fontSize={14}
-                  >
-                    No more data to load.
-                  </Typography>
-                </Box>
-              }
               scrollableTarget={IMAGE_LIST_HTML_ID}
             >
               {imagesFileNameArrayGrouped.map(
@@ -529,7 +523,7 @@ const AlbumViewer = function (props: AlbumViewerProps) {
         justifyContent="center"
       >
         <Typography fontStyle="italic" color="text.secondary">
-          You don't have any images.
+          You don&lsquo;t have any images.
         </Typography>
       </Box>
     );
@@ -545,10 +539,13 @@ const AlbumViewer = function (props: AlbumViewerProps) {
         >
           <Tab label="Original" {...a11yProps(TAB_NAME, ORIGINAL_IMAGES_TAB)} />
           <Tab
-            label="Preprocess"
+            label="Preprocessing"
             {...a11yProps(TAB_NAME, PREPROCESS_IMAGES_TAB)}
           />
-          <Tab label="Augment" {...a11yProps(TAB_NAME, AUGMENT_IMAGES_TAB)} />
+          <Tab
+            label="Augmentation"
+            {...a11yProps(TAB_NAME, AUGMENT_IMAGES_TAB)}
+          />
         </Tabs>
       </Box>
       <TabPanel
@@ -580,12 +577,19 @@ const AlbumViewer = function (props: AlbumViewerProps) {
       {renderPreviewImage()}
       <Box p={2} bgcolor="background.paper" borderRadius={2}>
         <Box display="flex" alignItems="center">
-          <Typography fontSize={18}>Images</Typography>
+          <Typography fontSize={18}>Your Images</Typography>
           <Box ml={8}>
             <SelectButton />
           </Box>
-          <Box ml="auto">
-            <DownloadButton projectId={projectId} />
+          <Box ml="auto" display="flex" alignItems="center">
+            <MyButton>
+              <Link to={`/${DATASET_HEALTH_CHECK_ROUTE_NAME}/${projectName}`}>
+                Dataset Health Check
+              </Link>
+            </MyButton>
+            <Box ml={3}>
+              <DownloadButton projectId={projectId} />
+            </Box>
           </Box>
         </Box>
 
