@@ -1,6 +1,6 @@
 {
   "baseBranches": ["develop"],
-  "labels": ["dependencies"],
+  "labels": ["dependencies 🔁"],
   "assignees": ["locpnh1995"],
   "separateMajorMinor": false,
   "extends": [
