@@ -237,6 +237,18 @@ export function switchTabIdToSource(tabId: number) {
   }
 }
 
+export function switchTabIdToName(tabId: number) {
+  switch (tabId) {
+    case PREPROCESS_IMAGES_TAB:
+      return "PREPROCESSING";
+    case AUGMENT_IMAGES_TAB:
+      return "AUGMENTATION";
+    case ORIGINAL_IMAGES_TAB:
+    default:
+      return "ORIGINAL";
+  }
+}
+
 export function getGenerateMethodLabel(
   type?: GenerateMethodType | ImageSourceType
 ) {
