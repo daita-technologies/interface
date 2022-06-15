@@ -211,7 +211,7 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
       // );
     } else {
       toast.info(
-        `You don't have any images on ${switchTabIdToName(
+        `You don't have any images on the ${switchTabIdToName(
           activeImagesTabId
         )} tab to download.`
       );
