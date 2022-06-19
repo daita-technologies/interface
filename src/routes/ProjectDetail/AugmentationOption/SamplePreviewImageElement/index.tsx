@@ -58,7 +58,11 @@ const SamplePreviewImageElement = function ({
       return undefined;
     }
     return undefined;
-  }, [isOriginalSampleImage, selectedSupperResolutionParamValue]);
+  }, [
+    isOriginalSampleImage,
+    selectedSupperResolutionParamValue,
+    originalImageSizeInfo,
+  ]);
 
   return (
     <Box>
