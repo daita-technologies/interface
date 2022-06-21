@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { toast } from "react-toastify";
 import {
   Box,
@@ -13,7 +13,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { MyButton } from "components";
 import {
   ALL_DOWNLOAD_TYPE,
+  AUGMENT_IMAGES_TAB,
   ID_TOKEN_NAME,
+  ORIGINAL_IMAGES_TAB,
+  PREPROCESS_IMAGES_TAB,
   PROGRESS_POOLING_INTERVAL,
 } from "constants/defaultValues";
 import {
@@ -29,11 +32,18 @@ import {
   selectorIsZipping,
   selectorTotalNeedDownload,
 } from "reduxes/download/selector";
-import { getLocalStorage, switchTabIdToSource } from "utils/general";
+import {
+  getLocalStorage,
+  switchTabIdToName,
+  switchTabIdToSource,
+} from "utils/general";
 import {
   selectorCurrentProjectId,
   selectorCurrentProjectName,
+  selectorCurrentProjectTotalAugmentImage,
   selectorCurrentProjectTotalImage,
+  selectorCurrentProjectTotalOriginalImage,
+  selectorCurrentProjectTotalPreprocessImage,
 } from "reduxes/project/selector";
 import { selectorActiveImagesTabId } from "reduxes/album/selector";
 import useInterval from "hooks/useInterval";
@@ -61,6 +71,16 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
 
   const currentProjectTotalImage = useSelector(
     selectorCurrentProjectTotalImage
+  );
+  const currentProjectTotalOriginalImage = useSelector(
+    selectorCurrentProjectTotalOriginalImage
+  );
+  const currentProjectTotalPreprocessImage = useSelector(
+    selectorCurrentProjectTotalPreprocessImage
+  );
+
+  const currentProjectTotalAugmentImage = useSelector(
+    selectorCurrentProjectTotalAugmentImage
   );
 
   const currentProjectId = useSelector(selectorCurrentProjectId);
@@ -127,9 +147,37 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
     }
   };
 
+  const isAbleToDownloadOpeningTab = useCallback(() => {
+    switch (activeImagesTabId) {
+      case ORIGINAL_IMAGES_TAB:
+        if (currentProjectTotalOriginalImage > 0) {
+          return true;
+        }
+        return false;
+      case PREPROCESS_IMAGES_TAB:
+        if (currentProjectTotalPreprocessImage > 0) {
+          return true;
+        }
+        return false;
+      case AUGMENT_IMAGES_TAB:
+        if (currentProjectTotalAugmentImage > 0) {
+          return true;
+        }
+        return false;
+      default:
+        return false;
+    }
+  }, [
+    activeImagesTabId,
+    currentProjectTotalOriginalImage,
+    currentProjectTotalPreprocessImage,
+    currentProjectTotalAugmentImage,
+  ]);
+
   const onClickDownloadOpeningTab = () => {
     handleClose();
-    if (currentProjectTotalImage > 0) {
+
+    if (isAbleToDownloadOpeningTab()) {
       toast.info(
         <Box>
           <Typography fontSize={14}>
@@ -162,7 +210,11 @@ const DownloadButton = function ({ projectId }: { projectId: string }) {
       //   })
       // );
     } else {
-      toast.info("You don't have any images to download.");
+      toast.info(
+        `You don't have any images on the ${switchTabIdToName(
+          activeImagesTabId
+        )} tab to download.`
+      );
     }
   };
 
