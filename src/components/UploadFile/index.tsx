@@ -16,10 +16,21 @@ import {
   INVALID_FILE_STATUS,
   UPLOADED_UPLOAD_FILE_STATUS,
 } from "constants/uploadFile";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import pLimit from "p-limit";
+import {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { AutoSizer } from "react-virtualized";
+import { FixedSizeList as List } from "react-window";
+
 import { selectorIsAlbumSelectMode } from "reduxes/album/selector";
 import {
   selectorIsGenerateImagesAugmenting,
@@ -131,6 +142,8 @@ const UploadFile = function (props: UploadFileProps) {
     selectorCurrentProjectTotalOriginalImage
   );
   const [isOpenUploadGuideDialog, setIsOpenUploadGuideDialog] = useState(false);
+  const [resolutionChecking, setResolutionChecking] = useState(false);
+
   const isDisabledUpload = useMemo(
     () =>
       isUploadChecking ||
@@ -194,51 +207,59 @@ const UploadFile = function (props: UploadFileProps) {
       const formatedFiles = convertArrayToObjectKeyFile(acceptedFiles);
       const files = { ...uploadFiles, ...formatedFiles };
       dispatch(addFile({ files: formatedFiles }));
-
+      setResolutionChecking(true);
+      const limit = pLimit(3);
       if (files && Object.keys(files).length > 0) {
         const filesNeedCheck: Array<string> = [];
-        const listPromiseLoadImages: Promise<LoadImageResult>[] = [];
+        const listPromiseLoadImage: Promise<LoadImageResult>[] = [];
         Object.keys(files).forEach((fileName: string) => {
           if (files[fileName].status !== UPLOADED_UPLOAD_FILE_STATUS) {
             filesNeedCheck.push(fileName);
             if (isImageFile(fileName)) {
-              listPromiseLoadImages.push(
-                loadImage(files[fileName].file, fileName)
+              listPromiseLoadImage.push(
+                limit(() => loadImage(files[fileName].file, fileName))
               );
             }
           }
         });
-        Promise.all(listPromiseLoadImages).then((values) => {
-          values.forEach(({ image, fileName }) => {
-            if (
-              image.width > LIMIT_IMAGE_WIDTH ||
-              image.height > LIMIT_IMAGE_HEIGHT
-            ) {
-              dispatch(
-                updateFile({
-                  fileName,
-                  updateInfo: {
-                    error: `The image resolution (${image.width} x ${image.height}) exceeds the limit allowed ${LIMIT_IMAGE_WIDTH} x ${LIMIT_IMAGE_HEIGHT}. Please remove it`,
-                    status: INVALID_FILE_STATUS,
-                  },
-                })
-              );
+        Promise.all(listPromiseLoadImage)
+          .then((values) => {
+            values.forEach(({ image, fileName }) => {
+              if (
+                image.width > LIMIT_IMAGE_WIDTH ||
+                image.height > LIMIT_IMAGE_HEIGHT
+              ) {
+                dispatch(
+                  updateFile({
+                    fileName,
+                    updateInfo: {
+                      error: `The image resolution (${image.width} x ${image.height}) exceeds the limit allowed ${LIMIT_IMAGE_WIDTH} x ${LIMIT_IMAGE_HEIGHT}. Please remove it`,
+                      status: INVALID_FILE_STATUS,
+                    },
+                  })
+                );
 
-              const indexOf = filesNeedCheck.indexOf(fileName);
-              if (indexOf !== -1) {
-                filesNeedCheck.splice(indexOf, 1);
+                const indexOf = filesNeedCheck.indexOf(fileName);
+                if (indexOf !== -1) {
+                  filesNeedCheck.splice(indexOf, 1);
+                }
               }
-            }
+            });
+            setResolutionChecking(false);
+
+            dispatch(
+              checkFileUpload({
+                idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+                projectId,
+                projectName,
+                listFileName: filesNeedCheck,
+              })
+            );
+          })
+          .catch(() => {
+            toast.error("The resolution checking process fails.");
+            setResolutionChecking(false);
           });
-          dispatch(
-            checkFileUpload({
-              idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-              projectId,
-              projectName,
-              listFileName: filesNeedCheck,
-            })
-          );
-        });
       }
     }
   }, []);
@@ -352,23 +373,41 @@ const UploadFile = function (props: UploadFileProps) {
       </Typography>
     </Box>
   );
+  const listFileName = useMemo(
+    () => Object.keys(uploadFiles).sort(),
+    [uploadFiles]
+  );
+
+  // eslint-disable-next-line react/no-unstable-nested-components
+  function Row({ index, style }: { index: number; style: CSSProperties }) {
+    return (
+      <UploadFileItem
+        fileName={listFileName[index]}
+        onClickDelete={onDeleteFile}
+        onClickReplaceUpload={onReplaceUpload}
+        isUploading={isUploading}
+        style={style}
+      />
+    );
+  }
 
   const renderUploadFileContent = () => {
     if (uploadFiles && Object.keys(uploadFiles).length > 0) {
       return (
-        <Box sx={{ overflowY: "auto" }} maxHeight={400}>
-          {Object.keys(uploadFiles).map((fileName: string) => (
-            <UploadFileItem
-              key={`upload-file-item-${uploadFiles[fileName].name}`}
-              file={uploadFiles[fileName].file}
-              status={uploadFiles[fileName].status}
-              error={uploadFiles[fileName].error}
-              uploadProgress={uploadFiles[fileName].uploadProgress}
-              onClickDelete={onDeleteFile}
-              onClickReplaceUpload={onReplaceUpload}
-              isUploading={isUploading}
-            />
-          ))}
+        <Box sx={{ overflowY: "auto" }} height={400}>
+          <AutoSizer>
+            {({ height, width }) => (
+              <List
+                className="List"
+                height={height}
+                width={width}
+                itemCount={Object.keys(uploadFiles).length}
+                itemSize={70}
+              >
+                {Row}
+              </List>
+            )}
+          </AutoSizer>
         </Box>
       );
     }
@@ -486,6 +525,16 @@ const UploadFile = function (props: UploadFileProps) {
                 </Typography>
               </Box>
             )}
+          {resolutionChecking === true && (
+            <Box display="flex" alignItems="center">
+              <Box sx={{ width: "calc(100% - 35px)" }} mr={1} my={1}>
+                <Box minWidth={35}>
+                  <Typography variant="body2">Resolution checking</Typography>
+                </Box>
+                <LinearProgress />
+              </Box>
+            </Box>
+          )}
           {!!uploadingFileCount &&
             uploadingProgress >= 0 &&
             uploadingProgress < 100 && (
