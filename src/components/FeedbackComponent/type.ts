@@ -1,27 +1,38 @@
 export interface FeedbackFields {
   content: string;
+  attachedFiles?: File[];
 }
-export const enum ACTION_FEEDBACK_FORM {
+export interface FeedbackFieldProps {
+  content: string;
+  attachedFiles: (File | null)[];
+}
+export const enum FeedbackFormAction {
   NO_ACTION,
   PROCESSING,
 }
 export interface ResponseSubmitType {
-  action: ACTION_FEEDBACK_FORM;
+  action: FeedbackFormAction;
 }
 export interface FeedbackFormProps {
   style: React.CSSProperties;
   note?: string;
-  feedback: FeedbackFields;
   onSubmit: (content: FeedbackFields) => Promise<ResponseSubmitType>;
-  onContentChange?: (content: FeedbackFields) => void;
 }
 
 export interface FeedbackSlackParam {
   text: string;
+  imageURLs: string[];
 }
 export interface FeedbackWidgetParam {
   style: React.CSSProperties;
   children: React.ReactNode;
   isShow: boolean;
   onClose?: () => void;
+}
+
+export interface UploadZoneProps {
+  index: number;
+}
+export interface UploadZoneWapperProps {
+  onChangeAttachedFile: (file: File[] | null) => void;
 }
