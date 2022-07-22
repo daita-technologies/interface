@@ -322,7 +322,7 @@ const projectApi = {
     projectName: string;
   }) =>
     axios.post(
-      `${uploadZipApiUrl}/generrate/daita_upload_token`,
+      `${uploadZipApiUrl}/generate/daita_upload_token`,
       {
         id_token: idToken || getLocalStorage(ID_TOKEN_NAME) || "",
         project_id: projectId,
