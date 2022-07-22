@@ -476,7 +476,7 @@ const UploadFile = function (props: UploadFileProps) {
             <input {...getInputProps()} multiple />
             {renderDropzoneContent()}
           </Box>
-          {/* <Typography mt={1} fontStyle="italic" variant="body2" fontSize={14}>
+          <Typography mt={1} fontStyle="italic" variant="body2" fontSize={14}>
             * If you would like to upload your dataset programmatically,{" "}
             <Typography
               component="span"
@@ -487,7 +487,7 @@ const UploadFile = function (props: UploadFileProps) {
               click here{" "}
             </Typography>
             for more information.
-          </Typography> */}
+          </Typography>
           <UploadGuideDialog
             onClose={handleCloseUploadGuideDialog}
             isOpen={isOpenUploadGuideDialog}

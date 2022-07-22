@@ -6,10 +6,13 @@ import {
   VIEW_ALBUM_PAGE_SIZE,
   uploadZipApiUrl,
   generateApiUrl,
+  ID_TOKEN_NAME,
 } from "constants/defaultValues";
+import { ApiResponse } from "constants/type";
 import { FetchImagesParams, ImageSourceType } from "reduxes/album/type";
 import { GenerateImagePayload } from "reduxes/generate/type";
 import { UpdateProjectInfoPayload } from "reduxes/project/type";
+import { getLocalStorage } from "utils/general";
 
 export interface UploadUpdateListObjectInfo {
   // NOTE: <bucket>/<identity_id>/<project_id>/<data_name>
@@ -52,6 +55,12 @@ export interface DeleteImagesRequestBody {
   idToken: string;
   projectId: string;
   listObjectInfo: Array<DeleteObjectInfo>;
+}
+
+export interface GetUploadTokenResponse extends ApiResponse {
+  data: {
+    token: string;
+  };
 }
 
 export const convertToUnderScoreValue = (
@@ -300,6 +309,24 @@ const projectApi = {
         project_name: projectName,
         type_method: typeMethod,
         file_url: fileUrl,
+      },
+      { headers: getAuthHeader() }
+    ),
+  getUploadToken: ({
+    idToken,
+    projectId,
+    projectName,
+  }: {
+    idToken?: string;
+    projectId: string;
+    projectName: string;
+  }) =>
+    axios.post(
+      `${uploadZipApiUrl}/generate/daita_upload_token`,
+      {
+        id_token: idToken || getLocalStorage(ID_TOKEN_NAME) || "",
+        project_id: projectId,
+        project_name: projectName,
       },
       { headers: getAuthHeader() }
     ),
