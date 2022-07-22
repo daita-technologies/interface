@@ -48,6 +48,7 @@ const UploadZoneWrapper = function ({
           backgroundColor: "background.paper",
           padding: "12px",
           border: "1px dashed",
+          borderColor: "text.secondary",
           cursor: "pointer",
           borderRadius: "6px",
           boxSizing: "boder-box",
