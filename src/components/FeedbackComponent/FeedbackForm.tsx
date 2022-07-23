@@ -1,7 +1,7 @@
 /* eslint-disable no-async-promise-executor */
 /* eslint-disable no-await-in-loop */
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { MyButton } from "components";
+import { BeforeUnload, MyButton } from "components";
 import {
   IMAGE_EXTENSIONS,
   MAX_FEEDBACK_MESSAGE_LENGTH,
@@ -134,6 +134,10 @@ export const FeedbackForm = function ({
       }}
       {...getRootProps()}
     >
+      <BeforeUnload
+        isActive={content.length !== 0 || attachedFiles[0] !== null}
+        message={`Your feedback will be lost.\r\nAre you sure you want to continue?`}
+      />
       {isDragActive && (
         <Box
           sx={{
