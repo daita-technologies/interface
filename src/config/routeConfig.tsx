@@ -17,6 +17,7 @@ import {
   TaskDashboard,
   VerifyAccountPage,
 } from "routes";
+import AnnotationPage from "routes/AnnotationPage";
 import PrivacyPolicy from "routes/PrivacyPolicy";
 import Terms from "routes/Terms";
 import { CustomRouteProps } from "./type";
@@ -63,6 +64,14 @@ export const customLayoutRouteConfig = [
     component: Terms,
     exact: true,
     isPrivate: false,
+  },
+];
+export const emptyLayoutRouteConfig = [
+  {
+    path: "/annotation",
+    component: AnnotationPage,
+    exact: true,
+    isPrivate: true,
   },
 ];
 const routeConfig = [

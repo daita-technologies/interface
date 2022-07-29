@@ -102,3 +102,7 @@ input:-webkit-autofill:active {
   padding-left: 4rem;
   font-size: 16px;
 }
+.annotationControlPanel {
+  flex-wrap: wrap;
+  justify-content: space-between;
+}

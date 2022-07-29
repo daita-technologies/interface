@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -11,17 +10,17 @@ import { FeedbackFields } from "./type";
 const FeedbackComponent = function () {
   const [openForm, setOpenForm] = useState<boolean>(true);
   const contentFeedback = useSelector(selectorContentFeedback);
-  const dispath = useDispatch();
+  const dispatch = useDispatch();
   const handleSendFeedbackSuccess = () => {
     toast.success("You have successfully sent feedback.");
     setOpenForm(false);
-    dispath(resetFeedBack());
+    dispatch(resetFeedBack());
   };
   const handleSendFeedbackFail = () => {
     toast.error("Feedback message failed to send");
   };
   const handleContentChange = (content: FeedbackFields) => {
-    dispath(setFeedBack(content));
+    dispatch(setFeedBack(content));
   };
 
   return (
