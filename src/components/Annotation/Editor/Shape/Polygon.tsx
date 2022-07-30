@@ -13,25 +13,26 @@ import { selectorSelectedPolygon } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { PolygonProps } from "../type";
+import useCommonShapeEvent from "../useCommonShapeEvent";
 import { dragBoundFunc, minMax } from "../utils";
 
 const Polygon = ({
-  polygon,
+  spec,
   onMouseOverHandler,
   onMouseOutHandler,
 }: PolygonProps) => {
   const {
     points,
     polygonState: { isFinished },
-  } = polygon;
+  } = spec;
   const dispatch = useDispatch();
-
+  const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
   const currentpolygon = useSelector(selectorSelectedPolygon);
   const isSelected = useMemo(() => {
-    return currentpolygon != null && polygon.id === currentpolygon.id;
+    return currentpolygon != null && spec.id === currentpolygon.id;
   }, [currentpolygon?.id]);
   const position = useMemo(() => {
-    return currentpolygon != null && polygon.id === currentpolygon.id
+    return currentpolygon != null && spec.id === currentpolygon.id
       ? currentpolygon.polygonState.mousePosition
       : null;
   }, [currentpolygon]);
@@ -57,8 +58,9 @@ const Polygon = ({
   const handleGroupMouseOut = (e: KonvaEventObject<MouseEvent>) => {
     onMouseOutHandler(e);
   };
-  const [minMaxX, setMinMaxX] = useState([0, 0]); //min and max in x axis
-  const [minMaxY, setMinMaxY] = useState([0, 0]); //min and max in y axis
+  const [minMaxX, setMinMaxX] = useState([0, 0]);
+  const [minMaxY, setMinMaxY] = useState([0, 0]);
+
   const handleGroupDragStart = (e: KonvaEventObject<DragEvent>) => {
     const arrX = points.map((p) => p.x);
     const arrY = points.map((p) => p.y);
@@ -66,15 +68,10 @@ const Polygon = ({
     setMinMaxY(minMax(arrY));
     dispatch(
       setSelectedShape({
-        selectedShapeId: polygon.id,
+        selectedShapeId: spec.id,
       })
     );
-    dispatch(
-      changeCurrentStatus({
-        drawState: DrawState.DRAGGING,
-      })
-    );
-    e.cancelBubble = true;
+    commonShapeEvent.handleDragStart(e);
   };
   const groupDragBound = (pos: { x: number; y: number }) => {
     let { x, y } = pos;
@@ -87,10 +84,6 @@ const Polygon = ({
     return { x, y };
   };
   const handleMouseOverStartPoint = (e: KonvaEventObject<DragEvent>) => {
-    const {
-      points,
-      polygonState: { isFinished },
-    } = polygon;
     if (isFinished || points.length < 3) return;
     e.target.scale({ x: 2, y: 2 });
     setMouseOverPoint(true);
@@ -98,10 +91,6 @@ const Polygon = ({
   const handleMouseOverStartPointWhenFinished = (
     e: KonvaEventObject<DragEvent>
   ) => {
-    const {
-      points,
-      polygonState: { isFinished },
-    } = polygon;
     if (isFinished) {
       e.target.scale({ x: 2, y: 2 });
     }
@@ -127,21 +116,17 @@ const Polygon = ({
       );
       dispatch(
         changeCurrentStatus({
-          drawState: DrawState.FREE,
+          drawState: DrawState.SELECTING,
         })
       );
     }
     e.cancelBubble = true;
   };
-  const onSelect = (e: KonvaEventObject<MouseEvent>) => {
-    dispatch(setSelectedShape({ selectedShapeId: polygon.id }));
-    e.cancelBubble = true;
-  };
   const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.target.getRelativePointerPosition();
     if (!position) return;
-    if (polygon.polygonState.isFinished) {
-      onSelect(e);
+    if (spec.polygonState.isFinished) {
+      commonShapeEvent.handleSelect(e);
       return;
     }
   };
@@ -149,26 +134,20 @@ const Polygon = ({
     const result: Vector2d[] = [];
     const x: number = e.target.x();
     const y: number = e.target.y();
-    polygon.points.map((point) =>
-      result.push({ x: point.x + x, y: point.y + y })
-    );
+    spec.points.map((point) => result.push({ x: point.x + x, y: point.y + y }));
     e.target.position({ x: 0, y: 0 });
     dispatch(
       updateDrawObject({
         data: {
-          ...polygon,
+          ...spec,
           points: result,
         },
       })
     );
-    dispatch(
-      changeCurrentStatus({
-        drawState: DrawState.FREE,
-      })
-    );
+    commonShapeEvent.handleDragEnd(e);
   };
   const handlePointDragMove = (e: KonvaEventObject<DragEvent>) => {
-    const { points } = polygon;
+    const { points } = spec;
     const stage = e.target.getStage();
     if (stage) {
       const index = e.target.index - 1;
@@ -180,7 +159,7 @@ const Polygon = ({
       dispatch(
         updateDrawObject({
           data: {
-            ...polygon,
+            ...spec,
             points: [
               ...points.slice(0, index),
               pos,
@@ -191,74 +170,59 @@ const Polygon = ({
       );
     }
   };
-  const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
-    dispatch(
-      changeCurrentStatus({
-        drawState: DrawState.DRAGGING,
-      })
+  const dragBound = (pos: Vector2d) =>
+    dragBoundFunc(
+      stage ? stage.width() : 0,
+      stage ? stage.height() : 0,
+      CORNER_RADIUS,
+      pos
     );
-  };
-  const handleDragEnd = (e: KonvaEventObject<DragEvent>) => {
-    dispatch(
-      changeCurrentStatus({
-        drawState: DrawState.FREE,
-      })
-    );
+  const renderPoints = () => {
+    return points.map((point, index) => {
+      const x = point.x - CORNER_RADIUS / 2;
+      const y = point.y - CORNER_RADIUS / 2;
+      const startPointAttr =
+        index === 0
+          ? {
+              hitStrokeWidth: 12,
+              onMouseOver: handleMouseOverStartPoint,
+              onMouseOut: handleMouseOutStartPoint,
+              onMouseDown: handleMouseDownPoint,
+            }
+          : {
+              onMouseOver: handleMouseOverStartPointWhenFinished,
+              onMouseOut: handleMouseOutStartPointWhenFinished,
+            };
+      return (
+        <Circle
+          key={index}
+          x={x}
+          y={y}
+          radius={CORNER_RADIUS}
+          draggable
+          onDragMove={handlePointDragMove}
+          onDragStart={commonShapeEvent.handleTransformStart}
+          onDragEnd={commonShapeEvent.handleTransformEnd}
+          dragBoundFunc={dragBound}
+          {...CIRCLE_STYLE}
+          {...startPointAttr}
+        />
+      );
+    });
   };
   return (
     <Group
-      name="polygon"
       draggable={isFinished}
       onDragStart={handleGroupDragStart}
       onDragEnd={handleGroupDragEnd}
       dragBoundFunc={groupDragBound}
       onMouseOver={handleGroupMouseOver}
       onMouseOut={handleGroupMouseOut}
-      onMouseDown={(e) => {
-        mousedownHandler(e);
-      }}
-      onClick={onSelect}
+      onMouseDown={mousedownHandler}
+      onClick={commonShapeEvent.handleCick}
     >
       <Line points={flattenedPoints} closed={isFinished} {...LINE_STYLE} />
-      {(isSelected || !isFinished) &&
-        points.map((point, index) => {
-          const x = point.x - CORNER_RADIUS / 2;
-          const y = point.y - CORNER_RADIUS / 2;
-          const startPointAttr =
-            index === 0
-              ? {
-                  hitStrokeWidth: 12,
-                  onMouseOver: handleMouseOverStartPoint,
-                  onMouseOut: handleMouseOutStartPoint,
-                  onMouseDown: handleMouseDownPoint,
-                }
-              : {
-                  onMouseOver: handleMouseOverStartPointWhenFinished,
-                  onMouseOut: handleMouseOutStartPointWhenFinished,
-                };
-          return (
-            <Circle
-              key={index}
-              x={x}
-              y={y}
-              radius={CORNER_RADIUS}
-              {...CIRCLE_STYLE}
-              draggable
-              onDragStart={handleDragStart}
-              onDragMove={handlePointDragMove}
-              onDragEnd={handleDragEnd}
-              dragBoundFunc={(pos) =>
-                dragBoundFunc(
-                  stage ? stage.width() : 0,
-                  stage ? stage.height() : 0,
-                  CORNER_RADIUS,
-                  pos
-                )
-              }
-              {...startPointAttr}
-            />
-          );
-        })}
+      {(isSelected || !isFinished) && renderPoints()}
     </Group>
   );
 };

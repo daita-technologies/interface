@@ -1,4 +1,8 @@
-import { PolygonSpec, RectangleSpec } from "components/Annotation/Editor/type";
+import {
+  EllipseSpec,
+  PolygonSpec,
+  RectangleSpec,
+} from "components/Annotation/Editor/type";
 import { RootState } from "reduxes";
 import { DrawType } from "./type";
 
@@ -6,14 +10,6 @@ export const selectorcurrentDrawType = (state: RootState) =>
   state.annotationReducer.currentDrawType;
 export const selectorSelectedShapeId = (state: RootState) =>
   state.annotationReducer.selectedShapeId;
-export const selectorSelectedShape = (state: RootState) => {
-  if (state.annotationReducer.selectedShapeId) {
-    return state.annotationReducer.drawObjectById[
-      state.annotationReducer.selectedShapeId
-    ];
-  }
-  return null;
-};
 export const selectorSelectedPolygon = (
   state: RootState
 ): PolygonSpec | null => {
@@ -39,6 +35,20 @@ export const selectorSelectedRectangle = (
       ];
     if (shape.type === DrawType.RECTANGLE) {
       return shape.data as RectangleSpec;
+    }
+  }
+  return null;
+};
+export const selectorSelectedEllipse = (
+  state: RootState
+): EllipseSpec | null => {
+  if (state.annotationReducer.selectedShapeId) {
+    const shape =
+      state.annotationReducer.drawObjectById[
+        state.annotationReducer.selectedShapeId
+      ];
+    if (shape.type === DrawType.ELLIPSE) {
+      return shape.data as EllipseSpec;
     }
   }
   return null;

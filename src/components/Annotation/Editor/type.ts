@@ -10,6 +10,7 @@ export interface RectangleSpec {
   fill: string;
   stroke: string;
   strokeWidth: number;
+  rotation: number;
   label: Label;
 }
 export interface Label {
@@ -21,6 +22,19 @@ export interface PolygonSpec {
   polygonState: PolygonState;
   label: Label;
 }
+export interface EllipseSpec {
+  id: string;
+  x: number;
+  y: number;
+  radiusX: number;
+  radiusY: number;
+  label: Label;
+  fill: string;
+  stroke: string;
+  strokeWidth: number;
+  rotation: number;
+}
+
 export interface PolygonState {
   isFinished: boolean;
   mousePosition?: Vector2d;
@@ -34,6 +48,7 @@ export const initialRectangles: Record<string, RectangleSpec> = {
   RETANGLE_1: {
     x: 10,
     y: 10,
+    rotation: 0,
     width: 100,
     height: 100,
     fill: "#8c1eff5c",
@@ -45,6 +60,7 @@ export const initialRectangles: Record<string, RectangleSpec> = {
   RETANGLE_2: {
     x: 150,
     y: 150,
+    rotation: 0,
     width: 100,
     height: 100,
     fill: "#8c1eff5c",
@@ -68,14 +84,33 @@ export const initialPolygons: Record<string, PolygonSpec> = {
     label: { label: "POLYGON_1" },
   },
 };
+export const initialEllipses: Record<string, EllipseSpec> = {
+  ellipse1: {
+    radiusX: 150,
+    radiusY: 200,
+    x: 300,
+    y: 300,
+    rotation: 0,
+    id: "ELLIPSE_1",
+    label: { label: "ELLIPSE_1" },
+    fill: "#8c1eff5c",
+    stroke: "#00F1FF",
+    strokeWidth: 3,
+  },
+};
 export interface RectangleProps {
-  rectangleSpec: RectangleSpec;
+  spec: RectangleSpec;
   onMouseOverHandler: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseOutHandler: (e: KonvaEventObject<MouseEvent>) => void;
 }
 export interface PolygonProps {
-  polygon: PolygonSpec;
+  spec: PolygonSpec;
   onMouseOverHandler: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseOutHandler: (e: KonvaEventObject<MouseEvent>) => void;
 }
-export type DrawObjectType = RectangleSpec | PolygonSpec;
+export interface EllipseProps {
+  spec: EllipseSpec;
+  onMouseOverHandler: (e: KonvaEventObject<MouseEvent>) => void;
+  onMouseOutHandler: (e: KonvaEventObject<MouseEvent>) => void;
+}
+export type DrawObjectType = RectangleSpec | PolygonSpec | EllipseSpec;

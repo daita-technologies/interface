@@ -1,4 +1,5 @@
 import {
+  initialEllipses,
   initialPolygons,
   initialRectangles,
 } from "components/Annotation/Editor/type";
@@ -24,27 +25,35 @@ import {
 } from "./type";
 
 const inititalState: AnnotationReducer = {
-  currentDrawType: DrawType.POLYGON,
+  currentDrawType: DrawType.RECTANGLE,
   selectedShapeId: null,
   zoom: { zoom: 1, position: { x: 0, y: 0 } },
-  drawObjectById: (() => {
-    const ret: Record<string, DrawObject> = {};
-    Object.keys(initialRectangles).forEach((id) => {
-      const obj = initialRectangles[id];
-      ret[obj.id] = {
-        type: DrawType.RECTANGLE,
-        data: obj,
-      };
-    });
-    Object.keys(initialPolygons).forEach((id) => {
-      const obj = initialPolygons[id];
-      ret[obj.id] = {
-        type: DrawType.POLYGON,
-        data: obj,
-      };
-    });
-    return ret;
-  })(),
+  // drawObjectById: (() => {
+  //   const ret: Record<string, DrawObject> = {};
+  //   Object.keys(initialRectangles).forEach((id) => {
+  //     const obj = initialRectangles[id];
+  //     ret[obj.id] = {
+  //       type: DrawType.RECTANGLE,
+  //       data: obj,
+  //     };
+  //   });
+  //   Object.keys(initialPolygons).forEach((id) => {
+  //     const obj = initialPolygons[id];
+  //     ret[obj.id] = {
+  //       type: DrawType.POLYGON,
+  //       data: obj,
+  //     };
+  //   });
+  //   Object.keys(initialEllipses).forEach((id) => {
+  //     const obj = initialEllipses[id];
+  //     ret[obj.id] = {
+  //       type: DrawType.ELLIPSE,
+  //       data: obj,
+  //     };
+  //   });
+  //   return ret;
+  // })(),
+  drawObjectById: {},
   currentDrawState: DrawState.FREE,
 };
 const annotationReducer = (

@@ -1,5 +1,5 @@
 import { LINE_STYLE } from "components/Annotation/Editor/const";
-import { RectangleSpec } from "components/Annotation/Editor/type";
+import { EllipseSpec } from "components/Annotation/Editor/type";
 import { useDispatch, useSelector } from "react-redux";
 import {
   changeCurrentStatus,
@@ -9,7 +9,7 @@ import {
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
-  selectorSelectedRectangle,
+  selectorSelectedEllipse,
 } from "reduxes/annotation/selector";
 import {
   DrawObject,
@@ -18,26 +18,27 @@ import {
   EditorEventPayload,
 } from "reduxes/annotation/type";
 function createRectangle(position: { x: number; y: number }): DrawObject {
-  const id = `RECTANGLE-${Math.floor(Math.random() * 100000)}`;
-  const rect: RectangleSpec = {
+  const id = `ELLIPSE-${Math.floor(Math.random() * 100000)}`;
+  const shape: EllipseSpec = {
     x: position.x,
     y: position.y,
-    width: 10,
-    height: 10,
-    id: id,
+    radiusX: 1,
+    radiusY: 1,
     rotation: 0,
+    id,
     label: { label: id },
     ...LINE_STYLE,
   };
-  return { type: DrawType.RECTANGLE, data: rect };
+  return { type: DrawType.ELLIPSE, data: shape };
 }
-const useRectangleEvent = () => {
+const useEllipseEvent = () => {
   const dispatch = useDispatch();
   const currentDrawState = useSelector(selectorCurrentDrawState);
-  const selectedRectangle = useSelector(selectorSelectedRectangle);
+  const selectedShape = useSelector(selectorSelectedEllipse);
   const handleMouseDown = (e: EditorEventPayload) => {
     if (currentDrawState === DrawState.FREE) {
       const position = e.eventObject.currentTarget.getRelativePointerPosition();
+      console.log("position", position);
       let drawObject = createRectangle(position);
       dispatch(createDrawObject({ drawObject }));
       dispatch(setSelectedShape({ selectedShapeId: drawObject.data.id }));
@@ -49,13 +50,18 @@ const useRectangleEvent = () => {
     if (currentDrawState === DrawState.DRAWING) {
       const position = e.eventObject.currentTarget.getRelativePointerPosition();
 
-      if (selectedRectangle) {
-        const rectangle = selectedRectangle;
-        const newWidth = position.x - rectangle.x;
-        const newHeight = position.y - rectangle.y;
-        rectangle.width = newWidth;
-        rectangle.height = newHeight;
-        dispatch(updateDrawObject({ data: rectangle }));
+      if (selectedShape) {
+        const newShape: EllipseSpec = {
+          ...selectedShape,
+          x: (position.x + (selectedShape.x - selectedShape.radiusX)) / 2,
+          y: (position.y + (selectedShape.y - selectedShape.radiusY)) / 2,
+          radiusX:
+            (position.x - (selectedShape.x - selectedShape.radiusX)) / 2.0,
+          radiusY:
+            (position.y - (selectedShape.y - selectedShape.radiusY)) / 2.0,
+        };
+        console.log(newShape.radiusX, newShape.radiusY);
+        dispatch(updateDrawObject({ data: newShape }));
       }
     }
   };
@@ -67,4 +73,4 @@ const useRectangleEvent = () => {
   return { handleMouseDown, handleMouseMove, handleMouseUp };
 };
 
-export default useRectangleEvent;
+export default useEllipseEvent;

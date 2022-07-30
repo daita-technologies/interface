@@ -3,29 +3,32 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Box } from "konva/lib/shapes/Transformer";
 import { Vector2d } from "konva/lib/types";
 import React, { useMemo, useState } from "react";
-import { Rect, Transformer } from "react-konva";
+import { Ellipse, Transformer } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
-import { selectorSelectedRectangle } from "reduxes/annotation/selector";
+import {
+  selectorCurrentDrawState,
+  selectorSelectedEllipse,
+} from "reduxes/annotation/selector";
 import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
-import { RectangleProps, RectangleSpec } from "../type";
+import { EllipseProps, EllipseSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 
-const Rectangle = function ({
+const EllipseShape = function ({
   spec,
   onMouseOverHandler,
   onMouseOutHandler,
-}: RectangleProps) {
-  const shapeRef = React.useRef<Konva.Rect>(null);
+}: EllipseProps) {
+  const shapeRef = React.useRef<Konva.Ellipse>(null);
   const trRef = React.useRef<any>(null);
   const dispatch = useDispatch();
-  const currentRectangle = useSelector(selectorSelectedRectangle);
+  const currentShape = useSelector(selectorSelectedEllipse);
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
 
   const isSelected = useMemo(() => {
-    return currentRectangle != null && spec.id === currentRectangle.id;
-  }, [currentRectangle?.id]);
-  const onChange = (rect: RectangleSpec) => {
+    return currentShape != null && spec.id === currentShape.id;
+  }, [currentShape?.id]);
+  const onChange = (rect: EllipseSpec) => {
     dispatch(
       updateDrawObject({
         data: { ...rect },
@@ -63,6 +66,24 @@ const Rectangle = function ({
     setStage(e.target.getStage());
     commonShapeEvent.handleDragStart(e);
   };
+  const handleTransformEnd = (e: KonvaEventObject<Event>) => {
+    const node = shapeRef.current;
+    if (!node) return;
+
+    let radiusX = Math.floor((node.width() * node.scaleX()) / 2);
+    let radiusY = Math.floor((node.height() * node.scaleY()) / 2);
+
+    onChange({
+      ...spec,
+      x: node.x(),
+      y: node.y(),
+      rotation: node.attrs.rotation,
+      radiusX: radiusX,
+      radiusY: radiusY,
+    });
+    node.scale({ x: 1, y: 1 });
+    commonShapeEvent.handleTransformEnd(e);
+  };
   const handleDragEnd = (e: KonvaEventObject<DragEvent>) => {
     onChange({
       ...spec,
@@ -70,23 +91,6 @@ const Rectangle = function ({
       y: e.target.y(),
     });
     commonShapeEvent.handleDragEnd(e);
-  };
-  const handleTransformEnd = (e: KonvaEventObject<Event>) => {
-    const node = shapeRef.current;
-    if (!node) return;
-    const scaleX = node.scaleX();
-    const scaleY = node.scaleY();
-    node.scaleX(1);
-    node.scaleY(1);
-    onChange({
-      ...spec,
-      x: node.x(),
-      y: node.y(),
-      rotation: node.attrs.rotation,
-      width: Math.max(5, node.width() * scaleX),
-      height: Math.max(node.height() * scaleY),
-    });
-    commonShapeEvent.handleTransformEnd(e);
   };
   const boundBoxFunc = (oldBox: Box, newBox: Box) => {
     if (newBox.width < 5 || newBox.height < 5) {
@@ -96,7 +100,7 @@ const Rectangle = function ({
   };
   return (
     <React.Fragment>
-      <Rect
+      <Ellipse
         ref={shapeRef}
         dragBoundFunc={groupDragBound}
         onClick={commonShapeEvent.handleCick}
@@ -124,4 +128,4 @@ const Rectangle = function ({
     </React.Fragment>
   );
 };
-export default Rectangle;
+export default EllipseShape;
