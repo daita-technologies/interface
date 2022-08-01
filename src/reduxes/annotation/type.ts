@@ -22,7 +22,7 @@ export interface DrawObject {
 export interface AnnotationReducer {
   currentDrawState: DrawState;
   currentDrawType: DrawType;
-  selectedShapeId: string | null;
+  selectedDrawObjectId: string | null;
   zoom: ZoomProps;
   drawObjectById: Record<string, DrawObject>;
 }
@@ -54,5 +54,8 @@ export interface ChangeCurrentDrawStatePayload {
   drawState: DrawState;
 }
 export interface SetSelectShapePayload {
-  selectedShapeId: string | null;
+  selectedDrawObjectId: string | null;
+}
+export interface DeleteDrawObjectPayload {
+  drawObjectId: string;
 }

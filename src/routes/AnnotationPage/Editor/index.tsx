@@ -18,11 +18,16 @@ import {
   useDispatch,
   useSelector,
 } from "react-redux";
-import { changeCurrentStatus, changeZoom } from "reduxes/annotation/action";
+import {
+  changeCurrentStatus,
+  changeZoom,
+  deleteDrawObect,
+} from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
   selectorcurrentDrawType,
   selectorDrawObjectById,
+  selectorSelectedDrawObjectId,
   selectorZoom,
 } from "reduxes/annotation/selector";
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
@@ -30,6 +35,7 @@ import useImage from "use-image";
 import usePolygonEvent from "./Hook/usePolygonEvent";
 import useRectangleEvent from "./Hook/useRectangleEvent";
 import useEllipseEvent from "./Hook/useElipseEvent";
+import { Vector2d } from "konva/lib/types";
 
 const Editor = () => {
   const dispatch = useDispatch();
@@ -44,6 +50,7 @@ const Editor = () => {
     "https://f6-zpcloud.zdn.vn/7198882725419606626/7b6aef0eee3e2c60752f.jpg"
   );
   const drawObjectById = useSelector(selectorDrawObjectById);
+  const selectedDrawObjectId = useSelector(selectorSelectedDrawObjectId);
   const polygonHook = usePolygonEvent();
   const rectangleHook = useRectangleEvent();
   const ellipseHook = useEllipseEvent();
@@ -149,9 +156,13 @@ const Editor = () => {
     setKeyDown(null);
   };
   const keyDownHandler = (e: KeyboardEvent<HTMLDivElement>) => {
-    setKeyDown(e.key);
     if (e.key === " ") {
+      setKeyDown(e.key);
       dispatch(changeCurrentStatus({ drawState: DrawState.ZOOMDRAGGING }));
+    } else if (e.key === "Delete") {
+      if (selectedDrawObjectId) {
+        dispatch(deleteDrawObect({ drawObjectId: selectedDrawObjectId }));
+      }
     }
   };
   const isDraggableStage = useMemo(() => {
@@ -180,6 +191,31 @@ const Editor = () => {
       toolTipLayer.current.hide();
     }
   };
+  const dragBoundFunc = (pos: Vector2d) => {
+    if (!layer.current || !imageRef.current) {
+      return { x: 0, y: 0 };
+    }
+    let { x, y } = pos;
+    const sw = layer.current.width();
+    const sh = layer.current.height();
+    const box = imageRef.current.getClientRect();
+    console.log({ sw }, { sh }, { box });
+    const minMaxX = [0, box.width];
+    const minMaxY = [0, box.height];
+
+    if (minMaxY[0] + y < 0) y = -1 * minMaxY[0];
+    if (minMaxX[0] + x < 0) x = -1 * minMaxX[0];
+    if (minMaxY[1] + y > sh) y = sh - minMaxY[1];
+    if (minMaxX[1] + x > sw) x = sw - minMaxX[1];
+    return { x, y };
+  };
+  useEffect(() => {
+    if (zoom.zoom === 1) {
+      group.current?.setPosition({ x: 0, y: 0 });
+      console.log(imageRef.current?.getPosition());
+      console.log(group.current?.getPosition());
+    }
+  }, [zoom]);
 
   return (
     <>
@@ -206,6 +242,7 @@ const Editor = () => {
                           onMouseDown={mousedownHandler}
                           onMouseUp={mouseupHandler}
                           draggable={isDraggableStage}
+                          // dragBoundFunc={dragBoundFunc}
                         >
                           <Image
                             ref={imageRef}

@@ -40,7 +40,7 @@ const useRectangleEvent = () => {
       const position = e.eventObject.currentTarget.getRelativePointerPosition();
       let drawObject = createRectangle(position);
       dispatch(createDrawObject({ drawObject }));
-      dispatch(setSelectedShape({ selectedShapeId: drawObject.data.id }));
+      dispatch(setSelectedShape({ selectedDrawObjectId: drawObject.data.id }));
       dispatch(changeCurrentStatus({ drawState: DrawState.DRAWING }));
     }
   };

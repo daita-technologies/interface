@@ -53,10 +53,12 @@ const EllipseShape = function ({
       const minMaxX = [0, box.width];
       const minMaxY = [0, box.height];
 
-      if (minMaxY[0] + y < 0) y = -1 * minMaxY[0];
-      if (minMaxX[0] + x < 0) x = -1 * minMaxX[0];
-      if (minMaxY[1] + y > sh) y = sh - minMaxY[1];
-      if (minMaxX[1] + x > sw) x = sw - minMaxX[1];
+      if (minMaxY[0] + y - spec.radiusY < 0) y = -1 * minMaxY[0] + spec.radiusY;
+      if (minMaxX[0] + x - spec.radiusX < 0) x = -1 * minMaxX[0] + spec.radiusX;
+      if (minMaxY[1] + y - spec.radiusY > sh)
+        y = sh - minMaxY[1] + spec.radiusY;
+      if (minMaxX[1] + x - spec.radiusX > sw)
+        x = sw - minMaxX[1] + spec.radiusX;
       return { x, y };
     }
     return { x: 0, y: 0 };

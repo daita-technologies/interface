@@ -8,15 +8,15 @@ import { DrawType } from "./type";
 
 export const selectorcurrentDrawType = (state: RootState) =>
   state.annotationReducer.currentDrawType;
-export const selectorSelectedShapeId = (state: RootState) =>
-  state.annotationReducer.selectedShapeId;
+export const selectorSelectedDrawObjectId = (state: RootState) =>
+  state.annotationReducer.selectedDrawObjectId;
 export const selectorSelectedPolygon = (
   state: RootState
 ): PolygonSpec | null => {
-  if (state.annotationReducer.selectedShapeId) {
+  if (state.annotationReducer.selectedDrawObjectId) {
     const shape =
       state.annotationReducer.drawObjectById[
-        state.annotationReducer.selectedShapeId
+        state.annotationReducer.selectedDrawObjectId
       ];
     if (shape.type === DrawType.POLYGON) {
       return shape.data as PolygonSpec;
@@ -28,10 +28,10 @@ export const selectorSelectedPolygon = (
 export const selectorSelectedRectangle = (
   state: RootState
 ): RectangleSpec | null => {
-  if (state.annotationReducer.selectedShapeId) {
+  if (state.annotationReducer.selectedDrawObjectId) {
     const shape =
       state.annotationReducer.drawObjectById[
-        state.annotationReducer.selectedShapeId
+        state.annotationReducer.selectedDrawObjectId
       ];
     if (shape.type === DrawType.RECTANGLE) {
       return shape.data as RectangleSpec;
@@ -42,10 +42,10 @@ export const selectorSelectedRectangle = (
 export const selectorSelectedEllipse = (
   state: RootState
 ): EllipseSpec | null => {
-  if (state.annotationReducer.selectedShapeId) {
+  if (state.annotationReducer.selectedDrawObjectId) {
     const shape =
       state.annotationReducer.drawObjectById[
-        state.annotationReducer.selectedShapeId
+        state.annotationReducer.selectedDrawObjectId
       ];
     if (shape.type === DrawType.ELLIPSE) {
       return shape.data as EllipseSpec;

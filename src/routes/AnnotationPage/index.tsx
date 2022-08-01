@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { ControlPanel } from "components/Annotation";
-import Editor from "./Editor/Editor";
+import Editor from "./Editor";
 
 const AnnotationPage = function () {
   return (

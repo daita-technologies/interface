@@ -56,7 +56,7 @@ const useCommonShapeEvent = ({
       currentDrawState === DrawState.FREE ||
       currentDrawState === DrawState.SELECTING
     ) {
-      dispatch(setSelectedShape({ selectedShapeId: drawObject.id }));
+      dispatch(setSelectedShape({ selectedDrawObjectId: drawObject.id }));
       e.cancelBubble = true;
     }
   };

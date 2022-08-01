@@ -68,7 +68,7 @@ const Polygon = ({
     setMinMaxY(minMax(arrY));
     dispatch(
       setSelectedShape({
-        selectedShapeId: spec.id,
+        selectedDrawObjectId: spec.id,
       })
     );
     commonShapeEvent.handleDragStart(e);

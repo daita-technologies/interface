@@ -3,6 +3,7 @@ import {
   CHANGE_CURRENT_DRAW_TYPE,
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
+  DELETE_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   UPDATE_DRAW_OBJET,
 } from "./constants";
@@ -11,6 +12,7 @@ import {
   ChangeCurrentDrawTypePayload,
   ChangeZoomPayload,
   CreateDrawObjectPayload,
+  DeleteDrawObjectPayload,
   SetSelectShapePayload,
   UpdateDrawObjectPayload,
 } from "./type";
@@ -42,5 +44,9 @@ export const changeCurrentStatus = (
 });
 export const setSelectedShape = (payload: SetSelectShapePayload) => ({
   type: SET_SELECT_SHAPE,
+  payload,
+});
+export const deleteDrawObect = (payload: DeleteDrawObjectPayload) => ({
+  type: DELETE_DRAW_OBJECT,
   payload,
 });

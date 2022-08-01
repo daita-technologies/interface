@@ -53,7 +53,9 @@ const usePolygonEvent = () => {
       if (currentDrawState === DrawState.FREE) {
         let drawObject = createPolygon(position);
         dispatch(createDrawObject({ drawObject }));
-        dispatch(setSelectedShape({ selectedShapeId: drawObject.data.id }));
+        dispatch(
+          setSelectedShape({ selectedDrawObjectId: drawObject.data.id })
+        );
         dispatch(changeCurrentStatus({ drawState: DrawState.DRAWING }));
       }
     } else {

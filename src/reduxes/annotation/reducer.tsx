@@ -8,6 +8,7 @@ import {
   CHANGE_CURRENT_DRAW_TYPE,
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
+  DELETE_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   UPDATE_DRAW_OBJET,
 } from "./constants";
@@ -17,6 +18,7 @@ import {
   ChangeCurrentDrawTypePayload,
   ChangeZoomPayload,
   CreateDrawObjectPayload,
+  DeleteDrawObjectPayload,
   DrawObject,
   DrawState,
   DrawType,
@@ -26,34 +28,34 @@ import {
 
 const inititalState: AnnotationReducer = {
   currentDrawType: DrawType.RECTANGLE,
-  selectedShapeId: null,
+  selectedDrawObjectId: null,
   zoom: { zoom: 1, position: { x: 0, y: 0 } },
-  // drawObjectById: (() => {
-  //   const ret: Record<string, DrawObject> = {};
-  //   Object.keys(initialRectangles).forEach((id) => {
-  //     const obj = initialRectangles[id];
-  //     ret[obj.id] = {
-  //       type: DrawType.RECTANGLE,
-  //       data: obj,
-  //     };
-  //   });
-  //   Object.keys(initialPolygons).forEach((id) => {
-  //     const obj = initialPolygons[id];
-  //     ret[obj.id] = {
-  //       type: DrawType.POLYGON,
-  //       data: obj,
-  //     };
-  //   });
-  //   Object.keys(initialEllipses).forEach((id) => {
-  //     const obj = initialEllipses[id];
-  //     ret[obj.id] = {
-  //       type: DrawType.ELLIPSE,
-  //       data: obj,
-  //     };
-  //   });
-  //   return ret;
-  // })(),
-  drawObjectById: {},
+  drawObjectById: (() => {
+    const ret: Record<string, DrawObject> = {};
+    Object.keys(initialRectangles).forEach((id) => {
+      const obj = initialRectangles[id];
+      ret[obj.id] = {
+        type: DrawType.RECTANGLE,
+        data: obj,
+      };
+    });
+    Object.keys(initialPolygons).forEach((id) => {
+      const obj = initialPolygons[id];
+      ret[obj.id] = {
+        type: DrawType.POLYGON,
+        data: obj,
+      };
+    });
+    Object.keys(initialEllipses).forEach((id) => {
+      const obj = initialEllipses[id];
+      ret[obj.id] = {
+        type: DrawType.ELLIPSE,
+        data: obj,
+      };
+    });
+    return ret;
+  })(),
+  // drawObjectById: {},
   currentDrawState: DrawState.FREE,
 };
 const annotationReducer = (
@@ -68,7 +70,7 @@ const annotationReducer = (
       return {
         ...state,
         currentDrawType,
-        selectedShapeId: null,
+        selectedDrawObjectId: null,
         currentDrawState: DrawState.FREE,
       };
     }
@@ -107,17 +109,27 @@ const annotationReducer = (
       const { drawState } = payload as ChangeCurrentDrawStatePayload;
       return {
         ...state,
-        selectedShapeId:
-          drawState === DrawState.FREE ? null : state.selectedShapeId,
+        selectedDrawObjectId:
+          drawState === DrawState.FREE ? null : state.selectedDrawObjectId,
         currentDrawState: drawState,
       };
     }
     case SET_SELECT_SHAPE: {
-      const { selectedShapeId } = payload as SetSelectShapePayload;
+      const { selectedDrawObjectId } = payload as SetSelectShapePayload;
       return {
         ...state,
         currentDrawState: DrawState.SELECTING,
-        selectedShapeId,
+        selectedDrawObjectId,
+      };
+    }
+    case DELETE_DRAW_OBJECT: {
+      const { drawObjectId } = payload as DeleteDrawObjectPayload;
+      delete state.drawObjectById[drawObjectId];
+      return {
+        ...state,
+        currentDrawState: DrawState.FREE,
+        selectedDrawObjectId: null,
+        drawObjectById: { ...state.drawObjectById },
       };
     }
     default:
