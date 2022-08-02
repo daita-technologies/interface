@@ -1,4 +1,4 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 
 export interface UploadFileProps {
   projectId: string;
@@ -6,14 +6,11 @@ export interface UploadFileProps {
 }
 
 export interface UploadFileItemProps {
-  key?: string;
-  file: File;
-  status: string;
-  uploadProgress?: number;
+  fileName: string;
   onClickDelete: (fileName: string) => void;
   onClickReplaceUpload: (fileName: string) => void;
   isUploading: boolean;
-  error?: string;
+  style: CSSProperties;
 }
 
 export interface UploadFromMenuProps {

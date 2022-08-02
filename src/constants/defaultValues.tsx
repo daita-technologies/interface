@@ -12,7 +12,9 @@ export const healthCheckApiURL = process.env.REACT_APP_HEALTH_CHECK_API_URL;
 export const taskApiURL = process.env.REACT_APP_TASK_API_URL;
 export const customMethodUrl = process.env.REACT_APP_GENERATE_API_URL;
 export const stopApiURL = process.env.REACT_APP_TASK_API_URL;
-
+export const feedbackSlackApiURL = process.env.REACT_APP_FEEDBACK_SLACK;
+export const presignURLUploadFeedbackImageSlackApiURL =
+  process.env.REACT_APP_PRESIGN_URL_UPLOAD_FEEDBACK_IMAGE;
 export const reactAppDevEnv = "development";
 export const reactAppProdEnv = "production";
 export const reactAppEnv = process.env.REACT_APP_ENV;
@@ -146,7 +148,7 @@ export const LATEST_SELECTED_DATA_SOURCE_KEY_NAME =
 
 export const MAX_ALLOW_UPLOAD_IMAGES = 1000;
 export const LIMIT_UPLOAD_IMAGE_SIZE = 5000000;
-export const MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME = 300;
+export const MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME = 1000;
 
 export const ALL_DOWNLOAD_TYPE = "ALL";
 export const PREPROCESS_DOWNLOAD_TYPE = "PREPROCESS";
@@ -187,3 +189,7 @@ export const AUGMENT_OPTION_TOOLTIP =
   "Data source: Augmentation is only applied to the training dataset based on the data source you previously selected. For each augmentation run, you can define a new data source and a training/validation/test split.";
 
 export const PROGRESS_POOLING_INTERVAL = 15000;
+export const UPLOAD_PRESIGN_URL_SUCCESS_CODE = 204;
+export const MAX_FEEDBACK_MESSAGE_LENGTH = 750;
+export const MAX_NUM_FEEDBACK_ATTACHED_FILE = 3;
+export const MAX_SIZE_FEEDBACK_ATTACHED_FILE = 2000000;
