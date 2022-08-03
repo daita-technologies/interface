@@ -36,6 +36,7 @@ import usePolygonEvent from "./Hook/usePolygonEvent";
 import useRectangleEvent from "./Hook/useRectangleEvent";
 import useEllipseEvent from "./Hook/useElipseEvent";
 import { Vector2d } from "konva/lib/types";
+import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 
 const Editor = () => {
   const dispatch = useDispatch();
@@ -46,9 +47,31 @@ const Editor = () => {
   const stageRef = useRef<Konva.Stage | null>(null);
   const [keyDown, setKeyDown] = useState<string | null>();
   const refBoundDiv = useRef<HTMLDivElement | null>(null);
-  const [image] = useImage(
-    "https://f6-zpcloud.zdn.vn/7198882725419606626/7b6aef0eee3e2c60752f.jpg"
-  );
+  const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
+
+  const [image, setImage] = useState<HTMLImageElement>();
+  const videoElement = useMemo(() => {
+    if (currentAnnotationFile) {
+      const element = new window.Image();
+      element.src = URL.createObjectURL(currentAnnotationFile);
+      return element;
+    }
+    return null;
+  }, [currentAnnotationFile]);
+  useEffect(() => {
+    if (!videoElement) return;
+    const onload = function () {
+      if (videoElement.width > 1200) {
+        videoElement.height = videoElement.height * (1200 / videoElement.width);
+        videoElement.width = 1200;
+      }
+      setImage(videoElement);
+    };
+    videoElement.addEventListener("load", onload);
+    return () => {
+      videoElement.removeEventListener("load", onload);
+    };
+  }, [currentAnnotationFile]);
   const drawObjectById = useSelector(selectorDrawObjectById);
   const selectedDrawObjectId = useSelector(selectorSelectedDrawObjectId);
   const polygonHook = usePolygonEvent();
@@ -163,6 +186,12 @@ const Editor = () => {
       if (selectedDrawObjectId) {
         dispatch(deleteDrawObect({ drawObjectId: selectedDrawObjectId }));
       }
+    } else if (e.key === "Escape") {
+      if (selectedDrawObjectId) {
+        if (drawObjectById[selectedDrawObjectId].type === DrawType.POLYGON) {
+          dispatch(deleteDrawObect({ drawObjectId: selectedDrawObjectId }));
+        }
+      }
     }
   };
   const isDraggableStage = useMemo(() => {
@@ -249,14 +278,8 @@ const Editor = () => {
                             image={image}
                             x={0}
                             y={0}
-                            width={
-                              image && image?.width > 1200 ? 1200 : image?.width
-                            }
-                            height={
-                              image && image?.width > 1200
-                                ? image.height * (1200 / image.width)
-                                : image?.height
-                            }
+                            width={image?.width}
+                            height={image?.height}
                           />
                           {Object.entries(drawObjects.rectangles).map(
                             ([key, value]) => {

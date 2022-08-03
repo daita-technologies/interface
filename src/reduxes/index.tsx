@@ -15,6 +15,7 @@ import customPreprocessing from "./customPreprocessing/reducer";
 import taskReducer from "./task/reducer";
 import customAugmentation from "./customAugmentation/reducer";
 import annotationReducer from "./annotation/reducer";
+import annotationManagerReducer from "./annotationmanager/reducer";
 
 const rootReducer = combineReducers({
   authReducer,
@@ -32,6 +33,7 @@ const rootReducer = combineReducers({
   taskReducer,
   customAugmentation,
   annotationReducer,
+  annotationManagerReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

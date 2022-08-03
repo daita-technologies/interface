@@ -59,3 +59,7 @@ export interface SetSelectShapePayload {
 export interface DeleteDrawObjectPayload {
   drawObjectId: string;
 }
+
+export interface ResetCurrentStateDrawObjectPayload {
+  drawObjectById: Record<string, DrawObject>;
+}

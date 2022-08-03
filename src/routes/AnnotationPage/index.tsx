@@ -1,11 +1,12 @@
 import { Box } from "@mui/material";
 import { ControlPanel } from "components/Annotation";
 import Editor from "./Editor";
+import ImagePreview from "./ImagePreview";
 
 const AnnotationPage = function () {
   return (
     <Box>
-      <Box sx={{ height: "100vh" }}>
+      <Box display="flex" sx={{ height: "100vh" }} flexDirection="column">
         <Box display="flex">
           <Box display="flex" gap={0} flexGrow={2}>
             <Box sx={{}}>
@@ -26,6 +27,7 @@ const AnnotationPage = function () {
             <h1>Lable</h1>
           </Box>
         </Box>
+        <ImagePreview />
       </Box>
     </Box>
   );

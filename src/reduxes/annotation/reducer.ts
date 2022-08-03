@@ -9,6 +9,7 @@ import {
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
   DELETE_DRAW_OBJECT,
+  RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   UPDATE_DRAW_OBJET,
 } from "./constants";
@@ -22,6 +23,7 @@ import {
   DrawObject,
   DrawState,
   DrawType,
+  ResetCurrentStateDrawObjectPayload,
   SetSelectShapePayload,
   UpdateDrawObjectPayload,
 } from "./type";
@@ -130,6 +132,15 @@ const annotationReducer = (
         currentDrawState: DrawState.FREE,
         selectedDrawObjectId: null,
         drawObjectById: { ...state.drawObjectById },
+      };
+    }
+    case RESET_CURRENT_STATE_DRAW_OBJECT: {
+      const { drawObjectById } = payload as ResetCurrentStateDrawObjectPayload;
+      return {
+        ...state,
+        currentDrawState: DrawState.FREE,
+        selectedDrawObjectId: null,
+        drawObjectById: { ...drawObjectById },
       };
     }
     default:
