@@ -12,6 +12,7 @@ import {
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   UPDATE_DRAW_OBJET,
+  UPDATE_LABEL_OF_DRAW_OBJECT,
 } from "./constants";
 import {
   AnnotationReducer,
@@ -26,6 +27,7 @@ import {
   ResetCurrentStateDrawObjectPayload,
   SetSelectShapePayload,
   UpdateDrawObjectPayload,
+  UpdateLabelOfDrawObjectPayload,
 } from "./type";
 
 const inititalState: AnnotationReducer = {
@@ -141,6 +143,18 @@ const annotationReducer = (
         currentDrawState: DrawState.FREE,
         selectedDrawObjectId: null,
         drawObjectById: { ...drawObjectById },
+      };
+    }
+    case UPDATE_LABEL_OF_DRAW_OBJECT: {
+      const { drawObjectId, label } = payload as UpdateLabelOfDrawObjectPayload;
+      const drawObject = state.drawObjectById[drawObjectId];
+      drawObject.data.label = label;
+      return {
+        ...state,
+        drawObjectById: {
+          ...state.drawObjectById,
+          [drawObjectId]: { ...drawObject },
+        },
       };
     }
     default:

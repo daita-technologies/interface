@@ -2,6 +2,7 @@ import { Box } from "@mui/material";
 import { ControlPanel } from "components/Annotation";
 import Editor from "./Editor";
 import ImagePreview from "./ImagePreview";
+import LabelAnnotation from "./LabelAnnotation";
 
 const AnnotationPage = function () {
   return (
@@ -24,7 +25,7 @@ const AnnotationPage = function () {
             sx={{ backgroundColor: "#313c4b" }}
             flexGrow={3}
           >
-            <h1>Lable</h1>
+            <LabelAnnotation />
           </Box>
         </Box>
         <ImagePreview />

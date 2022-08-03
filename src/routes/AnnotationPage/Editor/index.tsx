@@ -4,7 +4,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Image, Layer, Rect, Stage, Text } from "react-konva";
 
-import { Polygon, Rectangle, Ellipse } from "components/Annotation";
+import { Ellipse, Polygon, Rectangle } from "components/Annotation";
 import {
   DrawObjectType,
   EllipseSpec,
@@ -12,6 +12,7 @@ import {
   RectangleSpec,
 } from "components/Annotation/Editor/type";
 import Konva from "konva";
+import { Vector2d } from "konva/lib/types";
 import {
   Provider,
   ReactReduxContext,
@@ -21,7 +22,7 @@ import {
 import {
   changeCurrentStatus,
   changeZoom,
-  deleteDrawObect,
+  deleteDrawObject,
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
@@ -31,12 +32,10 @@ import {
   selectorZoom,
 } from "reduxes/annotation/selector";
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
-import useImage from "use-image";
+import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import useEllipseEvent from "./Hook/useElipseEvent";
 import usePolygonEvent from "./Hook/usePolygonEvent";
 import useRectangleEvent from "./Hook/useRectangleEvent";
-import useEllipseEvent from "./Hook/useElipseEvent";
-import { Vector2d } from "konva/lib/types";
-import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 
 const Editor = () => {
   const dispatch = useDispatch();
@@ -48,8 +47,8 @@ const Editor = () => {
   const [keyDown, setKeyDown] = useState<string | null>();
   const refBoundDiv = useRef<HTMLDivElement | null>(null);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
-
   const [image, setImage] = useState<HTMLImageElement>();
+
   const videoElement = useMemo(() => {
     if (currentAnnotationFile) {
       const element = new window.Image();
@@ -58,6 +57,17 @@ const Editor = () => {
     }
     return null;
   }, [currentAnnotationFile]);
+  const drawObjectById = useSelector(selectorDrawObjectById);
+  const selectedDrawObjectId = useSelector(selectorSelectedDrawObjectId);
+  const polygonHook = usePolygonEvent();
+  const rectangleHook = useRectangleEvent();
+  const ellipseHook = useEllipseEvent();
+  const currentDrawState = useSelector(selectorCurrentDrawState);
+  const zoom = useSelector(selectorZoom);
+
+  const toolTipLayer = useRef<Konva.Layer>(null);
+  const toolTip = useRef<Konva.Text>(null);
+  const toolTipRect = useRef<Konva.Rect>(null);
   useEffect(() => {
     if (!videoElement) return;
     const onload = function () {
@@ -72,19 +82,6 @@ const Editor = () => {
       videoElement.removeEventListener("load", onload);
     };
   }, [currentAnnotationFile]);
-  const drawObjectById = useSelector(selectorDrawObjectById);
-  const selectedDrawObjectId = useSelector(selectorSelectedDrawObjectId);
-  const polygonHook = usePolygonEvent();
-  const rectangleHook = useRectangleEvent();
-  const ellipseHook = useEllipseEvent();
-
-  const currentDrawState = useSelector(selectorCurrentDrawState);
-  const zoom = useSelector(selectorZoom);
-
-  const toolTipLayer = useRef<Konva.Layer>(null);
-  const toolTip = useRef<Konva.Text>(null);
-  const toolTipRect = useRef<Konva.Rect>(null);
-
   const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
     const editorEventPayload = { eventObject: e };
     if (drawType === DrawType.RECTANGLE) {
@@ -184,12 +181,12 @@ const Editor = () => {
       dispatch(changeCurrentStatus({ drawState: DrawState.ZOOMDRAGGING }));
     } else if (e.key === "Delete") {
       if (selectedDrawObjectId) {
-        dispatch(deleteDrawObect({ drawObjectId: selectedDrawObjectId }));
+        dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
       }
     } else if (e.key === "Escape") {
       if (selectedDrawObjectId) {
         if (drawObjectById[selectedDrawObjectId].type === DrawType.POLYGON) {
-          dispatch(deleteDrawObect({ drawObjectId: selectedDrawObjectId }));
+          dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
         }
       }
     }
@@ -211,7 +208,7 @@ const Editor = () => {
         x: mousePos.x + 5,
         y: mousePos.y + 5,
       });
-      toolTip.current.text(`LABEL ${shape.label.label}`);
+      toolTip.current.text(`${shape.label.label}`);
       toolTipLayer.current.show();
     }
   };
@@ -241,8 +238,6 @@ const Editor = () => {
   useEffect(() => {
     if (zoom.zoom === 1) {
       group.current?.setPosition({ x: 0, y: 0 });
-      console.log(imageRef.current?.getPosition());
-      console.log(group.current?.getPosition());
     }
   }, [zoom]);
 
