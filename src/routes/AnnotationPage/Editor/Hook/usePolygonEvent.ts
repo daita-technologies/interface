@@ -18,7 +18,7 @@ import {
   EditorEventPayload,
 } from "reduxes/annotation/type";
 
-const createPolygon = (position: Vector2d): DrawObject => {
+export const createPolygon = (position: Vector2d): DrawObject => {
   const id = `POLYGON-${Math.floor(Math.random() * 100000)}`;
   const polygon: PolygonSpec = {
     id: id,
@@ -49,8 +49,11 @@ const usePolygonEvent = () => {
   const handleMouseDown = (e: EditorEventPayload) => {
     const position = e.eventObject.currentTarget.getRelativePointerPosition();
     if (!position) return;
-    if (polygon === null) {
-      if (currentDrawState === DrawState.FREE) {
+    if (polygon === null || polygon.polygonState.isFinished) {
+      if (
+        currentDrawState === DrawState.FREE ||
+        currentDrawState === DrawState.SELECTING
+      ) {
         let drawObject = createPolygon(position);
         dispatch(createDrawObject({ drawObject }));
         dispatch(
@@ -59,15 +62,8 @@ const usePolygonEvent = () => {
         dispatch(changeCurrentStatus({ drawState: DrawState.DRAWING }));
       }
     } else {
-      if (polygon.polygonState.isFinished) {
-        dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
-      } else {
-        const polygonAfterBuild = buildPolygon(
-          polygon as PolygonSpec,
-          position
-        );
-        dispatch(updateDrawObject(polygonAfterBuild));
-      }
+      const polygonAfterBuild = buildPolygon(polygon as PolygonSpec, position);
+      dispatch(updateDrawObject(polygonAfterBuild));
     }
   };
 

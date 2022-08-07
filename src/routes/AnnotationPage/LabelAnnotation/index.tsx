@@ -17,12 +17,16 @@ import {
   setSelectedShape,
   updateLabelOfDrawObject,
 } from "reduxes/annotation/action";
-import { selectorDrawObjectById } from "reduxes/annotation/selector";
+import {
+  selectorDrawObjectById,
+  selectorSelectedDrawObjectId,
+} from "reduxes/annotation/selector";
 import { DrawType } from "reduxes/annotation/type";
 
 const LabelAnnotation = function () {
   const dispatch = useDispatch();
   const drawObjectById = useSelector(selectorDrawObjectById);
+  const selectedDrawObjectId = useSelector(selectorSelectedDrawObjectId);
   const renderIcon = (drawType: DrawType) => {
     if (drawType === DrawType.RECTANGLE) {
       return <Crop32Icon />;
@@ -55,7 +59,7 @@ const LabelAnnotation = function () {
       sx={{
         width: "100%",
         maxWidth: 360,
-        padding: "4px",
+        padding: "10px 15px",
         bgcolor: "background.paper",
       }}
     >
@@ -75,9 +79,12 @@ const LabelAnnotation = function () {
                   <DeleteIcon />
                 </IconButton>
               }
+              sx={{ border: selectedDrawObjectId === id ? "1px solid" : "" }}
             >
               <ListItemAvatar>
-                <Avatar>{renderIcon(drawObjet.type)}</Avatar>
+                <Avatar sx={{ backgroundColor: "gray" }}>
+                  {renderIcon(drawObjet.type)}
+                </Avatar>
               </ListItemAvatar>
               <ListItemText>
                 <TextField

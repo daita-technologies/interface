@@ -47,7 +47,7 @@ const annotationManagerReducer = (
         ...state,
         idDrawObjectByImageName: {
           ...state.idDrawObjectByImageName,
-          [imageName]: drawObjectById,
+          [imageName]: { ...drawObjectById },
         },
       };
     }

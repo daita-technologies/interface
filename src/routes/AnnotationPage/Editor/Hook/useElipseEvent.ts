@@ -17,7 +17,10 @@ import {
   DrawType,
   EditorEventPayload,
 } from "reduxes/annotation/type";
-function createRectangle(position: { x: number; y: number }): DrawObject {
+export const createEllipse = (position: {
+  x: number;
+  y: number;
+}): DrawObject => {
   const id = `ELLIPSE-${Math.floor(Math.random() * 100000)}`;
   const shape: EllipseSpec = {
     x: position.x,
@@ -30,16 +33,18 @@ function createRectangle(position: { x: number; y: number }): DrawObject {
     ...LINE_STYLE,
   };
   return { type: DrawType.ELLIPSE, data: shape };
-}
+};
 const useEllipseEvent = () => {
   const dispatch = useDispatch();
   const currentDrawState = useSelector(selectorCurrentDrawState);
   const selectedShape = useSelector(selectorSelectedEllipse);
   const handleMouseDown = (e: EditorEventPayload) => {
-    if (currentDrawState === DrawState.FREE) {
+    if (
+      currentDrawState === DrawState.FREE ||
+      currentDrawState === DrawState.SELECTING
+    ) {
       const position = e.eventObject.currentTarget.getRelativePointerPosition();
-      console.log("position", position);
-      let drawObject = createRectangle(position);
+      let drawObject = createEllipse(position);
       dispatch(createDrawObject({ drawObject }));
       dispatch(setSelectedShape({ selectedDrawObjectId: drawObject.data.id }));
       dispatch(changeCurrentStatus({ drawState: DrawState.DRAWING }));
@@ -60,7 +65,6 @@ const useEllipseEvent = () => {
           radiusY:
             (position.y - (selectedShape.y - selectedShape.radiusY)) / 2.0,
         };
-        console.log(newShape.radiusX, newShape.radiusY);
         dispatch(updateDrawObject({ data: newShape }));
       }
     }

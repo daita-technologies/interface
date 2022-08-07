@@ -34,32 +34,32 @@ const inititalState: AnnotationReducer = {
   currentDrawType: DrawType.RECTANGLE,
   selectedDrawObjectId: null,
   zoom: { zoom: 1, position: { x: 0, y: 0 } },
-  drawObjectById: (() => {
-    const ret: Record<string, DrawObject> = {};
-    Object.keys(initialRectangles).forEach((id) => {
-      const obj = initialRectangles[id];
-      ret[obj.id] = {
-        type: DrawType.RECTANGLE,
-        data: obj,
-      };
-    });
-    Object.keys(initialPolygons).forEach((id) => {
-      const obj = initialPolygons[id];
-      ret[obj.id] = {
-        type: DrawType.POLYGON,
-        data: obj,
-      };
-    });
-    Object.keys(initialEllipses).forEach((id) => {
-      const obj = initialEllipses[id];
-      ret[obj.id] = {
-        type: DrawType.ELLIPSE,
-        data: obj,
-      };
-    });
-    return ret;
-  })(),
-  // drawObjectById: {},
+  // drawObjectById: (() => {
+  //   const ret: Record<string, DrawObject> = {};
+  //   Object.keys(initialRectangles).forEach((id) => {
+  //     const obj = initialRectangles[id];
+  //     ret[obj.id] = {
+  //       type: DrawType.RECTANGLE,
+  //       data: obj,
+  //     };
+  //   });
+  // Object.keys(initialPolygons).forEach((id) => {
+  //   const obj = initialPolygons[id];
+  //   ret[obj.id] = {
+  //     type: DrawType.POLYGON,
+  //     data: obj,
+  //   };
+  // });
+  // Object.keys(initialEllipses).forEach((id) => {
+  //   const obj = initialEllipses[id];
+  //   ret[obj.id] = {
+  //     type: DrawType.ELLIPSE,
+  //     data: obj,
+  //   };
+  // });
+  //   return ret;
+  // })(),
+  drawObjectById: {},
   currentDrawState: DrawState.FREE,
 };
 const annotationReducer = (
@@ -80,11 +80,15 @@ const annotationReducer = (
     }
     case CHANGE_ZOOM: {
       const { zoom } = payload as ChangeZoomPayload;
+      if (zoom.zoom > 3) {
+        return state;
+      }
       return {
         ...state,
         zoom: { ...zoom },
       };
     }
+
     case CREATE_DRAW_OBJECT: {
       const { drawObject } = payload as CreateDrawObjectPayload;
       return {
@@ -143,6 +147,7 @@ const annotationReducer = (
         currentDrawState: DrawState.FREE,
         selectedDrawObjectId: null,
         drawObjectById: { ...drawObjectById },
+        zoom: { zoom: 1, position: { x: 0, y: 0 } },
       };
     }
     case UPDATE_LABEL_OF_DRAW_OBJECT: {

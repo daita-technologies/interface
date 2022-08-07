@@ -71,10 +71,19 @@ const Editor = () => {
   useEffect(() => {
     if (!videoElement) return;
     const onload = function () {
+      let newHeight = videoElement.height;
+      let newWidth = videoElement.width;
       if (videoElement.width > 1200) {
-        videoElement.height = videoElement.height * (1200 / videoElement.width);
-        videoElement.width = 1200;
+        newHeight = newHeight * (1200 / newWidth);
+        newWidth = 1200;
       }
+      if (newHeight > 700) {
+        newWidth = newWidth * (700 / newHeight);
+        newHeight = 700;
+      }
+      videoElement.width = newWidth;
+      videoElement.height = newHeight;
+
       setImage(videoElement);
     };
     videoElement.addEventListener("load", onload);
@@ -134,7 +143,6 @@ const Editor = () => {
       ellipses: ellipsesById,
     };
   }, [drawObjectById]);
-
   const clickStageHandler = (e: KonvaEventObject<MouseEvent>) => {
     if (currentDrawState !== DrawState.DRAWING) {
       dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
@@ -225,7 +233,6 @@ const Editor = () => {
     const sw = layer.current.width();
     const sh = layer.current.height();
     const box = imageRef.current.getClientRect();
-    console.log({ sw }, { sh }, { box });
     const minMaxX = [0, box.width];
     const minMaxY = [0, box.height];
 
@@ -245,17 +252,26 @@ const Editor = () => {
     <>
       <Box sx={{ padding: "40px 20px" }}>
         <Box display="flex" gap={3} justifyContent="center">
-          <Box>
+          <Box width={1200} height={700} display="flex">
             <div
               ref={refBoundDiv}
               tabIndex={0}
               onKeyDown={keyDownHandler}
               onKeyUp={keyUpHandler}
               onMouseOver={mouseOverBoundDivHandler}
+              style={{
+                margin: "auto",
+                width: image ? image.width : 1200,
+                height: image ? image.height : 700,
+              }}
             >
               <ReactReduxContext.Consumer>
                 {({ store }) => (
-                  <Stage ref={stageRef} width={1200} height={700}>
+                  <Stage
+                    ref={stageRef}
+                    width={image ? image.width : 1200}
+                    height={image ? image.height : 700}
+                  >
                     <Provider store={store}>
                       <Layer ref={layer}>
                         <Group

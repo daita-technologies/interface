@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, List, ListItem } from "@mui/material";
 import { IMAGE_EXTENSIONS } from "constants/defaultValues";
 import { useEffect, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
@@ -15,6 +15,7 @@ import {
   selectorCurrentPreviewImageName,
   selectorIdDrawObjectByImageName,
 } from "reduxes/annotationmanager/selecetor";
+
 const createFile = async (imageName: string, url: string) => {
   let response = await fetch(url);
   let data = await response.blob();
@@ -32,25 +33,57 @@ const ImagePreview = function () {
   const drawObjectById = useSelector(selectorDrawObjectById);
   const idDrawObjectByImageName = useSelector(selectorIdDrawObjectByImageName);
   useEffect(() => {
-    createFile(
-      "1.jpg",
-      "https://f6-zpcloud.zdn.vn/7198882725419606626/7b6aef0eee3e2c60752f.jpg"
-    ).then((image: File) => {
-      dispatch(addImagesToAnnotation({ images: [image] }));
-      dispatch(changePreviewImage({ imageName: image.name }));
-    });
-    createFile(
-      "2.jpg",
-      "https://f7-zpcloud.zdn.vn/2878988493394338713/95e566c7d24b1015495a.jpg"
-    ).then((image: File) => {
-      dispatch(addImagesToAnnotation({ images: [image] }));
-    });
-    createFile(
-      "3.jpg",
-      "https://f7-zpcloud.zdn.vn/2862415249155355802/028d81ae3522f77cae33.jpg"
-    ).then((image: File) => {
-      dispatch(addImagesToAnnotation({ images: [image] }));
-    });
+    // createFile(
+    //   "1.jpg",
+    //   "https://f7-zpcloud.zdn.vn/2032817614772808517/f87fb43ff58a37d46e9b.jpg"
+    // ).then((image: File) => {
+    //   dispatch(addImagesToAnnotation({ images: [image] }));
+    //   dispatch(changePreviewImage({ imageName: image.name }));
+    // });
+    // createFile(
+    //   "2.jpg",
+    //   "https://f7-zpcloud.zdn.vn/2878988493394338713/95e566c7d24b1015495a.jpg"
+    // ).then((image: File) => {
+    //   dispatch(addImagesToAnnotation({ images: [image] }));
+    //   dispatch(changePreviewImage({ imageName: image.name }));
+    // });
+    // createFile(
+    //   "12.jpg",
+    //   "https://f7-zpcloud.zdn.vn/4784546116146105845/643ce7db986f5a31037e.jpg"
+    // ).then((image: File) => {
+    //   dispatch(addImagesToAnnotation({ images: [image] }));
+    //   dispatch(changePreviewImage({ imageName: image.name }));
+    // });
+    // createFile(
+    //   "3.jpg",
+    //   "https://f7-zpcloud.zdn.vn/2862415249155355802/028d81ae3522f77cae33.jpg"
+    // ).then((image: File) => {
+    //   dispatch(addImagesToAnnotation({ images: [image] }));
+    // });
+    // createFile(
+    //   "4.jpg",
+    //   "https://f7-zpcloud.zdn.vn/2862415249155355802/028d81ae3522f77cae33.jpg"
+    // ).then((image: File) => {
+    //   dispatch(addImagesToAnnotation({ images: [image] }));
+    // });
+    // createFile(
+    //   "5.jpg",
+    //   "https://f7-zpcloud.zdn.vn/2862415249155355802/028d81ae3522f77cae33.jpg"
+    // ).then((image: File) => {
+    //   dispatch(addImagesToAnnotation({ images: [image] }));
+    // });
+    // createFile(
+    //   "6.jpg",
+    //   "https://f7-zpcloud.zdn.vn/2862415249155355802/028d81ae3522f77cae33.jpg"
+    // ).then((image: File) => {
+    //   dispatch(addImagesToAnnotation({ images: [image] }));
+    // });
+    // createFile(
+    //   "7.jpg",
+    //   "https://f7-zpcloud.zdn.vn/2862415249155355802/028d81ae3522f77cae33.jpg"
+    // ).then((image: File) => {
+    //   dispatch(addImagesToAnnotation({ images: [image] }));
+    // });
   }, []);
 
   const onDrop = (acceptedFiles: File[]) => {
@@ -108,26 +141,38 @@ const ImagePreview = function () {
       >
         <input {...getInputProps()} />
       </Box>
-      {Object.entries(annotationManagerImages).map(([imageName, image]) => {
-        return (
-          <Box
-            key={imageName}
-            sx={{
-              background: `url(${fileThumbByImageName[imageName]})`,
-              border:
-                imageName === currentPreviewImageName
-                  ? "5px solid red"
-                  : "1px solid",
-              backgroundSize: "cover",
-            }}
-            width="250px"
-            position="relative"
-            onClick={() => {
-              handleSelectPreview(imageName);
-            }}
-          />
-        );
-      })}
+      <List
+        sx={{
+          maxWidth: "100%",
+          overflow: "auto",
+          display: "flex",
+          flexDirection: "row",
+          padding: 0,
+        }}
+      >
+        {Object.entries(annotationManagerImages).map(([imageName, image]) => {
+          return (
+            <ListItem key={imageName}>
+              <Box
+                sx={{
+                  background: `url(${fileThumbByImageName[imageName]})`,
+                  border:
+                    imageName === currentPreviewImageName
+                      ? "5px solid red"
+                      : "1px solid",
+                  backgroundSize: "cover",
+                  height: "100%",
+                }}
+                width="250px"
+                position="relative"
+                onClick={() => {
+                  handleSelectPreview(imageName);
+                }}
+              />
+            </ListItem>
+          );
+        })}
+      </List>
     </Box>
   );
 };
