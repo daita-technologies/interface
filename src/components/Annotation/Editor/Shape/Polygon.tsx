@@ -1,6 +1,7 @@
 import { KonvaEventObject } from "konva/lib/Node";
 import { Stage } from "konva/lib/Stage";
 import { Vector2d } from "konva/lib/types";
+import { debounce } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import { Circle, Group, Line } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,7 +10,10 @@ import {
   setSelectedShape,
   updateDrawObject,
 } from "reduxes/annotation/action";
-import { selectorSelectedPolygon } from "reduxes/annotation/selector";
+import {
+  selectorSelectedPolygon,
+  selectorZoom,
+} from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { PolygonProps } from "../type";
@@ -28,6 +32,8 @@ const Polygon = ({
   const dispatch = useDispatch();
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
   const currentpolygon = useSelector(selectorSelectedPolygon);
+  const zoom = useSelector(selectorZoom);
+
   const isSelected = useMemo(() => {
     return currentpolygon != null && spec.id === currentpolygon.id;
   }, [currentpolygon?.id]);
@@ -151,11 +157,10 @@ const Polygon = ({
     const stage = e.target.getStage();
     if (stage) {
       const index = e.target.index - 1;
-      const pos = { x: e.target._lastPos.x, y: e.target._lastPos.y };
-      if (pos.x < 0) pos.x = 0;
-      if (pos.y < 0) pos.y = 0;
-      if (pos.x > stage.width()) pos.x = stage.width();
-      if (pos.y > stage.height()) pos.y = stage.height();
+      const pos = {
+        x: e.currentTarget.getAbsolutePosition().x / zoom.zoom,
+        y: e.currentTarget.getAbsolutePosition().y / zoom.zoom,
+      };
       dispatch(
         updateDrawObject({
           data: {
@@ -182,7 +187,7 @@ const Polygon = ({
       const x = point.x - CORNER_RADIUS / 2;
       const y = point.y - CORNER_RADIUS / 2;
       const startPointAttr =
-        index === 0
+        index === 0 && !isFinished
           ? {
               hitStrokeWidth: 12,
               onMouseOver: handleMouseOverStartPoint,
