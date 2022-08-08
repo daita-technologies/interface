@@ -190,6 +190,9 @@ const Editor = () => {
     } else if (e.key === "Delete") {
       if (selectedDrawObjectId) {
         dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
+        if (toolTipLayer.current?.attrs["id"] === selectedDrawObjectId) {
+          toolTipLayer.current.hide();
+        }
       }
     } else if (e.key === "Escape") {
       if (selectedDrawObjectId) {
@@ -220,6 +223,7 @@ const Editor = () => {
         x: mousePos.x + 5,
         y: mousePos.y + 5,
       });
+      toolTipLayer.current.setAttrs({ id: shape.id });
       toolTip.current.text(`${shape.label.label}`);
       toolTipLayer.current.show();
     }
