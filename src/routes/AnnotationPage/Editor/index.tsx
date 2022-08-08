@@ -194,7 +194,11 @@ const Editor = () => {
     } else if (e.key === "Escape") {
       if (selectedDrawObjectId) {
         if (drawObjectById[selectedDrawObjectId].type === DrawType.POLYGON) {
-          dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
+          const polygon = drawObjectById[selectedDrawObjectId]
+            .data as PolygonSpec;
+          if (!polygon.polygonState.isFinished) {
+            dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
+          }
         }
       }
     }

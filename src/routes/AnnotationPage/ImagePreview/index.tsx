@@ -40,13 +40,13 @@ const ImagePreview = function () {
     //   dispatch(addImagesToAnnotation({ images: [image] }));
     //   dispatch(changePreviewImage({ imageName: image.name }));
     // });
-    // createFile(
-    //   "2.jpg",
-    //   "https://f7-zpcloud.zdn.vn/2878988493394338713/95e566c7d24b1015495a.jpg"
-    // ).then((image: File) => {
-    //   dispatch(addImagesToAnnotation({ images: [image] }));
-    //   dispatch(changePreviewImage({ imageName: image.name }));
-    // });
+    createFile(
+      "2.jpg",
+      "https://f7-zpcloud.zdn.vn/2878988493394338713/95e566c7d24b1015495a.jpg"
+    ).then((image: File) => {
+      dispatch(addImagesToAnnotation({ images: [image] }));
+      dispatch(changePreviewImage({ imageName: image.name }));
+    });
     // createFile(
     //   "12.jpg",
     //   "https://f7-zpcloud.zdn.vn/4784546116146105845/643ce7db986f5a31037e.jpg"
