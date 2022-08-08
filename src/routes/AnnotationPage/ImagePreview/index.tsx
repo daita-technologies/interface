@@ -124,7 +124,13 @@ const ImagePreview = function () {
     dispatch(changePreviewImage({ imageName }));
   };
   return (
-    <Box display="flex" gap={2} height="25vh" sx={{ padding: "30px 30px" }}>
+    <Box
+      display="flex"
+      gap={2}
+      height="25vh"
+      minHeight={200}
+      sx={{ padding: "30px 30px" }}
+    >
       <Box
         sx={{
           background: `url("/assets/images/upload-image.png") no-repeat center`,
