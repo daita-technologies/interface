@@ -33,12 +33,7 @@ const buildPolygon = (polygon: PolygonSpec, position: Vector2d) => {
   const a = x - position.x;
   const b = y - position.y;
 
-  const distance = Math.sqrt(a * a + b * b);
-  if (distance < 100) {
-    polygon.polygonState.isFinished = true;
-  } else {
-    polygon.points = [...polygon.points, position];
-  }
+  polygon.points = [...polygon.points, position];
   return { data: { ...polygon } };
 };
 const usePolygonEvent = () => {
