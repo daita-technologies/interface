@@ -30,6 +30,8 @@ import {
   selectorCurrentAnnotationFile,
   selectorIdDrawObjectByImageName,
 } from "reduxes/annotationmanager/selecetor";
+import HexagonIcon from "@mui/icons-material/Hexagon";
+import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
 
 const ControlPanel = () => {
   const dispatch = useDispatch();
@@ -99,15 +101,41 @@ const ControlPanel = () => {
           className="annotationControlPanel"
           size="large"
         >
-          <ToggleButton value={DrawType.RECTANGLE} aria-label="Rectangle">
+          <ToggleButton
+            className="annotationBtn"
+            value={DrawType.RECTANGLE}
+            aria-label="Rectangle"
+          >
             <Crop32Icon />
           </ToggleButton>
-          <ToggleButton value={DrawType.POLYGON} aria-label="Polygon">
-            <PolylineIcon />
+          <ToggleButton
+            className="annotationBtn"
+            value={DrawType.POLYGON}
+            aria-label="Polygon"
+          >
+            <HexagonIcon />
           </ToggleButton>
-          <ToggleButton value={DrawType.ELLIPSE} aria-label="ellipse">
+          <ToggleButton
+            className="annotationBtn"
+            value={DrawType.ELLIPSE}
+            aria-label="ellipse"
+          >
             <PanoramaFishEyeIcon />
           </ToggleButton>
+          {/* <ToggleButton
+            className="annotationBtn"
+            value={DrawType.LINE_STRIP}
+            aria-label="ellipse"
+          >
+            <PolylineIcon />
+          </ToggleButton>
+          <ToggleButton
+            className="annotationBtn"
+            value={DrawType.LINE}
+            aria-label="ellipse"
+          >
+            <HorizontalRuleIcon />
+          </ToggleButton> */}
         </ToggleButtonGroup>
 
         <Button

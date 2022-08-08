@@ -72,8 +72,8 @@ const EllipseShape = function ({
     const node = shapeRef.current;
     if (!node) return;
 
-    let radiusX = Math.floor((node.width() * node.scaleX()) / 2);
-    let radiusY = Math.floor((node.height() * node.scaleY()) / 2);
+    let radiusX = (node.width() * node.scaleX()) / 2.0;
+    let radiusY = (node.height() * node.scaleY()) / 2.0;
 
     onChange({
       ...spec,

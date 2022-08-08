@@ -11,7 +11,7 @@ const AnnotationPage = function () {
         <Box display="flex">
           <Box display="flex" gap={0} flexGrow={2}>
             <Box>
-              <Box sx={{ minWidth: 100, padding: 3 }}>
+              <Box sx={{ minWidth: 100, padding: 3, maxWidth: 200 }}>
                 <ControlPanel />
               </Box>
             </Box>
