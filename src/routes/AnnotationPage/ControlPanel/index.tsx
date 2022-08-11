@@ -32,6 +32,8 @@ import {
 } from "reduxes/annotationmanager/selecetor";
 import HexagonIcon from "@mui/icons-material/Hexagon";
 import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
+import { loadImage } from "components/UploadFile";
+import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
 
 const ControlPanel = () => {
   const dispatch = useDispatch();
@@ -59,27 +61,29 @@ const ControlPanel = () => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       for (const acceptedFile of acceptedFiles) {
         importAnnotation(acceptedFile).then((resp) => {
-          fetch(resp.imageData)
-            .then((res) => res.blob())
-            .then((blob) => {
-              const imageName = `imageName-import-${Math.floor(
-                Math.random() * 100000
-              )}`;
-              const image = new File([blob], imageName, { type: "image/jpg" });
-              dispatch(addImagesToAnnotation({ images: [image] }));
-              dispatch(
-                saveAnnotationStateManager({
-                  imageName,
-                  drawObjectById: resp.drawObjectById,
-                })
-              );
-              dispatch(
-                resetCurrentStateDrawObject({
-                  drawObjectById: resp.drawObjectById,
-                })
-              );
-              dispatch(changePreviewImage({ imageName }));
-            });
+          const { annotationImagesProperty, drawObjectById } = resp;
+
+          dispatch(
+            addImagesToAnnotation({
+              annotationImagesProperties: [annotationImagesProperty],
+            })
+          );
+          dispatch(
+            saveAnnotationStateManager({
+              imageName: annotationImagesProperty.image.name,
+              drawObjectById: drawObjectById,
+            })
+          );
+          dispatch(
+            resetCurrentStateDrawObject({
+              drawObjectById: drawObjectById,
+            })
+          );
+          dispatch(
+            changePreviewImage({
+              imageName: annotationImagesProperty.image.name,
+            })
+          );
         });
       }
     }

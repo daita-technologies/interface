@@ -1,10 +1,8 @@
-import {
-  DrawObjectType,
-  EllipseSpec,
-  PolygonSpec,
-  RectangleSpec,
-} from "components/Annotation/Editor/type";
+import { PolygonSpec, RectangleSpec } from "components/Annotation/Editor/type";
+import { getScaleImageDemensionInEditor } from "components/Annotation/Editor/utils";
+import { loadImage } from "components/UploadFile";
 import { DrawObject, DrawType } from "reduxes/annotation/type";
+import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
 import { createEllipse } from "routes/AnnotationPage/Editor/Hook/useElipseEvent";
 import { createPolygon } from "routes/AnnotationPage/Editor/Hook/usePolygonEvent";
 import { createRectangle } from "routes/AnnotationPage/Editor/Hook/useRectangleEvent";
@@ -17,17 +15,28 @@ import {
   PolygonFormatter,
   RectangleFormatter,
   Shape,
-  ShapeType,
 } from "../labelmetype";
 
 export const exportAnnotation = (
-  file: File,
+  annotationImagesProperty: AnnotationImagesProperty,
   drawObjectById: Record<string, DrawObject>
 ) => {
+  const { image, width, height } = annotationImagesProperty;
+  const { newWidth, newHeight } = getScaleImageDemensionInEditor(width, height);
+  const widthScaleRatio = newWidth / width;
+  const heightScaleRatio = newHeight / height;
   const shapes: Shape[] = convert(drawObjectById);
-
+  for (const shape of shapes) {
+    for (let i = 0; i < shape.points.length; i++) {
+      const point = shape.points[i];
+      shape.points[i] = [
+        point[0] / widthScaleRatio,
+        point[1] / heightScaleRatio,
+      ];
+    }
+  }
   const reader = new FileReader();
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(image);
   reader.onload = () => {
     const annotationFormatter: AnnotationFormatter = createAnnotationFormatter(
       shapes,
@@ -79,26 +88,6 @@ export const convert = (
   return shape;
 };
 
-// export const convertDrawType2ShapeType = (drawType: DrawType): ShapeType => {
-//   if (drawType === DrawType.RECTANGLE) {
-//     return "Rectangle";
-//   } else if (drawType === DrawType.POLYGON) {
-//     return "Polygon";
-//   } else if (drawType === DrawType.ELLIPSE) {
-//     return "Ellipse";
-//   }
-//   return "Rectangle";
-// };
-// export const convertShapeType2DrawType = (drawType: ShapeType): DrawType => {
-//   if (drawType === "Rectangle") {
-//     return DrawType.RECTANGLE;
-//   } else if (drawType === "Polygon") {
-//     return DrawType.POLYGON;
-//   } else if (drawType === "Ellipse") {
-//     return DrawType.ELLIPSE;
-//   }
-//   return DrawType.RECTANGLE;
-// };
 export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
   return new Promise<AnnotationImportInfo>((resolve) => {
     const reader = new FileReader();
@@ -108,73 +97,114 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
       const annotationFormatter: AnnotationFormatter = JSON.parse(
         reader.result as string
       );
-      for (const shape of annotationFormatter.shapes) {
-        if (shape.shape_type === "rectangle") {
-          const drawObject = createRectangle({ x: 0, y: 0 });
-          const points = shape.points as RectangleFormatter;
-          const x = points[0][0];
-          const y = points[0][1];
-          const width = points[1][0] - x;
-          const height = points[1][1] - y;
-          drawObjectById[drawObject.data.id] = {
-            type: drawObject.type,
-            data: {
-              ...drawObject.data,
-              x,
-              y,
-              width,
-              height,
-              label: { label: shape.label },
-            },
-          };
-        } else if (shape.shape_type === "polygon") {
-          const drawObject = createPolygon({ x: 0, y: 0 });
-          const points = shape.points as PolygonFormatter;
-          const formatedPoints = points.map((arr) => {
-            return { x: arr[0], y: arr[1] };
+      annotationFormatter.imageData = convertLabelMeFormatToBase64(
+        annotationFormatter.imageData
+      );
+      fetch(annotationFormatter.imageData)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const imageName = `imageName-import-${Math.floor(
+            Math.random() * 100000
+          )}`;
+          const loadedFile = new File([blob], imageName, {
+            type: "image/jpg",
           });
-          drawObjectById[drawObject.data.id] = {
-            type: drawObject.type,
-            data: {
-              ...drawObject.data,
-              points: formatedPoints,
-              polygonState: { isFinished: true },
-              label: { label: shape.label },
-            },
-          };
-        } else if (shape.shape_type === "circle") {
-          const drawObject = createEllipse({ x: 0, y: 0 });
-          const points = shape.points as EllipseFormatter;
-          const center = { x: points[0][0], y: points[0][1] };
-          const radius = Math.abs(points[1][0] - points[1][1]);
-          drawObjectById[drawObject.data.id] = {
-            type: drawObject.type,
-            data: {
-              ...drawObject.data,
-              ...center,
-              radiusX: radius,
-              radiusY: radius,
-              label: { label: shape.label },
-            },
-          };
-        }
-        // else if (shape.shape_type === "ellipse") {
-        //   const drawObject = createEllipse({ x: 0, y: 0 });
-        //   const points = shape.points as EllipseFormatter;
-        //   drawObjectById[drawObject.data.id] = {
-        //     type: drawObject.type,
-        //     data: {
-        //       ...drawObject.data,
-        //       ...points,
-        //       label: { label: shape.label },
-        //     },
-        //   };
-        // }
-      }
-      resolve({
-        imageData: convertLabelMeFormatToBase64(annotationFormatter.imageData),
-        drawObjectById,
-      });
+          loadImage(loadedFile)
+            .then(({ image, fileName }) => {
+              const property: AnnotationImagesProperty = {
+                image: loadedFile,
+                width: image.width,
+                height: image.height,
+              };
+              const { newWidth, newHeight } = getScaleImageDemensionInEditor(
+                image.width,
+                image.height
+              );
+              const widthScaleRatio = newWidth / image.width;
+              const heightScaleRatio = newHeight / image.height;
+
+              for (const shape of annotationFormatter.shapes) {
+                for (let i = 0; i < shape.points.length; i++) {
+                  const point = shape.points[i];
+                  shape.points[i] = [
+                    point[0] * widthScaleRatio,
+                    point[1] * heightScaleRatio,
+                  ];
+                }
+              }
+              for (const shape of annotationFormatter.shapes) {
+                if (shape.shape_type === "rectangle") {
+                  const drawObject = createRectangle({ x: 0, y: 0 });
+                  const points = shape.points as RectangleFormatter;
+                  const x = points[0][0];
+                  const y = points[0][1];
+                  const width = points[1][0] - x;
+                  const height = points[1][1] - y;
+                  drawObjectById[drawObject.data.id] = {
+                    type: drawObject.type,
+                    data: {
+                      ...drawObject.data,
+                      x,
+                      y,
+                      width,
+                      height,
+                      label: { label: shape.label },
+                    },
+                  };
+                } else if (shape.shape_type === "polygon") {
+                  const drawObject = createPolygon({ x: 0, y: 0 });
+                  const points = shape.points as PolygonFormatter;
+                  const formatedPoints = points.map((arr) => {
+                    return { x: arr[0], y: arr[1] };
+                  });
+                  drawObjectById[drawObject.data.id] = {
+                    type: drawObject.type,
+                    data: {
+                      ...drawObject.data,
+                      points: formatedPoints,
+                      polygonState: { isFinished: true },
+                      label: { label: shape.label },
+                    },
+                  };
+                } else if (shape.shape_type === "circle") {
+                  const drawObject = createEllipse({ x: 0, y: 0 });
+                  const points = shape.points as EllipseFormatter;
+                  const center = { x: points[0][0], y: points[0][1] };
+                  const disX = points[1][0] - points[0][0];
+                  const disY = points[1][1] - points[0][1];
+
+                  const radius = Math.sqrt(disX * disX - disY * disY);
+                  drawObjectById[drawObject.data.id] = {
+                    type: drawObject.type,
+                    data: {
+                      ...drawObject.data,
+                      ...center,
+                      radiusX: radius,
+                      radiusY: radius,
+                      label: { label: shape.label },
+                    },
+                  };
+                }
+                // else if (shape.shape_type === "ellipse") {
+                //   const drawObject = createEllipse({ x: 0, y: 0 });
+                //   const points = shape.points as EllipseFormatter;
+                //   drawObjectById[drawObject.data.id] = {
+                //     type: drawObject.type,
+                //     data: {
+                //       ...drawObject.data,
+                //       ...points,
+                //       label: { label: shape.label },
+                //     },
+                //   };
+                // }
+              }
+              resolve({
+                annotationImagesProperty: property,
+                drawObjectById,
+              });
+            })
+            .catch((e) => console.log(e));
+        });
     };
   });
 };

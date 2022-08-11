@@ -1,4 +1,5 @@
 import { Box, List, ListItem } from "@mui/material";
+import { loadImage } from "components/UploadFile";
 import { IMAGE_EXTENSIONS } from "constants/defaultValues";
 import { useEffect, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
@@ -15,6 +16,7 @@ import {
   selectorCurrentPreviewImageName,
   selectorIdDrawObjectByImageName,
 } from "reduxes/annotationmanager/selecetor";
+import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
 
 const createFile = async (imageName: string, url: string) => {
   let response = await fetch(url);
@@ -44,7 +46,11 @@ const ImagePreview = function () {
       "2.jpg",
       "https://f7-zpcloud.zdn.vn/2878988493394338713/95e566c7d24b1015495a.jpg"
     ).then((image: File) => {
-      dispatch(addImagesToAnnotation({ images: [image] }));
+      dispatch(
+        addImagesToAnnotation({
+          annotationImagesProperties: [{ image, width: 1920, height: 1208 }],
+        })
+      );
       dispatch(changePreviewImage({ imageName: image.name }));
     });
     // createFile(
@@ -88,9 +94,20 @@ const ImagePreview = function () {
 
   const onDrop = (acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
-      dispatch(addImagesToAnnotation({ images: acceptedFiles }));
-      if (!currentPreviewImageName) {
-        dispatch(changePreviewImage({ imageName: acceptedFiles[0].name }));
+      for (const file of acceptedFiles) {
+        loadImage(file).then(({ image, fileName }) => {
+          const property: AnnotationImagesProperty = {
+            image: file,
+            width: image.width,
+            height: image.height,
+          };
+          dispatch(
+            addImagesToAnnotation({ annotationImagesProperties: [property] })
+          );
+          if (!currentPreviewImageName) {
+            dispatch(changePreviewImage({ imageName: acceptedFiles[0].name }));
+          }
+        });
       }
     }
   };
@@ -102,9 +119,11 @@ const ImagePreview = function () {
   const { getRootProps, isDragActive, getInputProps } = dropZone;
   const fileThumbByImageName = useMemo(() => {
     const thumbs: Record<string, string> = {};
-    Object.entries(annotationManagerImages).map(([imageName, image]) => {
-      thumbs[imageName] = URL.createObjectURL(image);
-    });
+    Object.entries(annotationManagerImages).map(
+      ([imageName, annotationImagesProperty]) => {
+        thumbs[imageName] = URL.createObjectURL(annotationImagesProperty.image);
+      }
+    );
     return thumbs;
   }, [annotationManagerImages]);
   const handleSelectPreview = (imageName: string) => {

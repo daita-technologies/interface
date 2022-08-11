@@ -9,3 +9,6 @@ export const CIRCLE_STYLE = {
   strokeWidth: 1,
 };
 export const CORNER_RADIUS = 4;
+
+export const MAX_WIDTH_IMAGE_IN_EDITOR = 1200;
+export const MAX_HEIGHT_IMAGE_IN_EDITOR = 700;

@@ -1,5 +1,5 @@
 import { DrawObject } from "reduxes/annotation/type";
-import { EllipseSpec, PolygonSpec, RectangleSpec } from "../Editor/type";
+import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
 
 export type RectangleFormatter = number[][];
 export type PolygonFormatter = number[][];
@@ -49,6 +49,6 @@ export const createAnnotationFormatter = (
   return annotationFormatter;
 };
 export interface AnnotationImportInfo {
-  imageData: string;
+  annotationImagesProperty: AnnotationImagesProperty;
   drawObjectById: Record<string, DrawObject>;
 }

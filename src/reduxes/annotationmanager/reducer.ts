@@ -23,10 +23,12 @@ const annotationManagerReducer = (
   const actionType = action.type;
   switch (actionType) {
     case ADD_IMAGES: {
-      const { images } = payload as AddImageToAnnotationProps;
+      const { annotationImagesProperties } =
+        payload as AddImageToAnnotationProps;
       const stateImages = state.images;
-      images.forEach((image) => {
-        stateImages[image.name] = image;
+      annotationImagesProperties.forEach((annotationImagesProperty) => {
+        stateImages[annotationImagesProperty.image.name] =
+          annotationImagesProperty;
       });
       return {
         ...state,

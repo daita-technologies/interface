@@ -1,3 +1,8 @@
+import {
+  MAX_HEIGHT_IMAGE_IN_EDITOR,
+  MAX_WIDTH_IMAGE_IN_EDITOR,
+} from "../const";
+
 export const getAvaragePoint = (points: number[]) => {
   let totalX = 0;
   let totalY = 0;
@@ -14,13 +19,13 @@ export const getDistance = (node1: number[], node2: number[]) => {
   const diffX = Math.abs(node1[0] - node2[0]);
   const diffY = Math.abs(node1[1] - node2[1]);
   const distaneInPixel = Math.sqrt(diffX * diffX + diffY * diffY);
-  return Number.parseFloat(distaneInPixel + '').toFixed(2);
+  return Number.parseFloat(distaneInPixel + "").toFixed(2);
 };
 export const dragBoundFunc = (
   stageWidth: number,
   stageHeight: number,
   vertexRadius: number,
-  pos: { x: number; y: number },
+  pos: { x: number; y: number }
 ) => {
   let x = pos.x;
   let y = pos.y;
@@ -36,4 +41,21 @@ export const minMax = (points: number[]) => {
     acc[1] = acc[1] === undefined || val > acc[1] ? val : acc[1];
     return acc;
   }, []);
+};
+
+export const getScaleImageDemensionInEditor = (
+  realWidth: number,
+  realHeight: number
+) => {
+  let newHeight = realHeight;
+  let newWidth = realWidth;
+  if (realWidth > MAX_WIDTH_IMAGE_IN_EDITOR) {
+    newHeight = newHeight * (MAX_WIDTH_IMAGE_IN_EDITOR / newWidth);
+    newWidth = MAX_WIDTH_IMAGE_IN_EDITOR;
+  }
+  if (newHeight > MAX_HEIGHT_IMAGE_IN_EDITOR) {
+    newWidth = newWidth * (MAX_HEIGHT_IMAGE_IN_EDITOR / newHeight);
+    newHeight = MAX_HEIGHT_IMAGE_IN_EDITOR;
+  }
+  return { newWidth, newHeight };
 };

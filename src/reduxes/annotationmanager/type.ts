@@ -2,11 +2,16 @@ import { DrawObject } from "reduxes/annotation/type";
 
 export interface AnnotationManagerReducer {
   idDrawObjectByImageName: Record<string, Record<string, DrawObject>>;
-  images: Record<string, File>;
+  images: Record<string, AnnotationImagesProperty>;
   currentPreviewImageName: string | null;
 }
+export interface AnnotationImagesProperty {
+  image: File;
+  width: number;
+  height: number;
+}
 export interface AddImageToAnnotationProps {
-  images: File[];
+  annotationImagesProperties: AnnotationImagesProperty[];
 }
 export interface ChangePreviewImageProps {
   imageName: string;

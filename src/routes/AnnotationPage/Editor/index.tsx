@@ -1,5 +1,8 @@
 import Box from "@mui/material/Box";
-import { getNewPositionOnWheel } from "components/Annotation/Editor/utils";
+import {
+  getNewPositionOnWheel,
+  getScaleImageDemensionInEditor,
+} from "components/Annotation/Editor/utils";
 import { KonvaEventObject } from "konva/lib/Node";
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Image, Layer, Rect, Stage, Text } from "react-konva";
@@ -36,6 +39,10 @@ import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecet
 import useEllipseEvent from "./Hook/useElipseEvent";
 import usePolygonEvent from "./Hook/usePolygonEvent";
 import useRectangleEvent from "./Hook/useRectangleEvent";
+import {
+  MAX_HEIGHT_IMAGE_IN_EDITOR,
+  MAX_WIDTH_IMAGE_IN_EDITOR,
+} from "components/Annotation/Editor/const";
 
 const Editor = () => {
   const dispatch = useDispatch();
@@ -52,7 +59,7 @@ const Editor = () => {
   const videoElement = useMemo(() => {
     if (currentAnnotationFile) {
       const element = new window.Image();
-      element.src = URL.createObjectURL(currentAnnotationFile);
+      element.src = URL.createObjectURL(currentAnnotationFile.image);
       return element;
     }
     return null;
@@ -68,22 +75,20 @@ const Editor = () => {
   const toolTipLayer = useRef<Konva.Layer>(null);
   const toolTip = useRef<Konva.Text>(null);
   const toolTipRect = useRef<Konva.Rect>(null);
+
+  // const toolTipMouseLayer = useRef<Konva.Layer>(null);
+  // const toolTipMouse = useRef<Konva.Text>(null);
+  // const toolTipMouseRect = useRef<Konva.Rect>(null);
+
   useEffect(() => {
     if (!videoElement) return;
     const onload = function () {
-      let newHeight = videoElement.height;
-      let newWidth = videoElement.width;
-      if (videoElement.width > 1200) {
-        newHeight = newHeight * (1200 / newWidth);
-        newWidth = 1200;
-      }
-      if (newHeight > 700) {
-        newWidth = newWidth * (700 / newHeight);
-        newHeight = 700;
-      }
+      const { newWidth, newHeight } = getScaleImageDemensionInEditor(
+        videoElement.width,
+        videoElement.height
+      );
       videoElement.width = newWidth;
       videoElement.height = newHeight;
-
       setImage(videoElement);
     };
     videoElement.addEventListener("load", onload);
@@ -110,6 +115,22 @@ const Editor = () => {
     } else if (drawType === DrawType.ELLIPSE) {
       ellipseHook.handleMouseMove(editorEventPayload);
     }
+    // if (layer?.current && toolTipMouseLayer.current && toolTipMouse.current) {
+    //   const mousePos = e.currentTarget.getRelativePointerPosition();
+    //   const mouseAbsolutePosition = layer.current.getRelativePointerPosition();
+    //   console.log(
+    //     "mouseAbsolutePosition",
+    //     mouseAbsolutePosition.x,
+    //     mouseAbsolutePosition.y
+    //   );
+    //   toolTipMouseLayer.current.position({
+    //     x: mouseAbsolutePosition.x,
+    //     y: mouseAbsolutePosition.y,
+    //   });
+    //   toolTipMouse.current.text(
+    //     `${Math.round(mousePos.x)}, ${Math.round(mousePos.y)}`
+    //   );
+    // }
   };
 
   const mouseupHandler = (e: KonvaEventObject<MouseEvent>) => {
@@ -260,7 +281,11 @@ const Editor = () => {
     <>
       <Box sx={{ padding: "40px 20px" }}>
         <Box display="flex" gap={3} justifyContent="center">
-          <Box width={1200} height={700} display="flex">
+          <Box
+            width={MAX_WIDTH_IMAGE_IN_EDITOR}
+            height={MAX_HEIGHT_IMAGE_IN_EDITOR}
+            display="flex"
+          >
             <div
               ref={refBoundDiv}
               tabIndex={0}
@@ -269,16 +294,16 @@ const Editor = () => {
               onMouseOver={mouseOverBoundDivHandler}
               style={{
                 margin: "auto",
-                width: image ? image.width : 1200,
-                height: image ? image.height : 700,
+                width: image ? image.width : MAX_WIDTH_IMAGE_IN_EDITOR,
+                height: image ? image.height : MAX_HEIGHT_IMAGE_IN_EDITOR,
               }}
             >
               <ReactReduxContext.Consumer>
                 {({ store }) => (
                   <Stage
                     ref={stageRef}
-                    width={image ? image.width : 1200}
-                    height={image ? image.height : 700}
+                    width={image ? image.width : MAX_WIDTH_IMAGE_IN_EDITOR}
+                    height={image ? image.height : MAX_HEIGHT_IMAGE_IN_EDITOR}
                   >
                     <Provider store={store}>
                       <Layer ref={layer}>
@@ -367,6 +392,26 @@ const Editor = () => {
                           ref={toolTip}
                         />
                       </Layer>
+                      {/* <Layer ref={toolTipMouseLayer} visible={true}>
+                        <Rect
+                          ref={toolTipMouseRect}
+                          x={0}
+                          y={0}
+                          stroke={"#555"}
+                          strokeWidth={2}
+                          fill={"#ddd"}
+                          width={200}
+                          height={40}
+                        />
+                        <Text
+                          align="center"
+                          width={200}
+                          height={40}
+                          fontSize={15}
+                          padding={14}
+                          ref={toolTipMouse}
+                        />
+                      </Layer> */}
                     </Provider>
                   </Stage>
                 )}
