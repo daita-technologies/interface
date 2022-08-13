@@ -84,7 +84,7 @@ const Rectangle = function ({
       y: node.y(),
       rotation: node.attrs.rotation,
       width: Math.max(5, node.width() * scaleX),
-      height: Math.max(node.height() * scaleY),
+      height: Math.max(5, node.height() * scaleY),
     });
     commonShapeEvent.handleTransformEnd(e);
   };
@@ -108,6 +108,7 @@ const Rectangle = function ({
         onDragEnd={handleDragEnd}
         onDragStart={handleDragStart}
         onTransformEnd={handleTransformEnd}
+        strokeScaleEnabled={false}
         {...spec}
       />
       {isSelected && (
@@ -118,6 +119,7 @@ const Rectangle = function ({
           anchorStrokeWidth={CIRCLE_STYLE.strokeWidth}
           anchorStroke={CIRCLE_STYLE.stroke}
           anchorSize={CORNER_RADIUS * 1.8}
+          ignoreStroke={true}
           boundBoxFunc={boundBoxFunc}
         />
       )}

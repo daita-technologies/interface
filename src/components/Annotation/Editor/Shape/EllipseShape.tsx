@@ -114,6 +114,7 @@ const EllipseShape = function ({
         onDragEnd={handleDragEnd}
         onDragStart={handleDragStart}
         onTransformEnd={handleTransformEnd}
+        strokeScaleEnabled={false}
         {...spec}
       />
       {isSelected && (
@@ -124,6 +125,7 @@ const EllipseShape = function ({
           anchorStrokeWidth={CIRCLE_STYLE.strokeWidth}
           anchorStroke={CIRCLE_STYLE.stroke}
           anchorSize={CORNER_RADIUS * 1.8}
+          ignoreStroke={true}
           boundBoxFunc={boundBoxFunc}
         />
       )}
