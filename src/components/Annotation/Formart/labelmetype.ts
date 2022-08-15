@@ -1,9 +1,11 @@
 import { DrawObject } from "reduxes/annotation/type";
 import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
+import { EllipseSpec } from "../Editor/type";
 
 export type RectangleFormatter = number[][];
 export type PolygonFormatter = number[][];
-export type EllipseFormatter = number[][];
+export type CircleFormatter = number[][];
+export type EllipseFormatter = EllipseSpec;
 
 export type points = RectangleFormatter | PolygonFormatter | EllipseFormatter;
 export type ShapeType = "rectangle" | "polygon" | "ellipse" | "circle";

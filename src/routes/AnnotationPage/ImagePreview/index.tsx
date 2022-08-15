@@ -180,12 +180,12 @@ const ImagePreview = function () {
             <ListItem key={imageName}>
               <Box
                 sx={{
-                  background: `url(${fileThumbByImageName[imageName]})`,
+                  background: `url(${fileThumbByImageName[imageName]})no-repeat center`,
                   border:
                     imageName === currentPreviewImageName
-                      ? "5px solid red"
+                      ? "3px solid red"
                       : "1px solid",
-                  backgroundSize: "cover",
+                  backgroundSize: "contain",
                   height: "100%",
                 }}
                 width="250px"

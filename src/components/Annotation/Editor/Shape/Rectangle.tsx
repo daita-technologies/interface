@@ -7,7 +7,7 @@ import { Rect, Transformer } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
 import { selectorSelectedRectangle } from "reduxes/annotation/selector";
-import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
+import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { RectangleProps, RectangleSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 

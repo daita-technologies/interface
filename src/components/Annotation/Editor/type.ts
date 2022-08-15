@@ -1,5 +1,6 @@
 import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
+import { CIRCLE_STYLE, LINE_STYLE } from "./const";
 
 export interface RectangleSpec {
   id: string;
@@ -51,9 +52,7 @@ export const initialRectangles: Record<string, RectangleSpec> = {
     rotation: 0,
     width: 100,
     height: 100,
-    fill: "#8c1eff5c",
-    stroke: "#00F1FF",
-    strokeWidth: 3,
+    ...LINE_STYLE,
     id: "RETANGLE_1",
     label: { label: "RETANGLE_1" },
   },
@@ -63,9 +62,7 @@ export const initialRectangles: Record<string, RectangleSpec> = {
     rotation: 0,
     width: 100,
     height: 100,
-    fill: "#8c1eff5c",
-    stroke: "#00F1FF",
-    strokeWidth: 3,
+    ...LINE_STYLE,
     id: "RETANGLE_2",
     label: { label: "RETANGLE_2" },
   },
@@ -93,9 +90,7 @@ export const initialEllipses: Record<string, EllipseSpec> = {
     rotation: 0,
     id: "ELLIPSE_1",
     label: { label: "ELLIPSE_1" },
-    fill: "#8c1eff5c",
-    stroke: "#00F1FF",
-    strokeWidth: 3,
+    ...LINE_STYLE,
   },
 };
 export interface RectangleProps {

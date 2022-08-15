@@ -1,4 +1,8 @@
-import { PolygonSpec, RectangleSpec } from "components/Annotation/Editor/type";
+import {
+  EllipseSpec,
+  PolygonSpec,
+  RectangleSpec,
+} from "components/Annotation/Editor/type";
 import { getScaleImageDemensionInEditor } from "components/Annotation/Editor/utils";
 import { loadImage } from "components/UploadFile";
 import { DrawObject, DrawType } from "reduxes/annotation/type";
@@ -9,6 +13,7 @@ import { createRectangle } from "routes/AnnotationPage/Editor/Hook/useRectangleE
 import {
   AnnotationFormatter,
   AnnotationImportInfo,
+  CircleFormatter,
   convertLabelMeFormatToBase64,
   createAnnotationFormatter,
   EllipseFormatter,
@@ -21,20 +26,8 @@ export const exportAnnotation = (
   annotationImagesProperty: AnnotationImagesProperty,
   drawObjectById: Record<string, DrawObject>
 ) => {
-  const { image, width, height } = annotationImagesProperty;
-  const { newWidth, newHeight } = getScaleImageDemensionInEditor(width, height);
-  const widthScaleRatio = newWidth / width;
-  const heightScaleRatio = newHeight / height;
   const shapes: Shape[] = convert(drawObjectById);
-  for (const shape of shapes) {
-    for (let i = 0; i < shape.points.length; i++) {
-      const point = shape.points[i];
-      shape.points[i] = [
-        point[0] / widthScaleRatio,
-        point[1] / heightScaleRatio,
-      ];
-    }
-  }
+  const { image } = annotationImagesProperty;
   const reader = new FileReader();
   reader.readAsDataURL(image);
   reader.onload = () => {
@@ -75,15 +68,14 @@ export const convert = (
         shape_type: "polygon",
         label: label.label,
       });
+    } else if (value.type === DrawType.ELLIPSE) {
+      const { x, y, radiusX, radiusY, label } = value.data as EllipseSpec;
+      shape.push({
+        points: { x, y, radiusX, radiusY } as EllipseFormatter,
+        shape_type: "ellipse",
+        label: label.label,
+      });
     }
-    // else if (value.type === DrawType.ELLIPSE) {
-    //   const { x, y, radiusX, radiusY, label } = value.data as EllipseSpec;
-    //   shape.push({
-    //     points: { x, y, radiusX, radiusY } as EllipseFormatter,
-    //     shape_type: "ellipse",
-    //     label: label.label,
-    //   });
-    // }
   }
   return shape;
 };
@@ -116,22 +108,6 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
                 width: image.width,
                 height: image.height,
               };
-              const { newWidth, newHeight } = getScaleImageDemensionInEditor(
-                image.width,
-                image.height
-              );
-              const widthScaleRatio = newWidth / image.width;
-              const heightScaleRatio = newHeight / image.height;
-
-              for (const shape of annotationFormatter.shapes) {
-                for (let i = 0; i < shape.points.length; i++) {
-                  const point = shape.points[i];
-                  shape.points[i] = [
-                    point[0] * widthScaleRatio,
-                    point[1] * heightScaleRatio,
-                  ];
-                }
-              }
               for (const shape of annotationFormatter.shapes) {
                 if (shape.shape_type === "rectangle") {
                   const drawObject = createRectangle({ x: 0, y: 0 });
@@ -168,12 +144,13 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
                   };
                 } else if (shape.shape_type === "circle") {
                   const drawObject = createEllipse({ x: 0, y: 0 });
-                  const points = shape.points as EllipseFormatter;
+                  const points = shape.points as CircleFormatter;
                   const center = { x: points[0][0], y: points[0][1] };
                   const disX = points[1][0] - points[0][0];
                   const disY = points[1][1] - points[0][1];
+                  const radius = Math.sqrt(Math.abs(disX * disX - disY * disY));
+                  console.log("import circel", radius, points);
 
-                  const radius = Math.sqrt(disX * disX - disY * disY);
                   drawObjectById[drawObject.data.id] = {
                     type: drawObject.type,
                     data: {
@@ -184,19 +161,18 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
                       label: { label: shape.label },
                     },
                   };
+                } else if (shape.shape_type === "ellipse") {
+                  const drawObject = createEllipse({ x: 0, y: 0 });
+                  const points = shape.points as EllipseFormatter;
+                  drawObjectById[drawObject.data.id] = {
+                    type: drawObject.type,
+                    data: {
+                      ...drawObject.data,
+                      ...points,
+                      label: { label: shape.label },
+                    },
+                  };
                 }
-                // else if (shape.shape_type === "ellipse") {
-                //   const drawObject = createEllipse({ x: 0, y: 0 });
-                //   const points = shape.points as EllipseFormatter;
-                //   drawObjectById[drawObject.data.id] = {
-                //     type: drawObject.type,
-                //     data: {
-                //       ...drawObject.data,
-                //       ...points,
-                //       label: { label: shape.label },
-                //     },
-                //   };
-                // }
               }
               resolve({
                 annotationImagesProperty: property,

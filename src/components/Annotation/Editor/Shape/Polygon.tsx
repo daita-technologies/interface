@@ -1,7 +1,9 @@
+import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Stage } from "konva/lib/Stage";
-import { Vector2d } from "konva/lib/types";
+import { IRect, Vector2d } from "konva/lib/types";
 import { debounce } from "lodash";
+import React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Circle, Group, Line } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,6 +35,7 @@ const Polygon = ({
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
   const currentpolygon = useSelector(selectorSelectedPolygon);
   const zoom = useSelector(selectorZoom);
+  const groupRef = React.useRef<Konva.Group>(null);
 
   const isSelected = useMemo(() => {
     return currentpolygon != null && spec.id === currentpolygon.id;
@@ -66,28 +69,112 @@ const Polygon = ({
   };
   const [minMaxX, setMinMaxX] = useState([0, 0]);
   const [minMaxY, setMinMaxY] = useState([0, 0]);
+  const [groupPosition, setGroupPosition] = useState<Vector2d>({ x: 0, y: 0 });
 
   const handleGroupDragStart = (e: KonvaEventObject<DragEvent>) => {
-    const arrX = points.map((p) => p.x);
-    const arrY = points.map((p) => p.y);
-    setMinMaxX(minMax(arrX));
-    setMinMaxY(minMax(arrY));
-    dispatch(
-      setSelectedShape({
-        selectedDrawObjectId: spec.id,
-      })
-    );
-    commonShapeEvent.handleDragStart(e);
+    if (groupRef.current) {
+      const rect = groupRef.current.getClientRect();
+      setGroupPosition({ x: rect.x, y: rect.y });
+      const arrX = points.map((p) => p.x);
+      const arrY = points.map((p) => p.y);
+      setMinMaxX(minMax(arrX));
+      setMinMaxY(minMax(arrY));
+      dispatch(
+        setSelectedShape({
+          selectedDrawObjectId: spec.id,
+        })
+      );
+      commonShapeEvent.handleDragStart(e);
+    }
   };
+  const [previousPosition, setPreviousPosition] = useState<Vector2d>({
+    x: 0,
+    y: 0,
+  });
+  // {
+  //   x: 0,
+  //   y: 0,
+  //   width: 0,
+  //   height: 0,
+  // }
+  const [currentBoudingBox, setCurrentBoudingBox] = useState<IRect | null>(
+    null
+  );
+  useEffect(() => {
+    console.log("previousPosition", previousPosition);
+  }, [previousPosition]);
+
   const groupDragBound = (pos: { x: number; y: number }) => {
     let { x, y } = pos;
+    // console.log("pos", pos);
     const sw = stage ? stage.width() : 0;
     const sh = stage ? stage.height() : 0;
-    if (minMaxY[0] + y < 0) y = -1 * minMaxY[0];
-    if (minMaxX[0] + x < 0) x = -1 * minMaxX[0];
-    if (minMaxY[1] + y > sh) y = sh - minMaxY[1];
-    if (minMaxX[1] + x > sw) x = sw - minMaxX[1];
-    return { x, y };
+    if (groupRef && groupRef.current) {
+      const box = groupRef.current.getClientRect();
+      const relativePosition = groupRef.current.getRelativePointerPosition();
+      console.log("box", box.y);
+      const minMaxX = [0, box.width];
+      const minMaxY = [0, box.height];
+      // &&(currentBoudingBox === null ||     Math.round(box.y) !== Math.round(currentBoudingBox?.y))
+      if (box.y <= 0) {
+        x = previousPosition.x;
+        y = previousPosition.y;
+        console.log("assign x,y", x, y);
+        // if (
+        //   currentBoudingBox === null ||
+        //   Math.round(box.y) <= Math.round(currentBoudingBox?.y)
+        // ) {
+        //   x = previousPosition.x;
+        //   y = previousPosition.y;
+        //   const tmp = {
+        //     ...box,
+        //     x: Math.round(box.x),
+        //     y: Math.round(box.y),
+        //   };
+        //   setCurrentBoudingBox(tmp);
+        //   console.log(
+        //     "setCurrentBoudingBox",
+        //     tmp,
+        //     "box",
+        //     box.y,
+        //     "previos",
+        //     previousPosition
+        //   );
+        // } else {
+        //   console.log("ignore Dup position");
+        // }
+      } else {
+        // if (
+        //   currentBoudingBox &&
+        //   Math.round(box.y) !== Math.round(currentBoudingBox?.y)
+        // ) {
+        //   setPreviousPosition({ x, y });
+        // }
+        // const tmp = {
+        //   ...box,
+        //   x: Math.round(box.x),
+        //   y: Math.round(box.y),
+        // };
+        // setCurrentBoudingBox(tmp);
+        if (box.y > 10) {
+          setPreviousPosition({ x, y });
+        }
+      }
+      if (minMaxX[0] + x < 0) x = -1 * minMaxX[0];
+      if (minMaxY[1] + y > sh) y = sh - minMaxY[1];
+      if (minMaxX[1] + x > sw) x = sw - minMaxX[1];
+      return { x, y };
+      // const box = groupRef.current.getClientRect();
+      // const maxX = Math.max(...spec.points.map((t) => t.x));
+      // const maxY = Math.max(...spec.points.map((t) => t.y));
+      // console.log(minMaxX, minMaxY);
+      // if (minMaxY[0] + y < 0) y = -1 * minMaxY[0];
+      // if (minMaxX[0] + x < 0) x = -1 * minMaxX[0];
+      // if (minMaxY[1] + y > sh) y = sh - minMaxY[1];
+      // if (minMaxX[1] + x > sw) x = sw - minMaxX[1];
+      // return { x, y };
+    }
+    return { x: 0, y: 0 };
   };
   const handleMouseOverStartPoint = (e: KonvaEventObject<DragEvent>) => {
     if (isFinished || points.length < 3) return;
@@ -142,6 +229,10 @@ const Polygon = ({
     const y: number = e.target.y();
     spec.points.map((point) => result.push({ x: point.x + x, y: point.y + y }));
     e.target.position({ x: 0, y: 0 });
+    if (groupRef.current) {
+      const rect = groupRef.current.getClientRect();
+      setGroupPosition({ x: rect.x, y: rect.y });
+    }
     dispatch(
       updateDrawObject({
         data: {
@@ -158,9 +249,14 @@ const Polygon = ({
     if (stage) {
       const index = e.target.index - 1;
       const pos = {
-        x: e.currentTarget.getAbsolutePosition().x / zoom.zoom,
-        y: e.currentTarget.getAbsolutePosition().y / zoom.zoom,
+        x: stage.getRelativePointerPosition().x / zoom.zoom,
+        y: stage.getRelativePointerPosition().y / zoom.zoom,
       };
+      // console.log(
+      //   "pos",
+      //   pos,
+      //   e.target?.getStage()?.getRelativePointerPosition()
+      // );
       dispatch(
         updateDrawObject({
           data: {
@@ -179,7 +275,7 @@ const Polygon = ({
     dragBoundFunc(
       stage ? stage.width() : 0,
       stage ? stage.height() : 0,
-      CORNER_RADIUS,
+      CORNER_RADIUS * 2,
       pos
     );
   const renderPoints = () => {
@@ -203,7 +299,7 @@ const Polygon = ({
           key={index}
           x={x}
           y={y}
-          radius={CORNER_RADIUS}
+          radius={CORNER_RADIUS * 2}
           draggable
           onDragMove={handlePointDragMove}
           onDragStart={commonShapeEvent.handleTransformStart}
@@ -215,18 +311,25 @@ const Polygon = ({
       );
     });
   };
+
   return (
     <Group
+      ref={groupRef}
       draggable={isFinished}
       onDragStart={handleGroupDragStart}
       onDragEnd={handleGroupDragEnd}
-      dragBoundFunc={groupDragBound}
+      // dragBoundFunc={groupDragBound}
       onMouseOver={handleGroupMouseOver}
       onMouseOut={handleGroupMouseOut}
       onMouseDown={mousedownHandler}
       onClick={commonShapeEvent.handleCick}
     >
-      <Line points={flattenedPoints} closed={isFinished} {...LINE_STYLE} />
+      <Line
+        points={flattenedPoints}
+        closed={isFinished}
+        {...LINE_STYLE}
+        strokeWidth={LINE_STYLE.strokeWidth * 2}
+      />
       {(isSelected || !isFinished) && renderPoints()}
     </Group>
   );

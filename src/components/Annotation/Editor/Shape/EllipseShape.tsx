@@ -50,15 +50,11 @@ const EllipseShape = function ({
     const sh = stage ? stage.height() : 0;
     if (shapeRef && shapeRef.current) {
       const box = shapeRef.current.getClientRect();
-      const minMaxX = [0, box.width];
-      const minMaxY = [0, box.height];
 
-      if (minMaxY[0] + y - spec.radiusY < 0) y = -1 * minMaxY[0] + spec.radiusY;
-      if (minMaxX[0] + x - spec.radiusX < 0) x = -1 * minMaxX[0] + spec.radiusX;
-      if (minMaxY[1] + y - spec.radiusY > sh)
-        y = sh - minMaxY[1] + spec.radiusY;
-      if (minMaxX[1] + x - spec.radiusX > sw)
-        x = sw - minMaxX[1] + spec.radiusX;
+      if (y - box.height / 2 < 0) y = box.height / 2;
+      if (x - box.width / 2 < 0) x = box.width / 2;
+      if (y + box.height / 2 > sh) y = sh - box.height / 2;
+      if (x + box.width / 2 > sw) x = sw - box.width / 2;
       return { x, y };
     }
     return { x: 0, y: 0 };
