@@ -10,7 +10,7 @@ export const selectorcurrentDrawType = (state: RootState) =>
   state.annotationReducer.currentDrawType;
 export const selectorSelectedDrawObjectId = (state: RootState) =>
   state.annotationReducer.selectedDrawObjectId;
-export const selectorSelectedPolygon = (
+export const selectorSelectedPolygonOrLineStrip = (
   state: RootState
 ): PolygonSpec | null => {
   if (state.annotationReducer.selectedDrawObjectId) {
@@ -18,7 +18,7 @@ export const selectorSelectedPolygon = (
       state.annotationReducer.drawObjectById[
         state.annotationReducer.selectedDrawObjectId
       ];
-    if (shape.type === DrawType.POLYGON) {
+    if (shape.type === DrawType.POLYGON || shape.type === DrawType.LINE_STRIP) {
       return shape.data as PolygonSpec;
     }
   }

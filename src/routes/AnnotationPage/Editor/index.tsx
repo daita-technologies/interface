@@ -70,7 +70,10 @@ const Editor = () => {
     const editorEventPayload = { eventObject: e };
     if (drawType === DrawType.RECTANGLE) {
       rectangleHook.handleMouseDown(editorEventPayload);
-    } else if (drawType === DrawType.POLYGON) {
+    } else if (
+      drawType === DrawType.POLYGON ||
+      drawType === DrawType.LINE_STRIP
+    ) {
       polygonHook.handleMouseDown(editorEventPayload);
     } else if (drawType === DrawType.ELLIPSE) {
       ellipseHook.handleMouseDown(editorEventPayload);
@@ -80,7 +83,10 @@ const Editor = () => {
     const editorEventPayload = { eventObject: e };
     if (drawType === DrawType.RECTANGLE) {
       rectangleHook.handleMouseMove(editorEventPayload);
-    } else if (drawType === DrawType.POLYGON) {
+    } else if (
+      drawType === DrawType.POLYGON ||
+      drawType === DrawType.LINE_STRIP
+    ) {
       polygonHook.handleMouseMove(editorEventPayload);
     } else if (drawType === DrawType.ELLIPSE) {
       ellipseHook.handleMouseMove(editorEventPayload);
@@ -139,6 +145,7 @@ const Editor = () => {
     const rectanglesById: Record<string, DrawObject> = {};
     const polygonsById: Record<string, DrawObject> = {};
     const ellipsesById: Record<string, DrawObject> = {};
+    const linestripsById: Record<string, DrawObject> = {};
 
     Object.keys(drawObjectById).forEach((t) => {
       if (drawObjectById[t].type === DrawType.RECTANGLE) {
@@ -147,12 +154,15 @@ const Editor = () => {
         polygonsById[t] = drawObjectById[t];
       } else if (drawObjectById[t].type === DrawType.ELLIPSE) {
         ellipsesById[t] = drawObjectById[t];
+      } else if (drawObjectById[t].type === DrawType.LINE_STRIP) {
+        linestripsById[t] = drawObjectById[t];
       }
     });
     return {
       rectangles: rectanglesById,
       polygons: polygonsById,
       ellipses: ellipsesById,
+      linestrips: linestripsById,
     };
   }, [drawObjectById]);
   const clickStageHandler = (e: KonvaEventObject<MouseEvent>) => {
@@ -351,21 +361,22 @@ const Editor = () => {
                             );
                           }
                         )}
-                        {Object.entries(drawObjects.polygons).map(
-                          ([key, value]) => {
-                            const polygon = value.data as PolygonSpec;
-                            return (
-                              <Polygon
-                                key={key}
-                                spec={polygon}
-                                onMouseOverHandler={(e) => {
-                                  onMouseOverToolTipHandler(e, polygon);
-                                }}
-                                onMouseOutHandler={onMouseOutToolTipHandler}
-                              />
-                            );
-                          }
-                        )}
+                        {Object.entries({
+                          ...drawObjects.polygons,
+                          ...drawObjects.linestrips,
+                        }).map(([key, value]) => {
+                          const polygon = value.data as PolygonSpec;
+                          return (
+                            <Polygon
+                              key={key}
+                              spec={polygon}
+                              onMouseOverHandler={(e) => {
+                                onMouseOverToolTipHandler(e, polygon);
+                              }}
+                              onMouseOutHandler={onMouseOutToolTipHandler}
+                            />
+                          );
+                        })}
                       </Group>
                     </Layer>
                     <Layer ref={toolTipLayer} visible={false}>

@@ -13,11 +13,17 @@ import {
   updateDrawObject,
 } from "reduxes/annotation/action";
 import {
-  selectorSelectedPolygon,
+  selectorCurrentDrawState,
+  selectorSelectedPolygonOrLineStrip,
   selectorZoom,
 } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
-import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
+import {
+  CIRCLE_STYLE,
+  CORNER_RADIUS,
+  LINE_STYLE,
+  STROKE_WIDTH_LINE,
+} from "../const";
 import { PolygonProps } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 import { dragBoundFunc, minMax } from "../utils";
@@ -29,13 +35,14 @@ const Polygon = ({
 }: PolygonProps) => {
   const {
     points,
-    polygonState: { isFinished },
+    polygonState: { isFinished, isLineStrip },
   } = spec;
   const dispatch = useDispatch();
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
-  const currentpolygon = useSelector(selectorSelectedPolygon);
+  const currentpolygon = useSelector(selectorSelectedPolygonOrLineStrip);
   const zoom = useSelector(selectorZoom);
   const groupRef = React.useRef<Konva.Group>(null);
+  const currentDrawState = useSelector(selectorCurrentDrawState);
 
   const isSelected = useMemo(() => {
     return currentpolygon != null && spec.id === currentpolygon.id;
@@ -181,6 +188,14 @@ const Polygon = ({
     e.target.scale({ x: 2, y: 2 });
     setMouseOverPoint(true);
   };
+  const handleMouseOverStartPointLineStrip = (
+    e: KonvaEventObject<DragEvent>
+  ) => {
+    if (isFinished || points.length < 2) return;
+    console.log("handleMouseOverStartPointLineStrip", points);
+    e.target.scale({ x: 2, y: 2 });
+    setMouseOverPoint(true);
+  };
   const handleMouseOverStartPointWhenFinished = (
     e: KonvaEventObject<DragEvent>
   ) => {
@@ -282,18 +297,35 @@ const Polygon = ({
     return points.map((point, index) => {
       const x = point.x - CORNER_RADIUS / 2;
       const y = point.y - CORNER_RADIUS / 2;
-      const startPointAttr =
-        index === 0 && !isFinished
-          ? {
-              hitStrokeWidth: 12,
-              onMouseOver: handleMouseOverStartPoint,
-              onMouseOut: handleMouseOutStartPoint,
-              onMouseDown: handleMouseDownPoint,
-            }
-          : {
-              onMouseOver: handleMouseOverStartPointWhenFinished,
-              onMouseOut: handleMouseOutStartPointWhenFinished,
-            };
+      let startPointAttr;
+      if (spec.polygonState.isLineStrip === true) {
+        startPointAttr =
+          index === points.length - 1
+            ? {
+                hitStrokeWidth: 12,
+                onMouseOver: handleMouseOverStartPointLineStrip,
+                onMouseOut: handleMouseOutStartPoint,
+                onMouseDown: handleMouseDownPoint,
+              }
+            : {
+                onMouseOver: handleMouseOverStartPointWhenFinished,
+                onMouseOut: handleMouseOutStartPointWhenFinished,
+              };
+      } else {
+        startPointAttr =
+          index === 0 && !isFinished
+            ? {
+                hitStrokeWidth: 12,
+                onMouseOver: handleMouseOverStartPoint,
+                onMouseOut: handleMouseOutStartPoint,
+                onMouseDown: handleMouseDownPoint,
+              }
+            : {
+                onMouseOver: handleMouseOverStartPointWhenFinished,
+                onMouseOut: handleMouseOutStartPointWhenFinished,
+              };
+      }
+
       return (
         <Circle
           key={index}
@@ -311,7 +343,18 @@ const Polygon = ({
       );
     });
   };
-
+  const handleMouseDownLine = () => {
+    if (currentDrawState !== DrawState.DRAWING) {
+      setLineStyle({ ...lineStyle, strokeWidth: STROKE_WIDTH_LINE * 2 });
+    }
+  };
+  const handleMouseOutLine = () => {
+    setLineStyle({ ...lineStyle, strokeWidth: STROKE_WIDTH_LINE });
+  };
+  const [lineStyle, setLineStyle] = useState<any>({
+    ...LINE_STYLE,
+    strokeWidth: STROKE_WIDTH_LINE,
+  });
   return (
     <Group
       ref={groupRef}
@@ -326,9 +369,10 @@ const Polygon = ({
     >
       <Line
         points={flattenedPoints}
-        closed={isFinished}
-        {...LINE_STYLE}
-        strokeWidth={LINE_STYLE.strokeWidth * 2}
+        closed={isFinished && isLineStrip !== true}
+        onMouseOver={handleMouseDownLine}
+        onMouseOut={handleMouseOutLine}
+        {...lineStyle}
       />
       {(isSelected || !isFinished) && renderPoints()}
     </Group>

@@ -7,7 +7,6 @@ export enum DrawType {
   POLYGON,
   ELLIPSE,
   LINE_STRIP,
-  LINE,
 }
 export enum DrawState {
   DRAWING,

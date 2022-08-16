@@ -8,6 +8,8 @@ export const CIRCLE_STYLE = {
   stroke: "#00F1FF",
   strokeWidth: 1,
 };
+export const STROKE_WIDTH_LINE = LINE_STYLE.strokeWidth * 2;
+
 export const CORNER_RADIUS = 5;
 
 export const MAX_WIDTH_IMAGE_IN_EDITOR = 1200;

@@ -9,7 +9,8 @@ import {
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
-  selectorSelectedPolygon,
+  selectorcurrentDrawType,
+  selectorSelectedPolygonOrLineStrip,
 } from "reduxes/annotation/selector";
 import {
   DrawObject,
@@ -18,12 +19,15 @@ import {
   EditorEventPayload,
 } from "reduxes/annotation/type";
 
-export const createPolygon = (position: Vector2d): DrawObject => {
+export const createPolygon = (
+  position: Vector2d,
+  isLineStrip?: boolean
+): DrawObject => {
   const id = `POLYGON-${Math.floor(Math.random() * 100000)}`;
   const polygon: PolygonSpec = {
     id: id,
     points: [position],
-    polygonState: { isFinished: false },
+    polygonState: { isFinished: false, isLineStrip },
     label: { label: id },
   };
   return { type: DrawType.POLYGON, data: polygon };
@@ -38,8 +42,9 @@ const buildPolygon = (polygon: PolygonSpec, position: Vector2d) => {
 };
 const usePolygonEvent = () => {
   const dispatch = useDispatch();
-  const polygon = useSelector(selectorSelectedPolygon);
+  const polygon = useSelector(selectorSelectedPolygonOrLineStrip);
   const currentDrawState = useSelector(selectorCurrentDrawState);
+  const drawType = useSelector(selectorcurrentDrawType);
 
   const handleMouseDown = (e: EditorEventPayload) => {
     const position = e.eventObject.currentTarget.getRelativePointerPosition();
@@ -49,7 +54,10 @@ const usePolygonEvent = () => {
         currentDrawState === DrawState.FREE ||
         currentDrawState === DrawState.SELECTING
       ) {
-        let drawObject = createPolygon(position);
+        let drawObject = createPolygon(
+          position,
+          drawType === DrawType.LINE_STRIP
+        );
         dispatch(createDrawObject({ drawObject }));
         dispatch(
           setSelectedShape({ selectedDrawObjectId: drawObject.data.id })

@@ -39,6 +39,7 @@ export interface EllipseSpec {
 export interface PolygonState {
   isFinished: boolean;
   mousePosition?: Vector2d;
+  isLineStrip?: boolean;
   isOverFirstPoint?: boolean;
 }
 export interface ScaleResult {
@@ -79,6 +80,22 @@ export const initialPolygons: Record<string, PolygonSpec> = {
     },
     id: "POLYGON_1",
     label: { label: "POLYGON_1" },
+  },
+};
+export const initialLineStrips: Record<string, PolygonSpec> = {
+  linestrip1: {
+    points: [
+      { x: 360, y: 288 },
+      { x: 325, y: 279 },
+      { x: 514, y: 501 },
+      { x: 414, y: 401 },
+    ],
+    polygonState: {
+      isFinished: true,
+      isLineStrip: true,
+    },
+    id: "LINESTRIP_1",
+    label: { label: "LINESTRIP_1" },
   },
 };
 export const initialEllipses: Record<string, EllipseSpec> = {

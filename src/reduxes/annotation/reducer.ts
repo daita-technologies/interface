@@ -1,5 +1,6 @@
 import {
   initialEllipses,
+  initialLineStrips,
   initialPolygons,
   initialRectangles,
 } from "components/Annotation/Editor/type";
@@ -31,7 +32,7 @@ import {
 } from "./type";
 
 const inititalState: AnnotationReducer = {
-  currentDrawType: DrawType.RECTANGLE,
+  currentDrawType: DrawType.LINE_STRIP,
   selectedDrawObjectId: null,
   zoom: { zoom: 1, position: { x: 0, y: 0 } },
   drawObjectById: (() => {
@@ -47,6 +48,13 @@ const inititalState: AnnotationReducer = {
       const obj = initialPolygons[id];
       ret[obj.id] = {
         type: DrawType.POLYGON,
+        data: obj,
+      };
+    });
+    Object.keys(initialLineStrips).forEach((id) => {
+      const obj = initialLineStrips[id];
+      ret[obj.id] = {
+        type: DrawType.LINE_STRIP,
         data: obj,
       };
     });

@@ -126,20 +126,13 @@ const ControlPanel = () => {
           >
             <PanoramaFishEyeIcon />
           </ToggleButton>
-          {/* <ToggleButton
+          <ToggleButton
             className="annotationBtn"
             value={DrawType.LINE_STRIP}
             aria-label="ellipse"
           >
             <PolylineIcon />
           </ToggleButton>
-          <ToggleButton
-            className="annotationBtn"
-            value={DrawType.LINE}
-            aria-label="ellipse"
-          >
-            <HorizontalRuleIcon />
-          </ToggleButton> */}
         </ToggleButtonGroup>
 
         <Button
