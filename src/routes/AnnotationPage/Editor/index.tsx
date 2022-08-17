@@ -91,8 +91,8 @@ const Editor = () => {
     } else if (drawType === DrawType.ELLIPSE) {
       ellipseHook.handleMouseMove(editorEventPayload);
     }
-    // const mousePos = e.target?.getStage()?.getRelativePointerPosition();
-    // drawPosition(mousePos);
+    const mousePos = e.target?.getStage()?.getPointerPosition();
+    if (mousePos) drawPosition(mousePos);
     // debounce(() => {
 
     // }, 2000)();
@@ -379,7 +379,12 @@ const Editor = () => {
                         })}
                       </Group>
                     </Layer>
-                    <Layer ref={toolTipLayer} visible={false}>
+                    <Layer
+                      ref={toolTipLayer}
+                      visible={false}
+                      scaleX={stageProps ? 1 / stageProps.scaleX : 1}
+                      scaleY={stageProps ? 1 / stageProps.scaleY : 1}
+                    >
                       <Rect
                         ref={toolTipRect}
                         x={0}

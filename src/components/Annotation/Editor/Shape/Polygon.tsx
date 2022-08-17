@@ -260,18 +260,12 @@ const Polygon = ({
   };
   const handlePointDragMove = (e: KonvaEventObject<DragEvent>) => {
     const { points } = spec;
-    const stage = e.target.getStage();
-    if (stage) {
+    if (groupRef && groupRef.current) {
       const index = e.target.index - 1;
       const pos = {
-        x: stage.getRelativePointerPosition().x / zoom.zoom,
-        y: stage.getRelativePointerPosition().y / zoom.zoom,
+        x: groupRef.current.getRelativePointerPosition().x,
+        y: groupRef.current.getRelativePointerPosition().y,
       };
-      // console.log(
-      //   "pos",
-      //   pos,
-      //   e.target?.getStage()?.getRelativePointerPosition()
-      // );
       dispatch(
         updateDrawObject({
           data: {
@@ -373,6 +367,7 @@ const Polygon = ({
         onMouseOver={handleMouseDownLine}
         onMouseOut={handleMouseOutLine}
         {...lineStyle}
+        strokeScaleEnabled={false}
       />
       {(isSelected || !isFinished) && renderPoints()}
     </Group>
