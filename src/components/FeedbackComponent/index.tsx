@@ -44,6 +44,8 @@ const FeedbackComponent = function () {
           setOpenForm(false);
         },
       });
+    } else {
+      setOpenForm(false);
     }
   };
   const handleOpen = () => {
