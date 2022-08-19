@@ -193,3 +193,6 @@ export const UPLOAD_PRESIGN_URL_SUCCESS_CODE = 204;
 export const MAX_FEEDBACK_MESSAGE_LENGTH = 750;
 export const MAX_NUM_FEEDBACK_ATTACHED_FILE = 3;
 export const MAX_SIZE_FEEDBACK_ATTACHED_FILE = 2000000;
+
+export const QUIT_FEEDBACK_ALERT_MESSAGE =
+  "Your feedback content will be lost. Are you sure you want to quit?";
