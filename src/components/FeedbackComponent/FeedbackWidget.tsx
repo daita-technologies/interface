@@ -1,9 +1,9 @@
+import CloseIcon from "@mui/icons-material/Close";
 import MessageIcon from "@mui/icons-material/Message";
 import { Fab } from "@mui/material";
 import Popover from "@mui/material/Popover";
 import * as React from "react";
 import { useEffect } from "react";
-import CloseIcon from "@mui/icons-material/Close";
 import { FeedbackWidgetParam } from "./type";
 
 const FeedbackWidget = function ({
@@ -11,27 +11,34 @@ const FeedbackWidget = function ({
   children,
   isShow,
   onClose,
+  onOpen,
 }: FeedbackWidgetParam) {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
   );
   useEffect(() => {
-    setAnchorEl(null);
+    if (isShow === false) {
+      setAnchorEl(null);
+    }
   }, [isShow]);
   const open = Boolean(anchorEl);
   const id = open ? "popover" : undefined;
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (open) {
-      setAnchorEl(null);
+      if (onClose) {
+        onClose();
+      }
     } else {
       setAnchorEl(event.currentTarget);
+      if (onOpen) {
+        onOpen();
+      }
     }
   };
   const handleClose = () => {
     if (onClose) {
       onClose();
     }
-    setAnchorEl(null);
   };
 
   return (

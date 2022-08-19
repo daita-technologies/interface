@@ -28,6 +28,7 @@ export interface FeedbackWidgetParam {
   children: React.ReactNode;
   isShow: boolean;
   onClose?: () => void;
+  onOpen?: () => void;
 }
 
 export interface UploadZoneProps {
