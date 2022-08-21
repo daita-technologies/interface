@@ -1,25 +1,22 @@
 import { LINE_STYLE } from "components/Annotation/Editor/const";
 import { RectangleSpec } from "components/Annotation/Editor/type";
 import { useDispatch, useSelector } from "react-redux";
-import
-  {
-    changeCurrentStatus,
-    createDrawObject,
-    setSelectedShape,
-    updateDrawObject
-  } from "reduxes/annotation/action";
-import
-  {
-    selectorCurrentDrawState,
-    selectorSelectedRectangle
-  } from "reduxes/annotation/selector";
-import
-  {
-    DrawObject,
-    DrawState,
-    DrawType,
-    EditorEventPayload
-  } from "reduxes/annotation/type";
+import {
+  changeCurrentStatus,
+  createDrawObject,
+  setSelectedShape,
+  updateDrawObject,
+} from "reduxes/annotation/action";
+import {
+  selectorCurrentDrawState,
+  selectorSelectedRectangle,
+} from "reduxes/annotation/selector";
+import {
+  DrawObject,
+  DrawState,
+  DrawType,
+  EditorEventPayload,
+} from "reduxes/annotation/type";
 export const createRectangle = (position: {
   x: number;
   y: number;
@@ -33,7 +30,7 @@ export const createRectangle = (position: {
     id: id,
     rotation: 0,
     label: { label: id },
-    ...LINE_STYLE,
+    cssStyle: { ...LINE_STYLE },
   };
   return { type: DrawType.RECTANGLE, data: rect };
 };

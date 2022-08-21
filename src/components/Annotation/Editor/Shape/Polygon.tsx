@@ -2,9 +2,7 @@ import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Stage } from "konva/lib/Stage";
 import { IRect, Vector2d } from "konva/lib/types";
-import { debounce } from "lodash";
-import React from "react";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Circle, Group, Line } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -18,13 +16,8 @@ import {
   selectorZoom,
 } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
-import {
-  CIRCLE_STYLE,
-  CORNER_RADIUS,
-  LINE_STYLE,
-  STROKE_WIDTH_LINE,
-} from "../const";
-import { PolygonProps } from "../type";
+import { CIRCLE_STYLE, CORNER_RADIUS, STROKE_WIDTH_LINE } from "../const";
+import { CssStyle, PolygonProps } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 import { dragBoundFunc, minMax } from "../utils";
 
@@ -108,7 +101,7 @@ const Polygon = ({
     null
   );
   useEffect(() => {
-    console.log("previousPosition", previousPosition);
+    // console.log("previousPosition", previousPosition);
   }, [previousPosition]);
 
   const groupDragBound = (pos: { x: number; y: number }) => {
@@ -192,7 +185,6 @@ const Polygon = ({
     e: KonvaEventObject<DragEvent>
   ) => {
     if (isFinished || points.length < 2) return;
-    console.log("handleMouseOverStartPointLineStrip", points);
     e.target.scale({ x: 2, y: 2 });
     setMouseOverPoint(true);
   };
@@ -345,10 +337,14 @@ const Polygon = ({
   const handleMouseOutLine = () => {
     setLineStyle({ ...lineStyle, strokeWidth: STROKE_WIDTH_LINE });
   };
-  const [lineStyle, setLineStyle] = useState<any>({
-    ...LINE_STYLE,
+  const [lineStyle, setLineStyle] = useState<CssStyle>({
+    ...spec.cssStyle,
     strokeWidth: STROKE_WIDTH_LINE,
   });
+  useEffect(() => {
+    setLineStyle({ ...spec.cssStyle, strokeWidth: STROKE_WIDTH_LINE });
+  }, [spec.cssStyle]);
+
   return (
     <Group
       ref={groupRef}

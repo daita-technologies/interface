@@ -22,11 +22,16 @@ import {
   selectorSelectedDrawObjectId,
 } from "reduxes/annotation/selector";
 import { DrawType } from "reduxes/annotation/type";
+import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
+import ClassLabel from "./ClassLabel";
 
 const LabelAnnotation = function () {
   const dispatch = useDispatch();
   const drawObjectById = useSelector(selectorDrawObjectById);
   const selectedDrawObjectId = useSelector(selectorSelectedDrawObjectId);
+  const labelClassPropertiesByLabelClass = useSelector(
+    selectorLabelClassPropertiesByLabelClass
+  );
   const renderIcon = (drawType: DrawType) => {
     if (drawType === DrawType.RECTANGLE) {
       return <Crop32Icon />;
@@ -40,17 +45,6 @@ const LabelAnnotation = function () {
   const handleClickDelete = (id: string) => {
     dispatch(deleteDrawObject({ drawObjectId: id }));
   };
-  const handleChangeLabel = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    drawObjectId: string
-  ) => {
-    dispatch(
-      updateLabelOfDrawObject({
-        drawObjectId,
-        label: { label: event.target.value },
-      })
-    );
-  };
   const handleSelect = (id: string) => {
     dispatch(setSelectedShape({ selectedDrawObjectId: id }));
   };
@@ -59,17 +53,19 @@ const LabelAnnotation = function () {
       sx={{
         width: "100%",
         maxWidth: 360,
-        padding: "10px 15px",
         bgcolor: "background.paper",
       }}
     >
-      <h3>List Label</h3>
+      <h3 style={{ padding: "0px 10px" }}>List Label</h3>
       <List>
-        {Object.entries(drawObjectById).map(([id, drawObjet]) => {
+        {Object.entries(drawObjectById).map(([id, drawObject]) => {
+          const labelClassProperties =
+            labelClassPropertiesByLabelClass[drawObject.data?.label?.label];
           return (
             <ListItem
               key={id}
               onSelect={() => handleSelect(id)}
+              onClick={() => handleSelect(id)}
               secondaryAction={
                 <IconButton
                   edge="end"
@@ -79,21 +75,26 @@ const LabelAnnotation = function () {
                   <DeleteIcon />
                 </IconButton>
               }
-              sx={{ border: selectedDrawObjectId === id ? "1px solid" : "" }}
+              sx={{
+                border: selectedDrawObjectId === id ? "1px solid" : "",
+                cursor: "pointer",
+              }}
             >
               <ListItemAvatar>
-                <Avatar sx={{ backgroundColor: "gray" }}>
-                  {renderIcon(drawObjet.type)}
+                <Avatar
+                  sx={{
+                    backgroundColor: labelClassProperties?.cssStyle?.stroke
+                      ? labelClassProperties.cssStyle.stroke
+                      : "gray",
+                    width: 40,
+                    height: 40,
+                  }}
+                >
+                  {renderIcon(drawObject.type)}
                 </Avatar>
               </ListItemAvatar>
               <ListItemText>
-                <TextField
-                  id="label"
-                  label="Label"
-                  variant="standard"
-                  defaultValue={drawObjet.data.label.label}
-                  onChange={(e) => handleChangeLabel(e, id)}
-                />
+                <ClassLabel drawObject={drawObject} />
               </ListItemText>
             </ListItem>
           );

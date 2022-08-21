@@ -10,6 +10,7 @@ import {
   selectorCurrentDrawState,
   selectorSelectedEllipse,
 } from "reduxes/annotation/selector";
+import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
 import { EllipseProps, EllipseSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
@@ -24,7 +25,10 @@ const EllipseShape = function ({
   const dispatch = useDispatch();
   const currentShape = useSelector(selectorSelectedEllipse);
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
-
+  const currentDrawState = useSelector(selectorCurrentDrawState);
+  const [strokeWidth, setStrokeWidth] = useState<number>(
+    spec.cssStyle.strokeWidth
+  );
   const isSelected = useMemo(() => {
     return currentShape != null && spec.id === currentShape.id;
   }, [currentShape?.id]);
@@ -96,6 +100,17 @@ const EllipseShape = function ({
     }
     return newBox;
   };
+  const onMouseOver = (e: KonvaEventObject<MouseEvent>) => {
+    if (currentDrawState !== DrawState.DRAWING) {
+      setStrokeWidth(spec.cssStyle.strokeWidth * 2);
+    }
+    onMouseOverHandler(e);
+  };
+  const onMouseOut = (e: KonvaEventObject<MouseEvent>) => {
+    setStrokeWidth(spec.cssStyle.strokeWidth);
+    onMouseOutHandler(e);
+  };
+
   return (
     <React.Fragment>
       <Ellipse
@@ -104,14 +119,16 @@ const EllipseShape = function ({
         onClick={commonShapeEvent.handleCick}
         onMouseDown={commonShapeEvent.handleSelect}
         onTransformStart={commonShapeEvent.handleTransformStart}
-        onMouseOver={onMouseOverHandler}
-        onMouseOut={onMouseOutHandler}
+        onMouseOver={onMouseOver}
+        onMouseOut={onMouseOut}
         draggable
         onDragEnd={handleDragEnd}
         onDragStart={handleDragStart}
         onTransformEnd={handleTransformEnd}
         strokeScaleEnabled={false}
         {...spec}
+        {...spec.cssStyle}
+        strokeWidth={strokeWidth}
       />
       {isSelected && (
         <Transformer

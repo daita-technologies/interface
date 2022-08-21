@@ -30,7 +30,7 @@ export const createEllipse = (position: {
     rotation: 0,
     id,
     label: { label: id },
-    ...LINE_STYLE,
+    cssStyle: { ...LINE_STYLE },
   };
   return { type: DrawType.ELLIPSE, data: shape };
 };

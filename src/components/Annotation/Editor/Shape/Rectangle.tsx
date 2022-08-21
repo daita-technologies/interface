@@ -6,8 +6,12 @@ import React, { useMemo, useState } from "react";
 import { Rect, Transformer } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
-import { selectorSelectedRectangle } from "reduxes/annotation/selector";
-import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
+import {
+  selectorCurrentDrawState,
+  selectorSelectedRectangle,
+} from "reduxes/annotation/selector";
+import { DrawState } from "reduxes/annotation/type";
+import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
 import { RectangleProps, RectangleSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 
@@ -21,6 +25,10 @@ const Rectangle = function ({
   const dispatch = useDispatch();
   const currentRectangle = useSelector(selectorSelectedRectangle);
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
+  const currentDrawState = useSelector(selectorCurrentDrawState);
+  const [strokeWidth, setStrokeWidth] = useState<number>(
+    spec.cssStyle.strokeWidth
+  );
 
   const isSelected = useMemo(() => {
     return currentRectangle != null && spec.id === currentRectangle.id;
@@ -94,6 +102,17 @@ const Rectangle = function ({
     }
     return newBox;
   };
+  const onMouseOver = (e: KonvaEventObject<MouseEvent>) => {
+    if (currentDrawState !== DrawState.DRAWING) {
+      setStrokeWidth(spec.cssStyle.strokeWidth * 2);
+    }
+    onMouseOverHandler(e);
+  };
+  const onMouseOut = (e: KonvaEventObject<MouseEvent>) => {
+    setStrokeWidth(spec.cssStyle.strokeWidth);
+    onMouseOutHandler(e);
+  };
+
   return (
     <React.Fragment>
       <Rect
@@ -102,14 +121,16 @@ const Rectangle = function ({
         onClick={commonShapeEvent.handleCick}
         onMouseDown={commonShapeEvent.handleSelect}
         onTransformStart={commonShapeEvent.handleTransformStart}
-        onMouseOver={onMouseOverHandler}
-        onMouseOut={onMouseOutHandler}
+        onMouseOver={onMouseOver}
+        onMouseOut={onMouseOut}
         draggable
         onDragEnd={handleDragEnd}
         onDragStart={handleDragStart}
         onTransformEnd={handleTransformEnd}
         strokeScaleEnabled={false}
         {...spec}
+        {...spec.cssStyle}
+        strokeWidth={strokeWidth}
       />
       {isSelected && (
         <Transformer

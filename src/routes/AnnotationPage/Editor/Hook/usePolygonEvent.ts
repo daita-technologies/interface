@@ -1,3 +1,4 @@
+import { LINE_STYLE } from "components/Annotation/Editor/const";
 import { PolygonSpec } from "components/Annotation/Editor/type";
 import { Vector2d } from "konva/lib/types";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,6 +30,7 @@ export const createPolygon = (
     points: [position],
     polygonState: { isFinished: false, isLineStrip },
     label: { label: id },
+    cssStyle: { ...LINE_STYLE },
   };
   return { type: DrawType.POLYGON, data: polygon };
 };

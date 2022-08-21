@@ -1,4 +1,8 @@
-import { DrawObjectType, Label } from "components/Annotation/Editor/type";
+import {
+  DrawObjectType,
+  Label,
+  LabelClassProperties,
+} from "components/Annotation/Editor/type";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 
@@ -66,5 +70,5 @@ export interface ResetCurrentStateDrawObjectPayload {
 }
 export interface UpdateLabelOfDrawObjectPayload {
   drawObjectId: string;
-  label: Label;
+  labelClassProperties: LabelClassProperties;
 }

@@ -1,10 +1,13 @@
+import { initialLabelClassPropertiesByLabelClass } from "components/Annotation/Editor/type";
 import {
   ADD_IMAGES,
+  ADD_NEW_CLASS_LABEL,
   CHANGE_PREVIEW_IMAGE,
   SAVE_ANNOTATION_STATE_MANAGER,
 } from "./constants";
 import {
   AddImageToAnnotationProps,
+  AddNewClassLabelProps,
   AnnotationManagerReducer,
   ChangePreviewImageProps,
   SaveAnnotationStateManagerProps,
@@ -14,6 +17,7 @@ const inititalState: AnnotationManagerReducer = {
   idDrawObjectByImageName: {},
   images: {},
   currentPreviewImageName: null,
+  labelClassPropertiesByLabelClass: initialLabelClassPropertiesByLabelClass,
 };
 const annotationManagerReducer = (
   state = inititalState,
@@ -50,6 +54,19 @@ const annotationManagerReducer = (
         idDrawObjectByImageName: {
           ...state.idDrawObjectByImageName,
           [imageName]: { ...drawObjectById },
+        },
+      };
+    }
+    case ADD_NEW_CLASS_LABEL: {
+      const { labelClassProperties } = payload as AddNewClassLabelProps;
+      return {
+        ...state,
+        labelClassPropertiesByLabelClass: {
+          ...state.labelClassPropertiesByLabelClass,
+          [labelClassProperties.label.label]: {
+            ...labelClassProperties,
+            label: { ...labelClassProperties.label },
+          },
         },
       };
     }

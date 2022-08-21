@@ -18,7 +18,10 @@ export const selectorSelectedPolygonOrLineStrip = (
       state.annotationReducer.drawObjectById[
         state.annotationReducer.selectedDrawObjectId
       ];
-    if (shape.type === DrawType.POLYGON || shape.type === DrawType.LINE_STRIP) {
+    if (
+      shape &&
+      (shape.type === DrawType.POLYGON || shape.type === DrawType.LINE_STRIP)
+    ) {
       return shape.data as PolygonSpec;
     }
   }
@@ -33,7 +36,7 @@ export const selectorSelectedRectangle = (
       state.annotationReducer.drawObjectById[
         state.annotationReducer.selectedDrawObjectId
       ];
-    if (shape.type === DrawType.RECTANGLE) {
+    if (shape && shape.type === DrawType.RECTANGLE) {
       return shape.data as RectangleSpec;
     }
   }
@@ -47,7 +50,7 @@ export const selectorSelectedEllipse = (
       state.annotationReducer.drawObjectById[
         state.annotationReducer.selectedDrawObjectId
       ];
-    if (shape.type === DrawType.ELLIPSE) {
+    if (shape && shape.type === DrawType.ELLIPSE) {
       return shape.data as EllipseSpec;
     }
   }

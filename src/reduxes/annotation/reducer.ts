@@ -35,39 +35,39 @@ const inititalState: AnnotationReducer = {
   currentDrawType: DrawType.LINE_STRIP,
   selectedDrawObjectId: null,
   zoom: { zoom: 1, position: { x: 0, y: 0 } },
-  drawObjectById: (() => {
-    const ret: Record<string, DrawObject> = {};
-    Object.keys(initialRectangles).forEach((id) => {
-      const obj = initialRectangles[id];
-      ret[obj.id] = {
-        type: DrawType.RECTANGLE,
-        data: obj,
-      };
-    });
-    Object.keys(initialPolygons).forEach((id) => {
-      const obj = initialPolygons[id];
-      ret[obj.id] = {
-        type: DrawType.POLYGON,
-        data: obj,
-      };
-    });
-    Object.keys(initialLineStrips).forEach((id) => {
-      const obj = initialLineStrips[id];
-      ret[obj.id] = {
-        type: DrawType.LINE_STRIP,
-        data: obj,
-      };
-    });
-    Object.keys(initialEllipses).forEach((id) => {
-      const obj = initialEllipses[id];
-      ret[obj.id] = {
-        type: DrawType.ELLIPSE,
-        data: obj,
-      };
-    });
-    return ret;
-  })(),
-  // drawObjectById: {},
+  // drawObjectById: (() => {
+  //   const ret: Record<string, DrawObject> = {};
+  //   Object.keys(initialRectangles).forEach((id) => {
+  //     const obj = initialRectangles[id];
+  //     ret[obj.id] = {
+  //       type: DrawType.RECTANGLE,
+  //       data: obj,
+  //     };
+  //   });
+  //   Object.keys(initialPolygons).forEach((id) => {
+  //     const obj = initialPolygons[id];
+  //     ret[obj.id] = {
+  //       type: DrawType.POLYGON,
+  //       data: obj,
+  //     };
+  //   });
+  //   Object.keys(initialLineStrips).forEach((id) => {
+  //     const obj = initialLineStrips[id];
+  //     ret[obj.id] = {
+  //       type: DrawType.LINE_STRIP,
+  //       data: obj,
+  //     };
+  //   });
+  //   Object.keys(initialEllipses).forEach((id) => {
+  //     const obj = initialEllipses[id];
+  //     ret[obj.id] = {
+  //       type: DrawType.ELLIPSE,
+  //       data: obj,
+  //     };
+  //   });
+  //   return ret;
+  // })(),
+  drawObjectById: {},
   currentDrawState: DrawState.FREE,
 };
 const annotationReducer = (
@@ -159,9 +159,14 @@ const annotationReducer = (
       };
     }
     case UPDATE_LABEL_OF_DRAW_OBJECT: {
-      const { drawObjectId, label } = payload as UpdateLabelOfDrawObjectPayload;
+      const { drawObjectId, labelClassProperties } =
+        payload as UpdateLabelOfDrawObjectPayload;
       const drawObject = state.drawObjectById[drawObjectId];
-      drawObject.data.label = label;
+      drawObject.data.label = labelClassProperties.label;
+      drawObject.data.cssStyle = {
+        ...drawObject.data.cssStyle,
+        ...labelClassProperties.cssStyle,
+      };
       return {
         ...state,
         drawObjectById: {

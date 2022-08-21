@@ -41,7 +41,6 @@ import BaseImage from "./BaseImage";
 import useEllipseEvent from "./Hook/useElipseEvent";
 import usePolygonEvent from "./Hook/usePolygonEvent";
 import useRectangleEvent from "./Hook/useRectangleEvent";
-import { debounce } from "lodash";
 
 const Editor = () => {
   const dispatch = useDispatch();
@@ -92,7 +91,7 @@ const Editor = () => {
       ellipseHook.handleMouseMove(editorEventPayload);
     }
     const mousePos = e.target?.getStage()?.getPointerPosition();
-    if (mousePos) drawPosition(mousePos);
+    // if (mousePos) drawPosition(mousePos);
     // debounce(() => {
 
     // }, 2000)();
@@ -246,7 +245,13 @@ const Editor = () => {
         y: mousePos.y + 5,
       });
       toolTipLayer.current.setAttrs({ id: shape.id });
-      toolTip.current.text(`${shape.label.label}`);
+      toolTip.current.text(
+        `${
+          shape.label && shape.label.label !== ""
+            ? shape.label.label
+            : "No label"
+        }`
+      );
       toolTipLayer.current.show();
     }
   };

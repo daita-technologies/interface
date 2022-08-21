@@ -14,3 +14,5 @@ export const selectorCurrentAnnotationFile = (state: RootState) => {
 };
 export const selectorIdDrawObjectByImageName = (state: RootState) =>
   state.annotationManagerReducer.idDrawObjectByImageName;
+export const selectorLabelClassPropertiesByLabelClass = (state: RootState) =>
+  state.annotationManagerReducer.labelClassPropertiesByLabelClass;

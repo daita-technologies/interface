@@ -1,6 +1,7 @@
 import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
-import { CIRCLE_STYLE, LINE_STYLE } from "./const";
+import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
+import { LINE_STYLE } from "./const";
 
 export interface RectangleSpec {
   id: string;
@@ -8,10 +9,12 @@ export interface RectangleSpec {
   y: number;
   width: number;
   height: number;
-  fill: string;
-  stroke: string;
-  strokeWidth: number;
   rotation: number;
+  label: Label;
+  cssStyle: CssStyle;
+}
+export interface LabelClassProperties {
+  cssStyle: Partial<CssStyle>;
   label: Label;
 }
 export interface Label {
@@ -22,6 +25,7 @@ export interface PolygonSpec {
   points: Vector2d[];
   polygonState: PolygonState;
   label: Label;
+  cssStyle: CssStyle;
 }
 export interface EllipseSpec {
   id: string;
@@ -30,10 +34,14 @@ export interface EllipseSpec {
   radiusX: number;
   radiusY: number;
   label: Label;
+  rotation: number;
+  cssStyle: CssStyle;
+}
+
+export interface CssStyle {
   fill: string;
   stroke: string;
   strokeWidth: number;
-  rotation: number;
 }
 
 export interface PolygonState {
@@ -46,6 +54,32 @@ export interface ScaleResult {
   newPosition: Vector2d;
   newScale: number;
 }
+export const initialLabelClassPropertiesByLabelClass: Record<
+  string,
+  LabelClassProperties
+> = {
+  house: {
+    cssStyle: {
+      fill: convertStrokeColorToFillColor("#affaaa"),
+      stroke: "#affaaa",
+    },
+    label: { label: "house" },
+  },
+  tree: {
+    cssStyle: {
+      fill: convertStrokeColorToFillColor("#ff1111"),
+      stroke: "#ff1111",
+    },
+    label: { label: "tree" },
+  },
+  car: {
+    cssStyle: {
+      fill: convertStrokeColorToFillColor("#ff1aaa"),
+      stroke: "#ff1aaa",
+    },
+    label: { label: "car" },
+  },
+};
 export const initialRectangles: Record<string, RectangleSpec> = {
   RETANGLE_1: {
     x: 10,
@@ -53,9 +87,9 @@ export const initialRectangles: Record<string, RectangleSpec> = {
     rotation: 0,
     width: 100,
     height: 100,
-    ...LINE_STYLE,
     id: "RETANGLE_1",
-    label: { label: "RETANGLE_1" },
+    label: initialLabelClassPropertiesByLabelClass["house"].label,
+    cssStyle: { ...LINE_STYLE },
   },
   RETANGLE_2: {
     x: 150,
@@ -63,9 +97,9 @@ export const initialRectangles: Record<string, RectangleSpec> = {
     rotation: 0,
     width: 100,
     height: 100,
-    ...LINE_STYLE,
     id: "RETANGLE_2",
-    label: { label: "RETANGLE_2" },
+    label: initialLabelClassPropertiesByLabelClass["car"].label,
+    cssStyle: { ...LINE_STYLE },
   },
 };
 export const initialPolygons: Record<string, PolygonSpec> = {
@@ -79,7 +113,8 @@ export const initialPolygons: Record<string, PolygonSpec> = {
       isFinished: true,
     },
     id: "POLYGON_1",
-    label: { label: "POLYGON_1" },
+    label: initialLabelClassPropertiesByLabelClass["tree"].label,
+    cssStyle: { ...LINE_STYLE },
   },
 };
 export const initialLineStrips: Record<string, PolygonSpec> = {
@@ -95,7 +130,8 @@ export const initialLineStrips: Record<string, PolygonSpec> = {
       isLineStrip: true,
     },
     id: "LINESTRIP_1",
-    label: { label: "LINESTRIP_1" },
+    label: initialLabelClassPropertiesByLabelClass["car"].label,
+    cssStyle: { ...LINE_STYLE },
   },
 };
 export const initialEllipses: Record<string, EllipseSpec> = {
@@ -106,8 +142,8 @@ export const initialEllipses: Record<string, EllipseSpec> = {
     y: 300,
     rotation: 0,
     id: "ELLIPSE_1",
-    label: { label: "ELLIPSE_1" },
-    ...LINE_STYLE,
+    label: initialLabelClassPropertiesByLabelClass["house"].label,
+    cssStyle: { ...LINE_STYLE },
   },
 };
 export interface RectangleProps {
