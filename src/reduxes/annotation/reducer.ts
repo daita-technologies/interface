@@ -117,6 +117,13 @@ const annotationReducer = (
       const { statehHistory } = state;
       let newStateHistory = statehHistory;
       if (state.currentDrawState !== DrawState.DRAWING) {
+        if (
+          statehHistory.historyStep >= 0 &&
+          statehHistory.historyStep < statehHistory.stateHistoryItems.length
+        ) {
+          statehHistory.stateHistoryItems =
+            statehHistory.stateHistoryItems.slice(0, statehHistory.historyStep);
+        }
         statehHistory.historyStep = statehHistory.stateHistoryItems.length + 1;
         statehHistory.stateHistoryItems = [
           ...statehHistory.stateHistoryItems,
@@ -228,7 +235,7 @@ const annotationReducer = (
       const { statehHistory } = state;
       if (
         state.statehHistory.historyStep <
-        state.statehHistory.stateHistoryItems.length
+        state.statehHistory.stateHistoryItems.length - 1
       ) {
         return {
           ...state,
