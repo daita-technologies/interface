@@ -4,8 +4,10 @@ import {
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
   DELETE_DRAW_OBJECT,
+  REDO_DRAW_OBJECT,
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_SELECT_SHAPE,
+  UNDO_DRAW_OBJECT,
   UPDATE_DRAW_OBJET,
   UPDATE_LABEL_OF_DRAW_OBJECT,
 } from "./constants";
@@ -65,4 +67,10 @@ export const updateLabelOfDrawObject = (
 ) => ({
   type: UPDATE_LABEL_OF_DRAW_OBJECT,
   payload,
+});
+export const undoDrawObject = () => ({
+  type: UNDO_DRAW_OBJECT,
+});
+export const redoDrawObject = () => ({
+  type: REDO_DRAW_OBJECT,
 });

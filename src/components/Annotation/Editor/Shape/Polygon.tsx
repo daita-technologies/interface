@@ -272,17 +272,21 @@ const Polygon = ({
       );
     }
   };
+  const CORNER_RADIUS_AJUST_ZOOM = useMemo(
+    () => CORNER_RADIUS / zoom.zoom,
+    [zoom]
+  );
   const dragBound = (pos: Vector2d) =>
     dragBoundFunc(
       stage ? stage.width() : 0,
       stage ? stage.height() : 0,
-      CORNER_RADIUS * 2,
+      CORNER_RADIUS_AJUST_ZOOM * 2,
       pos
     );
   const renderPoints = () => {
     return points.map((point, index) => {
-      const x = point.x - CORNER_RADIUS / 2;
-      const y = point.y - CORNER_RADIUS / 2;
+      const x = point.x - CORNER_RADIUS_AJUST_ZOOM / 2;
+      const y = point.y - CORNER_RADIUS_AJUST_ZOOM / 2;
       let startPointAttr;
       if (spec.polygonState.isLineStrip === true) {
         startPointAttr =
@@ -317,7 +321,7 @@ const Polygon = ({
           key={index}
           x={x}
           y={y}
-          radius={CORNER_RADIUS * 2}
+          radius={CORNER_RADIUS_AJUST_ZOOM * 1.5}
           draggable
           onDragMove={handlePointDragMove}
           onDragStart={commonShapeEvent.handleTransformStart}

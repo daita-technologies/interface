@@ -4,14 +4,17 @@ import {
   initialPolygons,
   initialRectangles,
 } from "components/Annotation/Editor/type";
+import { constant } from "lodash";
 import {
   CHANGE_CURRENT_DRAW_STATE,
   CHANGE_CURRENT_DRAW_TYPE,
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
   DELETE_DRAW_OBJECT,
+  REDO_DRAW_OBJECT,
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_SELECT_SHAPE,
+  UNDO_DRAW_OBJECT,
   UPDATE_DRAW_OBJET,
   UPDATE_LABEL_OF_DRAW_OBJECT,
 } from "./constants";
@@ -32,7 +35,7 @@ import {
 } from "./type";
 
 const inititalState: AnnotationReducer = {
-  currentDrawType: DrawType.LINE_STRIP,
+  currentDrawType: DrawType.POLYGON,
   selectedDrawObjectId: null,
   zoom: { zoom: 1, position: { x: 0, y: 0 } },
   // drawObjectById: (() => {
@@ -69,6 +72,7 @@ const inititalState: AnnotationReducer = {
   // })(),
   drawObjectById: {},
   currentDrawState: DrawState.FREE,
+  statehHistory: { historyStep: 0, stateHistoryItems: [] },
 };
 const annotationReducer = (
   state = inititalState,
@@ -110,6 +114,18 @@ const annotationReducer = (
     case UPDATE_DRAW_OBJET: {
       const { data } = payload as UpdateDrawObjectPayload;
       const drawObject = state.drawObjectById[data.id];
+      const { statehHistory } = state;
+      let newStateHistory = statehHistory;
+      if (state.currentDrawState !== DrawState.DRAWING) {
+        statehHistory.historyStep = statehHistory.stateHistoryItems.length + 1;
+        statehHistory.stateHistoryItems = [
+          ...statehHistory.stateHistoryItems,
+          {
+            drawObjectById: structuredClone(state.drawObjectById),
+          },
+        ];
+        newStateHistory = { ...statehHistory };
+      }
       return {
         ...state,
         drawObjectById: {
@@ -119,6 +135,7 @@ const annotationReducer = (
             data: { ...data },
           },
         },
+        statehHistory: newStateHistory,
       };
     }
     case CHANGE_CURRENT_DRAW_STATE: {
@@ -174,6 +191,58 @@ const annotationReducer = (
           [drawObjectId]: { ...drawObject },
         },
       };
+    }
+    case UNDO_DRAW_OBJECT: {
+      const { statehHistory } = state;
+      if (state.statehHistory.historyStep > 0) {
+        let stateHistoryItems;
+        if (
+          state.statehHistory.historyStep ===
+          state.statehHistory.stateHistoryItems.length
+        ) {
+          stateHistoryItems = [
+            ...statehHistory.stateHistoryItems,
+            {
+              drawObjectById: structuredClone(state.drawObjectById),
+            },
+          ];
+        } else {
+          stateHistoryItems = [...state.statehHistory.stateHistoryItems];
+        }
+        return {
+          ...state,
+          drawObjectById:
+            statehHistory.stateHistoryItems[state.statehHistory.historyStep - 1]
+              .drawObjectById,
+          statehHistory: {
+            ...state.statehHistory,
+            stateHistoryItems,
+            historyStep: statehHistory.historyStep - 1,
+          },
+        };
+      } else {
+        return state;
+      }
+    }
+    case REDO_DRAW_OBJECT: {
+      const { statehHistory } = state;
+      if (
+        state.statehHistory.historyStep <
+        state.statehHistory.stateHistoryItems.length
+      ) {
+        return {
+          ...state,
+          drawObjectById:
+            statehHistory.stateHistoryItems[state.statehHistory.historyStep + 1]
+              .drawObjectById,
+          statehHistory: {
+            ...statehHistory,
+            historyStep: statehHistory.historyStep + 1,
+          },
+        };
+      } else {
+        return state;
+      }
     }
     default:
       return state;

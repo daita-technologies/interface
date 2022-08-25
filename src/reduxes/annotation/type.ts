@@ -30,6 +30,14 @@ export interface AnnotationReducer {
   selectedDrawObjectId: string | null;
   zoom: ZoomProps;
   drawObjectById: Record<string, DrawObject>;
+  statehHistory: StateHistory;
+}
+export interface StateHistory {
+  historyStep: number;
+  stateHistoryItems: StateHistoryItem[];
+}
+export interface StateHistoryItem {
+  drawObjectById: Record<string, DrawObject>;
 }
 export interface ControlPanelProp {
   drawType: DrawType;

@@ -27,6 +27,8 @@ import {
   changeCurrentStatus,
   changeZoom,
   deleteDrawObject,
+  redoDrawObject,
+  undoDrawObject,
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
@@ -205,7 +207,11 @@ const Editor = () => {
     setKeyDown(null);
   };
   const keyDownHandler = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === " ") {
+    if (e.ctrlKey && e.shiftKey && e.key == "Z") {
+      dispatch(redoDrawObject());
+    } else if (e.ctrlKey && e.key == "z") {
+      dispatch(undoDrawObject());
+    } else if (e.key === " ") {
       setKeyDown(e.key);
       dispatch(changeCurrentStatus({ drawState: DrawState.ZOOMDRAGGING }));
     } else if (e.key === "Delete") {

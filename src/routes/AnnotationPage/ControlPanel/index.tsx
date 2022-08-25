@@ -1,7 +1,10 @@
 import Crop32Icon from "@mui/icons-material/Crop32";
+import HexagonIcon from "@mui/icons-material/Hexagon";
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import PolylineIcon from "@mui/icons-material/Polyline";
-import { Box, Button } from "@mui/material";
+import RedoIcon from "@mui/icons-material/Redo";
+import UndoIcon from "@mui/icons-material/Undo";
+import { Box, Button, IconButton, Tooltip } from "@mui/material";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {
@@ -14,9 +17,13 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   changeCurrentDrawType,
   changeZoom,
+  redoDrawObject,
   resetCurrentStateDrawObject,
+  undoDrawObject,
 } from "reduxes/annotation/action";
 import {
+  selectorAnnotationHistoryStep,
+  selectorAnnotationStatehHistory,
   selectorcurrentDrawType,
   selectorDrawObjectById,
 } from "reduxes/annotation/selector";
@@ -30,10 +37,6 @@ import {
   selectorCurrentAnnotationFile,
   selectorIdDrawObjectByImageName,
 } from "reduxes/annotationmanager/selecetor";
-import HexagonIcon from "@mui/icons-material/Hexagon";
-import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
-import { loadImage } from "components/UploadFile";
-import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
 
 const ControlPanel = () => {
   const dispatch = useDispatch();
@@ -41,7 +44,7 @@ const ControlPanel = () => {
   const drawObjectById = useSelector(selectorDrawObjectById);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const idDrawObjectByImageName = useSelector(selectorIdDrawObjectByImageName);
-
+  const annotationStatehHistory = useSelector(selectorAnnotationStatehHistory);
   const resetScaleHandler = () => {
     dispatch(changeZoom({ zoom: { zoom: 1, position: { x: 0, y: 0 } } }));
   };
@@ -94,6 +97,13 @@ const ControlPanel = () => {
     noDragEventsBubbling: true,
   });
   const { getRootProps, isDragActive, getInputProps } = dropZone;
+  const handleUndoDrawObject = () => {
+    dispatch(undoDrawObject());
+  };
+  const handleRedoDrawObject = () => {
+    dispatch(redoDrawObject());
+  };
+
   return (
     <>
       <Box sx={{ minWidth: 100 }} display="flex" flexDirection="column" gap={1}>
@@ -104,6 +114,7 @@ const ControlPanel = () => {
           aria-label="mode"
           className="annotationControlPanel"
           size="large"
+          sx={{ border: "1px dashed grey" }}
         >
           <ToggleButton
             className="annotationBtn"
@@ -135,6 +146,36 @@ const ControlPanel = () => {
           </ToggleButton>
         </ToggleButtonGroup>
 
+        <Box
+          display="flex"
+          mt={3}
+          sx={{ border: "1px dashed grey" }}
+          justifyContent="space-evenly"
+        >
+          <Tooltip title="Ctrl+Z">
+            <span>
+              <IconButton
+                onClick={handleUndoDrawObject}
+                disabled={annotationStatehHistory.historyStep == 0}
+              >
+                <UndoIcon fontSize="large" />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title="Ctrl+Shift+Z">
+            <span>
+              <IconButton
+                onClick={handleRedoDrawObject}
+                disabled={
+                  annotationStatehHistory.historyStep >=
+                  annotationStatehHistory.stateHistoryItems.length - 1
+                }
+              >
+                <RedoIcon fontSize="large" />
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Box>
         <Button
           variant="outlined"
           onClick={resetScaleHandler}

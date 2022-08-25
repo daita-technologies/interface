@@ -3,7 +3,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FolderIcon from "@mui/icons-material/Folder";
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import PolylineIcon from "@mui/icons-material/Polyline";
-import { TextField } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -12,11 +11,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  deleteDrawObject,
-  setSelectedShape,
-  updateLabelOfDrawObject,
-} from "reduxes/annotation/action";
+import { deleteDrawObject, setSelectedShape } from "reduxes/annotation/action";
 import {
   selectorDrawObjectById,
   selectorSelectedDrawObjectId,

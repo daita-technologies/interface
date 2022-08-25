@@ -104,11 +104,11 @@ input:-webkit-autofill:active {
 }
 .annotationControlPanel {
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
 }
 .annotationBtn {
   padding: 10px !important;
-  margin: 10px 20px 10px 0px !important;
+  margin: 10px !important;
   border: 2px solid !important;
   border-radius: 4px !important;
 }
