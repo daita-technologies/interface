@@ -207,7 +207,7 @@ const ClassLabel = function ({ drawObject }: ClassLabelProps) {
         renderOption={(props, option) => (
           <li {...props}>{option.label.label}</li>
         )}
-        sx={{ width: 200 }}
+        sx={{ maxWidth: 180 }}
         freeSolo
         renderInput={(params) => (
           <TextField {...params} size="small" variant="standard" />

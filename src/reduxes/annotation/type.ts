@@ -30,7 +30,13 @@ export interface AnnotationReducer {
   selectedDrawObjectId: string | null;
   zoom: ZoomProps;
   drawObjectById: Record<string, DrawObject>;
+  drawObjectStateById: Record<string, DrawObjectState>;
   statehHistory: StateHistory;
+}
+
+export interface DrawObjectState {
+  isLock?: boolean;
+  isHidden?: boolean;
 }
 export interface StateHistory {
   historyStep: number;
@@ -79,4 +85,12 @@ export interface ResetCurrentStateDrawObjectPayload {
 export interface UpdateLabelOfDrawObjectPayload {
   drawObjectId: string;
   labelClassProperties: LabelClassProperties;
+}
+export interface SetHiddenDrawObjectPayload {
+  drawObjectId: string;
+  isHidden: boolean;
+}
+export interface SetLockDrawObecjtPayload {
+  drawObjectId: string;
+  isLock: boolean;
 }

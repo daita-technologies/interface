@@ -6,10 +6,10 @@ import React, { useMemo, useState } from "react";
 import { Ellipse, Transformer } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
-import {
-  selectorCurrentDrawState,
-  selectorSelectedEllipse,
-} from "reduxes/annotation/selector";
+import
+  {
+    selectorCurrentDrawState, selectorSelectedEllipse
+  } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
 import { EllipseProps, EllipseSpec } from "../type";
@@ -29,6 +29,7 @@ const EllipseShape = function ({
   const [strokeWidth, setStrokeWidth] = useState<number>(
     spec.cssStyle.strokeWidth
   );
+
   const isSelected = useMemo(() => {
     return currentShape != null && spec.id === currentShape.id;
   }, [currentShape?.id]);
@@ -121,7 +122,7 @@ const EllipseShape = function ({
         onTransformStart={commonShapeEvent.handleTransformStart}
         onMouseOver={onMouseOver}
         onMouseOut={onMouseOut}
-        draggable
+        draggable={commonShapeEvent.isLock !== true}
         onDragEnd={handleDragEnd}
         onDragStart={handleDragStart}
         onTransformEnd={handleTransformEnd}
@@ -130,7 +131,7 @@ const EllipseShape = function ({
         {...spec.cssStyle}
         strokeWidth={strokeWidth}
       />
-      {isSelected && (
+      {isSelected && commonShapeEvent.isLock !== true && (
         <Transformer
           ref={trRef}
           anchorFill={CIRCLE_STYLE.fill}

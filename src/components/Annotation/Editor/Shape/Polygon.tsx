@@ -352,9 +352,10 @@ const Polygon = ({
   return (
     <Group
       ref={groupRef}
-      draggable={isFinished}
+      draggable={isFinished && commonShapeEvent.isLock !== true}
       onDragStart={handleGroupDragStart}
       onDragEnd={handleGroupDragEnd}
+      u
       // dragBoundFunc={groupDragBound}
       onMouseOver={handleGroupMouseOver}
       onMouseOut={handleGroupMouseOut}
@@ -369,7 +370,9 @@ const Polygon = ({
         {...lineStyle}
         strokeScaleEnabled={false}
       />
-      {(isSelected || !isFinished) && renderPoints()}
+      {(isSelected || !isFinished) &&
+        commonShapeEvent.isLock !== true &&
+        renderPoints()}
     </Group>
   );
 };

@@ -13,6 +13,8 @@ import {
   DELETE_DRAW_OBJECT,
   REDO_DRAW_OBJECT,
   RESET_CURRENT_STATE_DRAW_OBJECT,
+  SET_HIDDEN_DRAW_OBJECT,
+  SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   UNDO_DRAW_OBJECT,
   UPDATE_DRAW_OBJET,
@@ -25,10 +27,11 @@ import {
   ChangeZoomPayload,
   CreateDrawObjectPayload,
   DeleteDrawObjectPayload,
-  DrawObject,
   DrawState,
   DrawType,
   ResetCurrentStateDrawObjectPayload,
+  SetHiddenDrawObjectPayload,
+  SetLockDrawObecjtPayload,
   SetSelectShapePayload,
   UpdateDrawObjectPayload,
   UpdateLabelOfDrawObjectPayload,
@@ -73,6 +76,7 @@ const inititalState: AnnotationReducer = {
   drawObjectById: {},
   currentDrawState: DrawState.FREE,
   statehHistory: { historyStep: 0, stateHistoryItems: [] },
+  drawObjectStateById: {},
 };
 const annotationReducer = (
   state = inititalState,
@@ -156,6 +160,12 @@ const annotationReducer = (
     }
     case SET_SELECT_SHAPE: {
       const { selectedDrawObjectId } = payload as SetSelectShapePayload;
+      // if (selectedDrawObjectId) {
+      //   const stateDrawObject = state.drawObjectStateById[selectedDrawObjectId];
+      //   if (stateDrawObject && stateDrawObject.isLock === true) {
+      //     return state;
+      //   }
+      // }
       return {
         ...state,
         currentDrawState: DrawState.SELECTING,
@@ -250,6 +260,42 @@ const annotationReducer = (
       } else {
         return state;
       }
+    }
+    case SET_HIDDEN_DRAW_OBJECT: {
+      const { drawObjectId, isHidden } = payload as SetHiddenDrawObjectPayload;
+      const drawObjectState = state.drawObjectStateById[drawObjectId];
+      const newDrawObjectState = drawObjectState
+        ? {
+            ...drawObjectState,
+            isHidden,
+          }
+        : { isHidden };
+
+      return {
+        ...state,
+        drawObjectStateById: {
+          ...state.drawObjectStateById,
+          [drawObjectId]: newDrawObjectState,
+        },
+      };
+    }
+    case SET_LOCK_DRAW_OBJECT: {
+      const { drawObjectId, isLock } = payload as SetLockDrawObecjtPayload;
+      const drawObjectState = state.drawObjectStateById[drawObjectId];
+      const newDrawObjectState = drawObjectState
+        ? {
+            ...drawObjectState,
+            isLock,
+          }
+        : { isLock };
+
+      return {
+        ...state,
+        drawObjectStateById: {
+          ...state.drawObjectStateById,
+          [drawObjectId]: newDrawObjectState,
+        },
+      };
     }
     default:
       return state;

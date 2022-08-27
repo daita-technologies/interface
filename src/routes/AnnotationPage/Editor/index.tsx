@@ -34,6 +34,7 @@ import {
   selectorCurrentDrawState,
   selectorcurrentDrawType,
   selectorDrawObjectById,
+  selectorListDrawObjectHidden,
   selectorSelectedDrawObjectId,
   selectorZoom,
 } from "reduxes/annotation/selector";
@@ -63,6 +64,7 @@ const Editor = () => {
   const ellipseHook = useEllipseEvent();
   const currentDrawState = useSelector(selectorCurrentDrawState);
   const zoom = useSelector(selectorZoom);
+  const listDrawObjectHidden = useSelector(selectorListDrawObjectHidden);
 
   const toolTipLayer = useRef<Konva.Layer>(null);
   const toolTip = useRef<Konva.Text>(null);
@@ -149,14 +151,16 @@ const Editor = () => {
     const linestripsById: Record<string, DrawObject> = {};
 
     Object.keys(drawObjectById).forEach((t) => {
-      if (drawObjectById[t].type === DrawType.RECTANGLE) {
-        rectanglesById[t] = drawObjectById[t];
-      } else if (drawObjectById[t].type === DrawType.POLYGON) {
-        polygonsById[t] = drawObjectById[t];
-      } else if (drawObjectById[t].type === DrawType.ELLIPSE) {
-        ellipsesById[t] = drawObjectById[t];
-      } else if (drawObjectById[t].type === DrawType.LINE_STRIP) {
-        linestripsById[t] = drawObjectById[t];
+      if (listDrawObjectHidden.indexOf(t) === -1) {
+        if (drawObjectById[t].type === DrawType.RECTANGLE) {
+          rectanglesById[t] = drawObjectById[t];
+        } else if (drawObjectById[t].type === DrawType.POLYGON) {
+          polygonsById[t] = drawObjectById[t];
+        } else if (drawObjectById[t].type === DrawType.ELLIPSE) {
+          ellipsesById[t] = drawObjectById[t];
+        } else if (drawObjectById[t].type === DrawType.LINE_STRIP) {
+          linestripsById[t] = drawObjectById[t];
+        }
       }
     });
     return {
@@ -165,7 +169,7 @@ const Editor = () => {
       ellipses: ellipsesById,
       linestrips: linestripsById,
     };
-  }, [drawObjectById]);
+  }, [drawObjectById, listDrawObjectHidden]);
   const clickStageHandler = (e: KonvaEventObject<MouseEvent>) => {
     if (currentDrawState !== DrawState.DRAWING) {
       dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
@@ -309,13 +313,6 @@ const Editor = () => {
             justifyContent="center"
             alignItems="center"
           >
-            {/* <div
-              ref={refBoundDiv}
-              tabIndex={0}
-              onKeyDown={keyDownHandler}
-              onKeyUp={keyUpHandler}
-              onMouseOver={mouseOverBoundDivHandler}
-            > */}
             <ReactReduxContext.Consumer>
               {({ store }) => (
                 <Stage

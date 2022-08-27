@@ -123,7 +123,7 @@ const Rectangle = function ({
         onTransformStart={commonShapeEvent.handleTransformStart}
         onMouseOver={onMouseOver}
         onMouseOut={onMouseOut}
-        draggable
+        draggable={commonShapeEvent.isLock !== true}
         onDragEnd={handleDragEnd}
         onDragStart={handleDragStart}
         onTransformEnd={handleTransformEnd}

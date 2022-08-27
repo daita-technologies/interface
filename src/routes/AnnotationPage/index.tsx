@@ -24,7 +24,7 @@ const AnnotationPage = function () {
             justifyContent="center"
             sx={{ backgroundColor: "#313c4b" }}
             width={50}
-            flexGrow={5}
+            flexGrow={10}
           >
             <LabelAnnotation />
           </Box>

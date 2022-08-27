@@ -1,10 +1,14 @@
 import { KonvaEventObject } from "konva/lib/Node";
+import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   changeCurrentStatus,
   setSelectedShape,
 } from "reduxes/annotation/action";
-import { selectorCurrentDrawState } from "reduxes/annotation/selector";
+import {
+  selectorCurrentDrawState,
+  selectorListDrawObjectLock,
+} from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { DrawObjectType } from "./type";
 
@@ -14,7 +18,11 @@ const useCommonShapeEvent = ({
   drawObject: DrawObjectType;
 }) => {
   const currentDrawState = useSelector(selectorCurrentDrawState);
-
+  const listDrawObjectLock = useSelector(selectorListDrawObjectLock);
+  const isLock = useMemo(
+    () => listDrawObjectLock.indexOf(drawObject.id) !== -1,
+    [listDrawObjectLock]
+  );
   const dispatch = useDispatch();
   const handleDragEnd = (e: KonvaEventObject<DragEvent>) => {
     dispatch(
@@ -68,6 +76,7 @@ const useCommonShapeEvent = ({
     handleTransformStart,
     handleTransformEnd,
     handleSelect,
+    isLock,
   };
 };
 export default useCommonShapeEvent;

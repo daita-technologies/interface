@@ -65,3 +65,13 @@ export const selectorAnnotationHistoryStep = (state: RootState) =>
   state.annotationReducer.statehHistory.historyStep;
 export const selectorAnnotationStatehHistory = (state: RootState) =>
   state.annotationReducer.statehHistory;
+export const selectorListDrawObjectLock = (state: RootState) => {
+  return Object.entries(state.annotationReducer.drawObjectStateById)
+    .filter(([key, value]) => value.isLock === true)
+    .map(([key, value]) => key);
+};
+export const selectorListDrawObjectHidden = (state: RootState) => {
+  return Object.entries(state.annotationReducer.drawObjectStateById)
+    .filter(([key, value]) => value.isHidden === true)
+    .map(([key, value]) => key);
+};

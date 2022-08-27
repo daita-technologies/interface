@@ -1,8 +1,13 @@
 import Crop32Icon from "@mui/icons-material/Crop32";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FolderIcon from "@mui/icons-material/Folder";
+import HexagonIcon from "@mui/icons-material/Hexagon";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import PolylineIcon from "@mui/icons-material/Polyline";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -11,9 +16,16 @@ import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteDrawObject, setSelectedShape } from "reduxes/annotation/action";
+import {
+  deleteDrawObject,
+  setHiddenDrawObject,
+  setLockDrawObject,
+  setSelectedShape,
+} from "reduxes/annotation/action";
 import {
   selectorDrawObjectById,
+  selectorListDrawObjectHidden,
+  selectorListDrawObjectLock,
   selectorSelectedDrawObjectId,
 } from "reduxes/annotation/selector";
 import { DrawType } from "reduxes/annotation/type";
@@ -27,13 +39,18 @@ const LabelAnnotation = function () {
   const labelClassPropertiesByLabelClass = useSelector(
     selectorLabelClassPropertiesByLabelClass
   );
+  const listDrawObjectLock = useSelector(selectorListDrawObjectLock);
+  const listDrawObjectHidden = useSelector(selectorListDrawObjectHidden);
+
   const renderIcon = (drawType: DrawType) => {
     if (drawType === DrawType.RECTANGLE) {
       return <Crop32Icon />;
-    } else if (drawType === DrawType.POLYGON) {
+    } else if (drawType === DrawType.LINE_STRIP) {
       return <PolylineIcon />;
     } else if (drawType === DrawType.ELLIPSE) {
       return <PanoramaFishEyeIcon />;
+    } else if (drawType === DrawType.POLYGON) {
+      return <HexagonIcon />;
     }
     return <FolderIcon />;
   };
@@ -42,6 +59,23 @@ const LabelAnnotation = function () {
   };
   const handleSelect = (id: string) => {
     dispatch(setSelectedShape({ selectedDrawObjectId: id }));
+  };
+  const handleClickLock = (id: string) => {
+    dispatch(
+      setLockDrawObject({
+        drawObjectId: id,
+        isLock: listDrawObjectLock.indexOf(id) !== -1 ? false : true,
+      })
+    );
+  };
+
+  const handleClickHidden = (id: string) => {
+    dispatch(
+      setHiddenDrawObject({
+        drawObjectId: id,
+        isHidden: listDrawObjectHidden.indexOf(id) !== -1 ? false : true,
+      })
+    );
   };
   return (
     <Box
@@ -62,13 +96,37 @@ const LabelAnnotation = function () {
               onSelect={() => handleSelect(id)}
               onClick={() => handleSelect(id)}
               secondaryAction={
-                <IconButton
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => handleClickDelete(id)}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                <Box display="flex">
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={() => handleClickDelete(id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                  <IconButton
+                    edge="end"
+                    aria-label="hidden"
+                    onClick={() => handleClickHidden(id)}
+                  >
+                    {listDrawObjectHidden.indexOf(id) !== -1 ? (
+                      <VisibilityOffIcon />
+                    ) : (
+                      <VisibilityIcon />
+                    )}
+                  </IconButton>
+                  <IconButton
+                    edge="end"
+                    aria-label="lock"
+                    onClick={() => handleClickLock(id)}
+                  >
+                    {listDrawObjectLock.indexOf(id) !== -1 ? (
+                      <LockIcon />
+                    ) : (
+                      <LockOpenIcon />
+                    )}
+                  </IconButton>
+                </Box>
               }
               sx={{
                 border: selectedDrawObjectId === id ? "1px solid" : "",
