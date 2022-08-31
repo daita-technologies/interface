@@ -8,4 +8,17 @@ export interface CreateProjectFields {
   accessToken: string;
   projectName: string;
   description: string;
+  createProjectPreBuild?: CreateProjectPreBuildFields;
+}
+
+export interface CreateProjectPreBuildFields {
+  nameIdPrebuild: string;
+  numberRadom: number;
+}
+export interface PrebuildDataset {
+  name: string;
+  s3Key: string;
+  totalImage: number;
+  visualName: string;
+  isActive: boolean;
 }
