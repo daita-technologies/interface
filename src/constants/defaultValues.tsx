@@ -4,6 +4,8 @@ import { TaskProcessType, TaskStatusMergedType } from "./taskType";
 
 export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
+export const createProjectSampleApiUrl =
+  process.env.REACT_APP_CREATE_PROJECT_SAMPLE;
 export const generateApiUrl = process.env.REACT_APP_GENERATE_API_URL;
 export const downloadZipApiUrl = process.env.REACT_APP_DOWNLOAD_ZIP_API;
 export const uploadZipApiUrl = process.env.REACT_APP_UPLOAD_ZIP_API;

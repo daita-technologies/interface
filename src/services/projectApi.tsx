@@ -7,6 +7,7 @@ import {
   uploadZipApiUrl,
   generateApiUrl,
   ID_TOKEN_NAME,
+  createProjectSampleApiUrl,
 } from "constants/defaultValues";
 import { ApiResponse } from "constants/type";
 import { FetchImagesParams, ImageSourceType } from "reduxes/album/type";
@@ -40,6 +41,11 @@ export interface CreateSampleRequestBody {
   accessToken: string;
 }
 
+export interface CreateSampleProjectFromPrebuildRequestBody {
+  idToken: string;
+  name_id_prebuild: string;
+  number_random: string;
+}
 export interface DeleteProjectRequestBody {
   idToken: string;
   projectId: string;
@@ -84,17 +90,33 @@ const projectApi = {
     accessToken,
     projectName,
     description,
-  }: CreateProjectFields) =>
-    axios.post(
-      `${projectApiUrl}/projects/create`,
-      {
-        id_token: idToken,
-        access_token: accessToken,
-        project_name: projectName,
-        project_info: description,
-      },
-      { headers: getAuthHeader() }
-    ),
+    createProjectPreBuild,
+  }: CreateProjectFields) => {
+    if (createProjectPreBuild) {
+      return axios.post(
+        `${createProjectSampleApiUrl}/projects/create_project_from_prebuild`,
+        {
+          id_token: idToken,
+          project_name: projectName,
+          project_info: description,
+          name_id_prebuild: createProjectPreBuild.nameIdPrebuild,
+          number_random: createProjectPreBuild.numberRadom,
+        },
+        { headers: getAuthHeader() }
+      );
+    } else {
+      return axios.post(
+        `${projectApiUrl}/projects/create`,
+        {
+          id_token: idToken,
+          access_token: accessToken,
+          project_name: projectName,
+          project_info: description,
+        },
+        { headers: getAuthHeader() }
+      );
+    }
+  },
   listProjects: ({ idToken }: { idToken: string }) =>
     axios.post(
       `${projectApiUrl}/projects/list_info`,
@@ -234,6 +256,10 @@ const projectApi = {
         id_token: idToken,
         task_id: taskId,
       },
+    }),
+  getListPrebuildDataset: ({ idToken }: { idToken: string }) =>
+    axios.post(`${createProjectSampleApiUrl}/projects/list_prebuild_dataset`, {
+      id_token: idToken,
     }),
   deleteProject: ({
     idToken,
