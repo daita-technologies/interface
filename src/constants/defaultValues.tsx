@@ -1,6 +1,8 @@
 import { encode } from "js-base64";
 import { getLocalToken } from "utils/general";
+
 import { TaskProcessType, TaskStatusMergedType } from "./taskType";
+import { CreateProjectDatasetTypeControlType } from "./type";
 
 export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
@@ -132,6 +134,34 @@ export const TASK_STATUS_MERGED_ARRAY: TaskStatusMergedType[] = [
   FINISH_TASK_STATUS,
   CANCEL_TASK_STATUS,
 ];
+
+export const EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE = "empty";
+export const EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_LABEL = "Empty";
+export const EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_DESCRIPTION =
+  "Create project with empty dataset";
+export const EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE =
+  "existing_dataset";
+export const EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_LABEL =
+  "Existing dataset";
+export const EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_DESCRIPTION =
+  "Create project with existing dataset";
+
+export const CREATE_PROJECT_DATASET_TYPE_LIST: CreateProjectDatasetTypeControlType[] =
+  [
+    {
+      value: EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE,
+      label: EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_LABEL,
+      description: EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_DESCRIPTION,
+    },
+    {
+      value: EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE,
+      label: EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_LABEL,
+      description: EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_DESCRIPTION,
+    },
+  ];
+
+export const MIN_DATASET_IMAGES_CREATE_PROJECT = 1;
+export const MAX_DATASET_IMAGES_CREATE_PROJECT = 1000;
 
 export const TEMP_LOCAL_USERNAME = "temp_username_key";
 export const TEMP_LOCAL_FULLNAME = "temp_fullname_key";

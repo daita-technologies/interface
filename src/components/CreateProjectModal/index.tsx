@@ -10,39 +10,168 @@ import {
   Radio,
   RadioGroup,
   Slider,
-  SxProps,
   TextField,
-  Theme,
   Typography,
+  FormControl,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { CREATE_PROJECT } from "reduxes/project/constants";
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import { getLocalStorage } from "utils/general";
+
+import {
+  CREATE_PROJECT_DATASET_TYPE_LIST,
+  EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE,
+  EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE,
+  ID_TOKEN_NAME,
+  MAX_DATASET_IMAGES_CREATE_PROJECT,
+  MIN_DATASET_IMAGES_CREATE_PROJECT,
+  TOKEN_NAME,
+  // MAX_ALLOW_UPLOAD_IMAGES,
+} from "constants/defaultValues";
+import { RootState } from "reduxes";
+import { MyButton } from "components";
+
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+
+import { projectApi } from "services";
+
+import { CreateProjectDatasetValueType } from "constants/type";
+
 import {
   CreateProjectFields,
   CreateProjectModalProps,
   PrebuildDataset,
+  CreateProjectDatasetTypeControlProps,
 } from "./type";
 
-import { MyButton } from "components";
-import {
-  ID_TOKEN_NAME,
-  MAX_ALLOW_UPLOAD_IMAGES,
-  TOKEN_NAME,
-} from "constants/defaultValues";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import { RootState } from "reduxes";
-import { projectApi } from "services";
+const CREATE_PROJECT_DATASET_TYPE_CONTROL =
+  "create-project-dataset-type-control";
 
-const radioCss: SxProps<Theme> = {
-  flex: 1,
-  justifyContent: "center",
-  border: "1px dashed",
-  margin: "2px",
+const CreateProjectDatasetTypeControl = function (
+  props: CreateProjectDatasetTypeControlProps
+) {
+  const {
+    value,
+    label,
+    description,
+    datasetProjectType,
+    setDatasetProjectType,
+    numberOfDatasetImages,
+    setNumberOfDatasetImages,
+    prebuildDataset,
+    setPrebuildDataset,
+    listPrebuildDataset,
+    isLoadingPrebuildDataset,
+  } = props;
+
+  const onChangeNumberOfDatasetImagesSlider = (
+    _event: Event,
+    newNumberOfDatasetImagesSliderInput: number | number[]
+  ) => {
+    if (typeof newNumberOfDatasetImagesSliderInput !== "object") {
+      setNumberOfDatasetImages(newNumberOfDatasetImagesSliderInput);
+    }
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNumberOfDatasetImages(
+      event.target.value === ""
+        ? MIN_DATASET_IMAGES_CREATE_PROJECT
+        : Number(event.target.value)
+    );
+  };
+
+  const handleBlur = () => {
+    if (numberOfDatasetImages) {
+      if (numberOfDatasetImages < 0) {
+        setNumberOfDatasetImages(MIN_DATASET_IMAGES_CREATE_PROJECT);
+      } else if (numberOfDatasetImages > MAX_DATASET_IMAGES_CREATE_PROJECT) {
+        setNumberOfDatasetImages(MAX_DATASET_IMAGES_CREATE_PROJECT);
+      }
+    }
+  };
+
+  return (
+    <Box>
+      <FormControlLabel
+        value={value}
+        control={<Radio />}
+        label={label}
+        onClick={() => setDatasetProjectType(value)}
+      />
+      <Typography variant="body2" color="text.secondary" fontStyle="italic">
+        {description}
+      </Typography>
+      {value === EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE &&
+        datasetProjectType === value && (
+          <Box mt={2}>
+            <Box>
+              <Autocomplete
+                id="prebuild-dataset"
+                value={prebuildDataset}
+                disablePortal
+                loading={isLoadingPrebuildDataset}
+                options={listPrebuildDataset}
+                getOptionLabel={(option) => option.name}
+                onChange={(_, selectedPrebuildDataset) => {
+                  if (selectedPrebuildDataset) {
+                    setPrebuildDataset(selectedPrebuildDataset);
+                    setNumberOfDatasetImages(
+                      selectedPrebuildDataset.totalImage
+                    );
+                  }
+                }}
+                renderOption={(optionProps, option) => (
+                  <li {...optionProps} key={option.name}>
+                    {option.name}
+                  </li>
+                )}
+                sx={{ width: 300 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="List prebuild dataset" />
+                )}
+              />
+            </Box>
+            <Typography variant="body2" mt={2}>
+              Number of dataset images:
+            </Typography>
+            <Box display="flex" alignItems="center" columnGap={1} pl={1}>
+              <Slider
+                size="small"
+                value={numberOfDatasetImages}
+                aria-label="Small"
+                valueLabelDisplay="auto"
+                onChange={onChangeNumberOfDatasetImagesSlider}
+                min={MIN_DATASET_IMAGES_CREATE_PROJECT}
+                max={
+                  prebuildDataset?.totalImage ||
+                  MIN_DATASET_IMAGES_CREATE_PROJECT
+                }
+              />
+              <Input
+                value={numberOfDatasetImages}
+                size="small"
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                inputProps={{
+                  min: MIN_DATASET_IMAGES_CREATE_PROJECT,
+                  max:
+                    prebuildDataset?.totalImage ||
+                    MIN_DATASET_IMAGES_CREATE_PROJECT,
+                  type: "number",
+                  "aria-labelledby": "input-number-of-dataset-images-slider",
+                }}
+              />
+            </Box>
+          </Box>
+        )}
+    </Box>
+  );
 };
+
 const CreateProjectModal = function (props: CreateProjectModalProps) {
   const { isOpen, handleClose } = props;
   const dispatch = useDispatch();
@@ -55,55 +184,59 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
     defaultValues: {
       accessToken: getLocalStorage(TOKEN_NAME) || "",
       idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+      datasetProjectType: EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE,
     },
   });
   const [listPrebuildDataset, setListPrebuildDataset] = useState<
     PrebuildDataset[]
   >([]);
-  const [fromDatasets, setFromDatasets] = useState<"Empty" | "Existed">(
-    "Empty"
-  );
+
   const [prebuildDataset, setPrebuildDataset] =
     useState<PrebuildDataset | null>(null);
   const [isLoadingPrebuildDataset, setIsLoadingPrebuildDataset] =
     useState<boolean>(true);
-  const [numberOfImages, setNumberOfImages] = useState<number>(0);
 
   useEffect(() => {
-    projectApi
-      .getListPrebuildDataset({ idToken: getLocalStorage(ID_TOKEN_NAME) || "" })
-      .then((resp: any) => {
-        if (!resp.error) {
-          console.log("resp", resp);
-          const prebuildDatasets: PrebuildDataset[] = [];
-          for (const prebuildDataset of resp.data) {
-            prebuildDatasets.push({
-              isActive: prebuildDataset.is_active,
-              s3Key: prebuildDataset.s3_key,
-              name: prebuildDataset.name,
-              totalImage: prebuildDataset.total_images,
-              visualName: prebuildDataset.visual_name,
-            });
-          }
-          console.log("prebuildDatasets", prebuildDatasets);
-          setListPrebuildDataset([...prebuildDatasets]);
-        } else {
-          toast.error(resp.message);
+    projectApi.getListPrebuildDataset({}).then((resp: any) => {
+      if (!resp.error) {
+        const prebuildDatasets: PrebuildDataset[] = [];
+        for (const prebuildDataset of resp.data) {
+          prebuildDatasets.push({
+            isActive: prebuildDataset.is_active,
+            s3Key: prebuildDataset.s3_key,
+            name: prebuildDataset.name,
+            totalImage: prebuildDataset.total_images,
+            visualName: prebuildDataset.visual_name,
+          });
         }
-        setIsLoadingPrebuildDataset(false);
-      });
+
+        setListPrebuildDataset([...prebuildDatasets]);
+      } else {
+        toast.error(resp.message);
+      }
+      setIsLoadingPrebuildDataset(false);
+    });
   }, []);
+
+  const [datasetProjectType, setDatasetProjectType] =
+    useState<CreateProjectDatasetValueType>(
+      EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE
+    );
+
+  const [numberOfDatasetImages, setNumberOfDatasetImages] = useState(1);
 
   const isLoading = useSelector(
     (state: RootState) => state.projectReducer.isCreatingProject
   );
 
   const onSubmitCreateProject = (fields: CreateProjectFields) => {
-    if (fromDatasets === "Existed") {
+    if (
+      datasetProjectType === EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE
+    ) {
       if (prebuildDataset) {
         fields.createProjectPreBuild = {
           nameIdPrebuild: prebuildDataset.name,
-          numberRadom: numberOfImages,
+          numberRadom: numberOfDatasetImages,
         };
       } else {
         toast.error("Please select one prebuild dataset");
@@ -114,19 +247,6 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
     dispatch({ type: CREATE_PROJECT.REQUESTED, payload: fields });
   };
 
-  const handleChangeFromDatasets = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFromDatasets(
-      (event.target as HTMLInputElement).value as "Empty" | "Existed"
-    );
-  };
-  const handleChangeNumberOfImages = (
-    _event: Event,
-    newValue: number | number[]
-  ) => {
-    setNumberOfImages(newValue as number);
-  };
   return (
     <Modal
       open={isOpen}
@@ -184,83 +304,53 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
             fullWidth
             disabled={isLoading}
           />
-          <Box mt={1}>
-            <FormLabel id="demo-radio-buttons-group-label">
-              From Datasets
-            </FormLabel>
-            <RadioGroup
-              aria-labelledby="demo-radio-buttons-group-label"
-              defaultValue="female"
-              name="radio-buttons-group"
-              row
-              sx={{ justifyContent: "space-around", height: 200 }}
-              value={fromDatasets}
-              onChange={handleChangeFromDatasets}
-            >
-              <Box display="flex" sx={{ ...radioCss }}>
-                <FormControlLabel
-                  value="Empty"
-                  control={<Radio />}
-                  label="Empty"
-                  labelPlacement="start"
-                  sx={{ justifyContent: "center", margin: 0 }}
-                />
-              </Box>
-              <Box
-                display="flex"
-                sx={{ ...radioCss, alignItems: "center" }}
-                flexDirection="column"
+          <Box mt={2}>
+            <FormControl fullWidth>
+              <FormLabel id={CREATE_PROJECT_DATASET_TYPE_CONTROL}>
+                Project Dataset
+              </FormLabel>
+              <RadioGroup
+                aria-labelledby={CREATE_PROJECT_DATASET_TYPE_CONTROL}
+                defaultValue={EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE}
+                name="radio-project-dataset-type"
               >
-                <FormControlLabel
-                  value="Existed"
-                  control={<Radio />}
-                  label="Existed"
-                  labelPlacement="start"
-                  sx={{ justifyContent: "center", margin: 0 }}
-                />
-                {fromDatasets === "Existed" && (
-                  <>
-                    <Autocomplete
-                      id="prebuild-dataset"
-                      value={prebuildDataset}
-                      disablePortal
-                      loading={isLoadingPrebuildDataset}
-                      options={listPrebuildDataset}
-                      getOptionLabel={(option) => option.name}
-                      onChange={(_, value) => {
-                        if (value) {
-                          setPrebuildDataset(value);
-                          setNumberOfImages(value.totalImage);
-                        }
-                      }}
-                      renderOption={(props, option) => (
-                        <li {...props} key={option.name}>
-                          {option.name}
-                        </li>
-                      )}
-                      sx={{ width: 300 }}
-                      renderInput={(params) => (
-                        <TextField {...params} label="List prebuild dataset" />
-                      )}
-                    />
-                    <Box mt={2} width="95%">
-                      <Typography id="input-slider" gutterBottom>
-                        Number of images
-                      </Typography>
-                      <Slider
-                        size="small"
-                        value={numberOfImages}
-                        min={0}
-                        max={MAX_ALLOW_UPLOAD_IMAGES}
-                        aria-label="Small"
-                        valueLabelDisplay="auto"
-                        onChange={handleChangeNumberOfImages}
-                      />
-                    </Box>
-                  </>
-                )}
-              </Box>
-            </RadioGroup>
+                <Box display="flex" width="100%" columnGap={2} mt={1}>
+                  {CREATE_PROJECT_DATASET_TYPE_LIST.map(
+                    (projectDatasetType) => {
+                      const { value, label, description } = projectDatasetType;
+                      return (
+                        <Box
+                          flex={1}
+                          sx={{
+                            border: "1px dashed",
+                            borderColor: "text.secondary",
+                            opacity: datasetProjectType === value ? 1 : 0.5,
+                          }}
+                          minHeight={144}
+                          borderRadius={2}
+                          padding={1}
+                          key={`create-project-dataset-type-control-${value}`}
+                        >
+                          <CreateProjectDatasetTypeControl
+                            value={value}
+                            label={label}
+                            description={description}
+                            datasetProjectType={datasetProjectType}
+                            setDatasetProjectType={setDatasetProjectType}
+                            numberOfDatasetImages={numberOfDatasetImages}
+                            setNumberOfDatasetImages={setNumberOfDatasetImages}
+                            prebuildDataset={prebuildDataset}
+                            setPrebuildDataset={setPrebuildDataset}
+                            listPrebuildDataset={listPrebuildDataset}
+                            isLoadingPrebuildDataset={isLoadingPrebuildDataset}
+                          />
+                        </Box>
+                      );
+                    }
+                  )}
+                </Box>
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box display="flex" justifyContent="flex-end" marginTop={6}>
             <MyButton
