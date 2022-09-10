@@ -42,14 +42,17 @@ const EmptyDashboardMessage = function ({
   return (
     <Box mt={projectCount <= 0 ? 12 : 4} textAlign="center">
       {projectCount <= 0 && (
-        <Typography variant="h4" component="h1">
-          👋 Welcome to DAITA, let's get started.
-        </Typography>
+        <>
+          <Typography variant="h4" component="h1">
+            👋 Welcome to DAITA, let's get started.
+          </Typography>
+
+          <Typography sx={{ mt: 2 }}>
+            👉 If you just want to play, you can create project with existing
+            dataset. You don't have to upload any data!
+          </Typography>
+        </>
       )}
-      <Typography sx={{ mt: 2 }}>
-        👉 If you just want to play, you can create project with existing
-        dataset. You don't have to upload any data!
-      </Typography>
       {/* <Typography sx={{ mt: 2 }}>
         👉 If you just want to play, you can create a sandbox project{" "}
         <Box

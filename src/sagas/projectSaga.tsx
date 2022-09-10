@@ -63,7 +63,6 @@ function* handleCreateProject(action: any): any {
         s3_prefix: createProjectResponse.data.s3_prefix,
         ls_task: [],
         groups: null,
-        is_sample: createProjectResponse.data.is_sample,
         gen_status: createProjectResponse.data.gen_status,
         thum_key: "",
         description: "",
@@ -76,9 +75,7 @@ function* handleCreateProject(action: any): any {
         type: SET_IS_OPEN_CREATE_PROJECT_MODAL,
         payload: { isOpen: false },
       });
-      toast.success(
-        createProjectResponse.message || "Project successfully created."
-      );
+      toast.success("Project successfully created.");
       history.push(`/project/${encodeURIComponent(projectName)}`);
     } else {
       yield put({

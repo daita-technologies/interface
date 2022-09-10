@@ -103,7 +103,6 @@ const ProjectDetail = function () {
   useEffect(() => {
     if (
       currentProjectInfo &&
-      // currentProjectInfo.is_sample &&
       currentProjectInfo.gen_status === GENERATING_SAMPLE_PROJECT_STATUS
     ) {
       const timer = setTimeout(() => {
@@ -296,7 +295,6 @@ const ProjectDetail = function () {
   const renderProject = () => {
     if (
       currentProjectInfo &&
-      // currentProjectInfo.is_sample &&
       currentProjectInfo.gen_status === GENERATING_SAMPLE_PROJECT_STATUS
     ) {
       return (

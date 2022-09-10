@@ -371,7 +371,6 @@ const projectReducer = (
             ...(payload as CreateSampleSucceedPayload),
             groups: null,
             ls_task: [],
-            is_sample: true,
             description: "",
           },
         ],

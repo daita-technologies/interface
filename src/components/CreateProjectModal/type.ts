@@ -39,6 +39,7 @@ export interface CreateProjectDatasetTypeControlProps
   setPrebuildDataset: (value: PrebuildDataset) => void;
   listPrebuildDataset: PrebuildDataset[];
   isLoadingPrebuildDataset: boolean;
+  isCreatingProject: boolean;
 }
 
 export interface CreateProjectPreBuildFields {

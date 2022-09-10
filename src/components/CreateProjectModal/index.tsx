@@ -65,6 +65,7 @@ const CreateProjectDatasetTypeControl = function (
     setPrebuildDataset,
     listPrebuildDataset,
     isLoadingPrebuildDataset,
+    isCreatingProject,
   } = props;
 
   const onChangeNumberOfDatasetImagesSlider = (
@@ -98,7 +99,7 @@ const CreateProjectDatasetTypeControl = function (
     <Box>
       <FormControlLabel
         value={value}
-        control={<Radio />}
+        control={<Radio disabled={isCreatingProject} />}
         label={label}
         onClick={() => setDatasetProjectType(value)}
       />
@@ -114,6 +115,7 @@ const CreateProjectDatasetTypeControl = function (
                 value={prebuildDataset}
                 disablePortal
                 loading={isLoadingPrebuildDataset}
+                disabled={isCreatingProject}
                 options={listPrebuildDataset}
                 getOptionLabel={(option) => option.name}
                 onChange={(_, selectedPrebuildDataset) => {
@@ -150,6 +152,7 @@ const CreateProjectDatasetTypeControl = function (
                   prebuildDataset?.totalImage ||
                   MIN_DATASET_IMAGES_CREATE_PROJECT
                 }
+                disabled={isCreatingProject}
               />
               <Input
                 value={numberOfDatasetImages}
@@ -164,6 +167,7 @@ const CreateProjectDatasetTypeControl = function (
                   type: "number",
                   "aria-labelledby": "input-number-of-dataset-images-slider",
                 }}
+                disabled={isCreatingProject}
               />
             </Box>
           </Box>
@@ -179,6 +183,7 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<CreateProjectFields>({
     mode: "onChange",
     defaultValues: {
@@ -229,6 +234,13 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
     (state: RootState) => state.projectReducer.isCreatingProject
   );
 
+  const resetFormData = () => {
+    reset();
+    setPrebuildDataset(null);
+    setDatasetProjectType(EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE);
+    setNumberOfDatasetImages(1);
+  };
+
   const onSubmitCreateProject = (fields: CreateProjectFields) => {
     if (
       datasetProjectType === EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE
@@ -239,24 +251,34 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
           numberRadom: numberOfDatasetImages,
         };
       } else {
-        toast.error("Please select one prebuild dataset");
+        toast.error("Please select one prebuild dataset.");
         return;
       }
     }
 
     dispatch({ type: CREATE_PROJECT.REQUESTED, payload: fields });
+    resetFormData();
+  };
+
+  const onCloseModal = () => {
+    if (!isLoading) {
+      if (handleClose) {
+        handleClose();
+      }
+      resetFormData();
+    }
   };
 
   return (
     <Modal
       open={isOpen}
-      onClose={!isLoading ? handleClose : undefined}
+      onClose={!isLoading ? onCloseModal : undefined}
       disableEscapeKeyDown
     >
       <Box sx={{ ...modalStyle, width: 700 }}>
         <IconButton
           sx={modalCloseStyle}
-          onClick={!isLoading ? handleClose : undefined}
+          onClick={!isLoading ? onCloseModal : undefined}
         >
           <CancelIcon fontSize="large" />
         </IconButton>
@@ -343,6 +365,7 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
                             setPrebuildDataset={setPrebuildDataset}
                             listPrebuildDataset={listPrebuildDataset}
                             isLoadingPrebuildDataset={isLoadingPrebuildDataset}
+                            isCreatingProject={isLoading}
                           />
                         </Box>
                       );
