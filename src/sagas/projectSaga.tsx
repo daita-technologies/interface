@@ -381,7 +381,7 @@ function* handleLoadProjectThumbnailImage(action: {
           yield put({
             type: LOAD_PROJECT_THUMBNAIL_IMAGE.SUCCEEDED,
             payload: {
-              thumbnailUrl: window.URL.createObjectURL(blob),
+              projectThumbnailUrl: window.URL.createObjectURL(blob),
               projectId,
             },
           });
@@ -389,7 +389,7 @@ function* handleLoadProjectThumbnailImage(action: {
           yield put({
             type: LOAD_PROJECT_THUMBNAIL_IMAGE.FAILED,
             payload: {
-              thumbnailUrl: "",
+              projectThumbnailUrl: "",
               projectId,
             },
           });
@@ -398,7 +398,7 @@ function* handleLoadProjectThumbnailImage(action: {
         yield put({
           type: LOAD_PROJECT_THUMBNAIL_IMAGE.FAILED,
           payload: {
-            thumbnailUrl: "",
+            projectThumbnailUrl: "",
             projectId,
           },
         });
@@ -409,7 +409,7 @@ function* handleLoadProjectThumbnailImage(action: {
     yield put({
       type: LOAD_PROJECT_THUMBNAIL_IMAGE.FAILED,
       payload: {
-        thumbnailUrl: "",
+        projectThumbnailUrl: "",
         projectId,
       },
     });

@@ -221,7 +221,7 @@ export interface LoadProjectThumbnailImagePayload {
 }
 
 export interface LoadProjectThumbnailImageSucceedPayload {
-  thumbnailUrl: string;
+  projectThumbnailUrl: string;
   projectId: string;
 }
 export interface UpdateProjectInfo {

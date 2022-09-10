@@ -29,12 +29,14 @@ export type ImageSourceType =
 export interface ImageApiFields {
   filename: string;
   s3_key: string;
+  thumbnail: string;
   photoKey: string;
   typeOfImage: ImageSourceType;
   gen_id?: string[] | string;
   classtype?: string;
   blob?: Blob;
   url?: string;
+  thumbnailUrl?: string;
   size?: number;
 }
 
@@ -104,12 +106,13 @@ export interface LoadImageContentPayload {
   isFetchToDownload?: boolean;
   isSelectedDownload?: boolean;
   blob?: Blob;
+  isThumbnailImage?: boolean;
 }
 
 export interface LoadImageContentSucceedPayload {
   projectId: string;
   filename: string;
   blob: Blob;
-  url: string;
+  thumbnailUrl: string;
   size: number;
 }

@@ -74,6 +74,7 @@ function* handleLoadImageContent(action: {
     projectId,
     typeMethod,
     imageInfo,
+    isThumbnailImage = true,
   } = action.payload;
 
   try {
@@ -146,8 +147,11 @@ function* handleLoadImageContent(action: {
                 projectId,
                 filename: fileName,
                 blob,
-                url: window.URL.createObjectURL(blob),
-                size: blob.size,
+                thumbnailUrl: isThumbnailImage
+                  ? window.URL.createObjectURL(blob)
+                  : "",
+                url: isThumbnailImage ? "" : window.URL.createObjectURL(blob),
+                size: isThumbnailImage ? "" : blob.size,
               },
             });
           }
@@ -183,7 +187,8 @@ function* handleFetchImages(action: {
       const { items, next_token } = fetchImagesResponse.data;
       const images = convertArrayAlbumImageToObjectKeyFileName(
         items,
-        typeMethod
+        typeMethod,
+        true
       );
       const currentActiveProjectId = yield select(selectorCurrentProjectId);
 

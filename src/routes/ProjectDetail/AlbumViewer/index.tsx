@@ -3,48 +3,31 @@ import { useParams } from "react-router-dom";
 import lodash from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import InfiniteScroll from "react-infinite-scroll-component";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 // import { AutoSizer, List } from "react-virtualized";
 
 import {
   Box,
-  Card,
-  CardContent,
-  CardMedia,
   Checkbox,
   CircularProgress,
-  IconButton,
   ImageList,
   ImageListItem,
-  Modal,
   Skeleton,
   Tab,
   Tabs,
   Typography,
 } from "@mui/material";
-import CancelIcon from "@mui/icons-material/Cancel";
 import { Link, TabPanel, MyButton } from "components";
 
+import { a11yProps, getLocalStorage, switchTabIdToSource } from "utils/general";
 import {
-  a11yProps,
-  formatBytes,
-  getLocalStorage,
-  objectIndexOf,
-  switchTabIdToSource,
-} from "utils/general";
-import {
-  AUGMENT_SOURCE,
   ID_TOKEN_NAME,
-  PREPROCESS_SOURCE,
   AUGMENT_IMAGES_TAB,
   ORIGINAL_IMAGES_TAB,
   PREPROCESS_IMAGES_TAB,
 } from "constants/defaultValues";
 import { DATASET_HEALTH_CHECK_ROUTE_NAME } from "constants/routeName";
 
-import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import { RootState } from "reduxes";
 import {
   changeActiveImagesTab,
@@ -65,12 +48,11 @@ import {
 import { ImageApiFields, TAB_ID_TYPE } from "reduxes/album/type";
 
 import { ALBUM_SELECT_MODE } from "reduxes/album/constants";
-import { selectorMethodList } from "reduxes/project/selector";
-import { MethodInfoFields } from "reduxes/project/type";
 
 import DownloadButton from "../DownloadButton";
 import { AlbumViewerProps } from "../type";
 import SelectButton from "../SelectButton";
+import PreviewImageModal from "./PreviewImageModal";
 
 const IMAGES_PER_ROW = 10;
 const IMAGE_SIZE = 100;
@@ -110,17 +92,17 @@ const ImageRow = function ({
       {rowImageFileNameArray.map((fileName: string) => (
         <ImageListItem
           sx={{
-            cursor: images[fileName].url ? "pointer" : "default",
+            cursor: images[fileName].thumbnailUrl ? "pointer" : "default",
             overflow: "hidden",
           }}
           key={images[fileName].photoKey}
           onClick={() =>
-            !isAlbumSelectMode && images[fileName].url
+            !isAlbumSelectMode && images[fileName].thumbnailUrl
               ? setPreviewImage(images[fileName])
               : onClickSelectImage(fileName)
           }
         >
-          {images[fileName].url ? (
+          {images[fileName].thumbnailUrl ? (
             <Box width="100%" height="100%" position="relative">
               {isAlbumSelectMode && (
                 <Box
@@ -137,7 +119,7 @@ const ImageRow = function ({
               )}
               <img
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                src={images[fileName].url}
+                src={images[fileName].thumbnailUrl}
                 alt="ts"
                 loading="lazy"
               />
@@ -173,8 +155,6 @@ const AlbumViewer = function (props: AlbumViewerProps) {
 
   const s3 = useSelector((state: RootState) => state.generalReducer.s3);
   const hasMore = nextToken !== null;
-
-  const listMethod = useSelector(selectorMethodList);
 
   const { projectId } = props;
 
@@ -228,215 +208,6 @@ const AlbumViewer = function (props: AlbumViewerProps) {
       }
     }
   }, [imagesFileNameArrayGroupedLength]);
-
-  const onViewPreviousImages = (currentImageFileName: string) => {
-    if (currentImageFileName) {
-      const currentPreviewIamgeIndex =
-        imagesFileNameArray.indexOf(currentImageFileName);
-
-      if (currentPreviewIamgeIndex > -1) {
-        if (currentPreviewIamgeIndex + 1 > 1) {
-          setPreviewImage(
-            images[imagesFileNameArray[currentPreviewIamgeIndex - 1]]
-          );
-        }
-      }
-    }
-  };
-
-  const onViewNextImages = (currentImageFileName: string) => {
-    if (currentImageFileName) {
-      const currentPreviewIamgeIndex =
-        imagesFileNameArray.indexOf(currentImageFileName);
-
-      if (currentPreviewIamgeIndex > -1) {
-        if (currentPreviewIamgeIndex + 1 < imagesFileNameArray.length) {
-          setPreviewImage(
-            images[imagesFileNameArray[currentPreviewIamgeIndex + 1]]
-          );
-        }
-      }
-    }
-  };
-
-  useEffect(() => {
-    const handleNavigateWhenPressArrow = (event: KeyboardEvent) => {
-      if (previewImage) {
-        if (event.key === "ArrowRight") {
-          onViewNextImages(previewImage?.filename!);
-        } else if (event.key === "ArrowLeft") {
-          onViewPreviousImages(previewImage?.filename!);
-        }
-      }
-    };
-
-    document.addEventListener("keydown", handleNavigateWhenPressArrow);
-
-    return () => {
-      document.removeEventListener("keydown", handleNavigateWhenPressArrow);
-    };
-  }, [previewImage]);
-
-  const convertMethodCodeToName = (image: ImageApiFields | null) => {
-    if (image && image.gen_id) {
-      let usingListMethod: Array<MethodInfoFields> = [];
-      if (image.typeOfImage === PREPROCESS_SOURCE) {
-        usingListMethod = listMethod?.preprocessing || [];
-      } else if (image.typeOfImage === AUGMENT_SOURCE) {
-        usingListMethod = listMethod?.augmentation || [];
-      }
-
-      if (usingListMethod) {
-        let genIdArray = [];
-
-        if (typeof image.gen_id === "string") {
-          try {
-            genIdArray = JSON.parse(image.gen_id.replace(/'/g, '"'));
-          } catch {
-            //
-          }
-        } else {
-          genIdArray = image.gen_id || [];
-        }
-
-        return genIdArray.map((methodCode: string) => {
-          if (usingListMethod) {
-            const matchMethodIndex = objectIndexOf(
-              usingListMethod,
-              methodCode,
-              "method_id"
-            );
-            if (matchMethodIndex > -1) {
-              if (image.typeOfImage === PREPROCESS_SOURCE) {
-                return lodash.startCase(
-                  usingListMethod[matchMethodIndex].method_name.replace(
-                    /_/g,
-                    " "
-                  )
-                );
-              }
-
-              if (image.typeOfImage === AUGMENT_SOURCE) {
-                return lodash.startCase(
-                  usingListMethod[matchMethodIndex].method_name
-                    .replace(/_/g, " ")
-                    .replace(/random/g, "")
-                );
-              }
-
-              return "";
-            }
-
-            return "";
-          }
-          return "";
-        });
-      }
-    }
-
-    return [];
-  };
-
-  const renderPreviewImage = function () {
-    const methodListString = convertMethodCodeToName(previewImage).join(", ");
-    return (
-      <Modal open={!!previewImage} onClose={() => setPreviewImage(null)}>
-        <Box sx={modalStyle} bgcolor="background.paper">
-          <IconButton
-            sx={modalCloseStyle}
-            onClick={() => setPreviewImage(null)}
-          >
-            <CancelIcon fontSize="large" />
-          </IconButton>
-          <Box>
-            <Typography sx={{ marginBottom: 1 }} variant="h5" component="p">
-              Preview Image
-            </Typography>
-
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Box>
-                <IconButton
-                  sx={{ "&:disabled": { opacity: 0.2 } }}
-                  disabled={
-                    imagesFileNameArray.indexOf(previewImage?.filename!) === 0
-                  }
-                  onClick={() => onViewPreviousImages(previewImage?.filename!)}
-                >
-                  <ArrowBackIcon fontSize="large" />
-                </IconButton>
-              </Box>
-              <Box>
-                {previewImage ? (
-                  <Card
-                    sx={{
-                      width: "80vw",
-                      height: "80vh",
-                      maxHeight: "80vh",
-                      maxWidth: "80vw",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      boxShadow: "none",
-                    }}
-                  >
-                    <CardMedia
-                      sx={{
-                        objectFit: "contain",
-                        width: "60vw",
-                        height: "60vh",
-                        maxHeight: "60vh",
-                        maxWidth: "60vw",
-                      }}
-                      component="img"
-                      src={previewImage.url}
-                      alt="ts"
-                    />
-
-                    <CardContent>
-                      <Typography variant="body2">
-                        Name:{" "}
-                        <Typography
-                          fontWeight="bold"
-                          component="span"
-                          variant="body2"
-                        >
-                          {previewImage.filename}
-                        </Typography>
-                      </Typography>
-                      <Typography variant="body2">
-                        Size: {formatBytes(previewImage.size || 0)}
-                      </Typography>
-                      {methodListString && (
-                        <Typography variant="body2">
-                          Method: {methodListString}.
-                        </Typography>
-                      )}
-                    </CardContent>
-                  </Card>
-                ) : null}
-              </Box>
-              <Box>
-                <IconButton
-                  sx={{ "&:disabled": { opacity: 0.2 } }}
-                  disabled={
-                    imagesFileNameArray.indexOf(previewImage?.filename!) ===
-                    imagesFileNameArray.length - 1
-                  }
-                  onClick={() => onViewNextImages(previewImage?.filename!)}
-                >
-                  <ArrowForwardIcon fontSize="large" />
-                </IconButton>
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-      </Modal>
-    );
-  };
 
   const renderImages = () => {
     if (isFetchingInitialLoad === null || isFetchingInitialLoad === true) {
@@ -574,7 +345,12 @@ const AlbumViewer = function (props: AlbumViewerProps) {
 
   return (
     <Box>
-      {renderPreviewImage()}
+      <PreviewImageModal
+        previewImage={previewImage}
+        setPreviewImage={setPreviewImage}
+        images={images}
+        imagesFileNameArray={imagesFileNameArray}
+      />
       <Box p={2} bgcolor="background.paper" borderRadius={2}>
         <Box display="flex" alignItems="center">
           <Typography fontSize={18}>Your Images</Typography>
