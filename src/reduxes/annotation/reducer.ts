@@ -4,7 +4,6 @@ import {
   initialPolygons,
   initialRectangles,
 } from "components/Annotation/Editor/type";
-import { constant } from "lodash";
 import {
   CHANGE_CURRENT_DRAW_STATE,
   CHANGE_CURRENT_DRAW_TYPE,
@@ -27,6 +26,7 @@ import {
   ChangeZoomPayload,
   CreateDrawObjectPayload,
   DeleteDrawObjectPayload,
+  DrawObject,
   DrawState,
   DrawType,
   ResetCurrentStateDrawObjectPayload,

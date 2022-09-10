@@ -1,6 +1,6 @@
+import { EllipseSpec } from "components/Annotation/Editor/type";
 import { DrawObject } from "reduxes/annotation/type";
 import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
-import { EllipseSpec } from "../Editor/type";
 
 export type RectangleFormatter = number[][];
 export type PolygonFormatter = number[][];

@@ -3,7 +3,6 @@ import {
   PolygonSpec,
   RectangleSpec,
 } from "components/Annotation/Editor/type";
-import { getScaleImageDemensionInEditor } from "components/Annotation/Editor/utils";
 import { loadImage } from "components/UploadFile";
 import { DrawObject, DrawType } from "reduxes/annotation/type";
 import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
@@ -20,7 +19,7 @@ import {
   PolygonFormatter,
   RectangleFormatter,
   Shape,
-} from "../labelmetype";
+} from "./type";
 
 export const exportAnnotation = (
   annotationImagesProperty: AnnotationImagesProperty,
@@ -44,40 +43,6 @@ export const exportAnnotation = (
 
     link.click();
   };
-};
-
-export const convert = (
-  drawObjectById: Record<string, DrawObject>
-): Shape[] => {
-  const shape: Shape[] = [];
-  for (const [key, value] of Object.entries(drawObjectById)) {
-    if (value.type === DrawType.RECTANGLE) {
-      const { x, y, width, height, label } = value.data as RectangleSpec;
-      shape.push({
-        points: [
-          [x, y],
-          [x + width, y + height],
-        ],
-        shape_type: "rectangle",
-        label: label.label,
-      });
-    } else if (value.type === DrawType.POLYGON) {
-      const { points, label } = value.data as PolygonSpec;
-      shape.push({
-        points: points.map((point) => [point.x, point.y]) as PolygonFormatter,
-        shape_type: "polygon",
-        label: label.label,
-      });
-    } else if (value.type === DrawType.ELLIPSE) {
-      const { x, y, radiusX, radiusY, label } = value.data as EllipseSpec;
-      shape.push({
-        points: { x, y, radiusX, radiusY } as EllipseFormatter,
-        shape_type: "ellipse",
-        label: label.label,
-      });
-    }
-  }
-  return shape;
 };
 
 export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
@@ -183,4 +148,38 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
         });
     };
   });
+};
+
+export const convert = (
+  drawObjectById: Record<string, DrawObject>
+): Shape[] => {
+  const shape: Shape[] = [];
+  for (const [key, value] of Object.entries(drawObjectById)) {
+    if (value.type === DrawType.RECTANGLE) {
+      const { x, y, width, height, label } = value.data as RectangleSpec;
+      shape.push({
+        points: [
+          [x, y],
+          [x + width, y + height],
+        ],
+        shape_type: "rectangle",
+        label: label.label,
+      });
+    } else if (value.type === DrawType.POLYGON) {
+      const { points, label } = value.data as PolygonSpec;
+      shape.push({
+        points: points.map((point) => [point.x, point.y]) as PolygonFormatter,
+        shape_type: "polygon",
+        label: label.label,
+      });
+    } else if (value.type === DrawType.ELLIPSE) {
+      const { x, y, radiusX, radiusY, label } = value.data as EllipseSpec;
+      shape.push({
+        points: { x, y, radiusX, radiusY } as EllipseFormatter,
+        shape_type: "ellipse",
+        label: label.label,
+      });
+    }
+  }
+  return shape;
 };
