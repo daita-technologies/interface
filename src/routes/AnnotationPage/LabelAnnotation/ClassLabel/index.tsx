@@ -4,17 +4,23 @@ import { Box, IconButton, Modal, Popover, Typography } from "@mui/material";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { MyButton } from "components";
-import { Label, LabelClassProperties } from "components/Annotation/Editor/type";
+import {
+  Label,
+  LabelAttribute,
+  LabelClassProperties,
+} from "components/Annotation/Editor/type";
 import * as React from "react";
 import { useMemo, useState } from "react";
 import { HexColorPicker } from "react-colorful";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { updateLabelOfDrawObject } from "reduxes/annotation/action";
 import { addNewClassLabel } from "reduxes/annotationmanager/action";
 import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
-import { ClassLabelProps } from "./type";
+import LabelAttributes from "./LabelAttributes";
+import { AddLabelForm, ClassLabelProps } from "./type";
 
 const filter = createFilterOptions<LabelClassPropertiesOptionType>();
 
@@ -25,52 +31,63 @@ export const convertStrokeColorToFillColor = (color: string) => {
   return "";
 };
 const opptionType2LabelClassProperties = (
-  value: LabelClassPropertiesOptionType
+  label: string,
+  color: string
 ): LabelClassProperties => {
   return {
-    label: { label: value.label.label },
+    label: { label: label },
     cssStyle: {
-      fill: convertStrokeColorToFillColor(value.color),
-      stroke: value.color,
+      fill: convertStrokeColorToFillColor(color),
+      stroke: color,
     },
   };
 };
 const ClassLabel = function ({ drawObject }: ClassLabelProps) {
   const dispatch = useDispatch();
-  // const [value, setValue] = useState<LabelClassPropertiesOptionType | null>();
   const [open, toggleOpen] = useState(false);
   const labelClassPropertiesByLabelClass = useSelector(
     selectorLabelClassPropertiesByLabelClass
   );
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
+  const {
+    handleSubmit,
+    register,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<AddLabelForm>({
+    mode: "onChange",
+    defaultValues: {
+      color: "#1abbcc",
+      label: "",
+    },
+  });
   const handleClose = () => {
-    setDialogValue({
-      label: { label: "" },
-      color: "",
-    });
     toggleOpen(false);
   };
 
-  const [dialogValue, setDialogValue] =
-    useState<LabelClassPropertiesOptionType>({
-      color: "#1abbcc",
-      label: { label: "" },
+  const onSubmitLabelPropeties: SubmitHandler<AddLabelForm> = (data) => {
+    const attr = attributes.find((attribute) => {
+      return !!attribute.key || !!attribute.value;
     });
+    if (attributes.length !== 0 && !attr) {
+      toast.error("Attributes of label class can not empty");
+      return;
+    }
 
-  const onSubmitLabelPropeties: SubmitHandler<
-    LabelClassPropertiesOptionType
-  > = (data) => {
-    dispatch(
-      addNewClassLabel({
-        labelClassProperties: opptionType2LabelClassProperties(dialogValue),
-      })
+    const labelClassProperties = opptionType2LabelClassProperties(
+      getValues("label"),
+      getValues("color")
     );
-    handleChangeClassLabel(dialogValue);
-    handleClose();
+    if (labelClassProperties) {
+      labelClassProperties.label.attributes = attributes;
+      dispatch(addNewClassLabel({ labelClassProperties }));
+      handleChangeClassLabel(getValues("label"));
+      handleClose();
+    }
   };
   const handleChangeColor = (newColor: string) => {
-    setDialogValue({ ...dialogValue, color: newColor });
+    setValue("color", newColor);
   };
 
   const handleClickShowPickColor = (
@@ -109,31 +126,27 @@ const ClassLabel = function ({ drawObject }: ClassLabelProps) {
         }}
       >
         <HexColorPicker
-          color={dialogValue.color}
+          color={getValues("color")}
           onChange={handleChangeColor}
         />
       </Popover>
     );
   };
-  const {
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LabelClassPropertiesOptionType>({ mode: "onChange" });
-  const handleChangeClassLabel = (
-    newValue: LabelClassPropertiesOptionType | null
-  ) => {
-    if (newValue) {
-      let properties = labelClassPropertiesByLabelClass[newValue.label.label];
-      if (!properties) {
-        properties = opptionType2LabelClassProperties(dialogValue);
-      }
-      dispatch(
-        updateLabelOfDrawObject({
-          drawObjectId: drawObject.data.id,
-          labelClassProperties: properties,
-        })
+
+  const handleChangeClassLabel = (label: string) => {
+    let properties = labelClassPropertiesByLabelClass[label];
+    if (!properties) {
+      properties = opptionType2LabelClassProperties(
+        getValues("label"),
+        getValues("color")
       );
     }
+    dispatch(
+      updateLabelOfDrawObject({
+        drawObjectId: drawObject.data.id,
+        labelClassProperties: properties,
+      })
+    );
   };
   const labelClassProperties: LabelClassPropertiesOptionType | null =
     useMemo(() => {
@@ -147,32 +160,29 @@ const ClassLabel = function ({ drawObject }: ClassLabelProps) {
       }
       return null;
     }, [labelClassPropertiesByLabelClass, drawObject]);
+  const [attributes, setAttributes] = useState<LabelAttribute[]>([]);
+  const handleChangeAttribute = (attributesProps: LabelAttribute[]) => {
+    setAttributes([...attributesProps]);
+  };
   return (
     <React.Fragment>
       <Autocomplete
         value={labelClassProperties}
-        // defaultValue={{
-        //   ...labelClassPropertiesByLabelClass[drawObject.data.label.label],
-        //   inputValue: "",
-        // }}
         onChange={(event, newValue) => {
           if (typeof newValue === "string") {
-            // timeout to avoid instant validation of the dialog's form.
             setTimeout(() => {
               toggleOpen(true);
-              setDialogValue({
-                label: { label: newValue },
-                color: "",
-              });
+              setValue("label", newValue);
+              setValue("color", "");
             });
           } else if (newValue && newValue.inputValue) {
             toggleOpen(true);
-            setDialogValue({
-              label: { label: newValue.inputValue },
-              color: "",
-            });
+            setValue("label", newValue.inputValue);
+            setValue("color", "");
           } else {
-            handleChangeClassLabel(newValue);
+            if (newValue) {
+              handleChangeClassLabel(newValue.label.label);
+            }
           }
         }}
         filterOptions={(options, params) => {
@@ -223,35 +233,45 @@ const ClassLabel = function ({ drawObject }: ClassLabelProps) {
           </Typography>
           <Box marginTop={6}>
             <form onSubmit={handleSubmit(onSubmitLabelPropeties)}>
-              <Box display="flex" alignItems="flex-end" width="100%">
-                <TextField
-                  fullWidth
-                  autoFocus
-                  margin="dense"
-                  id="name"
-                  value={dialogValue.label.label}
-                  onChange={(event) =>
-                    setDialogValue({
-                      ...dialogValue,
-                      label: { label: event.target.value },
-                    })
-                  }
-                  label="Add class name"
-                  type="text"
-                  variant="standard"
-                />
-                <IconButton
-                  sx={{ backgroundColor: dialogValue.color }}
-                  onClick={handleClickShowPickColor}
-                >
-                  <ColorizeIcon />
-                </IconButton>
-              </Box>
-              {renderPickColor()}
-              <Box display="flex" justifyContent="flex-end" marginTop={6}>
-                <MyButton variant="contained" color="primary" type="submit">
-                  Add
-                </MyButton>
+              <Box display="flex" flexDirection="column" gap={2}>
+                <Box display="flex" alignItems="flex-end" width="100%">
+                  <TextField
+                    fullWidth
+                    autoFocus
+                    margin="dense"
+                    required
+                    {...register("label", {
+                      required: true,
+                      maxLength: {
+                        value: 25,
+                        message: `Your class name cannot exceed 25 characters.`,
+                      },
+                    })}
+                    error={!!errors.label}
+                    helperText={(errors.label && errors.label.message) || ""}
+                    label="Class name"
+                    type="text"
+                    variant="standard"
+                  />
+                  <IconButton
+                    sx={{ backgroundColor: getValues("color") }}
+                    onClick={handleClickShowPickColor}
+                  >
+                    <ColorizeIcon />
+                  </IconButton>
+                </Box>
+                <Box display="flex" flexDirection="column" p={2} gap={3}>
+                  <LabelAttributes
+                    onChangeAttribute={handleChangeAttribute}
+                    attributes={attributes}
+                  />
+                </Box>
+                {renderPickColor()}
+                <Box display="flex" justifyContent="flex-end" marginTop={6}>
+                  <MyButton variant="contained" color="primary" type="submit">
+                    Add
+                  </MyButton>
+                </Box>
               </Box>
             </form>
           </Box>
@@ -260,7 +280,6 @@ const ClassLabel = function ({ drawObject }: ClassLabelProps) {
     </React.Fragment>
   );
 };
-
 interface LabelClassPropertiesOptionType {
   inputValue?: string;
   color: string;

@@ -17,8 +17,13 @@ export interface LabelClassProperties {
   cssStyle: Partial<CssStyle>;
   label: Label;
 }
+export interface LabelAttribute {
+  key: string;
+  value: string;
+}
 export interface Label {
   label: string;
+  attributes?: LabelAttribute[];
 }
 export interface PolygonSpec {
   id: string;
