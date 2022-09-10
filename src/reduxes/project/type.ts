@@ -58,7 +58,6 @@ export interface ProjectInfo {
   times_generated: number;
   groups: GroupProjectInfo;
   ls_task: Array<TaskInfo>;
-  is_sample: boolean;
   gen_status: GENERATE_PROJECT_STATUS_TYPE;
   aug_parameters: AugmentParameterApiField;
 }
@@ -69,7 +68,6 @@ export interface ApiListProjectsItem {
   s3_prefix: string;
   ls_task: Array<TaskInfo>;
   groups: GroupProjectInfo;
-  is_sample: boolean;
   gen_status: GENERATE_PROJECT_STATUS_TYPE;
   thum_key: string;
   description: string;
@@ -169,7 +167,6 @@ export interface CreateSampleSucceedPayload {
   project_id: string;
   project_name: string;
   s3_prefix: string;
-  is_sample: boolean;
   gen_status: GENERATE_PROJECT_STATUS_TYPE;
   thum_key: string;
 }
@@ -224,7 +221,7 @@ export interface LoadProjectThumbnailImagePayload {
 }
 
 export interface LoadProjectThumbnailImageSucceedPayload {
-  thumbnailUrl: string;
+  projectThumbnailUrl: string;
   projectId: string;
 }
 export interface UpdateProjectInfo {
@@ -248,7 +245,6 @@ export interface SetIsOpenUpdateProjectInfoPayload {
 export interface ApiUpdateProjectsInfo {
   project_id: string;
   s3_prefix: string;
-  is_sample: boolean;
   gen_status: GENERATE_PROJECT_STATUS_TYPE;
   project_name: string;
   description: string;

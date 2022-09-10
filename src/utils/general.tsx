@@ -200,17 +200,20 @@ export function readAsArrayBuffer(blob: Blob) {
 
 export const convertArrayAlbumImageToObjectKeyFileName = (
   images: Array<ImageApiFields>,
-  typeMethod: ImageSourceType
+  typeMethod: ImageSourceType,
+  isGetThumbnail: boolean = false
 ): AlbumImagesFields => {
   const albumImageObject: AlbumImagesFields = {};
   images.forEach((image: ImageApiFields) => {
-    let photoKey = image.s3_key.replace(`${S3_BUCKET_NAME}/`, "");
+    let photoKey = isGetThumbnail ? image.thumbnail : image.s3_key;
+    photoKey = photoKey.replace(`${S3_BUCKET_NAME}/`, "");
     if (photoKey.indexOf(image.filename) < 0) {
       photoKey += `/${image.filename}`;
     }
     albumImageObject[image.filename] = {
       ...image,
       url: "",
+      thumbnailUrl: "",
       photoKey,
       typeOfImage: typeMethod,
     };
