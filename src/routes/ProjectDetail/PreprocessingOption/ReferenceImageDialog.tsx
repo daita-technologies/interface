@@ -101,7 +101,8 @@ const ReferenceImageDialog = function () {
             const { items } = fetchImagesResponse.data;
             const tempImage = convertArrayAlbumImageToObjectKeyFileName(
               items,
-              ORIGINAL_SOURCE
+              ORIGINAL_SOURCE,
+              true
             );
             setImages(tempImage);
             if (savedReferenceImage) {

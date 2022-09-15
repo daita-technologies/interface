@@ -1,9 +1,13 @@
 import { encode } from "js-base64";
 import { getLocalToken } from "utils/general";
+
 import { TaskProcessType, TaskStatusMergedType } from "./taskType";
+import { CreateProjectDatasetTypeControlType } from "./type";
 
 export const authApiURL = process.env.REACT_APP_AUTH_API_URL;
 export const projectApiUrl = process.env.REACT_APP_PROJECT_API_URL;
+export const createProjectSampleApiUrl =
+  process.env.REACT_APP_CREATE_PROJECT_SAMPLE;
 export const generateApiUrl = process.env.REACT_APP_GENERATE_API_URL;
 export const downloadZipApiUrl = process.env.REACT_APP_DOWNLOAD_ZIP_API;
 export const uploadZipApiUrl = process.env.REACT_APP_UPLOAD_ZIP_API;
@@ -12,7 +16,9 @@ export const healthCheckApiURL = process.env.REACT_APP_HEALTH_CHECK_API_URL;
 export const taskApiURL = process.env.REACT_APP_TASK_API_URL;
 export const customMethodUrl = process.env.REACT_APP_GENERATE_API_URL;
 export const stopApiURL = process.env.REACT_APP_TASK_API_URL;
-
+export const feedbackSlackApiURL = process.env.REACT_APP_FEEDBACK_SLACK;
+export const presignURLUploadFeedbackImageSlackApiURL =
+  process.env.REACT_APP_PRESIGN_URL_UPLOAD_FEEDBACK_IMAGE;
 export const reactAppDevEnv = "development";
 export const reactAppProdEnv = "production";
 export const reactAppEnv = process.env.REACT_APP_ENV;
@@ -129,6 +135,34 @@ export const TASK_STATUS_MERGED_ARRAY: TaskStatusMergedType[] = [
   CANCEL_TASK_STATUS,
 ];
 
+export const EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE = "empty";
+export const EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_LABEL = "Empty";
+export const EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_DESCRIPTION =
+  "Create project with empty dataset";
+export const EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE =
+  "existing_dataset";
+export const EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_LABEL =
+  "Existing dataset";
+export const EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_DESCRIPTION =
+  "Create project with existing dataset";
+
+export const CREATE_PROJECT_DATASET_TYPE_LIST: CreateProjectDatasetTypeControlType[] =
+  [
+    {
+      value: EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE,
+      label: EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_LABEL,
+      description: EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_DESCRIPTION,
+    },
+    {
+      value: EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE,
+      label: EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_LABEL,
+      description: EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_DESCRIPTION,
+    },
+  ];
+
+export const MIN_DATASET_IMAGES_CREATE_PROJECT = 1;
+export const MAX_DATASET_IMAGES_CREATE_PROJECT = 1000;
+
 export const TEMP_LOCAL_USERNAME = "temp_username_key";
 export const TEMP_LOCAL_FULLNAME = "temp_fullname_key";
 
@@ -146,7 +180,7 @@ export const LATEST_SELECTED_DATA_SOURCE_KEY_NAME =
 
 export const MAX_ALLOW_UPLOAD_IMAGES = 1000;
 export const LIMIT_UPLOAD_IMAGE_SIZE = 5000000;
-export const MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME = 300;
+export const MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME = 1000;
 
 export const ALL_DOWNLOAD_TYPE = "ALL";
 export const PREPROCESS_DOWNLOAD_TYPE = "PREPROCESS";
@@ -187,3 +221,10 @@ export const AUGMENT_OPTION_TOOLTIP =
   "Data source: Augmentation is only applied to the training dataset based on the data source you previously selected. For each augmentation run, you can define a new data source and a training/validation/test split.";
 
 export const PROGRESS_POOLING_INTERVAL = 15000;
+export const UPLOAD_PRESIGN_URL_SUCCESS_CODE = 204;
+export const MAX_FEEDBACK_MESSAGE_LENGTH = 750;
+export const MAX_NUM_FEEDBACK_ATTACHED_FILE = 3;
+export const MAX_SIZE_FEEDBACK_ATTACHED_FILE = 2000000;
+
+export const QUIT_FEEDBACK_ALERT_MESSAGE =
+  "Your feedback content will be lost. Are you sure you want to quit?";
