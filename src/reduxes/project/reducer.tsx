@@ -371,7 +371,6 @@ const projectReducer = (
             ...(payload as CreateSampleSucceedPayload),
             groups: null,
             ls_task: [],
-            is_sample: true,
             description: "",
           },
         ],
@@ -437,10 +436,10 @@ const projectReducer = (
     }
     case LOAD_PROJECT_THUMBNAIL_IMAGE.SUCCEEDED:
     case LOAD_PROJECT_THUMBNAIL_IMAGE.FAILED: {
-      const { projectId, thumbnailUrl } =
+      const { projectId, projectThumbnailUrl } =
         payload as LoadProjectThumbnailImageSucceedPayload;
       const newThumbnails = { ...state.thumbnails };
-      newThumbnails[projectId] = thumbnailUrl;
+      newThumbnails[projectId] = projectThumbnailUrl;
       return { ...state, thumbnails: newThumbnails };
     }
     case SET_IS_OPEN_UPDATE_PROJECT_INFO: {

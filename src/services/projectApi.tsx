@@ -104,18 +104,17 @@ const projectApi = {
         },
         { headers: getAuthHeader() }
       );
-    } else {
-      return axios.post(
-        `${projectApiUrl}/projects/create`,
-        {
-          id_token: idToken,
-          access_token: accessToken,
-          project_name: projectName,
-          project_info: description,
-        },
-        { headers: getAuthHeader() }
-      );
     }
+    return axios.post(
+      `${projectApiUrl}/projects/create`,
+      {
+        id_token: idToken,
+        access_token: accessToken,
+        project_name: projectName,
+        project_info: description,
+      },
+      { headers: getAuthHeader() }
+    );
   },
   listProjects: ({ idToken }: { idToken: string }) =>
     axios.post(
@@ -219,8 +218,8 @@ const projectApi = {
     processType,
     referenceImages,
     augmentParameters,
-    isNormalizeResolution,
-  }: GenerateImagePayload) => {
+  }: // isNormalizeResolution,
+  GenerateImagePayload) => {
     const payload: any = {
       id_token: idToken,
       project_id: projectId,
@@ -257,10 +256,14 @@ const projectApi = {
         task_id: taskId,
       },
     }),
-  getListPrebuildDataset: ({ idToken }: { idToken: string }) =>
-    axios.post(`${createProjectSampleApiUrl}/projects/list_prebuild_dataset`, {
-      id_token: idToken,
-    }),
+  getListPrebuildDataset: ({ idToken }: { idToken?: string }) =>
+    axios.post(
+      `${createProjectSampleApiUrl}/projects/list_prebuild_dataset`,
+      {
+        id_token: idToken || getLocalStorage(ID_TOKEN_NAME) || "",
+      },
+      { headers: getAuthHeader() }
+    ),
   deleteProject: ({
     idToken,
     projectId,

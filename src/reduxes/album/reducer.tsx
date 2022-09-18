@@ -100,7 +100,10 @@ const albumReducer = (state = inititalState, action: any): AlbumReducer => {
           [payload.filename]: {
             ...state.images[payload.filename],
             blob: payload.blob,
-            url: payload.url,
+            thumbnailUrl: payload.thumbnailUrl
+              ? payload.thumbnailUrl
+              : state.images[payload.filename].thumbnailUrl,
+            url: payload.url ? payload.url : state.images[payload.filename].url,
             size: payload.size,
           },
         },

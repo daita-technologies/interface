@@ -475,9 +475,13 @@ function* handleUploadFile(action: {
           addImageToAlbumFromFile({
             filename: fileName,
             typeOfImage: ORIGINAL_SOURCE,
+            thumbnailUrl: window.URL.createObjectURL(
+              uploadFiles[fileName].file
+            ),
             url: window.URL.createObjectURL(uploadFiles[fileName].file),
             size: uploadFiles[fileName].file.size,
             s3_key: `${S3_BUCKET_NAME}/${photoKey}`,
+            thumbnail: `${S3_BUCKET_NAME}/${photoKey}`,
             photoKey,
           })
         );
