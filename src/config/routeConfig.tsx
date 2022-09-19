@@ -1,4 +1,5 @@
 import {
+  ANNOTATION_PROJECT_ROUTE_NAME,
   DATASET_HEALTH_CHECK_ROUTE_NAME,
   MY_TASKS_ROUTE_NAME,
   OLD_DATASET_HEALTH_CHECK_ROUTE_NAME,
@@ -17,9 +18,11 @@ import {
   TaskDashboard,
   VerifyAccountPage,
 } from "routes";
+import AnnotationProject from "routes/AnnotationProject";
 import PrivacyPolicy from "routes/PrivacyPolicy";
 import Terms from "routes/Terms";
 import { CustomRouteProps } from "./type";
+import AnnotationProjectDetail from "routes/AnnotationProjectDetail";
 
 export const CustomRoute = function ({
   path,
@@ -155,6 +158,18 @@ const routeConfig = [
       />
     ),
     exact: false,
+    isPrivate: true,
+  },
+  {
+    path: `/${ANNOTATION_PROJECT_ROUTE_NAME}`,
+    component: AnnotationProject,
+    exact: true,
+    isPrivate: true,
+  },
+  {
+    path: `/${ANNOTATION_PROJECT_ROUTE_NAME}/:projectName`,
+    component: AnnotationProjectDetail,
+    exact: true,
     isPrivate: true,
   },
 ];

@@ -14,6 +14,8 @@ import healthCheckReducer from "./healthCheck/reducer";
 import customPreprocessing from "./customPreprocessing/reducer";
 import taskReducer from "./task/reducer";
 import customAugmentation from "./customAugmentation/reducer";
+import annotationProjectReducer from "./annotationProject/reducer";
+import uploadAnnotationImageReducer from "reduxes/uploadAnnotationImage/reducer";
 
 const rootReducer = combineReducers({
   authReducer,
@@ -30,6 +32,8 @@ const rootReducer = combineReducers({
   customPreprocessing,
   taskReducer,
   customAugmentation,
+  annotationProjectReducer,
+  uploadAnnotationImageReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
