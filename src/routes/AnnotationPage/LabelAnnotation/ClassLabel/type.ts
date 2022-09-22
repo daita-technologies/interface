@@ -7,9 +7,11 @@ export interface ClassLabelProps {
 
 export interface LabelAttributesProps {
   attributes?: LabelAttribute[];
+  isEnable: boolean;
   onChangeAttribute: (attributes: LabelAttribute[]) => void;
 }
-export interface AddLabelForm {
+export interface LabelForm {
   color: string;
   label: string;
+  attributes: LabelAttribute[];
 }

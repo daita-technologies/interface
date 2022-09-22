@@ -71,7 +71,7 @@ export const emptyLayoutRouteConfig = [
     path: "/annotation",
     component: AnnotationPage,
     exact: true,
-    isPrivate: true,
+    isPrivate: false,
   },
 ];
 const routeConfig = [

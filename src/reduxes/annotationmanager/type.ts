@@ -6,7 +6,20 @@ export interface AnnotationManagerReducer {
   images: Record<string, AnnotationImagesProperty>;
   currentPreviewImageName: string | null;
   labelClassPropertiesByLabelClass: Record<string, LabelClassProperties>;
+  dialogClassManageModal: ClassManageModalProps;
 }
+export type ClassManageModalType = "VIEW" | "CREATE" | "EDIT";
+
+export interface ClassManageModalProps {
+  isOpen: boolean;
+  className?: string;
+  classManageModalType?: ClassManageModalType;
+  editData?: EditClassManageModalProps;
+}
+export interface EditClassManageModalProps {
+  className: string;
+}
+
 export interface AnnotationImagesProperty {
   image: File;
   width: number;
@@ -23,5 +36,9 @@ export interface SaveAnnotationStateManagerProps {
   drawObjectById: Record<string, DrawObject>;
 }
 export interface AddNewClassLabelProps {
+  labelClassProperties: LabelClassProperties;
+}
+export interface EditClassLabelProps {
+  label: string;
   labelClassProperties: LabelClassProperties;
 }
