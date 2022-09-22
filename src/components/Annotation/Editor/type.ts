@@ -68,7 +68,13 @@ export const initialLabelClassPropertiesByLabelClass: Record<
       fill: convertStrokeColorToFillColor("#affaaa"),
       stroke: "#affaaa",
     },
-    label: { label: "house" },
+    label: {
+      label: "house",
+      attributes: [
+        { key: "key1", value: "value1" },
+        { key: "key2", value: "value2" },
+      ],
+    },
   },
   tree: {
     cssStyle: {

@@ -16,3 +16,5 @@ export const selectorIdDrawObjectByImageName = (state: RootState) =>
   state.annotationManagerReducer.idDrawObjectByImageName;
 export const selectorLabelClassPropertiesByLabelClass = (state: RootState) =>
   state.annotationManagerReducer.labelClassPropertiesByLabelClass;
+export const selectorDialogClassManageModal = (state: RootState) =>
+  state.annotationManagerReducer.dialogClassManageModal;
