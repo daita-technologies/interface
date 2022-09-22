@@ -10,6 +10,8 @@ import inviteSaga from "./inviteSaga";
 import healthCheckSaga from "./healthCheckSaga";
 import taskSaga from "./taskSaga";
 import customMethod from "./customMethod";
+import annotationProjectSaga from "./annotationProjectSaga";
+import uploadAnnotationImageSaga from "./uploadAnnotationImageSaga";
 
 export default function* rootSaga() {
   yield all([
@@ -23,5 +25,7 @@ export default function* rootSaga() {
     healthCheckSaga(),
     taskSaga(),
     customMethod(),
+    annotationProjectSaga(),
+    uploadAnnotationImageSaga(),
   ]);
 }
