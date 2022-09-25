@@ -1,14 +1,22 @@
 import { DrawObject } from "reduxes/annotation/type";
 import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
 
-export type Shape = {
+export type Shape = RectangleShape | PolygonShape;
+export type RectangleShape = {
+  uuid: string;
   width: number;
   height: number;
-  label: string;
   left: number;
   top: number;
+  label: string;
+  type: "box";
 };
-
+export type PolygonShape = {
+  uuid: string;
+  vertices: { x: number; y: number }[];
+  label: string;
+  type: "polygon";
+};
 export interface AnnotationFormatter {
   task_id: string;
   created_at: string;
@@ -76,7 +84,6 @@ export const createAnnotationFormatter = (shapes: Shape[]) => {
   };
   return annotationFormatter;
 };
-export interface AnnotationImportInfo {
-  annotationImagesProperty: AnnotationImagesProperty;
+export interface ScaleAIAnnotationImportInfo {
   drawObjectById: Record<string, DrawObject>;
 }

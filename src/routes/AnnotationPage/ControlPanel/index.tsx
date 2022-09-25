@@ -17,12 +17,21 @@ import {
 } from "@mui/material";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import { CssStyle } from "components/Annotation/Editor/type";
+import {
+  exportAnnotationLabelBox,
+  exportAnnotationLabelMe,
+  exportAnnotationScaleAI,
+  importAnnotationLabelMe,
+  importAnnotationScaleAI,
+} from "components/Annotation/Formart";
 import * as React from "react";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import {
   changeCurrentDrawType,
   changeZoom,
+  createDrawObject,
   redoDrawObject,
   resetCurrentStateDrawObject,
   undoDrawObject,
@@ -32,32 +41,50 @@ import {
   selectorcurrentDrawType,
   selectorDrawObjectById,
 } from "reduxes/annotation/selector";
-import { DrawType } from "reduxes/annotation/type";
+import { DrawObject, DrawType } from "reduxes/annotation/type";
 import {
   addImagesToAnnotation,
+  addNewClassLabel,
   changePreviewImage,
   saveAnnotationStateManager,
 } from "reduxes/annotationmanager/action";
 import {
   selectorCurrentAnnotationFile,
-  selectorIdDrawObjectByImageName,
+  selectorLabelClassPropertiesByLabelClass,
 } from "reduxes/annotationmanager/selecetor";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { exportAnnotation } from "components/Annotation/Formart/labelme";
-import {
-  exportAnnotationLabelBox,
-  exportAnnotationLabelMe,
-  exportAnnotationScaleAI,
-  importAnnotationLabelMe,
-} from "components/Annotation/Formart";
+import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
 
+const hashCode = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return hash;
+};
+
+const intToRGB = (i: number) => {
+  const c = (i & 0x00ffffff).toString(16).toUpperCase();
+  return "00000".substring(0, 6 - c.length) + c;
+};
 const ControlPanel = () => {
   const dispatch = useDispatch();
   const currentDrawType = useSelector(selectorcurrentDrawType);
   const drawObjectById = useSelector(selectorDrawObjectById);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
-  const idDrawObjectByImageName = useSelector(selectorIdDrawObjectByImageName);
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+    null
+  );
+  const open = Boolean(anchorEl);
+  const id = open ? "popover" : undefined;
+  const [importType, setImportType] = React.useState<
+    "LABEL_ME" | "SCALE_AI" | "LABEL_BOX"
+  >("LABEL_ME");
+
   const annotationStatehHistory = useSelector(selectorAnnotationStatehHistory);
+  const labelClassPropertiesByLabelClass = useSelector(
+    selectorLabelClassPropertiesByLabelClass
+  );
+
   const resetScaleHandler = () => {
     dispatch(changeZoom({ zoom: { zoom: 1, position: { x: 0, y: 0 } } }));
   };
@@ -83,34 +110,91 @@ const ControlPanel = () => {
       exportAnnotationLabelBox(drawObjectById);
     }
   };
-  const onDrop = (acceptedFiles: File[]) => {
-    if (acceptedFiles && acceptedFiles.length > 0) {
-      for (const acceptedFile of acceptedFiles) {
-        importAnnotationLabelMe(acceptedFile).then((resp) => {
-          const { annotationImagesProperty, drawObjectById } = resp;
+  const updateDrawObject = (value: DrawObject) => {
+    const drawObjectRet: DrawObject = { ...value };
+    const label = value.data.label.label;
+    let classLabel = labelClassPropertiesByLabelClass[label];
+    if (!classLabel) {
+      const strokeColor = "#" + intToRGB(hashCode(label));
+      const fillColor = convertStrokeColorToFillColor(strokeColor);
+      classLabel = {
+        label: { label },
+        cssStyle: {
+          fill: fillColor,
+          stroke: strokeColor,
+        } as CssStyle,
+      };
+      dispatch(addNewClassLabel({ labelClassProperties: classLabel }));
+    }
 
-          dispatch(
-            addImagesToAnnotation({
-              annotationImagesProperties: [annotationImagesProperty],
-            })
-          );
-          dispatch(
-            saveAnnotationStateManager({
-              imageName: annotationImagesProperty.image.name,
-              drawObjectById: drawObjectById,
-            })
-          );
-          dispatch(
-            resetCurrentStateDrawObject({
-              drawObjectById: drawObjectById,
-            })
-          );
-          dispatch(
-            changePreviewImage({
-              imageName: annotationImagesProperty.image.name,
-            })
-          );
-        });
+    const css = drawObjectRet.data.cssStyle;
+    const newCss = classLabel.cssStyle;
+    for (const prop in css) {
+      drawObjectRet.data.cssStyle = {
+        ...drawObjectRet.data.cssStyle,
+        [prop]:
+          newCss && newCss[prop as keyof CssStyle]
+            ? newCss[prop as keyof CssStyle]
+            : css[prop as keyof CssStyle],
+      };
+    }
+    return drawObjectRet;
+  };
+  const importLabelMe = async (acceptedFile: File) => {
+    const { annotationImagesProperty, drawObjectById } =
+      await importAnnotationLabelMe(acceptedFile);
+    Object.entries(drawObjectById).map(([key, value]) => {
+      drawObjectById[key] = updateDrawObject(value);
+    });
+    dispatch(
+      addImagesToAnnotation({
+        annotationImagesProperties: [annotationImagesProperty],
+      })
+    );
+    dispatch(
+      saveAnnotationStateManager({
+        imageName: annotationImagesProperty.image.name,
+        drawObjectById: drawObjectById,
+      })
+    );
+
+    dispatch(
+      resetCurrentStateDrawObject({
+        drawObjectById: drawObjectById,
+      })
+    );
+    dispatch(
+      changePreviewImage({
+        imageName: annotationImagesProperty.image.name,
+      })
+    );
+  };
+  const importScaleAI = async (acceptedFile: File) => {
+    const { drawObjectById } = await importAnnotationScaleAI(acceptedFile);
+    // dispatch(
+    //   resetCurrentStateDrawObject({
+    //     drawObjectById: drawObjectById,
+    //   })
+    // );
+    Object.entries(drawObjectById).map(([key, value]) => {
+      drawObjectById[key] = updateDrawObject(value);
+      dispatch(
+        createDrawObject({
+          drawObject: drawObjectById[key],
+        })
+      );
+    });
+  };
+  const onDrop = async (acceptedFiles: File[]) => {
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      const snapImportType = importType;
+      for (const acceptedFile of acceptedFiles) {
+        console.log("importType", importType);
+        if (snapImportType === "LABEL_ME") {
+          importLabelMe(acceptedFile);
+        } else if (snapImportType === "SCALE_AI") {
+          importScaleAI(acceptedFile);
+        }
       }
     }
   };
@@ -126,9 +210,6 @@ const ControlPanel = () => {
   const handleRedoDrawObject = () => {
     dispatch(redoDrawObject());
   };
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
-    null
-  );
 
   const handleClickExport = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -138,9 +219,64 @@ const ControlPanel = () => {
     setAnchorEl(null);
   };
 
-  const open = Boolean(anchorEl);
-  const id = open ? "popover" : undefined;
-
+  const renderPopupContent = () => {
+    if (anchorEl?.id === "import") {
+      return (
+        <List>
+          <ListItem disablePadding {...getRootProps()}>
+            <input {...getInputProps()} />
+            <ListItemButton
+              onClick={() => {
+                setImportType("LABEL_ME");
+              }}
+            >
+              <ListItemText primary="Labelme" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding {...getRootProps()}>
+            <input {...getInputProps()} />
+            <ListItemButton
+              onClick={() => {
+                setImportType("SCALE_AI");
+              }}
+            >
+              <ListItemText primary="Scale AI" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding {...getRootProps()}>
+            <input {...getInputProps()} />
+            <ListItemButton
+              onClick={() => {
+                setImportType("LABEL_BOX");
+              }}
+            >
+              <ListItemText primary="Labelbox" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      );
+    } else if (anchorEl?.id === "export") {
+      return (
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemText primary="Labelme" onClick={handleExportLabelMe} />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding onClick={handleExportScaleAI}>
+            <ListItemButton>
+              <ListItemText primary="Scale AI" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding onClick={handleExportLabelBox}>
+            <ListItemButton>
+              <ListItemText primary="Labelbox" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      );
+    }
+  };
   return (
     <>
       <Box sx={{ minWidth: 100 }} display="flex" flexDirection="column" gap={1}>
@@ -225,12 +361,12 @@ const ControlPanel = () => {
             variant="contained"
             color="warning"
             // onClick={importHander}
-            {...getRootProps()}
+            id="import"
+            onClick={handleClickExport}
           >
-            <input {...getInputProps()} />
             Import
           </Button>
-          <Button variant="contained" onClick={handleClickExport}>
+          <Button variant="contained" onClick={handleClickExport} id="export">
             Export
           </Button>
           <Popover
@@ -243,26 +379,7 @@ const ControlPanel = () => {
               horizontal: "left",
             }}
           >
-            <List>
-              <ListItem disablePadding>
-                <ListItemButton>
-                  <ListItemText
-                    primary="Labelme"
-                    onClick={handleExportLabelMe}
-                  />
-                </ListItemButton>
-              </ListItem>
-              <ListItem disablePadding onClick={handleExportScaleAI}>
-                <ListItemButton>
-                  <ListItemText primary="Scale AI" />
-                </ListItemButton>
-              </ListItem>
-              <ListItem disablePadding onClick={handleExportLabelBox}>
-                <ListItemButton>
-                  <ListItemText primary="Labelbox" />
-                </ListItemButton>
-              </ListItem>
-            </List>
+            {renderPopupContent()}
           </Popover>
         </Box>
       </Box>

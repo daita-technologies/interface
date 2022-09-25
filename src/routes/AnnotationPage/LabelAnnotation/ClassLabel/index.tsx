@@ -4,6 +4,7 @@ import { Label } from "components/Annotation/Editor/type";
 import * as React from "react";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { updateLabelOfDrawObject } from "reduxes/annotation/action";
 import { setDialogClassManageModal } from "reduxes/annotationmanager/action";
 import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
 import { ClassLabelProps } from "./type";
@@ -37,19 +38,13 @@ const ClassLabel = function ({ drawObject }: ClassLabelProps) {
     }, [labelClassPropertiesByLabelClass]);
 
   const handleChangeClassLabel = (label: string) => {
-    // let properties = labelClassPropertiesByLabelClass[label];
-    // if (!properties) {
-    //   properties = opptionType2LabelClassProperties(
-    //     getValues("label"),
-    //     getValues("color")
-    //   );
-    // }
-    // dispatch(
-    //   updateLabelOfDrawObject({
-    //     drawObjectId: drawObject.data.id,
-    //     labelClassProperties: properties,
-    //   })
-    // );
+    const properties = labelClassPropertiesByLabelClass[label];
+    dispatch(
+      updateLabelOfDrawObject({
+        drawObjectId: drawObject.data.id,
+        labelClassProperties: properties,
+      })
+    );
   };
   const labelClassProperties: LabelClassPropertiesOptionType | null =
     useMemo(() => {
