@@ -5,6 +5,7 @@ import {
   CREDENTIAL_TOKEN_EXPIRE_NAME,
   IDENTITY_ID_NAME,
   ID_TOKEN_NAME,
+  LAST_USED_SYSTEM_STORAGE_KEY_NAME,
   REFRESH_TOKEN_NAME,
   SECRET_KEY_NAME,
   SESSION_TOKEN_NAME,
@@ -98,6 +99,10 @@ const LoginPage = function () {
         setListToken(tokenStorageTypes);
         setLocalStorage(TEMP_LOCAL_USERNAME, username);
         setLocalStorage(TEMP_LOCAL_FULLNAME, name || username);
+        setLocalStorage(
+          LAST_USED_SYSTEM_STORAGE_KEY_NAME,
+          new Date().getTime()
+        );
 
         dispatch({ type: LOGIN.SUCCEEDED, payload: tokenStorageTypes });
         dispatch({ type: GENERATE_S3_CLIENT });
