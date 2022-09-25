@@ -1,23 +1,69 @@
 import { Box, CircularProgress } from "@mui/material";
 import {
   CREDENTIAL_TOKEN_EXPIRE_NAME,
+  LAST_USED_SYSTEM_STORAGE_KEY_NAME,
   REFRESH_TOKEN_NAME,
   TEMP_LOCAL_USERNAME,
   TOKEN_EXPIRE_NAME,
+  TWENTY_FOUR_HOURS_AS_MILISECONDS,
 } from "constants/defaultValues";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { refreshTokenRequest } from "reduxes/auth/actions";
+import { LOG_OUT } from "reduxes/auth/constants";
 import { setIsCheckingApp } from "reduxes/general/action";
 import { selectorIsCheckingApp } from "reduxes/general/selector";
-import { getLocalStorage, getLocalToken } from "utils/general";
+import { getLocalStorage, getLocalToken, setLocalStorage } from "utils/general";
 import { TokenCheckingProps } from "./type";
 
 const CheckingApp = function ({ children }: TokenCheckingProps) {
   const freshTimeOutRef = useRef<any>();
+  const inactiveTimerRef = useRef<any>(null);
   const dispatch = useDispatch();
 
   const isCheckingApp = useSelector(selectorIsCheckingApp);
+
+  const handleInactiveTimer = () => {
+    const isLogged = !!getLocalToken();
+    if (isLogged) {
+      clearTimeout(inactiveTimerRef.current);
+      inactiveTimerRef.current = setTimeout(() => {
+        toast.info("You have been logged out due to 24 hours of inactivity.");
+        dispatch({ type: LOG_OUT.REQUESTED });
+      }, TWENTY_FOUR_HOURS_AS_MILISECONDS);
+    }
+  };
+
+  const handleLastUsedSystem = () => {
+    const isLogged = !!getLocalToken();
+    if (isLogged) {
+      const lastUsedSystemDateTimeString =
+        getLocalStorage(LAST_USED_SYSTEM_STORAGE_KEY_NAME) || "";
+
+      if (
+        new Date().getTime() -
+          Number(lastUsedSystemDateTimeString || new Date().getTime()) >=
+        TWENTY_FOUR_HOURS_AS_MILISECONDS
+      ) {
+        toast.info("You have been logged out due to 24 hours of inactivity.");
+        dispatch({ type: LOG_OUT.REQUESTED });
+      }
+    }
+  };
+
+  const setLastUsedSystemTime = () => {
+    const isLogged = !!getLocalToken();
+    if (isLogged) {
+      setLocalStorage(LAST_USED_SYSTEM_STORAGE_KEY_NAME, new Date().getTime());
+    }
+  };
+
+  const triggerIntervalLastUsedSystemTime = () => {
+    setInterval(() => {
+      setLastUsedSystemTime();
+    }, 60 * 1000);
+  };
 
   const handleRefreshToken = (isRefocus = false) => {
     const isLogged = !!getLocalToken();
@@ -84,9 +130,22 @@ const CheckingApp = function ({ children }: TokenCheckingProps) {
   useEffect(() => {
     handleRefreshToken();
 
+    triggerIntervalLastUsedSystemTime();
+    handleLastUsedSystem();
+
+    window.addEventListener("onload", handleInactiveTimer);
+    window.addEventListener("focus", handleInactiveTimer);
+    document.addEventListener("mousemove", handleInactiveTimer);
+    document.addEventListener("keypress", handleInactiveTimer);
+
     window.addEventListener("focus", handleRefreshTokenWhenRefocus);
 
     return () => {
+      window.removeEventListener("onload", handleInactiveTimer);
+      window.removeEventListener("focus", handleInactiveTimer);
+      document.removeEventListener("mousemove", handleInactiveTimer);
+      document.removeEventListener("keypress", handleInactiveTimer);
+
       window.removeEventListener("focus", handleRefreshTokenWhenRefocus);
     };
   }, []);
