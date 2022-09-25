@@ -148,12 +148,8 @@ const LoginForm = function () {
           variant="square"
           src="/assets/images/logo.png"
         />
-
         <Typography sx={{ mt: 1 }} align="center" component="h1" variant="h5">
-          Welcome
-        </Typography>
-        <Typography sx={{ mt: 1, px: 2 }} align="center" variant="body2">
-          Log in to DAITA Technologies to continue to DAITA's platform.
+          👋 Sign In
         </Typography>
         <Box mt={3}>
           <form onSubmit={handleSubmit(onSubmit)}>
