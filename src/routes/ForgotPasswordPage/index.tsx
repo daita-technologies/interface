@@ -19,7 +19,7 @@ import { MyButton, ReCaptchaInput } from "components";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Helmet } from "react-helmet";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { RootState } from "reduxes";
@@ -60,6 +60,7 @@ const ForgotPasswordPage = function () {
     handleSubmit,
     formState: { errors },
     setValue,
+    getValues,
     trigger,
   } = useForm<ForgotPasswordRequestFields>({ mode: "onChange" });
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -85,6 +86,22 @@ const ForgotPasswordPage = function () {
           confirmCode,
         })
       );
+    }
+  };
+
+  const generateReCatpchaToken = async () => {
+    if (recaptchaRef && recaptchaRef.current) {
+      const token = await recaptchaRef.current.executeAsync();
+      setValue("captcha", token || "");
+      onSubmit(getValues());
+    }
+  };
+
+  const onInvalidSubmit: SubmitErrorHandler<ForgotPasswordRequestFields> = (
+    error
+  ) => {
+    if (error.captcha && error.captcha.type === "required") {
+      generateReCatpchaToken();
     }
   };
 
@@ -170,7 +187,7 @@ const ForgotPasswordPage = function () {
               sent to your email to verify.
             </Typography>
             <Box sx={{ mt: 3, py: 0, px: "14px" }}>
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}>
                 <TextField
                   variant="outlined"
                   required
