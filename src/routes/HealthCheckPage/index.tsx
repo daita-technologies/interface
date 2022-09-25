@@ -66,10 +66,12 @@ const HealthCheckPage = function () {
           display="flex"
           justifyContent="center"
           alignItems="center"
+          flexDirection="column"
           flex={1}
           py={6}
         >
           <CircularProgress size={50} />
+          <Typography mt={1}>Fetching project informations...</Typography>
         </Box>
       );
     }
