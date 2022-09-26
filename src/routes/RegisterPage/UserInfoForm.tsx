@@ -23,7 +23,7 @@ import {
 import moment from "moment";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "reduxes";
 import { registerAction } from "reduxes/auth/actions";
@@ -81,6 +81,7 @@ const UserInfoForm = function ({
     register,
     control,
     setValue,
+    getValues,
     watch,
     handleSubmit,
     trigger,
@@ -121,6 +122,20 @@ const UserInfoForm = function ({
     }
   };
 
+  const generateReCatpchaToken = async () => {
+    if (recaptchaRef && recaptchaRef.current) {
+      const token = await recaptchaRef.current.executeAsync();
+      setValue("captcha", token || "");
+      onSubmit(getValues());
+    }
+  };
+
+  const onInvalidSubmit: SubmitErrorHandler<RegisterFormFields> = (error) => {
+    if (error.captcha && error.captcha.type === "required") {
+      generateReCatpchaToken();
+    }
+  };
+
   const [isShowPassword, setIsShowPassword] = useState(false);
 
   const handleClickShowPassword = () => {
@@ -158,7 +173,10 @@ const UserInfoForm = function ({
 
   return (
     <Box>
-      <form onSubmit={handleSubmit(onSubmit)} autoComplete={autoCompleteString}>
+      <form
+        onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
+        autoComplete={autoCompleteString}
+      >
         <TextField
           variant="outlined"
           required

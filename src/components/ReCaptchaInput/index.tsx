@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { Controller } from "react-hook-form";
 import { Box, FormHelperText } from "@mui/material";
 import ReCAPTCHA from "react-google-recaptcha";
 import { RECAPTCHA_SITE_KEY } from "constants/defaultValues";
 import { ReCaptchaInputProps } from "./type";
-import { useEffect } from "react";
+
+const REQUIRE_RECAPTCHA_ERROR_MESSAGE = "You need to verify the captcha.";
 
 const ReCaptchaInput = function ({
   recaptchaRef,
@@ -14,15 +16,16 @@ const ReCaptchaInput = function ({
     register("captcha", {
       required: {
         value: true,
-        message: "You need to verify the captcha.",
+        message: REQUIRE_RECAPTCHA_ERROR_MESSAGE,
       },
     });
   }, []);
+
   return (
     <Controller
       control={control}
       name="captcha"
-      render={({ field, fieldState: { error } }) => (
+      render={({ fieldState: { error } }) => (
         <Box
           display="flex"
           flexDirection="column"
@@ -33,10 +36,12 @@ const ReCaptchaInput = function ({
           <ReCAPTCHA
             ref={recaptchaRef}
             sitekey={RECAPTCHA_SITE_KEY}
-            onChange={(token: any) => field.onChange(token)}
+            size="invisible"
           />
-
-          {error && <FormHelperText error>{error.message}</FormHelperText>}
+          {/* NOTE: We use invisible recaptcha is auto generate when submitted, therefore no need show required message */}
+          {error && error.message !== REQUIRE_RECAPTCHA_ERROR_MESSAGE && (
+            <FormHelperText error>{error.message}</FormHelperText>
+          )}
         </Box>
       )}
     />
