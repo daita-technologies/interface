@@ -19,9 +19,11 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { CssStyle } from "components/Annotation/Editor/type";
 import {
+  exportAnnotationDaita,
   exportAnnotationLabelBox,
   exportAnnotationLabelMe,
   exportAnnotationScaleAI,
+  importAnnotationDaita,
   importAnnotationLabelMe,
   importAnnotationScaleAI,
 } from "components/Annotation/Formart";
@@ -50,6 +52,7 @@ import {
 } from "reduxes/annotationmanager/action";
 import {
   selectorCurrentAnnotationFile,
+  selectorCurrentPreviewImageName,
   selectorLabelClassPropertiesByLabelClass,
 } from "reduxes/annotationmanager/selecetor";
 import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
@@ -70,6 +73,7 @@ const ControlPanel = () => {
   const dispatch = useDispatch();
   const currentDrawType = useSelector(selectorcurrentDrawType);
   const drawObjectById = useSelector(selectorDrawObjectById);
+  const currentPreviewImageName = useSelector(selectorCurrentPreviewImageName);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
@@ -77,7 +81,7 @@ const ControlPanel = () => {
   const open = Boolean(anchorEl);
   const id = open ? "popover" : undefined;
   const [importType, setImportType] = React.useState<
-    "LABEL_ME" | "SCALE_AI" | "LABEL_BOX"
+    "LABEL_ME" | "SCALE_AI" | "LABEL_BOX" | "DAITA"
   >("LABEL_ME");
 
   const annotationStatehHistory = useSelector(selectorAnnotationStatehHistory);
@@ -108,6 +112,14 @@ const ControlPanel = () => {
   const handleExportLabelBox = () => {
     if (drawObjectById) {
       exportAnnotationLabelBox(drawObjectById);
+    }
+  };
+  const handleExportDaita = () => {
+    if (drawObjectById) {
+      exportAnnotationDaita(
+        drawObjectById,
+        currentPreviewImageName ? currentPreviewImageName : "imagename"
+      );
     }
   };
   const updateDrawObject = (value: DrawObject) => {
@@ -169,6 +181,35 @@ const ControlPanel = () => {
       })
     );
   };
+  const importDaita = async (acceptedFile: File) => {
+    const { annotationImagesProperty, drawObjectById } =
+      await importAnnotationDaita(acceptedFile);
+    Object.entries(drawObjectById).map(([key, value]) => {
+      drawObjectById[key] = updateDrawObject(value);
+    });
+    dispatch(
+      addImagesToAnnotation({
+        annotationImagesProperties: [annotationImagesProperty],
+      })
+    );
+    dispatch(
+      saveAnnotationStateManager({
+        imageName: annotationImagesProperty.image.name,
+        drawObjectById: drawObjectById,
+      })
+    );
+
+    dispatch(
+      resetCurrentStateDrawObject({
+        drawObjectById: drawObjectById,
+      })
+    );
+    dispatch(
+      changePreviewImage({
+        imageName: annotationImagesProperty.image.name,
+      })
+    );
+  };
   const importScaleAI = async (acceptedFile: File) => {
     const { drawObjectById } = await importAnnotationScaleAI(acceptedFile);
     // dispatch(
@@ -194,6 +235,8 @@ const ControlPanel = () => {
           importLabelMe(acceptedFile);
         } else if (snapImportType === "SCALE_AI") {
           importScaleAI(acceptedFile);
+        } else if (snapImportType === "DAITA") {
+          importDaita(acceptedFile);
         }
       }
     }
@@ -253,6 +296,16 @@ const ControlPanel = () => {
               <ListItemText primary="Labelbox" />
             </ListItemButton>
           </ListItem>
+          <ListItem disablePadding {...getRootProps()}>
+            <input {...getInputProps()} />
+            <ListItemButton
+              onClick={() => {
+                setImportType("DAITA");
+              }}
+            >
+              <ListItemText primary="Daita" />
+            </ListItemButton>
+          </ListItem>
         </List>
       );
     } else if (anchorEl?.id === "export") {
@@ -271,6 +324,11 @@ const ControlPanel = () => {
           <ListItem disablePadding onClick={handleExportLabelBox}>
             <ListItemButton>
               <ListItemText primary="Labelbox" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding onClick={handleExportDaita}>
+            <ListItemButton>
+              <ListItemText primary="Daita" />
             </ListItemButton>
           </ListItem>
         </List>

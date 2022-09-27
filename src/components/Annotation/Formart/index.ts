@@ -7,3 +7,7 @@ export {
   exportAnnotation as exportAnnotationScaleAI,
   importAnnotation as importAnnotationScaleAI,
 } from "./scaleai/index";
+export {
+  exportAnnotation as exportAnnotationDaita,
+  importAnnotation as importAnnotationDaita,
+} from "./daita/index";

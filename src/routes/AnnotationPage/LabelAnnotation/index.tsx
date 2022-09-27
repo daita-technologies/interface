@@ -118,7 +118,18 @@ const LabelAnnotation = function () {
           </Button>
         </Box>
       </Box>
-      <List>
+      <List
+        sx={{
+          width: "100%",
+          maxWidth: 360,
+          bgcolor: "background.paper",
+          position: "relative",
+          overflow: "auto",
+          height: "100%",
+          maxHeight: 100,
+          "& ul": { padding: 0 },
+        }}
+      >
         {Object.entries(drawObjectById).map(([id, drawObject]) => {
           const labelClassProperties =
             labelClassPropertiesByLabelClass[drawObject.data?.label?.label];
