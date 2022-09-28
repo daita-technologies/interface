@@ -1,3 +1,4 @@
+import AddIcon from "@mui/icons-material/Add";
 import Crop32Icon from "@mui/icons-material/Crop32";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FolderIcon from "@mui/icons-material/Folder";
@@ -8,6 +9,7 @@ import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import PolylineIcon from "@mui/icons-material/Polyline";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { Button } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -24,13 +26,19 @@ import {
 } from "reduxes/annotation/action";
 import {
   selectorDrawObjectById,
+  selectorDrawObjectStateById,
   selectorListDrawObjectHidden,
   selectorListDrawObjectLock,
   selectorSelectedDrawObjectId,
 } from "reduxes/annotation/selector";
 import { DrawType } from "reduxes/annotation/type";
-import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
+import { setDialogClassManageModal } from "reduxes/annotationmanager/action";
+import {
+  selectorDialogClassManageModal,
+  selectorLabelClassPropertiesByLabelClass,
+} from "reduxes/annotationmanager/selecetor";
 import ClassLabel from "./ClassLabel";
+import ClassManageModel from "./ClassManageModal";
 
 const LabelAnnotation = function () {
   const dispatch = useDispatch();
@@ -77,6 +85,17 @@ const LabelAnnotation = function () {
       })
     );
   };
+  const hanleOpenClassManageModalClick = () => {
+    dispatch(
+      setDialogClassManageModal({
+        isOpen: true,
+        classManageModalType: "VIEW",
+      })
+    );
+  };
+  const dialogClassManageModal = useSelector(selectorDialogClassManageModal);
+  const drawObjectStateById = useSelector(selectorDrawObjectStateById);
+
   return (
     <Box
       sx={{
@@ -85,74 +104,105 @@ const LabelAnnotation = function () {
         bgcolor: "background.paper",
       }}
     >
-      <h3 style={{ padding: "0px 10px" }}>List Label</h3>
-      <List>
-        {Object.entries(drawObjectById).map(([id, drawObject]) => {
-          const labelClassProperties =
-            labelClassPropertiesByLabelClass[drawObject.data?.label?.label];
-          return (
-            <ListItem
-              key={id}
-              onSelect={() => handleSelect(id)}
-              onClick={() => handleSelect(id)}
-              secondaryAction={
-                <Box display="flex">
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={() => handleClickDelete(id)}
+      <Box style={{ padding: "0px 10px" }} display="flex" gap={1}>
+        <Box>
+          <h3>List Label</h3>
+        </Box>
+        <Box sx={{ lineHeight: "55px" }}>
+          <Button
+            variant="outlined"
+            color="inherit"
+            size="small"
+            startIcon={<AddIcon />}
+            onClick={hanleOpenClassManageModalClick}
+          >
+            Add a class
+          </Button>
+        </Box>
+      </Box>
+      <List
+        sx={{
+          width: "100%",
+          maxWidth: 360,
+          bgcolor: "background.paper",
+          position: "relative",
+          overflow: "auto",
+          height: "70vh",
+          maxHeight: "70vh",
+          "& ul": { padding: 0 },
+        }}
+      >
+        {Object.entries(drawObjectById)
+          // .filter(([id, drawObject]) =>
+          //   drawObjectStateById[id] ? !drawObjectStateById[id].isHidden : true
+          // )
+          .map(([id, drawObject]) => {
+            const labelClassProperties =
+              labelClassPropertiesByLabelClass[drawObject.data?.label?.label];
+            return (
+              <ListItem
+                key={id}
+                onSelect={() => handleSelect(id)}
+                onClick={() => handleSelect(id)}
+                secondaryAction={
+                  <Box display="flex">
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleClickDelete(id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="hidden"
+                      onClick={() => handleClickHidden(id)}
+                    >
+                      {listDrawObjectHidden.indexOf(id) !== -1 ? (
+                        <VisibilityOffIcon />
+                      ) : (
+                        <VisibilityIcon />
+                      )}
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="lock"
+                      onClick={() => handleClickLock(id)}
+                    >
+                      {listDrawObjectLock.indexOf(id) !== -1 ? (
+                        <LockIcon />
+                      ) : (
+                        <LockOpenIcon />
+                      )}
+                    </IconButton>
+                  </Box>
+                }
+                sx={{
+                  border: selectedDrawObjectId === id ? "1px solid" : "",
+                  cursor: "pointer",
+                }}
+              >
+                <ListItemAvatar>
+                  <Avatar
+                    sx={{
+                      backgroundColor: labelClassProperties?.cssStyle?.stroke
+                        ? labelClassProperties.cssStyle.stroke
+                        : "gray",
+                      width: 40,
+                      height: 40,
+                    }}
                   >
-                    <DeleteIcon />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    aria-label="hidden"
-                    onClick={() => handleClickHidden(id)}
-                  >
-                    {listDrawObjectHidden.indexOf(id) !== -1 ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    aria-label="lock"
-                    onClick={() => handleClickLock(id)}
-                  >
-                    {listDrawObjectLock.indexOf(id) !== -1 ? (
-                      <LockIcon />
-                    ) : (
-                      <LockOpenIcon />
-                    )}
-                  </IconButton>
-                </Box>
-              }
-              sx={{
-                border: selectedDrawObjectId === id ? "1px solid" : "",
-                cursor: "pointer",
-              }}
-            >
-              <ListItemAvatar>
-                <Avatar
-                  sx={{
-                    backgroundColor: labelClassProperties?.cssStyle?.stroke
-                      ? labelClassProperties.cssStyle.stroke
-                      : "gray",
-                    width: 40,
-                    height: 40,
-                  }}
-                >
-                  {renderIcon(drawObject.type)}
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText>
-                <ClassLabel drawObject={drawObject} />
-              </ListItemText>
-            </ListItem>
-          );
-        })}
+                    {renderIcon(drawObject.type)}
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText>
+                  <ClassLabel drawObject={drawObject} />
+                </ListItemText>
+              </ListItem>
+            );
+          })}
       </List>
+      {dialogClassManageModal.isOpen && <ClassManageModel />}
     </Box>
   );
 };

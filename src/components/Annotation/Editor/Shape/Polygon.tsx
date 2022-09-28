@@ -7,11 +7,14 @@ import { Circle, Group, Line } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import {
   changeCurrentStatus,
+  setHiddenDrawObject,
   setSelectedShape,
   updateDrawObject,
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
+  selectorDetectedArea,
+  selectorDrawObjectState,
   selectorSelectedPolygonOrLineStrip,
   selectorZoom,
 } from "reduxes/annotation/selector";
@@ -33,6 +36,9 @@ const Polygon = ({
   const dispatch = useDispatch();
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
   const currentpolygon = useSelector(selectorSelectedPolygonOrLineStrip);
+  const detectedArea = useSelector(selectorDetectedArea);
+  const drawObjectState = useSelector(selectorDrawObjectState(spec.id));
+
   const zoom = useSelector(selectorZoom);
   const groupRef = React.useRef<Konva.Group>(null);
   const currentDrawState = useSelector(selectorCurrentDrawState);
@@ -45,6 +51,28 @@ const Polygon = ({
       ? currentpolygon.polygonState.mousePosition
       : null;
   }, [currentpolygon]);
+  useEffect(() => {
+    if (detectedArea) {
+      const polygonRect = groupRef.current?.getClientRect();
+      if (polygonRect) {
+        if (
+          polygonRect.x >= detectedArea.x &&
+          polygonRect.x <= detectedArea.x + detectedArea.width &&
+          polygonRect.y >= detectedArea.y &&
+          polygonRect.y <= detectedArea.y + detectedArea.height &&
+          polygonRect.width <= detectedArea.width &&
+          polygonRect.height <= detectedArea.height
+        ) {
+          dispatch(
+            setHiddenDrawObject({
+              drawObjectId: spec.id,
+              isHidden: false,
+            })
+          );
+        }
+      }
+    }
+  }, [detectedArea]);
 
   const [stage, setStage] = useState<Stage>();
   const [flattenedPoints, setFlattenedPoints] = useState<number[]>();
@@ -355,12 +383,12 @@ const Polygon = ({
       draggable={isFinished && commonShapeEvent.isLock !== true}
       onDragStart={handleGroupDragStart}
       onDragEnd={handleGroupDragEnd}
-      u
       // dragBoundFunc={groupDragBound}
       onMouseOver={handleGroupMouseOver}
       onMouseOut={handleGroupMouseOut}
       onMouseDown={mousedownHandler}
       onClick={commonShapeEvent.handleCick}
+      visible={drawObjectState ? !drawObjectState.isHidden : true}
     >
       <Line
         points={flattenedPoints}

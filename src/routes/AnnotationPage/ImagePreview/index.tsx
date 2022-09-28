@@ -127,6 +127,9 @@ const ImagePreview = function () {
     return thumbs;
   }, [annotationManagerImages]);
   const handleSelectPreview = (imageName: string) => {
+    if (imageName === currentPreviewImageName) {
+      return;
+    }
     if (currentPreviewImageName) {
       dispatch(
         saveAnnotationStateManager({

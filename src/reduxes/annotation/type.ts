@@ -11,6 +11,7 @@ export enum DrawType {
   POLYGON,
   ELLIPSE,
   LINE_STRIP,
+  DETECTED_RECTANGLE,
 }
 export enum DrawState {
   DRAWING,
@@ -32,8 +33,15 @@ export interface AnnotationReducer {
   drawObjectById: Record<string, DrawObject>;
   drawObjectStateById: Record<string, DrawObjectState>;
   statehHistory: StateHistory;
+  detectedArea: DetectedAreaType | null;
 }
 
+export interface DetectedAreaType {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 export interface DrawObjectState {
   isLock?: boolean;
   isHidden?: boolean;
@@ -93,4 +101,7 @@ export interface SetHiddenDrawObjectPayload {
 export interface SetLockDrawObecjtPayload {
   drawObjectId: string;
   isLock: boolean;
+}
+export interface SetLockDetectedAreaPayload {
+detectedArea: DetectedAreaType | null;
 }

@@ -3,13 +3,19 @@ import {
   ADD_IMAGES,
   ADD_NEW_CLASS_LABEL,
   CHANGE_PREVIEW_IMAGE,
+  EDIT_CLASS_LABEL,
+  EDIT_CLASS_MANAGE_MODAL,
   SAVE_ANNOTATION_STATE_MANAGER,
+  SET_CLASS_MANAGE_MODAL,
 } from "./constants";
 import {
   AddImageToAnnotationProps,
   AddNewClassLabelProps,
   AnnotationManagerReducer,
   ChangePreviewImageProps,
+  ClassManageModalProps,
+  EditClassLabelProps,
+  EditClassManageModalProps,
   SaveAnnotationStateManagerProps,
 } from "./type";
 
@@ -18,6 +24,9 @@ const inititalState: AnnotationManagerReducer = {
   images: {},
   currentPreviewImageName: null,
   labelClassPropertiesByLabelClass: initialLabelClassPropertiesByLabelClass,
+  dialogClassManageModal: {
+    isOpen: false,
+  },
 };
 const annotationManagerReducer = (
   state = inititalState,
@@ -67,6 +76,42 @@ const annotationManagerReducer = (
             ...labelClassProperties,
             label: { ...labelClassProperties.label },
           },
+        },
+      };
+    }
+    case EDIT_CLASS_LABEL: {
+      const { label, labelClassProperties } = payload as EditClassLabelProps;
+      return {
+        ...state,
+        labelClassPropertiesByLabelClass: {
+          ...state.labelClassPropertiesByLabelClass,
+          [label]: {
+            ...labelClassProperties,
+          },
+        },
+      };
+    }
+    case SET_CLASS_MANAGE_MODAL: {
+      const { isOpen, className, classManageModalType } =
+        payload as ClassManageModalProps;
+      return {
+        ...state,
+        dialogClassManageModal: {
+          isOpen,
+          className: !!isOpen ? className : "",
+          classManageModalType: !!isOpen ? classManageModalType : undefined,
+        },
+      };
+    }
+    case EDIT_CLASS_MANAGE_MODAL: {
+      const { className } = payload as EditClassManageModalProps;
+      return {
+        ...state,
+        dialogClassManageModal: {
+          ...state.dialogClassManageModal,
+          isOpen: true,
+          className,
+          classManageModalType: "EDIT",
         },
       };
     }
