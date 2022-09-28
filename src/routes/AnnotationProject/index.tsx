@@ -1,12 +1,16 @@
 import { Box, Button, Container, Typography } from "@mui/material";
+import { ID_TOKEN_NAME } from "constants/defaultValues";
 import { ANNOTATION_PROJECT_ROUTE_NAME } from "constants/routeName";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { setCurrentAnnotationProject } from "reduxes/annotationProject/action";
+import { fetchListAnnotationProjects } from "reduxes/annotationProject/action";
 import { selectorAnnotationListProjects } from "reduxes/annotationProject/selector";
-import { ApiListProjectsItem } from "reduxes/project/type";
-import { ProjectItemProps } from "routes/DashboardPage/type";
-const ProjectItem = function ({ projectInfo }: ProjectItemProps) {
+import { ApiListAnnotationProjectsItem } from "reduxes/annotationProject/type";
+import { getLocalStorage } from "utils/general";
+import { AnnotationProjectItemProps } from "./type";
+
+const ProjectItem = function ({ projectInfo }: AnnotationProjectItemProps) {
   const history = useHistory();
   const dispatch = useDispatch();
 
@@ -64,8 +68,13 @@ const ProjectItem = function ({ projectInfo }: ProjectItemProps) {
   );
 };
 const annotationProject = function () {
+  const dispatch = useDispatch();
   const listProjects = useSelector(selectorAnnotationListProjects);
-
+  useEffect(() => {
+    dispatch(
+      fetchListAnnotationProjects({ idToken: getLocalStorage(ID_TOKEN_NAME) })
+    );
+  }, []);
   return (
     <Container maxWidth="lg">
       <Box
@@ -79,7 +88,7 @@ const annotationProject = function () {
         gap={6}
         flexWrap="wrap"
       >
-        {listProjects.map((project: ApiListProjectsItem) => (
+        {listProjects.map((project: ApiListAnnotationProjectsItem) => (
           <ProjectItem key={project.project_id} projectInfo={project} />
         ))}
       </Box>

@@ -1,5 +1,6 @@
 import {
   CLONE_PROJECT_TO_ANNOTATION,
+  FETCH_LIST_ANNOTATION_PROJECTS,
   SET_CURRENT_ANNOTATION_PROJECT,
   SHOW_DIALOG_CLONE_PROJECT_TO_ANNOTATION,
 } from "./constants";
@@ -12,63 +13,68 @@ import {
 const inititalState: AnnotationProjectReducer = {
   currentProjectName: "",
   isCloningProjectToAnnotation: false,
-  listProjects: [
-    {
-      gen_status: "FINISH",
-      project_name: "test",
-      s3_prefix:
-        "client-data-test/us-east-2:b07f3e64-5a07-4b04-82f3-fe274fca14cc/test_e69b649ba9004d7e83f4b271bfddda0a",
-      project_id: "test_e69b649ba9004d7e83f4b271bfddda0a",
-      description: "",
-      ls_task: [],
-      groups: {
-        ORIGINAL: {
-          count: 1,
-          size: 48984,
-          data_number: [0, 1, 2],
-        },
-      },
-      thum_key:
-        "client-data-test/us-east-2:b07f3e64-5a07-4b04-82f3-fe274fca14cc/test_e69b649ba9004d7e83f4b271bfddda0a/test2.jpg",
-    },
-    {
-      gen_status: "FINISH",
-      project_name: "test",
-      s3_prefix:
-        "client-data-test/us-east-2:68899a67-af9b-4a2a-acfe-a0f649ec453d/test_6aad460cb35643cab91326ce94b44bca",
-      project_id: "test_6aad460cb35643cab91326ce94b44bca",
-      description: "",
-      ls_task: [],
-      groups: {
-        ORIGINAL: {
-          count: 5000,
-          size: 313033381,
-          data_number: [0, 1, 2],
-        },
-      },
-      thum_key:
-        "client-data-test/us-east-2:68899a67-af9b-4a2a-acfe-a0f649ec453d/test_6aad460cb35643cab91326ce94b44bca/sample_000000.png",
-    },
-    {
-      gen_status: "FINISH",
-      project_name: "testaa",
-      s3_prefix:
-        "client-data-test/us-east-2:68899a67-af9b-4a2a-acfe-a0f649ec453d/testaa_66f46d0fd54e4160995a7be8615f2e19",
-      project_id: "testaa_66f46d0fd54e4160995a7be8615f2e19",
-      description: "ad",
-      ls_task: [],
-      groups: {
-        ORIGINAL: {
-          count: 598,
-          size: 37473653,
-          data_number: [0, 1, 2],
-        },
-      },
-      thum_key:
-        "client-data-test/us-east-2:68899a67-af9b-4a2a-acfe-a0f649ec453d/testaa_66f46d0fd54e4160995a7be8615f2e19/sample_002752.png",
-    },
-  ],
+  // listProjects: [
+  //   {
+  //     gen_status: "FINISH",
+  //     project_name: "fdsfdsfds",
+  //     is_sample: false,
+  //     s3_prefix:
+  //       "client-data-test/us-east-2:68899a67-af9b-4a2a-acfe-a0f649ec453d/fdsfdsfds_cfecb8116e254f7ab32cf1cc0470a9cf",
+  //     project_id: "fdsfdsfds_cfecb8116e254f7ab32cf1cc0470a9cf",
+  //     description: "",
+  //     ls_task: [],
+  //     groups: {
+  //       ORIGINAL: {
+  //         count: 5000,
+  //         size: 313033381,
+  //         data_number: [0, 1, 2],
+  //       },
+  //     },
+  //     thum_key:
+  //       "client-data-test/us-east-2:68899a67-af9b-4a2a-acfe-a0f649ec453d/fdsfdsfds_cfecb8116e254f7ab32cf1cc0470a9cf/sample_000000.png",
+  //   },
+  //   {
+  //     gen_status: "FINISH",
+  //     project_name: "test",
+  //     is_sample: false,
+  //     s3_prefix:
+  //       "client-data-test/us-east-2:68899a67-af9b-4a2a-acfe-a0f649ec453d/test_6aad460cb35643cab91326ce94b44bca",
+  //     project_id: "test_6aad460cb35643cab91326ce94b44bca",
+  //     description: "",
+  //     ls_task: [],
+  //     groups: {
+  //       ORIGINAL: {
+  //         count: 5000,
+  //         size: 313033381,
+  //         data_number: [0, 1, 2],
+  //       },
+  //     },
+  //     thum_key:
+  //       "client-data-test/us-east-2:68899a67-af9b-4a2a-acfe-a0f649ec453d/test_6aad460cb35643cab91326ce94b44bca/sample_000000.png",
+  //   },
+  //   {
+  //     gen_status: "FINISH",
+  //     project_name: "testaa",
+  //     is_sample: false,
+  //     s3_prefix:
+  //       "client-data-test/us-east-2:68899a67-af9b-4a2a-acfe-a0f649ec453d/testaa_66f46d0fd54e4160995a7be8615f2e19",
+  //     project_id: "testaa_66f46d0fd54e4160995a7be8615f2e19",
+  //     description: "ad",
+  //     ls_task: [],
+  //     groups: {
+  //       ORIGINAL: {
+  //         count: 598,
+  //         size: 37473653,
+  //         data_number: [0, 1, 2],
+  //       },
+  //     },
+  //     thum_key:
+  //       "client-data-test/us-east-2:68899a67-af9b-4a2a-acfe-a0f649ec453d/testaa_66f46d0fd54e4160995a7be8615f2e19/sample_002752.png",
+  //   },
+  // ],
+  listProjects: [],
   dialogCloneProjectToAnnotation: { isShow: false },
+  isFetchingProjects: false,
 };
 const annotationProjectReducer = (
   state = inititalState,
@@ -82,8 +88,7 @@ const annotationProjectReducer = (
     case SHOW_DIALOG_CLONE_PROJECT_TO_ANNOTATION:
       const { dialogCloneProjectToAnnotation } =
         payload as SetDialogCloneProjectToAnnotationProps;
-
-      if (!dialogCloneProjectToAnnotation.isShow) {
+      if (!!dialogCloneProjectToAnnotation.isShow) {
         dialogCloneProjectToAnnotation.projectName = "";
       }
       return { ...state, dialogCloneProjectToAnnotation };
@@ -91,6 +96,19 @@ const annotationProjectReducer = (
       const { projectName } = payload as SetCurrentAnnotationProjectProps;
       return { ...state, currentProjectName: projectName };
     }
+    case FETCH_LIST_ANNOTATION_PROJECTS.REQUESTED: {
+      const { notShowLoading } = payload;
+      return { ...state, isFetchingProjects: !notShowLoading };
+    }
+    case FETCH_LIST_ANNOTATION_PROJECTS.SUCCEEDED: {
+      return {
+        ...state,
+        isFetchingProjects: false,
+        listProjects: payload.listProjects,
+      };
+    }
+    case FETCH_LIST_ANNOTATION_PROJECTS.FAILED:
+      return { ...state, isFetchingProjects: false };
   }
   return state;
 };

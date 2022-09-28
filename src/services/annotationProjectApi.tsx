@@ -25,5 +25,13 @@ const annotationProjectApi = {
       { headers: getAuthHeader() }
     );
   },
+  listProjects: ({ idToken }: { idToken: string }) =>
+    axios.post(
+      `${annotationProjectApiURL}/annotation/project/list_project`,
+      {
+        id_token: idToken,
+      },
+      { headers: getAuthHeader() }
+    ),
 };
 export default annotationProjectApi;
