@@ -1,5 +1,6 @@
 import Crop32Icon from "@mui/icons-material/Crop32";
 import HexagonIcon from "@mui/icons-material/Hexagon";
+import ImageSearchIcon from "@mui/icons-material/ImageSearch";
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import PolylineIcon from "@mui/icons-material/Polyline";
 import RedoIcon from "@mui/icons-material/Redo";
@@ -376,7 +377,24 @@ const ControlPanel = () => {
             <PolylineIcon />
           </ToggleButton>
         </ToggleButtonGroup>
-
+        <Box
+          display="flex"
+          mt={3}
+          sx={{ border: "1px dashed grey" }}
+          justifyContent="space-evenly"
+        >
+          <Tooltip title="AI Detection">
+            <span>
+              <IconButton
+                onClick={(e) =>
+                  selectModeHandle(e, DrawType.DETECTED_RECTANGLE)
+                }
+              >
+                <ImageSearchIcon fontSize="large" />
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Box>
         <Box
           display="flex"
           mt={3}

@@ -75,3 +75,12 @@ export const selectorListDrawObjectHidden = (state: RootState) => {
     .filter(([key, value]) => value.isHidden === true)
     .map(([key, value]) => key);
 };
+export const selectorDrawObjectState = (id: string) => (state: RootState) => {
+  return state.annotationReducer.drawObjectStateById[id];
+};
+export const selectorDrawObjectStateById = (state: RootState) => {
+  return state.annotationReducer.drawObjectStateById;
+};
+export const selectorDetectedArea = (state: RootState) => {
+  return state.annotationReducer.detectedArea;
+};

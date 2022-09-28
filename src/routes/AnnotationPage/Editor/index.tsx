@@ -28,18 +28,24 @@ import {
   changeZoom,
   deleteDrawObject,
   redoDrawObject,
+  setDetectedArea,
   undoDrawObject,
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
   selectorcurrentDrawType,
   selectorDrawObjectById,
-  selectorListDrawObjectHidden,
   selectorSelectedDrawObjectId,
   selectorZoom,
 } from "reduxes/annotation/selector";
-import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
+import {
+  DetectedAreaType,
+  DrawObject,
+  DrawState,
+  DrawType,
+} from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
 import BaseImage from "./BaseImage";
 import useEllipseEvent from "./Hook/useElipseEvent";
 import usePolygonEvent from "./Hook/usePolygonEvent";
@@ -55,6 +61,7 @@ const Editor = () => {
   const [keyDown, setKeyDown] = useState<string | null>();
   const refBoundDiv = useRef<HTMLDivElement | null>(null);
   const refTextPosition = useRef<Konva.Text | null>(null);
+  const refDetectedArea = useRef<Konva.Rect | null>(null);
 
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const drawObjectById = useSelector(selectorDrawObjectById);
@@ -64,12 +71,16 @@ const Editor = () => {
   const ellipseHook = useEllipseEvent();
   const currentDrawState = useSelector(selectorCurrentDrawState);
   const zoom = useSelector(selectorZoom);
-  const listDrawObjectHidden = useSelector(selectorListDrawObjectHidden);
+  const [localDetectedArea, setLocalDetectedArea] =
+    useState<DetectedAreaType | null>(null);
 
   const toolTipLayer = useRef<Konva.Layer>(null);
   const toolTip = useRef<Konva.Text>(null);
   const toolTipRect = useRef<Konva.Rect>(null);
   const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
+    if (keyDown === " ") {
+      return;
+    }
     const editorEventPayload = { eventObject: e };
     if (drawType === DrawType.RECTANGLE) {
       rectangleHook.handleMouseDown(editorEventPayload);
@@ -80,6 +91,17 @@ const Editor = () => {
       polygonHook.handleMouseDown(editorEventPayload);
     } else if (drawType === DrawType.ELLIPSE) {
       ellipseHook.handleMouseDown(editorEventPayload);
+    } else if (drawType === DrawType.DETECTED_RECTANGLE) {
+      const position =
+        editorEventPayload.eventObject.currentTarget.getRelativePointerPosition();
+      if (position) {
+        setLocalDetectedArea({
+          x: position.x,
+          y: position.y,
+          width: 3,
+          height: 3,
+        });
+      }
     }
   };
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
@@ -93,6 +115,17 @@ const Editor = () => {
       polygonHook.handleMouseMove(editorEventPayload);
     } else if (drawType === DrawType.ELLIPSE) {
       ellipseHook.handleMouseMove(editorEventPayload);
+    } else if (drawType === DrawType.DETECTED_RECTANGLE) {
+      const position =
+        editorEventPayload.eventObject.currentTarget.getRelativePointerPosition();
+      if (position) {
+        if (localDetectedArea)
+          setLocalDetectedArea({
+            ...localDetectedArea,
+            width: position.x - localDetectedArea.x,
+            height: position.y - localDetectedArea.y,
+          });
+      }
     }
     const mousePos = e.target?.getStage()?.getPointerPosition();
     // if (mousePos) drawPosition(mousePos);
@@ -142,8 +175,28 @@ const Editor = () => {
       if (currentDrawState === DrawState.DRAWING) {
         ellipseHook.handleMouseUp();
       }
+    } else if (drawType === DrawType.DETECTED_RECTANGLE) {
+      if (localDetectedArea && refDetectedArea.current) {
+        dispatch(
+          setDetectedArea({
+            detectedArea: { ...refDetectedArea.current.getClientRect() },
+          })
+        );
+      }
+      setLocalDetectedArea(null);
     }
   };
+  // useEffect(() => {
+  //   if (drawType === DrawType.DETECTED_RECTANGLE) {
+  //     if (localDetectedArea && refDetectedArea.current) {
+  //       dispatch(
+  //         setDetectedArea({
+  //           detectedArea: { ...refDetectedArea.current.getClientRect() },
+  //         })
+  //       );
+  //     }
+  //   }
+  // }, [localDetectedArea]);
   const drawObjects = useMemo(() => {
     const rectanglesById: Record<string, DrawObject> = {};
     const polygonsById: Record<string, DrawObject> = {};
@@ -151,16 +204,14 @@ const Editor = () => {
     const linestripsById: Record<string, DrawObject> = {};
 
     Object.keys(drawObjectById).forEach((t) => {
-      if (listDrawObjectHidden.indexOf(t) === -1) {
-        if (drawObjectById[t].type === DrawType.RECTANGLE) {
-          rectanglesById[t] = drawObjectById[t];
-        } else if (drawObjectById[t].type === DrawType.POLYGON) {
-          polygonsById[t] = drawObjectById[t];
-        } else if (drawObjectById[t].type === DrawType.ELLIPSE) {
-          ellipsesById[t] = drawObjectById[t];
-        } else if (drawObjectById[t].type === DrawType.LINE_STRIP) {
-          linestripsById[t] = drawObjectById[t];
-        }
+      if (drawObjectById[t].type === DrawType.RECTANGLE) {
+        rectanglesById[t] = drawObjectById[t];
+      } else if (drawObjectById[t].type === DrawType.POLYGON) {
+        polygonsById[t] = drawObjectById[t];
+      } else if (drawObjectById[t].type === DrawType.ELLIPSE) {
+        ellipsesById[t] = drawObjectById[t];
+      } else if (drawObjectById[t].type === DrawType.LINE_STRIP) {
+        linestripsById[t] = drawObjectById[t];
       }
     });
     return {
@@ -169,7 +220,7 @@ const Editor = () => {
       ellipses: ellipsesById,
       linestrips: linestripsById,
     };
-  }, [drawObjectById, listDrawObjectHidden]);
+  }, [drawObjectById]);
   const clickStageHandler = (e: KonvaEventObject<MouseEvent>) => {
     if (currentDrawState !== DrawState.DRAWING) {
       dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
@@ -385,6 +436,15 @@ const Editor = () => {
                             />
                           );
                         })}
+                        {localDetectedArea && (
+                          <Rect
+                            ref={refDetectedArea}
+                            {...localDetectedArea}
+                            fill={convertStrokeColorToFillColor("#000000")}
+                            strokeWidth={4}
+                            stroke="#000000"
+                          />
+                        )}
                       </Group>
                     </Layer>
                     <Layer

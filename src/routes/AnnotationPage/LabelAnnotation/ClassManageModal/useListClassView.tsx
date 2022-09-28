@@ -33,18 +33,9 @@ import {
 import { ClassManageDialogProps } from "./type";
 const useListClassView = function (): ClassManageDialogProps {
   const dispatch = useDispatch();
-  const dialogClassManageModal = useSelector(selectorDialogClassManageModal);
   const labelClassPropertiesByLabelClass = useSelector(
     selectorLabelClassPropertiesByLabelClass
   );
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const openPickColor = Boolean(anchorEl);
-  const id = dialogClassManageModal.isOpen ? "popover" : undefined;
-
-  const handleClose = () => {
-    dispatch(setDialogClassManageModal({ isOpen: false }));
-  };
-
   const handleNewClass = () => {
     dispatch(
       setDialogClassManageModal({
@@ -53,7 +44,6 @@ const useListClassView = function (): ClassManageDialogProps {
       })
     );
   };
-  const handleSave = () => {};
   const editClass = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     label: LabelClassProperties

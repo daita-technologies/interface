@@ -6,10 +6,11 @@ import React, { useMemo, useState } from "react";
 import { Ellipse, Transformer } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
-import
-  {
-    selectorCurrentDrawState, selectorSelectedEllipse
-  } from "reduxes/annotation/selector";
+import {
+  selectorCurrentDrawState,
+  selectorDrawObjectState,
+  selectorSelectedEllipse,
+} from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
 import { EllipseProps, EllipseSpec } from "../type";
@@ -26,6 +27,8 @@ const EllipseShape = function ({
   const currentShape = useSelector(selectorSelectedEllipse);
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
   const currentDrawState = useSelector(selectorCurrentDrawState);
+  const drawObjectState = useSelector(selectorDrawObjectState(spec.id));
+
   const [strokeWidth, setStrokeWidth] = useState<number>(
     spec.cssStyle.strokeWidth
   );
@@ -130,6 +133,7 @@ const EllipseShape = function ({
         {...spec}
         {...spec.cssStyle}
         strokeWidth={strokeWidth}
+        visible={drawObjectState ? !drawObjectState.isHidden : true}
       />
       {isSelected && commonShapeEvent.isLock !== true && (
         <Transformer

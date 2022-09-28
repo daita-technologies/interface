@@ -26,6 +26,7 @@ import {
 } from "reduxes/annotation/action";
 import {
   selectorDrawObjectById,
+  selectorDrawObjectStateById,
   selectorListDrawObjectHidden,
   selectorListDrawObjectLock,
   selectorSelectedDrawObjectId,
@@ -93,6 +94,7 @@ const LabelAnnotation = function () {
     );
   };
   const dialogClassManageModal = useSelector(selectorDialogClassManageModal);
+  const drawObjectStateById = useSelector(selectorDrawObjectStateById);
 
   return (
     <Box
@@ -125,76 +127,80 @@ const LabelAnnotation = function () {
           bgcolor: "background.paper",
           position: "relative",
           overflow: "auto",
-          height: "100%",
-          maxHeight: 100,
+          height: "70vh",
+          maxHeight: "70vh",
           "& ul": { padding: 0 },
         }}
       >
-        {Object.entries(drawObjectById).map(([id, drawObject]) => {
-          const labelClassProperties =
-            labelClassPropertiesByLabelClass[drawObject.data?.label?.label];
-          return (
-            <ListItem
-              key={id}
-              onSelect={() => handleSelect(id)}
-              onClick={() => handleSelect(id)}
-              secondaryAction={
-                <Box display="flex">
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={() => handleClickDelete(id)}
+        {Object.entries(drawObjectById)
+          // .filter(([id, drawObject]) =>
+          //   drawObjectStateById[id] ? !drawObjectStateById[id].isHidden : true
+          // )
+          .map(([id, drawObject]) => {
+            const labelClassProperties =
+              labelClassPropertiesByLabelClass[drawObject.data?.label?.label];
+            return (
+              <ListItem
+                key={id}
+                onSelect={() => handleSelect(id)}
+                onClick={() => handleSelect(id)}
+                secondaryAction={
+                  <Box display="flex">
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleClickDelete(id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="hidden"
+                      onClick={() => handleClickHidden(id)}
+                    >
+                      {listDrawObjectHidden.indexOf(id) !== -1 ? (
+                        <VisibilityOffIcon />
+                      ) : (
+                        <VisibilityIcon />
+                      )}
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="lock"
+                      onClick={() => handleClickLock(id)}
+                    >
+                      {listDrawObjectLock.indexOf(id) !== -1 ? (
+                        <LockIcon />
+                      ) : (
+                        <LockOpenIcon />
+                      )}
+                    </IconButton>
+                  </Box>
+                }
+                sx={{
+                  border: selectedDrawObjectId === id ? "1px solid" : "",
+                  cursor: "pointer",
+                }}
+              >
+                <ListItemAvatar>
+                  <Avatar
+                    sx={{
+                      backgroundColor: labelClassProperties?.cssStyle?.stroke
+                        ? labelClassProperties.cssStyle.stroke
+                        : "gray",
+                      width: 40,
+                      height: 40,
+                    }}
                   >
-                    <DeleteIcon />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    aria-label="hidden"
-                    onClick={() => handleClickHidden(id)}
-                  >
-                    {listDrawObjectHidden.indexOf(id) !== -1 ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    aria-label="lock"
-                    onClick={() => handleClickLock(id)}
-                  >
-                    {listDrawObjectLock.indexOf(id) !== -1 ? (
-                      <LockIcon />
-                    ) : (
-                      <LockOpenIcon />
-                    )}
-                  </IconButton>
-                </Box>
-              }
-              sx={{
-                border: selectedDrawObjectId === id ? "1px solid" : "",
-                cursor: "pointer",
-              }}
-            >
-              <ListItemAvatar>
-                <Avatar
-                  sx={{
-                    backgroundColor: labelClassProperties?.cssStyle?.stroke
-                      ? labelClassProperties.cssStyle.stroke
-                      : "gray",
-                    width: 40,
-                    height: 40,
-                  }}
-                >
-                  {renderIcon(drawObject.type)}
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText>
-                <ClassLabel drawObject={drawObject} />
-              </ListItemText>
-            </ListItem>
-          );
-        })}
+                    {renderIcon(drawObject.type)}
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText>
+                  <ClassLabel drawObject={drawObject} />
+                </ListItemText>
+              </ListItem>
+            );
+          })}
       </List>
       {dialogClassManageModal.isOpen && <ClassManageModel />}
     </Box>

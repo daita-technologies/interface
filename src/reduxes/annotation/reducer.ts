@@ -12,6 +12,7 @@ import {
   DELETE_DRAW_OBJECT,
   REDO_DRAW_OBJECT,
   RESET_CURRENT_STATE_DRAW_OBJECT,
+  SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
   SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
@@ -27,10 +28,12 @@ import {
   CreateDrawObjectPayload,
   DeleteDrawObjectPayload,
   DrawObject,
+  DrawObjectState,
   DrawState,
   DrawType,
   ResetCurrentStateDrawObjectPayload,
   SetHiddenDrawObjectPayload,
+  SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
   SetSelectShapePayload,
   UpdateDrawObjectPayload,
@@ -77,6 +80,7 @@ const inititalState: AnnotationReducer = {
   currentDrawState: DrawState.FREE,
   statehHistory: { historyStep: 0, stateHistoryItems: [] },
   drawObjectStateById: {},
+  detectedArea: null,
 };
 const annotationReducer = (
   state = inititalState,
@@ -184,12 +188,17 @@ const annotationReducer = (
     }
     case RESET_CURRENT_STATE_DRAW_OBJECT: {
       const { drawObjectById } = payload as ResetCurrentStateDrawObjectPayload;
+      const drawObjectStateById: Record<string, DrawObjectState> = {};
+      Object.keys(drawObjectById).forEach((key) => {
+        drawObjectStateById[key] = { isHidden: true };
+      });
       return {
         ...state,
         currentDrawState: DrawState.FREE,
         selectedDrawObjectId: null,
         drawObjectById: { ...drawObjectById },
         zoom: { zoom: 1, position: { x: 0, y: 0 } },
+        drawObjectStateById,
       };
     }
     case UPDATE_LABEL_OF_DRAW_OBJECT: {
@@ -295,6 +304,13 @@ const annotationReducer = (
           ...state.drawObjectStateById,
           [drawObjectId]: newDrawObjectState,
         },
+      };
+    }
+    case SET_DETECTED_AREA: {
+      const { detectedArea } = payload as SetLockDetectedAreaPayload;
+      return {
+        ...state,
+        detectedArea,
       };
     }
     default:

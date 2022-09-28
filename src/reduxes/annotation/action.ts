@@ -6,6 +6,7 @@ import {
   DELETE_DRAW_OBJECT,
   REDO_DRAW_OBJECT,
   RESET_CURRENT_STATE_DRAW_OBJECT,
+  SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
   SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
@@ -21,6 +22,7 @@ import {
   DeleteDrawObjectPayload,
   ResetCurrentStateDrawObjectPayload,
   SetHiddenDrawObjectPayload,
+  SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
   SetSelectShapePayload,
   UpdateDrawObjectPayload,
@@ -84,5 +86,9 @@ export const setHiddenDrawObject = (payload: SetHiddenDrawObjectPayload) => ({
 });
 export const setLockDrawObject = (payload: SetLockDrawObecjtPayload) => ({
   type: SET_LOCK_DRAW_OBJECT,
+  payload,
+});
+export const setDetectedArea = (payload: SetLockDetectedAreaPayload) => ({
+  type: SET_DETECTED_AREA,
   payload,
 });
