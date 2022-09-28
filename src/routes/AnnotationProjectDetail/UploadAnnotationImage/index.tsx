@@ -3,6 +3,13 @@ import UploadIcon from "@mui/icons-material/Upload";
 import { Box, Button, LinearProgress, Typography } from "@mui/material";
 import { BeforeUnload } from "components";
 import {
+  LoadImageResult,
+  MousePosition,
+  UploadFileProps,
+} from "components/UploadFile/type";
+import UploadFileItem from "components/UploadFile/UploadFileItem";
+import UploadFromMenu from "components/UploadFile/UploadFromMenu";
+import {
   COMPRESS_FILE_EXTENSIONS,
   ID_TOKEN_NAME,
   IMAGE_EXTENSIONS,
@@ -41,31 +48,27 @@ import {
   selectorHaveTaskRunning,
 } from "reduxes/project/selector";
 import {
-  addFile,
-  checkFileUpload,
-  clearAllFile,
-  clearFileArray,
-  deleteFile,
-  resetUploadState,
-  setTotalUploadFileQuantity,
-  updateFile,
-  uploadFile,
-} from "reduxes/upload/actions";
+  addFileAnnotationProject,
+  checkFileUploadAnnotationProject,
+  clearAllFileAnnotationProject,
+  clearFileArrayAnnotationProject,
+  deleteFileAnnotationProject,
+  resetUploadStateAnnotationProject,
+  setTotalUploadFileQuantityAnnotationProject,
+  updateFileAnnotationProject,
+  uploadFileAnnotationProject,
+} from "reduxes/uploadAnnotationImage/actions";
 import {
-  selectorAddedStatusFileCount,
-  selectorIsChecking,
-  selectorIsUploading,
-  selectorQueueingFileCount,
-  selectorUploadedFileCount,
-  selectorUploadErrorMessage,
-  selectorUploadFiles,
-  selectorUploadingFileCount,
-} from "reduxes/upload/selector";
+  selectorAddedStatusFileCountAnnotationProject,
+  selectorIsCheckingAnnotationProject,
+  selectorIsUploadingAnnotationProject,
+  selectorQueueingFileCountAnnotationProject,
+  selectorUploadedFileCountAnnotationProject,
+  selectorUploadErrorMessageAnnotationProject,
+  selectorUploadFilesAnnotationProject,
+  selectorUploadingFileCountAnnotationProject,
+} from "reduxes/uploadAnnotationImage/selector";
 import { getLocalStorage, isImageFile } from "utils/general";
-import { LoadImageResult, MousePosition, UploadFileProps } from "./type";
-import UploadFileItem from "./UploadFileItem";
-import UploadFromMenu from "./UploadFromMenu";
-import UploadGuideDialog from "./UploadGuideDialog";
 
 interface HandleFileType {
   name: string;
@@ -116,28 +119,38 @@ export const loadImage = (file: File, fileName?: string) =>
     };
     image.src = objectUrl;
   });
-const UploadFile = function (props: UploadFileProps) {
+const UploadAnnotationImage = function (props: UploadFileProps) {
   const { projectId, projectName } = props;
 
   const dispatch = useDispatch();
 
-  const uploadFiles = useSelector(selectorUploadFiles);
+  const uploadFiles = useSelector(selectorUploadFilesAnnotationProject);
 
   const uploadFilesLength = Object.keys(uploadFiles).length;
 
-  const uploadErrorMessage = useSelector(selectorUploadErrorMessage);
+  const uploadErrorMessage = useSelector(
+    selectorUploadErrorMessageAnnotationProject
+  );
 
-  const queueingFileCount = useSelector(selectorQueueingFileCount);
+  const queueingFileCount = useSelector(
+    selectorQueueingFileCountAnnotationProject
+  );
 
-  const uploadingFileCount = useSelector(selectorUploadingFileCount);
+  const uploadingFileCount = useSelector(
+    selectorUploadingFileCountAnnotationProject
+  );
 
-  const uploadedFileCount = useSelector(selectorUploadedFileCount);
+  const uploadedFileCount = useSelector(
+    selectorUploadedFileCountAnnotationProject
+  );
 
-  const addedStatusFileCount = useSelector(selectorAddedStatusFileCount);
+  const addedStatusFileCount = useSelector(
+    selectorAddedStatusFileCountAnnotationProject
+  );
 
-  const isUploadChecking = useSelector(selectorIsChecking);
+  const isUploadChecking = useSelector(selectorIsCheckingAnnotationProject);
 
-  const isUploading = useSelector(selectorIsUploading);
+  const isUploading = useSelector(selectorIsUploadingAnnotationProject);
 
   const haveTaskRunning = useSelector(selectorHaveTaskRunning);
 
@@ -154,7 +167,6 @@ const UploadFile = function (props: UploadFileProps) {
   const totalOriginalImage = useSelector(
     selectorCurrentProjectTotalOriginalImage
   );
-  const [isOpenUploadGuideDialog, setIsOpenUploadGuideDialog] = useState(false);
   const [resolutionChecking, setResolutionChecking] = useState(false);
 
   const isDisabledUpload = useMemo(
@@ -207,7 +219,7 @@ const UploadFile = function (props: UploadFileProps) {
       }
       const formatedFiles = convertArrayToObjectKeyFile(acceptedFiles);
       const files = { ...uploadFiles, ...formatedFiles };
-      dispatch(addFile({ files: formatedFiles }));
+      dispatch(addFileAnnotationProject({ files: formatedFiles }));
       setResolutionChecking(true);
       const limit = pLimit(3);
       if (files && Object.keys(files).length > 0) {
@@ -231,7 +243,7 @@ const UploadFile = function (props: UploadFileProps) {
                 image.height > LIMIT_IMAGE_HEIGHT
               ) {
                 dispatch(
-                  updateFile({
+                  updateFileAnnotationProject({
                     fileName,
                     updateInfo: {
                       error: `The image resolution (${image.width} x ${image.height}) exceeds the limit allowed ${LIMIT_IMAGE_WIDTH} x ${LIMIT_IMAGE_HEIGHT}. Please remove it`,
@@ -249,7 +261,7 @@ const UploadFile = function (props: UploadFileProps) {
             setResolutionChecking(false);
 
             dispatch(
-              checkFileUpload({
+              checkFileUploadAnnotationProject({
                 idToken: getLocalStorage(ID_TOKEN_NAME) || "",
                 projectId,
                 projectName,
@@ -265,7 +277,7 @@ const UploadFile = function (props: UploadFileProps) {
     }
   }, []);
   const onClickClearAll = () => {
-    dispatch(clearAllFile());
+    dispatch(clearAllFileAnnotationProject());
   };
 
   const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
@@ -293,18 +305,30 @@ const UploadFile = function (props: UploadFileProps) {
           isUploadSucess = false;
       });
       if (isUploadSucess) {
-        dispatch(clearFileArray({ fileNameArray: Object.keys(uploadFiles) }));
-        dispatch(setTotalUploadFileQuantity({ totalUploadFileQuantity: null }));
+        dispatch(
+          clearFileArrayAnnotationProject({
+            fileNameArray: Object.keys(uploadFiles),
+          })
+        );
+        dispatch(
+          setTotalUploadFileQuantityAnnotationProject({
+            totalUploadFileQuantity: null,
+          })
+        );
       } else {
-        dispatch(deleteFile({ fileName }));
+        dispatch(deleteFileAnnotationProject({ fileName }));
       }
     }
   };
 
   const onReplaceUpload = (fileName: string) => {
-    dispatch(setTotalUploadFileQuantity({ totalUploadFileQuantity: 1 }));
     dispatch(
-      uploadFile({
+      setTotalUploadFileQuantityAnnotationProject({
+        totalUploadFileQuantity: 1,
+      })
+    );
+    dispatch(
+      uploadFileAnnotationProject({
         fileName,
         projectId,
         projectName,
@@ -317,7 +341,7 @@ const UploadFile = function (props: UploadFileProps) {
 
   useEffect(
     () => () => {
-      dispatch(resetUploadState());
+      dispatch(resetUploadStateAnnotationProject());
     },
     []
   );
@@ -337,7 +361,6 @@ const UploadFile = function (props: UploadFileProps) {
     setRelativeMousePosition({ top: y, left: x });
     setIsOpenChooseFileMenu(true);
   };
-
   const renderDropzoneContent = () => (
     <Box
       display="flex"
@@ -417,14 +440,8 @@ const UploadFile = function (props: UploadFileProps) {
     return null;
   };
 
-  const handleClickShowUploadGuideDialog = () => {
-    setIsOpenUploadGuideDialog(true);
-  };
-  const handleCloseUploadGuideDialog = () => {
-    setIsOpenUploadGuideDialog(false);
-  };
   return (
-    <Box my={4}>
+    <Box my={4} width="100%">
       <BeforeUnload
         isActive={isUploadChecking || isUploading}
         message={`We are currently processing your data upload.\r\nAre you sure you want to quit?`}
@@ -478,22 +495,6 @@ const UploadFile = function (props: UploadFileProps) {
             <input {...getInputProps()} multiple />
             {renderDropzoneContent()}
           </Box>
-          <Typography mt={1} fontStyle="italic" variant="body2" fontSize={14}>
-            * If you would like to upload your dataset programmatically,{" "}
-            <Typography
-              component="span"
-              sx={{ cursor: "pointer", fontWeight: "bold", color: "#1c68dc" }}
-              onClick={handleClickShowUploadGuideDialog}
-              fontSize={14}
-            >
-              click here{" "}
-            </Typography>
-            for more information.
-          </Typography>
-          <UploadGuideDialog
-            onClose={handleCloseUploadGuideDialog}
-            isOpen={isOpenUploadGuideDialog}
-          />
         </Box>
 
         <Box flex={2} ml={2}>
@@ -560,4 +561,4 @@ const UploadFile = function (props: UploadFileProps) {
   );
 };
 
-export default UploadFile;
+export default UploadAnnotationImage;

@@ -19,6 +19,8 @@ export const stopApiURL = process.env.REACT_APP_TASK_API_URL;
 export const feedbackSlackApiURL = process.env.REACT_APP_FEEDBACK_SLACK;
 export const presignURLUploadFeedbackImageSlackApiURL =
   process.env.REACT_APP_PRESIGN_URL_UPLOAD_FEEDBACK_IMAGE;
+export const annotationProjectApiURL =
+  process.env.REACT_APP_ANNOTATION_PROJECT_API;
 export const reactAppDevEnv = "development";
 export const reactAppProdEnv = "production";
 export const reactAppEnv = process.env.REACT_APP_ENV;

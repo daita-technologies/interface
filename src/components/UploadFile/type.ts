@@ -1,4 +1,5 @@
 import React, { CSSProperties } from "react";
+import { HandleFileType, UploadFilesType } from "reduxes/upload/type";
 
 export interface UploadFileProps {
   projectId: string;
@@ -11,6 +12,7 @@ export interface UploadFileItemProps {
   onClickReplaceUpload: (fileName: string) => void;
   isUploading: boolean;
   style: CSSProperties;
+  handleFileType: HandleFileType;
 }
 
 export interface UploadFromMenuProps {

@@ -18,37 +18,40 @@ import {
 import AddBoxIcon from "@mui/icons-material/AddBox";
 // import SettingsIcon from "@mui/icons-material/Settings";
 // import ExtensionIcon from "@mui/icons-material/Extension";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import ShareIcon from "@mui/icons-material/Share";
-import LogoutIcon from "@mui/icons-material/Logout";
+import CommentBankIcon from "@mui/icons-material/CommentBank";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import EmailIcon from "@mui/icons-material/Email";
-import TaskIcon from "@mui/icons-material/Task";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
-
+import LogoutIcon from "@mui/icons-material/Logout";
+import ShareIcon from "@mui/icons-material/Share";
+import TaskIcon from "@mui/icons-material/Task";
 import CreateProjectModal from "components/CreateProjectModal";
 
 import { InviteFriendModal } from "components";
+import CloneProjectModal from "components/CloneProjectModal";
+import { ID_TOKEN_NAME } from "constants/defaultValues";
+import {
+  ANNOTATION_PROJECT_ROUTE_NAME,
+  DATASET_HEALTH_CHECK_ROUTE_NAME,
+  MY_TASKS_ROUTE_NAME,
+} from "constants/routeName";
+import { selectorAnnotationCurrentProjectName } from "reduxes/annotationProject/selector";
+import { LOG_OUT } from "reduxes/auth/constants";
+import { setIsOpenInviteFriend } from "reduxes/invite/action";
 import {
   FETCH_LIST_PROJECTS,
   SET_IS_OPEN_CREATE_PROJECT_MODAL,
 } from "reduxes/project/constants";
-import { getLocalStorage } from "utils/general";
-import { ID_TOKEN_NAME } from "constants/defaultValues";
-import {
-  DATASET_HEALTH_CHECK_ROUTE_NAME,
-  MY_TASKS_ROUTE_NAME,
-} from "constants/routeName";
 import { ApiListProjectsItem } from "reduxes/project/type";
-import { setIsOpenInviteFriend } from "reduxes/invite/action";
-import { LOG_OUT } from "reduxes/auth/constants";
+import { getLocalStorage } from "utils/general";
 import AvatarProfile from "./AvatarProfile";
 import {
   BaseNavItemType,
   NavItemProps,
-  NavRowProps,
   NavProjectItemProps,
+  NavRowProps,
 } from "./type";
 
 const NavRow = function (props: NavRowProps) {
@@ -92,6 +95,92 @@ const NavProjectItem = function (props: NavProjectItemProps) {
   const currentProjectName = useSelector(
     (state: RootState) => state.projectReducer.currentProjectName
   );
+  const [isOpenCollapse, setIsOpenCollapse] = useState(!!currentProjectName);
+
+  const isFetchingProjects = useSelector(
+    (state: RootState) => state.projectReducer.isFetchingProjects
+  );
+
+  useEffect(() => {
+    if (currentProjectName) {
+      setIsOpenCollapse(true);
+    } else {
+      setIsOpenCollapse(false);
+    }
+  }, [currentProjectName]);
+
+  const toggleCollapse = () => {
+    setIsOpenCollapse(!isOpenCollapse);
+  };
+
+  const renderListProjects = () => {
+    if (isFetchingProjects === false) {
+      if (subNav && subNav.length > 0) {
+        return subNav.map((projectInfo: ApiListProjectsItem) => (
+          <NavRow
+            key={`sub-nav-${projectInfo.project_id}`}
+            name={projectInfo.project_name}
+            Icon={FolderOpenIcon}
+            to={`/project/${projectInfo.project_name}`}
+            isActived={currentProjectName === projectInfo.project_name}
+            isSubNav
+          />
+        ));
+      }
+
+      return (
+        <Box display="flex" justifyContent="center">
+          <Typography variant="caption" fontStyle="italic">
+            No project yet
+          </Typography>
+        </Box>
+      );
+    }
+
+    return (
+      <Box display="flex" justifyContent="center">
+        <CircularProgress />
+      </Box>
+    );
+  };
+
+  const handleClickCreateNewProject = () => {
+    dispatch({
+      type: SET_IS_OPEN_CREATE_PROJECT_MODAL,
+      payload: { isOpen: true },
+    });
+  };
+  return (
+    <Box p={1} onClick={onClick}>
+      <NavRow
+        name={name}
+        Icon={Icon}
+        to={to}
+        triggerToggleCollapse={toggleCollapse}
+        isActived={!!currentProjectName}
+      />
+
+      {subNav && (
+        <Collapse in={isOpenCollapse}>
+          <List sx={{ pl: 4, maxHeight: 40 * 5, overflowY: "auto" }}>
+            <NavRow
+              name="Create New Project"
+              Icon={AddBoxIcon}
+              triggerToggleCollapse={handleClickCreateNewProject}
+              isSubNav
+            />
+            {renderListProjects()}
+          </List>
+        </Collapse>
+      )}
+    </Box>
+  );
+};
+const NavAnnotationProjectItem = function (props: NavProjectItemProps) {
+  const { name, Icon, to, subNav, onClick } = props;
+  const dispatch = useDispatch();
+
+  const currentProjectName = useSelector(selectorAnnotationCurrentProjectName);
   const [isOpenCollapse, setIsOpenCollapse] = useState(!!currentProjectName);
 
   const isFetchingProjects = useSelector(
@@ -253,6 +342,7 @@ const Sidebar = function () {
               })
             }
           />
+          <CloneProjectModal />
           <AvatarProfile />
           <Divider sx={{ borderColor: "text.secondary" }} />
           <List sx={{ color: "text.secondary" }}>
@@ -267,6 +357,17 @@ const Sidebar = function () {
               Icon={HealthAndSafetyIcon}
               to={`/${DATASET_HEALTH_CHECK_ROUTE_NAME}`}
               isActive={pathname.indexOf(DATASET_HEALTH_CHECK_ROUTE_NAME) > -1}
+            />
+            <NavItem
+              name="Annotation"
+              Icon={CommentBankIcon}
+              to={`/${ANNOTATION_PROJECT_ROUTE_NAME}`}
+            />
+
+            <NavAnnotationProjectItem
+              name="My Annotation Project"
+              Icon={CommentBankIcon}
+              subNav={listProjects}
             />
             <NavItem
               name="My Tasks"
