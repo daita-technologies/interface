@@ -1,9 +1,9 @@
 import { toast } from "react-toastify";
 import { call, put, select, takeLatest } from "redux-saga/effects";
 import {
-  ADD_NEW_CLASS_LABEL,
   CHANGE_PREVIEW_IMAGE,
   SAVE_ANNOTATION_STATE_MANAGER,
+  SAVE_REMOTE_NEW_CLASS_LABEL,
 } from "reduxes/annotationmanager/constants";
 import {
   selectorAnnotationCurrentProject,
@@ -27,6 +27,7 @@ import {
 } from "reduxes/annotation/type";
 import {
   addImagesToAnnotation,
+  addNewClassLabel,
   setAnnotationStateManager,
 } from "reduxes/annotationmanager/action";
 import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
@@ -132,7 +133,7 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
     annotationProjectApi.annotationAndFileInfo,
     {
       idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-      categoryId: annotationCurrentProject.default_category_id,
+      categoryId: annotationCurrentProject.ls_category.category_id,
       filename: action.payload.imageName,
       projectId: annotationCurrentProject.project_id,
     }
@@ -158,7 +159,7 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
     //   selectorAnnotationCurrentProject
     // );
     let annotation: ResetCurrentStateDrawObjectPayload = { drawObjectById: {} };
-    if (label_info.length > 0) {
+    if (label_info && label_info.length > 0) {
       const annotationTmp = yield handleGetAnnotationFile(
         label_info[0].s3key_jsonlabel
       );
@@ -198,10 +199,24 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
   }
 }
 function* handleAddNewClassLabel(action: any): any {
-  const addListOfClassNameToCategoryResponse = yield call(
-    annotationProjectApi.addListOfClassNameToCategory,
-    action.payload
+  console.log(action.payload);
+  const annotationCurrentProject: AnnotationProjectInfo = yield select(
+    selectorAnnotationCurrentProject
   );
+  const saveLabelResp = yield call(
+    annotationProjectApi.addListOfClassNameToCategory,
+    {
+      idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+      categoryId: annotationCurrentProject.ls_category.category_id,
+      lsClassName: [action.payload.labelClassProperties.label.label],
+    }
+  );
+  if (saveLabelResp.error === false) {
+    yield put(addNewClassLabel(action.payload));
+    toast.success("Add new class success");
+  } else {
+    toast.error(saveLabelResp.message);
+  }
 }
 function* handleSaveAnnotationStateManager(action: any): any {
   const { imageName, drawObjectById } =
@@ -258,7 +273,10 @@ function* handleSaveAnnotationStateManager(action: any): any {
 }
 function* annotationEditorSaga() {
   yield takeLatest(CHANGE_PREVIEW_IMAGE, handleChangeImagePreview);
-  yield takeLatest(ADD_NEW_CLASS_LABEL, handleAddNewClassLabel);
+  yield takeLatest(
+    SAVE_REMOTE_NEW_CLASS_LABEL.REQUESTED,
+    handleAddNewClassLabel
+  );
   yield takeLatest(
     SAVE_ANNOTATION_STATE_MANAGER.REQUESTED,
     handleSaveAnnotationStateManager

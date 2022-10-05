@@ -1,21 +1,20 @@
 import axios from "axios";
 import {
   annotationProjectApiURL,
-  createProjectSampleApiUrl,
   FETCH_ANNOTATION_NUM_FILE_LIMIT,
   getAuthHeader,
   ID_TOKEN_NAME,
 } from "constants/defaultValues";
 import {
   CloneProjectToAnnotationProps,
-  FetchAnnotationFilesProps,
   FetchAnnotationAndFileInfoProps,
+  FetchAnnotationFilesProps,
 } from "reduxes/annotationProject/type";
 import { getLocalStorage } from "utils/general";
 export interface AddListOfClassNameToCategoryProps {
   idToken: string;
   categoryId: string;
-  lsClassName: string;
+  lsClassName: string[];
 }
 
 export interface SaveLabelProps {

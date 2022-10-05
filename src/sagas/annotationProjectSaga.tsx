@@ -7,8 +7,8 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import { addNewClassLabel } from "reduxes/annotationmanager/action";
 import {
   CLONE_PROJECT_TO_ANNOTATION,
-  FETCH_ANNOTATION_FILES,
   FETCH_ANNOTATION_AND_FILE_INFO,
+  FETCH_ANNOTATION_FILES,
   FETCH_DETAIL_ANNOTATION_PROJECT,
   FETCH_LIST_ANNOTATION_PROJECTS,
 } from "reduxes/annotationProject/constants";

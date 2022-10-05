@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import {
   addNewClassLabel,
   editClassLabel,
+  saveRemoteNewClassLabel,
   setDialogClassManageModal,
 } from "reduxes/annotationmanager/action";
 import {
@@ -98,7 +99,7 @@ const useClassManageEditor = function (): ClassManageDialogProps {
   const onSubmit = (data: LabelForm) => {
     if (dialogClassManageModal.classManageModalType === "CREATE") {
       dispatch(
-        addNewClassLabel({
+        saveRemoteNewClassLabel({
           labelClassProperties: {
             label: { label: data.label, attributes: data.attributes },
             cssStyle: {
@@ -109,7 +110,6 @@ const useClassManageEditor = function (): ClassManageDialogProps {
           },
         })
       );
-      toast.success("Add new class success");
     } else if (dialogClassManageModal.classManageModalType === "EDIT") {
       if (dialogClassManageModal.className) {
         dispatch(

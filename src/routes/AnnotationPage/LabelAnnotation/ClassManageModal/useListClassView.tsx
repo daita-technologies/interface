@@ -20,20 +20,17 @@ import {
   LabelAttribute,
   LabelClassProperties,
 } from "components/Annotation/Editor/type";
-import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   openEditDialogClassManageModal,
   setDialogClassManageModal,
 } from "reduxes/annotationmanager/action";
-import {
-  selectorDialogClassManageModal,
-  selectorLabelClassPropertiesByLabelClass,
-} from "reduxes/annotationmanager/selecetor";
+import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
+import { getBackgroundColor } from "..";
 import { ClassManageDialogProps } from "./type";
 const useListClassView = function (): ClassManageDialogProps {
   const dispatch = useDispatch();
-  const labelClassPropertiesByLabelClass = useSelector(
+  const labelClassPropertieusByLabelClass = useSelector(
     selectorLabelClassPropertiesByLabelClass
   );
   const handleNewClass = () => {
@@ -103,7 +100,7 @@ const useListClassView = function (): ClassManageDialogProps {
                   <Box display="flex" alignItems="flex-end" width="100%">
                     <Box
                       sx={{
-                        backgroundColor: cssStyle.stroke,
+                        backgroundColor: getBackgroundColor(value),
                         height: 30,
                         width: 30,
                         marginRight: 2,

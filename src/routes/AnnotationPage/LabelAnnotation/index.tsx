@@ -53,6 +53,21 @@ export const intToRGB = (i: number) => {
   const c = (i & 0x00ffffff).toString(16).toUpperCase();
   return "00000".substring(0, 6 - c.length) + c;
 };
+export const getBackgroundColor = (
+  labelClassProperties: LabelClassProperties
+) => {
+  if (labelClassProperties) {
+    if (labelClassProperties?.cssStyle?.stroke) {
+      return labelClassProperties.cssStyle.stroke;
+    }
+    if (labelClassProperties.label?.label) {
+      return convertStrokeColorToFillColor(
+        "#" + intToRGB(hashCode(labelClassProperties.label.label))
+      );
+    }
+  }
+  return "gray";
+};
 const LabelAnnotation = function () {
   const dispatch = useDispatch();
   const drawObjectById = useSelector(selectorDrawObjectById);
@@ -108,19 +123,7 @@ const LabelAnnotation = function () {
   };
   const dialogClassManageModal = useSelector(selectorDialogClassManageModal);
   const drawObjectStateById = useSelector(selectorDrawObjectStateById);
-  const getBackgroundColor = (labelClassProperties: LabelClassProperties) => {
-    if (labelClassProperties) {
-      if (labelClassProperties?.cssStyle?.stroke) {
-        return labelClassProperties.cssStyle.stroke;
-      }
-      if (labelClassProperties.label?.label) {
-        return convertStrokeColorToFillColor(
-          "#" + intToRGB(hashCode(labelClassProperties.label.label))
-        );
-      }
-    }
-    return "gray";
-  };
+
   return (
     <Box
       sx={{

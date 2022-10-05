@@ -71,8 +71,8 @@ export const initialLabelClassPropertiesByLabelClass: Record<
     label: {
       label: "house",
       attributes: [
-        { key: "key1", value: "value1" },
-        { key: "key2", value: "value2" },
+        // { key: "key1", value: "value1" },
+        // { key: "key2", value: "value2" },
       ],
     },
   },
@@ -163,7 +163,8 @@ export interface RectangleProps {
   onMouseOutHandler: (e: KonvaEventObject<MouseEvent>) => void;
 }
 export interface PolygonProps {
-  spec: PolygonSpec;
+  // spec: PolygonSpec;
+  id: string;
   onMouseOverHandler: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseOutHandler: (e: KonvaEventObject<MouseEvent>) => void;
 }

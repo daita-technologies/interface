@@ -6,6 +6,7 @@ import {
   EDIT_CLASS_MANAGE_MODAL,
   FETCH_FILE_AND_ANNOTATION,
   SAVE_ANNOTATION_STATE_MANAGER,
+  SAVE_REMOTE_NEW_CLASS_LABEL,
   SET_ANNOTATION_STATE_MANAGER,
   SET_CLASS_MANAGE_MODAL,
 } from "./constants";
@@ -42,6 +43,10 @@ export const setAnnotationStateManager = (
 });
 export const addNewClassLabel = (payload: AddNewClassLabelProps) => ({
   type: ADD_NEW_CLASS_LABEL,
+  payload,
+});
+export const saveRemoteNewClassLabel = (payload: AddNewClassLabelProps) => ({
+  type: SAVE_REMOTE_NEW_CLASS_LABEL.REQUESTED,
   payload,
 });
 export const editClassLabel = (payload: EditClassLabelProps) => ({
