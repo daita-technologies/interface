@@ -6,6 +6,7 @@ import {
   EDIT_CLASS_LABEL,
   EDIT_CLASS_MANAGE_MODAL,
   SAVE_ANNOTATION_STATE_MANAGER,
+  SET_ANNOTATION_STATE_MANAGER,
   SET_CLASS_MANAGE_MODAL,
 } from "./constants";
 import {
@@ -27,6 +28,8 @@ const inititalState: AnnotationManagerReducer = {
   dialogClassManageModal: {
     isOpen: false,
   },
+  isFetchingImageData: false,
+  isSavingAnnotation: false,
 };
 const annotationManagerReducer = (
   state = inititalState,
@@ -55,15 +58,28 @@ const annotationManagerReducer = (
         currentPreviewImageName: imageName,
       };
     }
-    case SAVE_ANNOTATION_STATE_MANAGER: {
+    case SAVE_ANNOTATION_STATE_MANAGER.REQUESTED: {
       const { imageName, drawObjectById } =
         payload as SaveAnnotationStateManagerProps;
       return {
         ...state,
+        isSavingAnnotation: true,
         idDrawObjectByImageName: {
           ...state.idDrawObjectByImageName,
           [imageName]: { ...drawObjectById },
         },
+      };
+    }
+    case SAVE_ANNOTATION_STATE_MANAGER.SUCCEEDED: {
+      return {
+        ...state,
+        isSavingAnnotation: false,
+      };
+    }
+    case SAVE_ANNOTATION_STATE_MANAGER.FAILED: {
+      return {
+        ...state,
+        isSavingAnnotation: false,
       };
     }
     case ADD_NEW_CLASS_LABEL: {
@@ -112,6 +128,17 @@ const annotationManagerReducer = (
           isOpen: true,
           className,
           classManageModalType: "EDIT",
+        },
+      };
+    }
+    case SET_ANNOTATION_STATE_MANAGER: {
+      const { imageName, drawObjectById } =
+        payload as SaveAnnotationStateManagerProps;
+      return {
+        ...state,
+        idDrawObjectByImageName: {
+          ...state.idDrawObjectByImageName,
+          [imageName]: { ...drawObjectById },
         },
       };
     }

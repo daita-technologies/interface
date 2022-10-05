@@ -9,5 +9,7 @@ export {
 } from "./scaleai/index";
 export {
   exportAnnotation as exportAnnotationDaita,
+  importFileAndAnnotation as importFileAnnotationDaita,
   importAnnotation as importAnnotationDaita,
+  exportAnnotationToJson as importAnnotationDaitaToJson,
 } from "./daita/index";

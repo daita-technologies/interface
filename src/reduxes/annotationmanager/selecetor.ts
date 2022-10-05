@@ -18,3 +18,5 @@ export const selectorLabelClassPropertiesByLabelClass = (state: RootState) =>
   state.annotationManagerReducer.labelClassPropertiesByLabelClass;
 export const selectorDialogClassManageModal = (state: RootState) =>
   state.annotationManagerReducer.dialogClassManageModal;
+export const selectorIsSavingAnnotation = (state: RootState) =>
+  state.annotationManagerReducer.isSavingAnnotation;

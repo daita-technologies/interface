@@ -1,37 +1,58 @@
-import { Box } from "@mui/material";
-import ControlPanel from "./ControlPanel";
-import Editor from "./Editor";
-import ImagePreview from "./ImagePreview";
-import LabelAnnotation from "./LabelAnnotation";
+import { Box, CircularProgress } from "@mui/material";
+import { ID_TOKEN_NAME } from "constants/defaultValues";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import {
+  fetchDetailAnnotationProjects,
+  setCurrentAnnotationProject,
+} from "reduxes/annotationProject/action";
+import {
+  selectorAnnotationCurrentProject,
+  selectorCurrentAnnotationFiles,
+  selectorCurrentAnnotationAndFileInfo,
+} from "reduxes/annotationProject/selector";
+import { getLocalStorage } from "utils/general";
+import AnnotationEditor from "./AnnotationEditor";
 
 const AnnotationPage = function () {
-  return (
-    <Box>
-      <Box display="flex" sx={{ height: "100vh" }} flexDirection="column">
-        <Box display="flex">
-          <Box display="flex" gap={0} flexGrow={2}>
-            <Box>
-              <Box sx={{ minWidth: 100, padding: 3, maxWidth: 200 }}>
-                <ControlPanel />
-              </Box>
-            </Box>
-            <Box sx={{ backgroundColor: "#101c2d" }} flexGrow={10}>
-              <Editor />
-            </Box>
-          </Box>
-          <Box
-            display="flex"
-            justifyContent="center"
-            sx={{ backgroundColor: "#313c4b" }}
-            width={50}
-            flexGrow={10}
-          >
-            <LabelAnnotation />
-          </Box>
-        </Box>
-        <ImagePreview />
-      </Box>
-    </Box>
+  const dispatch = useDispatch();
+  const { projectName } = useParams<{ projectName: string }>();
+  const currentAnnotationAndFileInfo = useSelector(
+    selectorCurrentAnnotationAndFileInfo
   );
+  const annotationCurrentProject = useSelector(
+    selectorAnnotationCurrentProject
+  );
+  const currentAnnotationFiles = useSelector(selectorCurrentAnnotationFiles);
+
+  useEffect(() => {
+    if (!annotationCurrentProject) {
+      dispatch(setCurrentAnnotationProject({ projectName }));
+      dispatch(
+        fetchDetailAnnotationProjects({
+          idToken: getLocalStorage(ID_TOKEN_NAME),
+          projectName: projectName || "",
+        })
+      );
+    }
+  }, [projectName]);
+  const renderContent = () => {
+    if (annotationCurrentProject) {
+      return <AnnotationEditor />;
+    }
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        flex={1}
+        py={6}
+      >
+        <CircularProgress size={20} />
+      </Box>
+    );
+  };
+  return <Box>{renderContent()}</Box>;
 };
 export default AnnotationPage;

@@ -4,7 +4,9 @@ import {
   CHANGE_PREVIEW_IMAGE,
   EDIT_CLASS_LABEL,
   EDIT_CLASS_MANAGE_MODAL,
+  FETCH_FILE_AND_ANNOTATION,
   SAVE_ANNOTATION_STATE_MANAGER,
+  SET_ANNOTATION_STATE_MANAGER,
   SET_CLASS_MANAGE_MODAL,
 } from "./constants";
 import {
@@ -14,6 +16,7 @@ import {
   ClassManageModalProps,
   EditClassLabelProps,
   EditClassManageModalProps,
+  FetchingFileAndAnnotaitonProps,
   SaveAnnotationStateManagerProps,
 } from "./type";
 
@@ -28,7 +31,13 @@ export const changePreviewImage = (payload: ChangePreviewImageProps) => ({
 export const saveAnnotationStateManager = (
   payload: SaveAnnotationStateManagerProps
 ) => ({
-  type: SAVE_ANNOTATION_STATE_MANAGER,
+  type: SAVE_ANNOTATION_STATE_MANAGER.REQUESTED,
+  payload,
+});
+export const setAnnotationStateManager = (
+  payload: SaveAnnotationStateManagerProps
+) => ({
+  type: SET_ANNOTATION_STATE_MANAGER,
   payload,
 });
 export const addNewClassLabel = (payload: AddNewClassLabelProps) => ({
@@ -47,5 +56,11 @@ export const openEditDialogClassManageModal = (
   payload: EditClassManageModalProps
 ) => ({
   type: EDIT_CLASS_MANAGE_MODAL,
+  payload,
+});
+export const fetchingFileAndAnnotaiton = (
+  payload: FetchingFileAndAnnotaitonProps
+) => ({
+  type: FETCH_FILE_AND_ANNOTATION,
   payload,
 });

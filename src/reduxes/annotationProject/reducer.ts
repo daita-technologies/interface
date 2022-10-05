@@ -1,11 +1,16 @@
 import {
   CLONE_PROJECT_TO_ANNOTATION,
+  FETCH_ANNOTATION_FILES,
+  FETCH_ANNOTATION_AND_FILE_INFO,
+  FETCH_DETAIL_ANNOTATION_PROJECT,
   FETCH_LIST_ANNOTATION_PROJECTS,
   SET_CURRENT_ANNOTATION_PROJECT,
   SHOW_DIALOG_CLONE_PROJECT_TO_ANNOTATION,
 } from "./constants";
 import {
+  AnnotationFilesApi,
   AnnotationProjectReducer,
+  FetchDetailAnnotationProjectsProps,
   SetCurrentAnnotationProjectProps,
   SetDialogCloneProjectToAnnotationProps,
 } from "./type";
@@ -75,6 +80,10 @@ const inititalState: AnnotationProjectReducer = {
   listProjects: [],
   dialogCloneProjectToAnnotation: { isShow: false },
   isFetchingProjects: false,
+  currentProjectInfo: null,
+  isFetchingDetailProject: false,
+  currentAnnotationAndFileInfo: null,
+  currentAnnotationFiles: null,
 };
 const annotationProjectReducer = (
   state = inititalState,
@@ -85,10 +94,18 @@ const annotationProjectReducer = (
   switch (actionType) {
     case CLONE_PROJECT_TO_ANNOTATION.REQUESTED:
       return { ...state, isCloningProjectToAnnotation: true };
+    case CLONE_PROJECT_TO_ANNOTATION.SUCCEEDED:
+      return {
+        ...state,
+        isCloningProjectToAnnotation: false,
+        dialogCloneProjectToAnnotation: { isShow: false, projectName: "" },
+      };
+    case CLONE_PROJECT_TO_ANNOTATION.FAILED:
+      return { ...state, isCloningProjectToAnnotation: false };
     case SHOW_DIALOG_CLONE_PROJECT_TO_ANNOTATION:
       const { dialogCloneProjectToAnnotation } =
         payload as SetDialogCloneProjectToAnnotationProps;
-      if (!!dialogCloneProjectToAnnotation.isShow) {
+      if (!dialogCloneProjectToAnnotation.isShow) {
         dialogCloneProjectToAnnotation.projectName = "";
       }
       return { ...state, dialogCloneProjectToAnnotation };
@@ -109,6 +126,44 @@ const annotationProjectReducer = (
     }
     case FETCH_LIST_ANNOTATION_PROJECTS.FAILED:
       return { ...state, isFetchingProjects: false };
+    case FETCH_DETAIL_ANNOTATION_PROJECT.REQUESTED: {
+      return { ...state, isFetchingDetailProject: true };
+    }
+    case FETCH_DETAIL_ANNOTATION_PROJECT.SUCCEEDED:
+      return {
+        ...state,
+        isFetchingDetailProject: false,
+        currentProjectInfo: payload.currentProjectInfo,
+      };
+    case FETCH_DETAIL_ANNOTATION_PROJECT.FAILED:
+      return { ...state, isFetchingDetailProject: false };
+    case FETCH_ANNOTATION_AND_FILE_INFO.SUCCEEDED:
+      console.log(
+        " payload.currentAnnotationAndFileInfo",
+        payload.currentAnnotationAndFileInfo
+      );
+      return {
+        ...state,
+        currentAnnotationAndFileInfo: payload.currentAnnotationAndFileInfo,
+      };
+    case FETCH_ANNOTATION_FILES.SUCCEEDED:
+      const { items, next_token, projectId } = payload as AnnotationFilesApi;
+      const { currentAnnotationFiles } = state;
+      if (
+        currentAnnotationFiles &&
+        state.currentProjectInfo?.project_id === projectId
+      ) {
+        currentAnnotationFiles.next_token = { ...next_token };
+        currentAnnotationFiles.items = [
+          ...currentAnnotationFiles.items,
+          ...items,
+        ];
+      } else {
+        state.currentAnnotationFiles = { items, next_token, projectId };
+      }
+      return {
+        ...state,
+      };
   }
   return state;
 };

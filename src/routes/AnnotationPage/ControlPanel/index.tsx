@@ -4,7 +4,9 @@ import ImageSearchIcon from "@mui/icons-material/ImageSearch";
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import PolylineIcon from "@mui/icons-material/Polyline";
 import RedoIcon from "@mui/icons-material/Redo";
+import SaveIcon from "@mui/icons-material/Save";
 import UndoIcon from "@mui/icons-material/Undo";
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
   Button,
@@ -24,9 +26,9 @@ import {
   exportAnnotationLabelBox,
   exportAnnotationLabelMe,
   exportAnnotationScaleAI,
-  importAnnotationDaita,
   importAnnotationLabelMe,
   importAnnotationScaleAI,
+  importFileAnnotationDaita,
 } from "components/Annotation/Formart";
 import * as React from "react";
 import { useDropzone } from "react-dropzone";
@@ -50,32 +52,24 @@ import {
   addNewClassLabel,
   changePreviewImage,
   saveAnnotationStateManager,
+  setAnnotationStateManager,
 } from "reduxes/annotationmanager/action";
 import {
   selectorCurrentAnnotationFile,
   selectorCurrentPreviewImageName,
+  selectorIsSavingAnnotation,
   selectorLabelClassPropertiesByLabelClass,
 } from "reduxes/annotationmanager/selecetor";
+import { hashCode, intToRGB } from "../LabelAnnotation";
 import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
 
-const hashCode = (str: string) => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return hash;
-};
-
-const intToRGB = (i: number) => {
-  const c = (i & 0x00ffffff).toString(16).toUpperCase();
-  return "00000".substring(0, 6 - c.length) + c;
-};
 const ControlPanel = () => {
   const dispatch = useDispatch();
   const currentDrawType = useSelector(selectorcurrentDrawType);
   const drawObjectById = useSelector(selectorDrawObjectById);
   const currentPreviewImageName = useSelector(selectorCurrentPreviewImageName);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
+  const isSavingAnnotation = useSelector(selectorIsSavingAnnotation);
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
   );
@@ -165,7 +159,7 @@ const ControlPanel = () => {
       })
     );
     dispatch(
-      saveAnnotationStateManager({
+      setAnnotationStateManager({
         imageName: annotationImagesProperty.image.name,
         drawObjectById: drawObjectById,
       })
@@ -184,7 +178,7 @@ const ControlPanel = () => {
   };
   const importDaita = async (acceptedFile: File) => {
     const { annotationImagesProperty, drawObjectById } =
-      await importAnnotationDaita(acceptedFile);
+      await importFileAnnotationDaita(acceptedFile);
     Object.entries(drawObjectById).map(([key, value]) => {
       drawObjectById[key] = updateDrawObject(value);
     });
@@ -194,7 +188,7 @@ const ControlPanel = () => {
       })
     );
     dispatch(
-      saveAnnotationStateManager({
+      setAnnotationStateManager({
         imageName: annotationImagesProperty.image.name,
         drawObjectById: drawObjectById,
       })
@@ -231,7 +225,6 @@ const ControlPanel = () => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       const snapImportType = importType;
       for (const acceptedFile of acceptedFiles) {
-        console.log("importType", importType);
         if (snapImportType === "LABEL_ME") {
           importLabelMe(acceptedFile);
         } else if (snapImportType === "SCALE_AI") {
@@ -263,6 +256,16 @@ const ControlPanel = () => {
     setAnchorEl(null);
   };
 
+  const handleSaveAnnotation = () => {
+    if (currentPreviewImageName) {
+      dispatch(
+        saveAnnotationStateManager({
+          imageName: currentPreviewImageName,
+          drawObjectById,
+        })
+      );
+    }
+  };
   const renderPopupContent = () => {
     if (anchorEl?.id === "import") {
       return (
@@ -457,6 +460,18 @@ const ControlPanel = () => {
           >
             {renderPopupContent()}
           </Popover>
+        </Box>
+        <Box display="flex" flex={1} justifyContent="center">
+          <LoadingButton
+            onClick={handleSaveAnnotation}
+            endIcon={<SaveIcon />}
+            loading={isSavingAnnotation}
+            loadingPosition="end"
+            variant="contained"
+            color="success"
+          >
+            Save
+          </LoadingButton>
         </Box>
       </Box>
     </>

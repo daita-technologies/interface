@@ -1,6 +1,9 @@
 import { Box, Button, Container, Typography } from "@mui/material";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
-import { ANNOTATION_PROJECT_ROUTE_NAME } from "constants/routeName";
+import {
+  ANNOTATION_PROJECT_DETAIL_ROUTE_NAME,
+  ANNOTATION_PROJECT_ROUTE_NAME,
+} from "constants/routeName";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
@@ -24,7 +27,7 @@ const ProjectItem = function ({ projectInfo }: AnnotationProjectItemProps) {
   };
   const handleOnClickProjectItem = () => {
     history.push(
-      `/${ANNOTATION_PROJECT_ROUTE_NAME}/${projectInfo.project_name}`
+      `/${ANNOTATION_PROJECT_DETAIL_ROUTE_NAME}/${projectInfo.project_name}`
     );
   };
   return (

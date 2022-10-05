@@ -10,8 +10,11 @@ export interface AnnotationFormatter {
   image_path: string;
   annotations: Annotation[];
 }
-export interface AnnotationImportInfo {
+export interface FileAndAnnotationImportInfo {
   annotationImagesProperty: AnnotationImagesProperty;
+  drawObjectById: Record<string, DrawObject>;
+}
+export interface AnnotationImportInfo {
   drawObjectById: Record<string, DrawObject>;
 }
 export const ID_2_LABEL_DAITA: Record<number, string> = {

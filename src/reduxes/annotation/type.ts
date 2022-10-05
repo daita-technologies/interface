@@ -1,6 +1,5 @@
 import {
   DrawObjectType,
-  Label,
   LabelClassProperties,
 } from "components/Annotation/Editor/type";
 import { KonvaEventObject } from "konva/lib/Node";
@@ -103,5 +102,5 @@ export interface SetLockDrawObecjtPayload {
   isLock: boolean;
 }
 export interface SetLockDetectedAreaPayload {
-detectedArea: DetectedAreaType | null;
+  detectedArea: DetectedAreaType | null;
 }

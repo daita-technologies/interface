@@ -83,6 +83,8 @@ export const SYSTEM_DATE_FORMAT = "YYYY/MM/DD";
 export const SYSTEM_TIME_FORMAT = "HH:mm:ss";
 
 export const VIEW_ALBUM_PAGE_SIZE = 10;
+export const FETCH_ANNOTATION_NUM_FILE_LIMIT = 1000;
+
 export const MAXIMUM_FETCH_IMAGES_AMOUNT = 1000;
 
 export const ORIGINAL_IMAGES_TAB = 0;

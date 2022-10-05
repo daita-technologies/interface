@@ -188,9 +188,12 @@ const annotationReducer = (
     }
     case RESET_CURRENT_STATE_DRAW_OBJECT: {
       const { drawObjectById } = payload as ResetCurrentStateDrawObjectPayload;
+      if (!drawObjectById) {
+        return state;
+      }
       const drawObjectStateById: Record<string, DrawObjectState> = {};
       Object.keys(drawObjectById).forEach((key) => {
-        drawObjectStateById[key] = { isHidden: true };
+        drawObjectStateById[key] = { isHidden: false };
       });
       return {
         ...state,

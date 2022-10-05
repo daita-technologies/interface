@@ -50,7 +50,7 @@ export const createAnnotationFormatter = (
   };
   return annotationFormatter;
 };
-export interface AnnotationImportInfo {
+export interface FileAndAnnotationImportInfo {
   annotationImagesProperty: AnnotationImagesProperty;
   drawObjectById: Record<string, DrawObject>;
 }

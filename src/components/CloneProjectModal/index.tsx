@@ -13,13 +13,14 @@ import { modalCloseStyle, modalStyle } from "styles/generalStyle";
 import { CloneProjectToAnnotationFields } from "./type";
 
 import { MyButton } from "components";
-import { RootState } from "reduxes";
 import {
   cloneProjectToAnnotation,
   setShowDialogCloneProjectToAnnotation,
 } from "reduxes/annotationProject/action";
-import { selectorDialogCloneProjectToAnnotation } from "reduxes/annotationProject/selector";
-import annotationProject from "routes/AnnotationProject";
+import {
+  selectorDialogCloneProjectToAnnotation,
+  selectorIsCloningProjectToAnnotation,
+} from "reduxes/annotationProject/selector";
 
 const CloneProjectModal = function () {
   const dispatch = useDispatch();
@@ -39,9 +40,7 @@ const CloneProjectModal = function () {
     },
   });
 
-  const isLoading = useSelector(
-    (state: RootState) => state.projectReducer.isCreatingProject
-  );
+  const isLoading = useSelector(selectorIsCloningProjectToAnnotation);
   const onSubmit = (fields: CloneProjectToAnnotationFields) => {
     dispatch(
       cloneProjectToAnnotation({
@@ -75,7 +74,7 @@ const CloneProjectModal = function () {
           Clone Project To Annotation
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-          <Typography variant="h5" component="h5">
+          <Typography variant="h6" component="h6">
             {`From '${dialogCloneProjectToAnnotation.projectName}'`}
           </Typography>
           <Input

@@ -7,6 +7,12 @@ export const selectorAnnotationCurrentProjectName = (state: RootState) =>
 export const selectorDialogCloneProjectToAnnotation = (state: RootState) =>
   state.annotationProjectReducer.dialogCloneProjectToAnnotation;
 export const selectorAnnotationCurrentProject = (state: RootState) =>
-  state.annotationProjectReducer.listProjects.find(
-    (t) => t.project_name == state.annotationProjectReducer.currentProjectName
-  );
+  state.annotationProjectReducer.currentProjectInfo;
+export const selectorIsCloningProjectToAnnotation = (state: RootState) =>
+  state.annotationProjectReducer.isCloningProjectToAnnotation;
+export const selectorIsFetchingDetailAnnotationProject = (state: RootState) =>
+  state.annotationProjectReducer.isFetchingDetailProject;
+export const selectorCurrentAnnotationAndFileInfo = (state: RootState) =>
+  state.annotationProjectReducer.currentAnnotationAndFileInfo;
+export const selectorCurrentAnnotationFiles = (state: RootState) =>
+  state.annotationProjectReducer.currentAnnotationFiles;

@@ -12,7 +12,7 @@ export interface NavItemType extends BaseNavItemType {
   subNav?: Array<NavItemType>;
 }
 export interface NavProjectItemType extends BaseNavItemType {
-  subNav?: Array<ApiListProjectsItem>;
+  subNav?: Array<Pick<ApiListProjectsItem, "project_name" | "project_id">>;
 }
 
 export interface NavItemProps extends NavItemType {

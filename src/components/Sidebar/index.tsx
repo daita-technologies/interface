@@ -33,10 +33,12 @@ import { InviteFriendModal } from "components";
 import CloneProjectModal from "components/CloneProjectModal";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
 import {
+  ANNOTATION_PROJECT_DETAIL_ROUTE_NAME,
   ANNOTATION_PROJECT_ROUTE_NAME,
   DATASET_HEALTH_CHECK_ROUTE_NAME,
   MY_TASKS_ROUTE_NAME,
 } from "constants/routeName";
+import { fetchListAnnotationProjects } from "reduxes/annotationProject/action";
 import { selectorAnnotationCurrentProjectName } from "reduxes/annotationProject/selector";
 import { LOG_OUT } from "reduxes/auth/constants";
 import { setIsOpenInviteFriend } from "reduxes/invite/action";
@@ -44,7 +46,6 @@ import {
   FETCH_LIST_PROJECTS,
   SET_IS_OPEN_CREATE_PROJECT_MODAL,
 } from "reduxes/project/constants";
-import { ApiListProjectsItem } from "reduxes/project/type";
 import { getLocalStorage } from "utils/general";
 import AvatarProfile from "./AvatarProfile";
 import {
@@ -116,7 +117,7 @@ const NavProjectItem = function (props: NavProjectItemProps) {
   const renderListProjects = () => {
     if (isFetchingProjects === false) {
       if (subNav && subNav.length > 0) {
-        return subNav.map((projectInfo: ApiListProjectsItem) => (
+        return subNav.map((projectInfo) => (
           <NavRow
             key={`sub-nav-${projectInfo.project_id}`}
             name={projectInfo.project_name}
@@ -202,12 +203,12 @@ const NavAnnotationProjectItem = function (props: NavProjectItemProps) {
   const renderListProjects = () => {
     if (isFetchingProjects === false) {
       if (subNav && subNav.length > 0) {
-        return subNav.map((projectInfo: ApiListProjectsItem) => (
+        return subNav.map((projectInfo) => (
           <NavRow
             key={`sub-nav-${projectInfo.project_id}`}
             name={projectInfo.project_name}
             Icon={FolderOpenIcon}
-            to={`/project/${projectInfo.project_name}`}
+            to={`/${ANNOTATION_PROJECT_DETAIL_ROUTE_NAME}/${projectInfo.project_name}`}
             isActived={currentProjectName === projectInfo.project_name}
             isSubNav
           />
@@ -313,6 +314,9 @@ const Sidebar = function () {
   const listProjects = useSelector(
     (state: RootState) => state.projectReducer.listProjects
   );
+  const annotationListProjects = useSelector(
+    (state: RootState) => state.annotationProjectReducer.listProjects
+  );
 
   const { pathname } = useLocation();
 
@@ -322,6 +326,9 @@ const Sidebar = function () {
         type: FETCH_LIST_PROJECTS.REQUESTED,
         payload: { idToken: getLocalStorage(ID_TOKEN_NAME) },
       });
+      dispatch(
+        fetchListAnnotationProjects({ idToken: getLocalStorage(ID_TOKEN_NAME) })
+      );
     }
   }, [isLogged]);
 
@@ -359,7 +366,7 @@ const Sidebar = function () {
               isActive={pathname.indexOf(DATASET_HEALTH_CHECK_ROUTE_NAME) > -1}
             />
             <NavItem
-              name="Annotation"
+              name="Annotation Dashboard"
               Icon={CommentBankIcon}
               to={`/${ANNOTATION_PROJECT_ROUTE_NAME}`}
             />
@@ -367,7 +374,7 @@ const Sidebar = function () {
             <NavAnnotationProjectItem
               name="My Annotation Project"
               Icon={CommentBankIcon}
-              subNav={listProjects}
+              subNav={annotationListProjects}
             />
             <NavItem
               name="My Tasks"

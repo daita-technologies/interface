@@ -1,4 +1,6 @@
 import {
+  ANNOTATION_EDITOR_ROUTE_NAME,
+  ANNOTATION_PROJECT_DETAIL_ROUTE_NAME,
   ANNOTATION_PROJECT_ROUTE_NAME,
   DATASET_HEALTH_CHECK_ROUTE_NAME,
   MY_TASKS_ROUTE_NAME,
@@ -71,10 +73,16 @@ export const customLayoutRouteConfig = [
 ];
 export const emptyLayoutRouteConfig = [
   {
-    path: "/annotation",
+    path: `/${ANNOTATION_EDITOR_ROUTE_NAME}/:projectName/:fileName`,
     component: AnnotationPage,
     exact: true,
-    isPrivate: false,
+    isPrivate: true,
+  },
+  {
+    path: `/${ANNOTATION_EDITOR_ROUTE_NAME}/:projectName`,
+    component: AnnotationPage,
+    exact: true,
+    isPrivate: true,
   },
 ];
 const routeConfig = [
@@ -176,7 +184,7 @@ const routeConfig = [
     isPrivate: true,
   },
   {
-    path: `/${ANNOTATION_PROJECT_ROUTE_NAME}/:projectName`,
+    path: `/${ANNOTATION_PROJECT_DETAIL_ROUTE_NAME}/:projectName`,
     component: AnnotationProjectDetail,
     exact: true,
     isPrivate: true,

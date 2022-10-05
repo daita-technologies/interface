@@ -11,11 +11,11 @@ import { createPolygon } from "routes/AnnotationPage/Editor/Hook/usePolygonEvent
 import { createRectangle } from "routes/AnnotationPage/Editor/Hook/useRectangleEvent";
 import {
   AnnotationFormatter,
-  AnnotationImportInfo,
   CircleFormatter,
   convertLabelMeFormatToBase64,
   createAnnotationFormatter,
   EllipseFormatter,
+  FileAndAnnotationImportInfo,
   PolygonFormatter,
   RectangleFormatter,
   Shape,
@@ -45,8 +45,10 @@ export const exportAnnotation = (
   };
 };
 
-export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
-  return new Promise<AnnotationImportInfo>((resolve) => {
+export const importAnnotation = (
+  file: File
+): Promise<FileAndAnnotationImportInfo> => {
+  return new Promise<FileAndAnnotationImportInfo>((resolve) => {
     const reader = new FileReader();
     reader.readAsText(file);
     const drawObjectById: Record<string, DrawObject> = {};
@@ -114,7 +116,6 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
                   const disX = points[1][0] - points[0][0];
                   const disY = points[1][1] - points[0][1];
                   const radius = Math.sqrt(Math.abs(disX * disX - disY * disY));
-                  console.log("import circel", radius, points);
 
                   drawObjectById[drawObject.data.id] = {
                     type: drawObject.type,

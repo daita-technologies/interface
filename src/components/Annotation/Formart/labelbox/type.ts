@@ -32,7 +32,7 @@ export const createAnnotationFormatter = (labelBox: LabelLabelBox) => {
   };
   return annotationFormatter;
 };
-export interface AnnotationImportInfo {
+export interface FileAndAnnotationImportInfo {
   annotationImagesProperty: AnnotationImagesProperty;
   drawObjectById: Record<string, DrawObject>;
 }

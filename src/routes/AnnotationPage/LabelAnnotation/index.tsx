@@ -17,6 +17,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
+import { LabelClassProperties } from "components/Annotation/Editor/type";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteDrawObject,
@@ -37,9 +38,21 @@ import {
   selectorDialogClassManageModal,
   selectorLabelClassPropertiesByLabelClass,
 } from "reduxes/annotationmanager/selecetor";
-import ClassLabel from "./ClassLabel";
+import ClassLabel, { convertStrokeColorToFillColor } from "./ClassLabel";
 import ClassManageModel from "./ClassManageModal";
 
+export const hashCode = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return hash;
+};
+
+export const intToRGB = (i: number) => {
+  const c = (i & 0x00ffffff).toString(16).toUpperCase();
+  return "00000".substring(0, 6 - c.length) + c;
+};
 const LabelAnnotation = function () {
   const dispatch = useDispatch();
   const drawObjectById = useSelector(selectorDrawObjectById);
@@ -95,7 +108,19 @@ const LabelAnnotation = function () {
   };
   const dialogClassManageModal = useSelector(selectorDialogClassManageModal);
   const drawObjectStateById = useSelector(selectorDrawObjectStateById);
-
+  const getBackgroundColor = (labelClassProperties: LabelClassProperties) => {
+    if (labelClassProperties) {
+      if (labelClassProperties?.cssStyle?.stroke) {
+        return labelClassProperties.cssStyle.stroke;
+      }
+      if (labelClassProperties.label?.label) {
+        return convertStrokeColorToFillColor(
+          "#" + intToRGB(hashCode(labelClassProperties.label.label))
+        );
+      }
+    }
+    return "gray";
+  };
   return (
     <Box
       sx={{
@@ -185,9 +210,7 @@ const LabelAnnotation = function () {
                 <ListItemAvatar>
                   <Avatar
                     sx={{
-                      backgroundColor: labelClassProperties?.cssStyle?.stroke
-                        ? labelClassProperties.cssStyle.stroke
-                        : "gray",
+                      backgroundColor: getBackgroundColor(labelClassProperties),
                       width: 40,
                       height: 40,
                     }}

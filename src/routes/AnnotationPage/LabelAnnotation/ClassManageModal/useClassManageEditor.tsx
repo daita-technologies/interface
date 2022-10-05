@@ -88,11 +88,9 @@ const useClassManageEditor = function (): ClassManageDialogProps {
       </Popover>
     );
   };
-  console.log("openPickColor", openPickColor, anchorEl);
   const handleClickShowPickColor = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
-    console.log("handleClickShowPickColor", event.currentTarget);
     setAnchorEl(event.currentTarget);
     event.stopPropagation();
     event.preventDefault();

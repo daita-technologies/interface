@@ -7,6 +7,8 @@ export interface AnnotationManagerReducer {
   currentPreviewImageName: string | null;
   labelClassPropertiesByLabelClass: Record<string, LabelClassProperties>;
   dialogClassManageModal: ClassManageModalProps;
+  isFetchingImageData: boolean;
+  isSavingAnnotation: boolean;
 }
 export type ClassManageModalType = "VIEW" | "CREATE" | "EDIT";
 
@@ -41,4 +43,14 @@ export interface AddNewClassLabelProps {
 export interface EditClassLabelProps {
   label: string;
   labelClassProperties: LabelClassProperties;
+}
+export interface EditClassManageModalProps {
+  className: string;
+}
+export interface FetchingFileAndAnnotaitonProps {
+  filename: string;
+  fileId: string;
+  categoryId: string;
+  s3keyLabel: string;
+  s3keyFile: string;
 }
