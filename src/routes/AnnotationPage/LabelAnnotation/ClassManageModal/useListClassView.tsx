@@ -87,7 +87,7 @@ const useListClassView = function (): ClassManageDialogProps {
   const content = (
     <Box p={2}>
       <Box display="flex" flexDirection="column">
-        {Object.entries(labelClassPropertiesByLabelClass).map(
+        {Object.entries(labelClassPropertieusByLabelClass).map(
           ([labelName, value]) => {
             const { label, cssStyle } = value;
             return (

@@ -163,8 +163,7 @@ export interface RectangleProps {
   onMouseOutHandler: (e: KonvaEventObject<MouseEvent>) => void;
 }
 export interface PolygonProps {
-  // spec: PolygonSpec;
-  id: string;
+  spec: PolygonSpec;
   onMouseOverHandler: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseOutHandler: (e: KonvaEventObject<MouseEvent>) => void;
 }
