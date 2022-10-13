@@ -14,21 +14,23 @@ import {
 import {
   selectorCurrentDrawState,
   selectorDetectedArea,
+  selectorDrawObject,
   selectorDrawObjectState,
   selectorSelectedPolygonOrLineStrip,
   selectorZoom,
 } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS, STROKE_WIDTH_LINE } from "../const";
-import { CssStyle, PolygonProps } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 import { dragBoundFunc, minMax } from "../utils";
+import { CssStyle, PolygonProps, PolygonSpec } from "../type";
 
 const Polygon = ({
-  spec,
+  id,
   onMouseOverHandler,
   onMouseOutHandler,
 }: PolygonProps) => {
+  const spec = useSelector(selectorDrawObject(id)).data as PolygonSpec;
   const {
     points,
     polygonState: { isFinished, isLineStrip },

@@ -158,17 +158,17 @@ export const initialEllipses: Record<string, EllipseSpec> = {
   },
 };
 export interface RectangleProps {
-  spec: RectangleSpec;
+  id: string;
   onMouseOverHandler: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseOutHandler: (e: KonvaEventObject<MouseEvent>) => void;
 }
 export interface PolygonProps {
-  spec: PolygonSpec;
+  id: string;
   onMouseOverHandler: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseOutHandler: (e: KonvaEventObject<MouseEvent>) => void;
 }
 export interface EllipseProps {
-  spec: EllipseSpec;
+  id: string;
   onMouseOverHandler: (e: KonvaEventObject<MouseEvent>) => void;
   onMouseOutHandler: (e: KonvaEventObject<MouseEvent>) => void;
 }

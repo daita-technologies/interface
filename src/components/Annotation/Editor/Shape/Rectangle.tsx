@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
+  selectorDrawObject,
   selectorDrawObjectState,
   selectorSelectedRectangle,
 } from "reduxes/annotation/selector";
@@ -17,10 +18,11 @@ import { RectangleProps, RectangleSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 
 const Rectangle = function ({
-  spec,
+  id,
   onMouseOverHandler,
   onMouseOutHandler,
 }: RectangleProps) {
+  const spec = useSelector(selectorDrawObject(id)).data as RectangleSpec;
   const shapeRef = React.useRef<Konva.Rect>(null);
   const trRef = React.useRef<any>(null);
   const dispatch = useDispatch();

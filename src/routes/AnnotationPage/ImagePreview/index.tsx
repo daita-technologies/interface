@@ -61,9 +61,13 @@ const ImagePreview = function () {
 
     // createFile(
     //   "1.jpg",
-    //   "https://f7-zpcloud.zdn.vn/2032817614772808517/f87fb43ff58a37d46e9b.jpg"
+    //   "https://annotaion-test-image.s3.us-east-2.amazonaws.com/20180810150607_camera_frontcenter_000000083.png"
     // ).then((image: File) => {
-    //   dispatch(addImagesToAnnotation({ images: [image] }));
+    //   dispatch(
+    //     addImagesToAnnotation({
+    //       annotationImagesProperties: [{ image, width: 1920, height: 1280 }],
+    //     })
+    //   );
     //   dispatch(changePreviewImage({ imageName: image.name }));
     // });
     // createFile(

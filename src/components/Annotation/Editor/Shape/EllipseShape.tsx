@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
+  selectorDrawObject,
   selectorDrawObjectState,
   selectorSelectedEllipse,
 } from "reduxes/annotation/selector";
@@ -17,10 +18,11 @@ import { EllipseProps, EllipseSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 
 const EllipseShape = function ({
-  spec,
+  id,
   onMouseOverHandler,
   onMouseOutHandler,
 }: EllipseProps) {
+  const spec = useSelector(selectorDrawObject(id)).data as EllipseSpec;
   const shapeRef = React.useRef<Konva.Ellipse>(null);
   const trRef = React.useRef<any>(null);
   const dispatch = useDispatch();
