@@ -14,15 +14,13 @@ import {
 } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
-import { RectangleProps, RectangleSpec } from "../type";
+import { RectangleCompProps, RectangleProps, RectangleSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
-
-const Rectangle = function ({
-  id,
+const RectangleComp = ({
+  spec,
   onMouseOverHandler,
   onMouseOutHandler,
-}: RectangleProps) {
-  const spec = useSelector(selectorDrawObject(id)).data as RectangleSpec;
+}: RectangleCompProps) => {
   const shapeRef = React.useRef<Konva.Rect>(null);
   const trRef = React.useRef<any>(null);
   const dispatch = useDispatch();
@@ -152,5 +150,22 @@ const Rectangle = function ({
       )}
     </React.Fragment>
   );
+};
+const Rectangle = function ({
+  id,
+  onMouseOverHandler,
+  onMouseOutHandler,
+}: RectangleProps) {
+  const drawObject = useSelector(selectorDrawObject(id));
+  if (drawObject) {
+    return (
+      <RectangleComp
+        spec={drawObject.data as RectangleSpec}
+        onMouseOutHandler={onMouseOutHandler}
+        onMouseOverHandler={onMouseOverHandler}
+      />
+    );
+  }
+  return <></>;
 };
 export default Rectangle;

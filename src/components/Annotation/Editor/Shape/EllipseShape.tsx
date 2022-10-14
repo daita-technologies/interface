@@ -14,15 +14,14 @@ import {
 } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
-import { EllipseProps, EllipseSpec } from "../type";
+import { EllipseCompProps, EllipseProps, EllipseSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 
-const EllipseShape = function ({
-  id,
+const EllipseComp = function ({
+  spec,
   onMouseOverHandler,
   onMouseOutHandler,
-}: EllipseProps) {
-  const spec = useSelector(selectorDrawObject(id)).data as EllipseSpec;
+}: EllipseCompProps) {
   const shapeRef = React.useRef<Konva.Ellipse>(null);
   const trRef = React.useRef<any>(null);
   const dispatch = useDispatch();
@@ -151,5 +150,22 @@ const EllipseShape = function ({
       )}
     </React.Fragment>
   );
+};
+const EllipseShape = function ({
+  id,
+  onMouseOverHandler,
+  onMouseOutHandler,
+}: EllipseProps) {
+  const drawObject = useSelector(selectorDrawObject(id));
+  if (drawObject) {
+    return (
+      <EllipseComp
+        spec={drawObject.data as EllipseSpec}
+        onMouseOutHandler={onMouseOutHandler}
+        onMouseOverHandler={onMouseOverHandler}
+      />
+    );
+  }
+  return <></>;
 };
 export default EllipseShape;

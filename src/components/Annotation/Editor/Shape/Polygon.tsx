@@ -21,16 +21,15 @@ import {
 } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS, STROKE_WIDTH_LINE } from "../const";
+import { CssStyle, PolygonCompProps, PolygonProps, PolygonSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 import { dragBoundFunc, minMax } from "../utils";
-import { CssStyle, PolygonProps, PolygonSpec } from "../type";
 
-const Polygon = ({
-  id,
+const PolygonComp = ({
+  spec,
   onMouseOverHandler,
   onMouseOutHandler,
-}: PolygonProps) => {
-  const spec = useSelector(selectorDrawObject(id)).data as PolygonSpec;
+}: PolygonCompProps) => {
   const {
     points,
     polygonState: { isFinished, isLineStrip },
@@ -405,6 +404,23 @@ const Polygon = ({
         renderPoints()}
     </Group>
   );
+};
+const Polygon = ({
+  id,
+  onMouseOverHandler,
+  onMouseOutHandler,
+}: PolygonProps) => {
+  const drawObject = useSelector(selectorDrawObject(id));
+  if (drawObject) {
+    return (
+      <PolygonComp
+        spec={drawObject.data as PolygonSpec}
+        onMouseOutHandler={onMouseOutHandler}
+        onMouseOverHandler={onMouseOverHandler}
+      />
+    );
+  }
+  return <></>;
 };
 
 export default Polygon;

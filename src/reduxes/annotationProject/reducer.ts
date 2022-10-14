@@ -1,7 +1,7 @@
 import {
   CLONE_PROJECT_TO_ANNOTATION,
-  FETCH_ANNOTATION_FILES,
   FETCH_ANNOTATION_AND_FILE_INFO,
+  FETCH_ANNOTATION_FILES,
   FETCH_DETAIL_ANNOTATION_PROJECT,
   FETCH_LIST_ANNOTATION_PROJECTS,
   SET_CURRENT_ANNOTATION_PROJECT,
@@ -10,7 +10,6 @@ import {
 import {
   AnnotationFilesApi,
   AnnotationProjectReducer,
-  FetchDetailAnnotationProjectsProps,
   SetCurrentAnnotationProjectProps,
   SetDialogCloneProjectToAnnotationProps,
 } from "./type";
@@ -138,10 +137,6 @@ const annotationProjectReducer = (
     case FETCH_DETAIL_ANNOTATION_PROJECT.FAILED:
       return { ...state, isFetchingDetailProject: false };
     case FETCH_ANNOTATION_AND_FILE_INFO.SUCCEEDED:
-      console.log(
-        " payload.currentAnnotationAndFileInfo",
-        payload.currentAnnotationAndFileInfo
-      );
       return {
         ...state,
         currentAnnotationAndFileInfo: payload.currentAnnotationAndFileInfo,

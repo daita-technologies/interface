@@ -227,7 +227,12 @@ const Editor = () => {
       dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
     }
   };
-
+  const polygons = useMemo(() => {
+    return {
+      ...drawObjects.polygons,
+      ...drawObjects.linestrips,
+    };
+  }, [drawObjects.polygons]);
   const wheelHandler = (e: KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
     const ref = layer;
@@ -424,10 +429,7 @@ const Editor = () => {
                           />
                         );
                       })}
-                      {Object.keys({
-                        ...drawObjects.polygons,
-                        ...drawObjects.linestrips,
-                      }).map((key) => {
+                      {Object.keys(polygons).map((key) => {
                         return (
                           <Polygon
                             key={key}

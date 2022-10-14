@@ -159,9 +159,9 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
     //   selectorAnnotationCurrentProject
     // );
     let annotation: ResetCurrentStateDrawObjectPayload = { drawObjectById: {} };
-    if (label_info && label_info.length > 0) {
+    if (label_info && label_info) {
       const annotationTmp = yield handleGetAnnotationFile(
-        label_info[0].s3key_jsonlabel
+        label_info.s3key_jsonlabel
       );
       if (annotationTmp) {
         annotation = annotationTmp;
