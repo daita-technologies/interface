@@ -4,17 +4,13 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Layer, Rect, Stage, Text } from "react-konva";
 
+import { CircularProgress } from "@mui/material";
 import { Ellipse, Polygon, Rectangle } from "components/Annotation";
 import {
   MAX_HEIGHT_IMAGE_IN_EDITOR,
   MAX_WIDTH_IMAGE_IN_EDITOR,
 } from "components/Annotation/Editor/const";
-import {
-  DrawObjectType,
-  EllipseSpec,
-  PolygonSpec,
-  RectangleSpec,
-} from "components/Annotation/Editor/type";
+import { PolygonSpec } from "components/Annotation/Editor/type";
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
 import {
@@ -50,7 +46,6 @@ import BaseImage from "./BaseImage";
 import useEllipseEvent from "./Hook/useElipseEvent";
 import usePolygonEvent from "./Hook/usePolygonEvent";
 import useRectangleEvent from "./Hook/useRectangleEvent";
-import { CircularProgress } from "@mui/material";
 
 const Editor = () => {
   const dispatch = useDispatch();

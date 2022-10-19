@@ -1,3 +1,8 @@
+import {
+  EllipseSpec,
+  PolygonSpec,
+  RectangleSpec,
+} from "components/Annotation/Editor/type";
 import { DrawObject } from "reduxes/annotation/type";
 import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
 
@@ -5,7 +10,27 @@ export interface Annotation {
   coordinates: number[][];
   category_id: number;
 }
-
+export type ShapeSpec = RectangleShape | PolygonShape | EllipseShape;
+export enum ShapeType {
+  RECTANGLE,
+  POLYGON,
+  ELLIPSE,
+  LINE_STRIP,
+}
+export interface Shape {
+  shapeSpec: ShapeSpec;
+  shapeType: ShapeType;
+  categoryId: number;
+}
+export type RectangleShape = Pick<
+  RectangleSpec,
+  "width" | "height" | "x" | "y"
+>;
+export type EllipseShape = Pick<EllipseSpec, "radiusX" | "radiusY" | "x" | "y">;
+export type PolygonShape = Pick<PolygonSpec, "points">;
+export interface AnnotationDaitaFormatter {
+  shapes: Shape[];
+}
 export interface AnnotationFormatter {
   image_path: string;
   annotations: Annotation[];

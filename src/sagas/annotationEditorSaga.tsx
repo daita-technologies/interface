@@ -241,7 +241,7 @@ function* handleSaveAnnotationStateManager(action: any): any {
     const filename = splitKey.join("") + ".json";
     s3key_jsonlabel = annotationCurrentProject.s3_label + "/" + filename;
   }
-  const json = exportAnnotationToJson(drawObjectById, imageName);
+  const json = exportAnnotationToJson(drawObjectById);
   const { bucketName, key } = getKeyS3(s3key_jsonlabel);
 
   const uploadParams = {
