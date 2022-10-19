@@ -166,21 +166,25 @@ export const convert = (
         shape_type: "rectangle",
         label: label.label,
       });
-    } else if (value.type === DrawType.POLYGON) {
+    } else if (
+      value.type === DrawType.POLYGON ||
+      value.type === DrawType.LINE_STRIP
+    ) {
       const { points, label } = value.data as PolygonSpec;
       shape.push({
         points: points.map((point) => [point.x, point.y]) as PolygonFormatter,
-        shape_type: "polygon",
-        label: label.label,
-      });
-    } else if (value.type === DrawType.ELLIPSE) {
-      const { x, y, radiusX, radiusY, label } = value.data as EllipseSpec;
-      shape.push({
-        points: { x, y, radiusX, radiusY } as EllipseFormatter,
-        shape_type: "ellipse",
+        shape_type: value.type === DrawType.POLYGON ? "polygon" : "linestrip",
         label: label.label,
       });
     }
+    // else if (value.type === DrawType.ELLIPSE) {
+    //   const { x, y, radiusX, radiusY, label } = value.data as EllipseSpec;
+    //   shape.push({
+    //     points: { x, y, radiusX, radiusY } as EllipseFormatter,
+    //     shape_type: "ellipse",
+    //     label: label.label,
+    //   });
+    // }
   }
   return shape;
 };
