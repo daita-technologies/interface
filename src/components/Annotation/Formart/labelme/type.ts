@@ -13,6 +13,7 @@ export type ShapeType =
   | "polygon"
   | "ellipse"
   | "circle"
+  | "line"
   | "linestrip";
 export interface Shape {
   points: points;
