@@ -53,6 +53,13 @@ const PolygonComp = ({
       : null;
   }, [currentpolygon]);
   useEffect(() => {
+    if (isSelected == true) {
+      groupRef.current?.moveToTop();
+      console.log("moveToTop");
+    }
+  }, [isSelected]);
+
+  useEffect(() => {
     if (detectedArea) {
       const polygonRect = groupRef.current?.getClientRect();
       if (polygonRect) {
@@ -377,7 +384,6 @@ const PolygonComp = ({
   useEffect(() => {
     setLineStyle({ ...spec.cssStyle, strokeWidth: STROKE_WIDTH_LINE });
   }, [spec.cssStyle]);
-
   return (
     <Group
       ref={groupRef}

@@ -2,7 +2,7 @@ import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Box } from "konva/lib/shapes/Transformer";
 import { Vector2d } from "konva/lib/types";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Rect, Transformer } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
@@ -36,6 +36,11 @@ const RectangleComp = ({
   const isSelected = useMemo(() => {
     return currentRectangle != null && spec.id === currentRectangle.id;
   }, [currentRectangle?.id]);
+  useEffect(() => {
+    if (isSelected == true) {
+      shapeRef.current?.moveToTop();
+    }
+  }, [isSelected]);
   const onChange = (rect: RectangleSpec) => {
     dispatch(
       updateDrawObject({

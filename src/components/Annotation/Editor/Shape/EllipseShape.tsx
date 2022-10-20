@@ -2,7 +2,7 @@ import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Box } from "konva/lib/shapes/Transformer";
 import { Vector2d } from "konva/lib/types";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Ellipse, Transformer } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
@@ -37,6 +37,11 @@ const EllipseComp = function ({
   const isSelected = useMemo(() => {
     return currentShape != null && spec.id === currentShape.id;
   }, [currentShape?.id]);
+  useEffect(() => {
+    if (isSelected == true) {
+      shapeRef.current?.moveToTop();
+    }
+  }, [isSelected]);
   const onChange = (rect: EllipseSpec) => {
     dispatch(
       updateDrawObject({
