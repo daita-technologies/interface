@@ -111,12 +111,32 @@ const annotationReducer = (
 
     case CREATE_DRAW_OBJECT: {
       const { drawObject } = payload as CreateDrawObjectPayload;
+      const { statehHistory } = state;
+      let newStateHistory = statehHistory;
+      if (
+        statehHistory.historyStep >= 0 &&
+        statehHistory.historyStep < statehHistory.stateHistoryItems.length
+      ) {
+        statehHistory.stateHistoryItems = statehHistory.stateHistoryItems.slice(
+          0,
+          statehHistory.historyStep
+        );
+      }
+      statehHistory.historyStep = statehHistory.stateHistoryItems.length + 1;
+      statehHistory.stateHistoryItems = [
+        ...statehHistory.stateHistoryItems,
+        {
+          drawObjectById: structuredClone(state.drawObjectById),
+        },
+      ];
+      newStateHistory = { ...statehHistory };
       return {
         ...state,
         drawObjectById: {
           ...state.drawObjectById,
           [drawObject.data.id]: drawObject,
         },
+        statehHistory: newStateHistory,
       };
     }
     case UPDATE_DRAW_OBJET: {

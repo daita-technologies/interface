@@ -55,7 +55,6 @@ const PolygonComp = ({
   useEffect(() => {
     if (isSelected == true) {
       groupRef.current?.moveToTop();
-      console.log("moveToTop");
     }
   }, [isSelected]);
 
