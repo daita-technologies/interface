@@ -11,7 +11,7 @@ import {
   SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   UNDO_DRAW_OBJECT,
-  UPDATE_DRAW_OBJET,
+  UPDATE_DRAW_OBJECT,
   UPDATE_LABEL_OF_DRAW_OBJECT,
 } from "./constants";
 import {
@@ -44,7 +44,7 @@ export const createDrawObject = (payload: CreateDrawObjectPayload) => ({
   payload,
 });
 export const updateDrawObject = (payload: UpdateDrawObjectPayload) => ({
-  type: UPDATE_DRAW_OBJET,
+  type: UPDATE_DRAW_OBJECT,
   payload,
 });
 

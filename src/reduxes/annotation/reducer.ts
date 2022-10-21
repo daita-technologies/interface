@@ -17,7 +17,7 @@ import {
   SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   UNDO_DRAW_OBJECT,
-  UPDATE_DRAW_OBJET,
+  UPDATE_DRAW_OBJECT,
   UPDATE_LABEL_OF_DRAW_OBJECT,
 } from "./constants";
 import {
@@ -36,6 +36,7 @@ import {
   SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
   SetSelectShapePayload,
+  StateHistory,
   UpdateDrawObjectPayload,
   UpdateLabelOfDrawObjectPayload,
 } from "./type";
@@ -82,6 +83,29 @@ const inititalState: AnnotationReducer = {
   drawObjectStateById: {},
   detectedArea: null,
 };
+const updateStateHistory = (
+  drawObjectById: Record<string, DrawObject>,
+  statehHistory: StateHistory
+) => {
+  let newStateHistory = { ...statehHistory };
+  if (
+    newStateHistory.historyStep >= 0 &&
+    newStateHistory.historyStep < newStateHistory.stateHistoryItems.length
+  ) {
+    newStateHistory.stateHistoryItems = newStateHistory.stateHistoryItems.slice(
+      0,
+      newStateHistory.historyStep
+    );
+  }
+  newStateHistory.historyStep = newStateHistory.stateHistoryItems.length + 1;
+  newStateHistory.stateHistoryItems = [
+    ...newStateHistory.stateHistoryItems,
+    {
+      drawObjectById: structuredClone(drawObjectById),
+    },
+  ];
+  return newStateHistory;
+};
 const annotationReducer = (
   state = inititalState,
   action: any
@@ -111,25 +135,10 @@ const annotationReducer = (
 
     case CREATE_DRAW_OBJECT: {
       const { drawObject } = payload as CreateDrawObjectPayload;
-      const { statehHistory } = state;
-      let newStateHistory = statehHistory;
-      if (
-        statehHistory.historyStep >= 0 &&
-        statehHistory.historyStep < statehHistory.stateHistoryItems.length
-      ) {
-        statehHistory.stateHistoryItems = statehHistory.stateHistoryItems.slice(
-          0,
-          statehHistory.historyStep
-        );
-      }
-      statehHistory.historyStep = statehHistory.stateHistoryItems.length + 1;
-      statehHistory.stateHistoryItems = [
-        ...statehHistory.stateHistoryItems,
-        {
-          drawObjectById: structuredClone(state.drawObjectById),
-        },
-      ];
-      newStateHistory = { ...statehHistory };
+      let newStateHistory = updateStateHistory(
+        state.drawObjectById,
+        state.statehHistory
+      );
       return {
         ...state,
         drawObjectById: {
@@ -139,27 +148,15 @@ const annotationReducer = (
         statehHistory: newStateHistory,
       };
     }
-    case UPDATE_DRAW_OBJET: {
+    case UPDATE_DRAW_OBJECT: {
       const { data } = payload as UpdateDrawObjectPayload;
       const drawObject = state.drawObjectById[data.id];
-      const { statehHistory } = state;
-      let newStateHistory = statehHistory;
+      let newStateHistory = state.statehHistory;
       if (state.currentDrawState !== DrawState.DRAWING) {
-        if (
-          statehHistory.historyStep >= 0 &&
-          statehHistory.historyStep < statehHistory.stateHistoryItems.length
-        ) {
-          statehHistory.stateHistoryItems =
-            statehHistory.stateHistoryItems.slice(0, statehHistory.historyStep);
-        }
-        statehHistory.historyStep = statehHistory.stateHistoryItems.length + 1;
-        statehHistory.stateHistoryItems = [
-          ...statehHistory.stateHistoryItems,
-          {
-            drawObjectById: structuredClone(state.drawObjectById),
-          },
-        ];
-        newStateHistory = { ...statehHistory };
+        newStateHistory = updateStateHistory(
+          state.drawObjectById,
+          state.statehHistory
+        );
       }
       return {
         ...state,
@@ -258,11 +255,19 @@ const annotationReducer = (
         } else {
           stateHistoryItems = [...state.statehHistory.stateHistoryItems];
         }
+        const undoDrawObjectById =
+          statehHistory.stateHistoryItems[state.statehHistory.historyStep - 1]
+            .drawObjectById;
+        Object.entries(undoDrawObjectById).map(([key, value]) => {
+          undoDrawObjectById[key].data = {
+            ...undoDrawObjectById[key].data,
+            label: state.drawObjectById[key].data.label,
+            cssStyle: state.drawObjectById[key].data.cssStyle,
+          };
+        });
         return {
           ...state,
-          drawObjectById:
-            statehHistory.stateHistoryItems[state.statehHistory.historyStep - 1]
-              .drawObjectById,
+          drawObjectById: undoDrawObjectById,
           statehHistory: {
             ...state.statehHistory,
             stateHistoryItems,
