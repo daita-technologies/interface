@@ -44,7 +44,7 @@ import {
 const inititalState: AnnotationReducer = {
   currentDrawType: DrawType.POLYGON,
   selectedDrawObjectId: null,
-  zoom: { zoom: 1, position: { x: 0, y: 0 } },
+  zoom: { zoom: 1.5, position: { x: 0, y: 0 } },
   // drawObjectById: (() => {
   //   const ret: Record<string, DrawObject> = {};
   //   Object.keys(initialRectangles).forEach((id) => {
@@ -219,6 +219,7 @@ const annotationReducer = (
         drawObjectById: { ...drawObjectById },
         zoom: { zoom: 1, position: { x: 0, y: 0 } },
         drawObjectStateById,
+        statehHistory: { historyStep: 0, stateHistoryItems: [] },
       };
     }
     case UPDATE_LABEL_OF_DRAW_OBJECT: {
