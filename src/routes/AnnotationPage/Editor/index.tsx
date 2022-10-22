@@ -264,6 +264,9 @@ const Editor = () => {
 
   const keyUpHandler = (): void => {
     setKeyDown(null);
+    if (currentDrawState === DrawState.ZOOMDRAGGING) {
+      dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
+    }
   };
   const keyDownHandler = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.ctrlKey && e.shiftKey && e.key == "Z") {
