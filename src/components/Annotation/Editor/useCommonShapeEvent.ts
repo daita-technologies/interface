@@ -7,6 +7,7 @@ import {
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
+  selectorIsDraggingViewport,
   selectorListDrawObjectLock,
 } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
@@ -19,8 +20,12 @@ const useCommonShapeEvent = ({
 }) => {
   const currentDrawState = useSelector(selectorCurrentDrawState);
   const listDrawObjectLock = useSelector(selectorListDrawObjectLock);
+  const isDraggingViewport = useSelector(selectorIsDraggingViewport);
+
   const isLock = useMemo(
-    () => listDrawObjectLock.indexOf(drawObject.id) !== -1,
+    () =>
+      listDrawObjectLock.indexOf(drawObject.id) !== -1 ||
+      isDraggingViewport === true,
     [listDrawObjectLock]
   );
   const dispatch = useDispatch();

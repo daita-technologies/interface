@@ -8,6 +8,7 @@ import {
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
+  SET_IS_DRAGGING_VIEW_PORT,
   SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   UNDO_DRAW_OBJECT,
@@ -22,6 +23,7 @@ import {
   DeleteDrawObjectPayload,
   ResetCurrentStateDrawObjectPayload,
   SetHiddenDrawObjectPayload,
+  SetIsDraggingViewportPayload,
   SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
   SetSelectShapePayload,
@@ -90,5 +92,11 @@ export const setLockDrawObject = (payload: SetLockDrawObecjtPayload) => ({
 });
 export const setDetectedArea = (payload: SetLockDetectedAreaPayload) => ({
   type: SET_DETECTED_AREA,
+  payload,
+});
+export const setIsDraggingViewpor = (
+  payload: SetIsDraggingViewportPayload
+) => ({
+  type: SET_IS_DRAGGING_VIEW_PORT,
   payload,
 });

@@ -33,6 +33,7 @@ export interface AnnotationReducer {
   drawObjectStateById: Record<string, DrawObjectState>;
   statehHistory: StateHistory;
   detectedArea: DetectedAreaType | null;
+  isDraggingViewport: boolean;
 }
 
 export interface DetectedAreaType {
@@ -103,4 +104,7 @@ export interface SetLockDrawObecjtPayload {
 }
 export interface SetLockDetectedAreaPayload {
   detectedArea: DetectedAreaType | null;
+}
+export interface SetIsDraggingViewportPayload {
+  isDraggingViewport: boolean;
 }

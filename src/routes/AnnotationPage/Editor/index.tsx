@@ -25,12 +25,14 @@ import {
   deleteDrawObject,
   redoDrawObject,
   setDetectedArea,
+  setIsDraggingViewpor,
   undoDrawObject,
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
   selectorcurrentDrawType,
   selectorDrawObjectById,
+  selectorIsDraggingViewport,
   selectorSelectedDrawObjectId,
   selectorZoom,
 } from "reduxes/annotation/selector";
@@ -69,6 +71,7 @@ const Editor = () => {
   const zoom = useSelector(selectorZoom);
   const [localDetectedArea, setLocalDetectedArea] =
     useState<DetectedAreaType | null>(null);
+  const isDraggingViewport = useSelector(selectorIsDraggingViewport);
 
   const toolTipLayer = useRef<Konva.Layer>(null);
   const toolTip = useRef<Konva.Text>(null);
@@ -289,8 +292,15 @@ const Editor = () => {
       }
     }
   };
-  const isDraggableStage = useMemo(() => {
-    return keyDown === " " ? true : false;
+
+  useEffect(() => {
+    if (keyDown === " ") {
+      dispatch(setIsDraggingViewpor({ isDraggingViewport: true }));
+    } else {
+      if (isDraggingViewport === true) {
+        dispatch(setIsDraggingViewpor({ isDraggingViewport: false }));
+      }
+    }
   }, [keyDown]);
   const mouseOverBoundDivHandler = () => {
     refBoundDiv.current?.focus();
@@ -396,7 +406,7 @@ const Editor = () => {
                       onMouseMove={mousemoveHandler}
                       onMouseDown={mousedownHandler}
                       onMouseUp={mouseupHandler}
-                      draggable={isDraggableStage}
+                      draggable={isDraggingViewport}
                       // dragBoundFunc={dragBoundFunc}
                     >
                       <BaseImage />

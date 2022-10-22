@@ -14,6 +14,7 @@ import {
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
+  SET_IS_DRAGGING_VIEW_PORT,
   SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   UNDO_DRAW_OBJECT,
@@ -33,6 +34,7 @@ import {
   DrawType,
   ResetCurrentStateDrawObjectPayload,
   SetHiddenDrawObjectPayload,
+  SetIsDraggingViewportPayload,
   SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
   SetSelectShapePayload,
@@ -82,6 +84,7 @@ const inititalState: AnnotationReducer = {
   statehHistory: { historyStep: 0, stateHistoryItems: [] },
   drawObjectStateById: {},
   detectedArea: null,
+  isDraggingViewport: false,
 };
 const updateStateHistory = (
   drawObjectById: Record<string, DrawObject>,
@@ -214,12 +217,9 @@ const annotationReducer = (
       });
       return {
         ...state,
-        currentDrawState: DrawState.FREE,
-        selectedDrawObjectId: null,
+        ...inititalState,
         drawObjectById: { ...drawObjectById },
-        zoom: { zoom: 1, position: { x: 0, y: 0 } },
         drawObjectStateById,
-        statehHistory: { historyStep: 0, stateHistoryItems: [] },
       };
     }
     case UPDATE_LABEL_OF_DRAW_OBJECT: {
@@ -340,6 +340,13 @@ const annotationReducer = (
       return {
         ...state,
         detectedArea,
+      };
+    }
+    case SET_IS_DRAGGING_VIEW_PORT: {
+      const { isDraggingViewport } = payload as SetIsDraggingViewportPayload;
+      return {
+        ...state,
+        isDraggingViewport,
       };
     }
     default:
