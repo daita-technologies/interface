@@ -26,6 +26,7 @@ export interface AnnotationFilesItemApi {
   size: number;
   created_time: string;
   s3_key: string;
+  s3_key_segm: string;
 }
 export interface AnnotationFilesNextTokenApi {
   filename: string;

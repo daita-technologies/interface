@@ -59,6 +59,38 @@ const readImage = async (url: string) => {
     image: file,
   };
 };
+export const importFileAndAnnotationFromDaitaAI = (
+  file: File
+): Promise<AnnotationImportInfo> => {
+  return new Promise<AnnotationImportInfo>((resolve) => {
+    const reader = new FileReader();
+    reader.readAsText(file);
+    const drawObjectById: Record<string, DrawObject> = {};
+    reader.onloadend = async () => {
+      const annotationFormatter: AnnotationFormatter = JSON.parse(
+        reader.result as string
+      );
+      for (const annotation of annotationFormatter.annotations) {
+        const drawObject = createPolygon({ x: 0, y: 0 });
+        const formatedPoints = annotation.coordinates.map((arr) => {
+          return { x: arr[0], y: arr[1] };
+        });
+        drawObjectById[drawObject.data.id] = {
+          type: drawObject.type,
+          data: {
+            ...drawObject.data,
+            points: formatedPoints,
+            polygonState: { isFinished: true },
+            label: { label: ID_2_LABEL_DAITA[annotation.category_id] },
+          },
+        };
+      }
+      resolve({
+        drawObjectById,
+      });
+    };
+  });
+};
 export const importFileAndAnnotation = (
   file: File
 ): Promise<FileAndAnnotationImportInfo> => {
