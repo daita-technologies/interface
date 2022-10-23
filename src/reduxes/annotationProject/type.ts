@@ -1,9 +1,8 @@
 import { ImageSourceType } from "reduxes/album/type";
 import {
-  ApiListProjectsItem,
   GENERATE_PROJECT_STATUS_TYPE,
+  SetIsOpenDeleteConfirmPayload,
 } from "reduxes/project/type";
-import { CLONE_PROJECT_TO_ANNOTATION } from "./constants";
 
 export interface AnnotationProjectReducer {
   listProjects: Array<ApiListAnnotationProjectsItem>;
@@ -15,6 +14,7 @@ export interface AnnotationProjectReducer {
   isFetchingDetailProject: boolean;
   currentAnnotationAndFileInfo: null | AnnotationAndFileInfoApi;
   currentAnnotationFiles: null | AnnotationFilesApi;
+  deleteConfirmDialogInfo: null | SetIsOpenDeleteConfirmPayload;
 }
 export interface AnnotationFilesApi {
   items: AnnotationFilesItemApi[];
@@ -122,4 +122,9 @@ export interface FetchAnnotationFilesProps {
   projectId: string;
   nextToken: string;
   numLimit?: number;
+}
+export interface DeleteAnnotationProjectProps {
+  idToken: string | null;
+  projectId: string;
+  projectName: string;
 }

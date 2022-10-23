@@ -1,10 +1,17 @@
 import {
+  DeleteProjectSucceedPayload,
+  SetIsOpenDeleteConfirmPayload,
+} from "reduxes/project/type";
+import { objectIndexOf } from "utils/general";
+import {
   CLONE_PROJECT_TO_ANNOTATION,
+  DELETE_ANNOTATION_PROJECT,
   FETCH_ANNOTATION_AND_FILE_INFO,
   FETCH_ANNOTATION_FILES,
   FETCH_DETAIL_ANNOTATION_PROJECT,
   FETCH_LIST_ANNOTATION_PROJECTS,
   SET_CURRENT_ANNOTATION_PROJECT,
+  SET_IS_OPEN_DELETE_ANNOTATION_PROJECT_CONFIRM,
   SHOW_DIALOG_CLONE_PROJECT_TO_ANNOTATION,
 } from "./constants";
 import {
@@ -83,6 +90,7 @@ const inititalState: AnnotationProjectReducer = {
   isFetchingDetailProject: false,
   currentAnnotationAndFileInfo: null,
   currentAnnotationFiles: null,
+  deleteConfirmDialogInfo: null,
 };
 const annotationProjectReducer = (
   state = inititalState,
@@ -159,6 +167,34 @@ const annotationProjectReducer = (
       return {
         ...state,
       };
+    case SET_IS_OPEN_DELETE_ANNOTATION_PROJECT_CONFIRM: {
+      return {
+        ...state,
+        deleteConfirmDialogInfo: payload as SetIsOpenDeleteConfirmPayload,
+      };
+    }
+    case DELETE_ANNOTATION_PROJECT.SUCCEEDED: {
+      const { projectId } = payload as DeleteProjectSucceedPayload;
+      const matchProjectIndex = objectIndexOf(
+        state.listProjects,
+        projectId,
+        "project_id"
+      );
+      if (matchProjectIndex > -1) {
+        const newListProjects = [...state.listProjects];
+        newListProjects.splice(matchProjectIndex, 1);
+        return {
+          ...state,
+          listProjects: newListProjects,
+          deleteConfirmDialogInfo: null,
+          currentProjectInfo: null,
+        };
+      }
+      return {
+        ...state,
+        deleteConfirmDialogInfo: null,
+      };
+    }
   }
   return state;
 };

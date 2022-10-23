@@ -7,6 +7,7 @@ import {
 } from "constants/defaultValues";
 import {
   CloneProjectToAnnotationProps,
+  DeleteAnnotationProjectProps,
   FetchAnnotationAndFileInfoProps,
   FetchAnnotationFilesProps,
 } from "reduxes/annotationProject/type";
@@ -115,6 +116,20 @@ const annotationProjectApi = {
         id_token: idToken,
         file_id: fileId,
         dict_s3_key: dictS3Key,
+      },
+      { headers: getAuthHeader() }
+    ),
+  deleteProject: ({
+    idToken,
+    projectId,
+    projectName,
+  }: DeleteAnnotationProjectProps) =>
+    axios.post(
+      `${annotationProjectApiURL}/annotation/project/delete_project`,
+      {
+        id_token: idToken,
+        project_id: projectId,
+        project_name: projectName,
       },
       { headers: getAuthHeader() }
     ),

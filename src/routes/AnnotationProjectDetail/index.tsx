@@ -1,4 +1,4 @@
-import { LegendToggleSharp } from "@mui/icons-material";
+import { LoadingButton } from "@mui/lab";
 import {
   Box,
   Button,
@@ -22,6 +22,7 @@ import {
   fetchDetailAnnotationProjects,
   fetchListAnnotationProjects,
   setCurrentAnnotationProject,
+  setIsOpenDeleteProject,
 } from "reduxes/annotationProject/action";
 import {
   selectorAnnotationCurrentProject,
@@ -212,6 +213,17 @@ const annotationProjectDetail = function () {
         </Box>
       );
     }
+    const handleClickDeleteProject = () => {
+      if (annotationCurrentProject) {
+        dispatch(
+          setIsOpenDeleteProject({
+            isOpen: true,
+            projectId: annotationCurrentProject.project_id,
+            projectName: annotationCurrentProject.project_name,
+          })
+        );
+      }
+    };
     return (
       <Box>
         <Box
@@ -232,9 +244,13 @@ const annotationProjectDetail = function () {
           >
             Annotate Project
           </Button>
-          <Button variant="outlined" color="error">
+          <LoadingButton
+            variant="outlined"
+            color="error"
+            onClick={handleClickDeleteProject}
+          >
             Delete Project
-          </Button>
+          </LoadingButton>
         </Box>
       </Box>
     );

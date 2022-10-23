@@ -16,3 +16,6 @@ export const selectorCurrentAnnotationAndFileInfo = (state: RootState) =>
   state.annotationProjectReducer.currentAnnotationAndFileInfo;
 export const selectorCurrentAnnotationFiles = (state: RootState) =>
   state.annotationProjectReducer.currentAnnotationFiles;
+export const selectorDeleteAnnotationProjectConfirmDialogInfo = (
+  state: RootState
+) => state.annotationProjectReducer.deleteConfirmDialogInfo;
