@@ -5,12 +5,14 @@ import {
   initialRectangles,
 } from "components/Annotation/Editor/type";
 import {
+  ADD_DRAW_OBJECTS_BY_AI,
   CHANGE_CURRENT_DRAW_STATE,
   CHANGE_CURRENT_DRAW_TYPE,
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
   DELETE_DRAW_OBJECT,
   REDO_DRAW_OBJECT,
+  REMOVE_DRAW_OBJECTS_BY_AI,
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
@@ -22,6 +24,7 @@ import {
   UPDATE_LABEL_OF_DRAW_OBJECT,
 } from "./constants";
 import {
+  AddDrawObjectStateIdByAIPayload,
   AnnotationReducer,
   ChangeCurrentDrawStatePayload,
   ChangeCurrentDrawTypePayload,
@@ -32,6 +35,7 @@ import {
   DrawObjectState,
   DrawState,
   DrawType,
+  RemoveDrawObjectStateIdByAIPayload,
   ResetCurrentStateDrawObjectPayload,
   SetHiddenDrawObjectPayload,
   SetIsDraggingViewportPayload,
@@ -46,7 +50,7 @@ import {
 const inititalState: AnnotationReducer = {
   currentDrawType: DrawType.POLYGON,
   selectedDrawObjectId: null,
-  zoom: { zoom: 1.5, position: { x: 0, y: 0 } },
+  zoom: { zoom: 1, position: { x: 0, y: 0 } },
   // drawObjectById: (() => {
   //   const ret: Record<string, DrawObject> = {};
   //   Object.keys(initialRectangles).forEach((id) => {
@@ -85,6 +89,7 @@ const inititalState: AnnotationReducer = {
   drawObjectStateById: {},
   detectedArea: null,
   isDraggingViewport: false,
+  drawObjectStateIdByAI: [],
 };
 const updateStateHistory = (
   drawObjectById: Record<string, DrawObject>,
@@ -220,6 +225,7 @@ const annotationReducer = (
         ...inititalState,
         drawObjectById: { ...drawObjectById },
         drawObjectStateById,
+        drawObjectStateIdByAI: [...state.drawObjectStateIdByAI],
       };
     }
     case UPDATE_LABEL_OF_DRAW_OBJECT: {
@@ -347,6 +353,34 @@ const annotationReducer = (
       return {
         ...state,
         isDraggingViewport,
+      };
+    }
+    case ADD_DRAW_OBJECTS_BY_AI: {
+      const { drawObjectStateIds } = payload as AddDrawObjectStateIdByAIPayload;
+      const newList = [...state.drawObjectStateIdByAI];
+      drawObjectStateIds.forEach((id) => {
+        if (!state.drawObjectStateIdByAI.includes(id)) {
+          newList.push(id);
+        }
+      });
+      return {
+        ...state,
+        drawObjectStateIdByAI: newList,
+      };
+    }
+    case REMOVE_DRAW_OBJECTS_BY_AI: {
+      const { drawObjectStateIds } =
+        payload as RemoveDrawObjectStateIdByAIPayload;
+      const newList = [...state.drawObjectStateIdByAI];
+      drawObjectStateIds.forEach((id) => {
+        const indexOf = newList.indexOf(id);
+        if (indexOf !== -1) {
+          newList.splice(indexOf, 1);
+        }
+      });
+      return {
+        ...state,
+        drawObjectStateIdByAI: newList,
       };
     }
     default:

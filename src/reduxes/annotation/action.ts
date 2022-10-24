@@ -1,10 +1,12 @@
 import {
+  ADD_DRAW_OBJECTS_BY_AI,
   CHANGE_CURRENT_DRAW_STATE,
   CHANGE_CURRENT_DRAW_TYPE,
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
   DELETE_DRAW_OBJECT,
   REDO_DRAW_OBJECT,
+  REMOVE_DRAW_OBJECTS_BY_AI,
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
@@ -16,11 +18,13 @@ import {
   UPDATE_LABEL_OF_DRAW_OBJECT,
 } from "./constants";
 import {
+  AddDrawObjectStateIdByAIPayload,
   ChangeCurrentDrawStatePayload,
   ChangeCurrentDrawTypePayload,
   ChangeZoomPayload,
   CreateDrawObjectPayload,
   DeleteDrawObjectPayload,
+  RemoveDrawObjectStateIdByAIPayload,
   ResetCurrentStateDrawObjectPayload,
   SetHiddenDrawObjectPayload,
   SetIsDraggingViewportPayload,
@@ -98,5 +102,17 @@ export const setIsDraggingViewpor = (
   payload: SetIsDraggingViewportPayload
 ) => ({
   type: SET_IS_DRAGGING_VIEW_PORT,
+  payload,
+});
+export const addDrawObjectStateIdByAI = (
+  payload: AddDrawObjectStateIdByAIPayload
+) => ({
+  type: ADD_DRAW_OBJECTS_BY_AI,
+  payload,
+});
+export const removeDrawObjectStateIdByAI = (
+  payload: RemoveDrawObjectStateIdByAIPayload
+) => ({
+  type: REMOVE_DRAW_OBJECTS_BY_AI,
   payload,
 });

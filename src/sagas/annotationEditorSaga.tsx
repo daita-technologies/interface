@@ -25,7 +25,10 @@ import {
 import { AnnotationImportInfo } from "components/Annotation/Formart/daita/type";
 import { loadImage } from "components/UploadFile";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
-import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
+import {
+  addDrawObjectStateIdByAI,
+  resetCurrentStateDrawObject,
+} from "reduxes/annotation/action";
 import {
   DrawObject,
   ResetCurrentStateDrawObjectPayload,
@@ -205,6 +208,11 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
             labelClassPropertiesByLabelClass
           );
         });
+        yield put(
+          addDrawObjectStateIdByAI({
+            drawObjectStateIds: Object.keys(drawObjectByIdFromDaitaAI),
+          })
+        );
         yield put(
           setAnnotationStateManager({
             imageName: file_info.filename,
