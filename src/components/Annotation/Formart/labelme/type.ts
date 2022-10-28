@@ -8,7 +8,13 @@ export type CircleFormatter = number[][];
 export type EllipseFormatter = EllipseSpec;
 
 export type points = RectangleFormatter | PolygonFormatter | EllipseFormatter;
-export type ShapeType = "rectangle" | "polygon" | "ellipse" | "circle";
+export type ShapeType =
+  | "rectangle"
+  | "polygon"
+  | "ellipse"
+  | "circle"
+  | "line"
+  | "linestrip";
 export interface Shape {
   points: points;
   shape_type: ShapeType;

@@ -7,6 +7,7 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import { addNewClassLabel } from "reduxes/annotationmanager/action";
 import {
   CLONE_PROJECT_TO_ANNOTATION,
+  DELETE_ANNOTATION_PROJECT,
   FETCH_ANNOTATION_AND_FILE_INFO,
   FETCH_ANNOTATION_FILES,
   FETCH_DETAIL_ANNOTATION_PROJECT,
@@ -130,6 +131,29 @@ function* handleAnnotationAndFileInfo(action: any): any {
     toast.error(e.message);
   }
 }
+function* handleDeleteAnnotationProject(action: any): any {
+  try {
+    const deleteProjectResponse = yield call(
+      annotationProjectApi.deleteProject,
+      action.payload
+    );
+    if (!deleteProjectResponse.error) {
+      yield put({
+        type: DELETE_ANNOTATION_PROJECT.SUCCEEDED,
+        payload: { projectId: action.payload.projectId },
+      });
+      yield toast.success(
+        `The annotation project ${action.payload.projectName} was successfully deleted.`
+      );
+      yield history.push(`/${ANNOTATION_PROJECT_ROUTE_NAME}`);
+    } else {
+      yield put({ type: DELETE_ANNOTATION_PROJECT.FAILED });
+      toast.error(deleteProjectResponse.message);
+    }
+  } catch (e: any) {
+    toast.error(e.message);
+  }
+}
 function* handleFetchDetailProject(action: any): any {
   try {
     const fetchDetailProjectResponse = yield call(
@@ -189,6 +213,10 @@ function* annotationProjectSaga() {
   yield takeLatest(
     FETCH_ANNOTATION_FILES.REQUESTED,
     handleFetchAnnotationFiles
+  );
+  yield takeLatest(
+    DELETE_ANNOTATION_PROJECT.REQUESTED,
+    handleDeleteAnnotationProject
   );
 }
 

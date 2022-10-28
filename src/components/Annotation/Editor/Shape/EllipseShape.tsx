@@ -2,25 +2,26 @@ import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Box } from "konva/lib/shapes/Transformer";
 import { Vector2d } from "konva/lib/types";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Ellipse, Transformer } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
+  selectorDrawObject,
   selectorDrawObjectState,
   selectorSelectedEllipse,
 } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
-import { EllipseProps, EllipseSpec } from "../type";
+import { EllipseCompProps, EllipseProps, EllipseSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 
-const EllipseShape = function ({
+const EllipseComp = function ({
   spec,
   onMouseOverHandler,
   onMouseOutHandler,
-}: EllipseProps) {
+}: EllipseCompProps) {
   const shapeRef = React.useRef<Konva.Ellipse>(null);
   const trRef = React.useRef<any>(null);
   const dispatch = useDispatch();
@@ -36,6 +37,11 @@ const EllipseShape = function ({
   const isSelected = useMemo(() => {
     return currentShape != null && spec.id === currentShape.id;
   }, [currentShape?.id]);
+  useEffect(() => {
+    if (isSelected == true) {
+      shapeRef.current?.moveToTop();
+    }
+  }, [isSelected]);
   const onChange = (rect: EllipseSpec) => {
     dispatch(
       updateDrawObject({
@@ -149,5 +155,22 @@ const EllipseShape = function ({
       )}
     </React.Fragment>
   );
+};
+const EllipseShape = function ({
+  id,
+  onMouseOverHandler,
+  onMouseOutHandler,
+}: EllipseProps) {
+  const drawObject = useSelector(selectorDrawObject(id));
+  if (drawObject) {
+    return (
+      <EllipseComp
+        spec={drawObject.data as EllipseSpec}
+        onMouseOutHandler={onMouseOutHandler}
+        onMouseOverHandler={onMouseOverHandler}
+      />
+    );
+  }
+  return <></>;
 };
 export default EllipseShape;

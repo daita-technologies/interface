@@ -8,6 +8,7 @@ import {
 import {
   selectorAnnotationCurrentProject,
   selectorCurrentAnnotationAndFileInfo,
+  selectorCurrentAnnotationFiles,
 } from "reduxes/annotationProject/selector";
 
 import { GetObjectCommand } from "@aws-sdk/client-s3";
@@ -17,10 +18,17 @@ import {
   LabelClassProperties,
 } from "components/Annotation/Editor/type";
 import { importAnnotationDaita } from "components/Annotation/Formart";
-import { exportAnnotationToJson } from "components/Annotation/Formart/daita";
+import {
+  exportAnnotationToJson,
+  importFileAndAnnotationFromDaitaAI,
+} from "components/Annotation/Formart/daita";
+import { AnnotationImportInfo } from "components/Annotation/Formart/daita/type";
 import { loadImage } from "components/UploadFile";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
-import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
+import {
+  addDrawObjectStateIdByAI,
+  resetCurrentStateDrawObject,
+} from "reduxes/annotation/action";
 import {
   DrawObject,
   ResetCurrentStateDrawObjectPayload,
@@ -38,6 +46,7 @@ import {
 import { FETCH_ANNOTATION_AND_FILE_INFO } from "reduxes/annotationProject/constants";
 import {
   AnnotationAndFileInfoApi,
+  AnnotationFilesApi,
   AnnotationProjectInfo,
 } from "reduxes/annotationProject/type";
 import { selectorS3 } from "reduxes/general/selector";
@@ -94,8 +103,7 @@ function* handleGetAnnotationFile(s3_key: string): any {
     const res = new Response(photoContent.Body as any);
     const blob = yield res.blob();
     const labelFile = new File([blob], photoKey);
-    const annotation = yield importAnnotationDaita(labelFile);
-    return annotation;
+    return labelFile;
   }
   return null;
 }
@@ -138,6 +146,7 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
       projectId: annotationCurrentProject.project_id,
     }
   );
+
   if (fetchDetailProjectResponse.error === true) {
     toast.error(fetchDetailProjectResponse.message);
     return;
@@ -159,10 +168,12 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
     //   selectorAnnotationCurrentProject
     // );
     let annotation: ResetCurrentStateDrawObjectPayload = { drawObjectById: {} };
-    if (label_info && label_info.length > 0) {
-      const annotationTmp = yield handleGetAnnotationFile(
-        label_info[0].s3key_jsonlabel
+    if (label_info && label_info) {
+      const labelFile = yield handleGetAnnotationFile(
+        label_info.s3key_jsonlabel
       );
+      const annotationTmp = yield importAnnotationDaita(labelFile);
+
       if (annotationTmp) {
         annotation = annotationTmp;
       }
@@ -177,6 +188,39 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
         labelClassPropertiesByLabelClass
       );
     });
+    const currentAnnotationFiles: AnnotationFilesApi = yield select(
+      selectorCurrentAnnotationFiles
+    );
+    const annotationFile = currentAnnotationFiles.items.find(
+      (t) => t.filename === action.payload.imageName
+    );
+    if (annotationFile && annotationFile.s3_key_segm) {
+      const labelFile = yield handleGetAnnotationFile(
+        annotationFile.s3_key_segm
+      );
+      const annotationDaitaAITmp: AnnotationImportInfo =
+        yield importFileAndAnnotationFromDaitaAI(labelFile);
+      if (annotationDaitaAITmp) {
+        const drawObjectByIdFromDaitaAI = annotationDaitaAITmp.drawObjectById;
+        Object.entries(drawObjectByIdFromDaitaAI).map(([key, value]) => {
+          drawObjectById[key] = updateDrawObject(
+            value,
+            labelClassPropertiesByLabelClass
+          );
+        });
+        yield put(
+          addDrawObjectStateIdByAI({
+            drawObjectStateIds: Object.keys(drawObjectByIdFromDaitaAI),
+          })
+        );
+        yield put(
+          setAnnotationStateManager({
+            imageName: file_info.filename,
+            drawObjectById: drawObjectById,
+          })
+        );
+      }
+    }
     yield put(
       setAnnotationStateManager({
         imageName: file_info.filename,
@@ -241,7 +285,7 @@ function* handleSaveAnnotationStateManager(action: any): any {
     const filename = splitKey.join("") + ".json";
     s3key_jsonlabel = annotationCurrentProject.s3_label + "/" + filename;
   }
-  const json = exportAnnotationToJson(drawObjectById, imageName);
+  const json = exportAnnotationToJson(drawObjectById);
   const { bucketName, key } = getKeyS3(s3key_jsonlabel);
 
   const uploadParams = {

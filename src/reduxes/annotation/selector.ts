@@ -84,6 +84,9 @@ export const selectorDrawObjectStateById = (state: RootState) => {
 export const selectorDetectedArea = (state: RootState) => {
   return state.annotationReducer.detectedArea;
 };
-
 export const selectorDrawObject = (id: string) => (state: RootState) =>
   state.annotationReducer.drawObjectById[id];
+export const selectorIsDraggingViewport = (state: RootState) =>
+  state.annotationReducer.isDraggingViewport;
+export const selectorDrawObjectStateIdByAI = (state: RootState) =>
+  state.annotationReducer.drawObjectStateIdByAI;

@@ -4,17 +4,13 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Layer, Rect, Stage, Text } from "react-konva";
 
+import { CircularProgress } from "@mui/material";
 import { Ellipse, Polygon, Rectangle } from "components/Annotation";
 import {
   MAX_HEIGHT_IMAGE_IN_EDITOR,
   MAX_WIDTH_IMAGE_IN_EDITOR,
 } from "components/Annotation/Editor/const";
-import {
-  DrawObjectType,
-  EllipseSpec,
-  PolygonSpec,
-  RectangleSpec,
-} from "components/Annotation/Editor/type";
+import { PolygonSpec } from "components/Annotation/Editor/type";
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
 import {
@@ -29,12 +25,14 @@ import {
   deleteDrawObject,
   redoDrawObject,
   setDetectedArea,
+  setIsDraggingViewpor,
   undoDrawObject,
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
   selectorcurrentDrawType,
   selectorDrawObjectById,
+  selectorIsDraggingViewport,
   selectorSelectedDrawObjectId,
   selectorZoom,
 } from "reduxes/annotation/selector";
@@ -50,7 +48,6 @@ import BaseImage from "./BaseImage";
 import useEllipseEvent from "./Hook/useElipseEvent";
 import usePolygonEvent from "./Hook/usePolygonEvent";
 import useRectangleEvent from "./Hook/useRectangleEvent";
-import { CircularProgress } from "@mui/material";
 
 const Editor = () => {
   const dispatch = useDispatch();
@@ -74,6 +71,7 @@ const Editor = () => {
   const zoom = useSelector(selectorZoom);
   const [localDetectedArea, setLocalDetectedArea] =
     useState<DetectedAreaType | null>(null);
+  const isDraggingViewport = useSelector(selectorIsDraggingViewport);
 
   const toolTipLayer = useRef<Konva.Layer>(null);
   const toolTip = useRef<Konva.Text>(null);
@@ -227,7 +225,12 @@ const Editor = () => {
       dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
     }
   };
-
+  const polygons = useMemo(() => {
+    return {
+      ...drawObjects.polygons,
+      ...drawObjects.linestrips,
+    };
+  }, [drawObjects.polygons]);
   const wheelHandler = (e: KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
     const ref = layer;
@@ -261,6 +264,9 @@ const Editor = () => {
 
   const keyUpHandler = (): void => {
     setKeyDown(null);
+    if (currentDrawState === DrawState.ZOOMDRAGGING) {
+      dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
+    }
   };
   const keyDownHandler = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.ctrlKey && e.shiftKey && e.key == "Z") {
@@ -289,8 +295,15 @@ const Editor = () => {
       }
     }
   };
-  const isDraggableStage = useMemo(() => {
-    return keyDown === " " ? true : false;
+
+  useEffect(() => {
+    if (keyDown === " ") {
+      dispatch(setIsDraggingViewpor({ isDraggingViewport: true }));
+    } else {
+      if (isDraggingViewport === true) {
+        dispatch(setIsDraggingViewpor({ isDraggingViewport: false }));
+      }
+    }
   }, [keyDown]);
   const mouseOverBoundDivHandler = () => {
     refBoundDiv.current?.focus();
@@ -298,8 +311,13 @@ const Editor = () => {
 
   const onMouseOverToolTipHandler = (
     e: KonvaEventObject<MouseEvent>,
-    shape: DrawObjectType
+    id: string
   ) => {
+    const drawObject = drawObjectById[id];
+    if (!drawObject) {
+      return;
+    }
+    const shape = drawObject.data;
     if (layer?.current && toolTipLayer.current && toolTip.current) {
       const mousePos = layer.current.getRelativePointerPosition();
       toolTipLayer.current.position({
@@ -391,51 +409,41 @@ const Editor = () => {
                       onMouseMove={mousemoveHandler}
                       onMouseDown={mousedownHandler}
                       onMouseUp={mouseupHandler}
-                      draggable={isDraggableStage}
+                      draggable={isDraggingViewport}
                       // dragBoundFunc={dragBoundFunc}
                     >
                       <BaseImage />
-                      {Object.entries(drawObjects.rectangles).map(
-                        ([key, value]) => {
-                          const rect = value.data as RectangleSpec;
-                          return (
-                            <Rectangle
-                              key={key}
-                              spec={rect}
-                              onMouseOverHandler={(e) =>
-                                onMouseOverToolTipHandler(e, rect)
-                              }
-                              onMouseOutHandler={onMouseOutToolTipHandler}
-                            />
-                          );
-                        }
-                      )}
-                      {Object.entries(drawObjects.ellipses).map(
-                        ([key, value]) => {
-                          const spec = value.data as EllipseSpec;
-                          return (
-                            <Ellipse
-                              key={key}
-                              spec={spec}
-                              onMouseOverHandler={(e) =>
-                                onMouseOverToolTipHandler(e, spec)
-                              }
-                              onMouseOutHandler={onMouseOutToolTipHandler}
-                            />
-                          );
-                        }
-                      )}
-                      {Object.entries({
-                        ...drawObjects.polygons,
-                        ...drawObjects.linestrips,
-                      }).map(([key, value]) => {
-                        const polygon = value.data as PolygonSpec;
+                      {Object.keys(drawObjects.rectangles).map((key) => {
+                        return (
+                          <Rectangle
+                            key={key}
+                            id={key}
+                            onMouseOverHandler={(e) =>
+                              onMouseOverToolTipHandler(e, key)
+                            }
+                            onMouseOutHandler={onMouseOutToolTipHandler}
+                          />
+                        );
+                      })}
+                      {Object.keys(drawObjects.ellipses).map((key) => {
+                        return (
+                          <Ellipse
+                            key={key}
+                            id={key}
+                            onMouseOverHandler={(e) =>
+                              onMouseOverToolTipHandler(e, key)
+                            }
+                            onMouseOutHandler={onMouseOutToolTipHandler}
+                          />
+                        );
+                      })}
+                      {Object.keys(polygons).map((key) => {
                         return (
                           <Polygon
                             key={key}
-                            spec={polygon}
+                            id={key}
                             onMouseOverHandler={(e) => {
-                              onMouseOverToolTipHandler(e, polygon);
+                              onMouseOverToolTipHandler(e, key);
                             }}
                             onMouseOutHandler={onMouseOutToolTipHandler}
                           />

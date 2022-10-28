@@ -50,9 +50,9 @@ import { DrawObject, DrawType } from "reduxes/annotation/type";
 import {
   addImagesToAnnotation,
   addNewClassLabel,
-  changePreviewImage,
   saveAnnotationStateManager,
   setAnnotationStateManager,
+  setPreviewImage,
 } from "reduxes/annotationmanager/action";
 import {
   selectorCurrentAnnotationFile,
@@ -171,7 +171,7 @@ const ControlPanel = () => {
       })
     );
     dispatch(
-      changePreviewImage({
+      setPreviewImage({
         imageName: annotationImagesProperty.image.name,
       })
     );
@@ -200,7 +200,7 @@ const ControlPanel = () => {
       })
     );
     dispatch(
-      changePreviewImage({
+      setPreviewImage({
         imageName: annotationImagesProperty.image.name,
       })
     );

@@ -9,6 +9,7 @@ import {
   SAVE_REMOTE_NEW_CLASS_LABEL,
   SET_ANNOTATION_STATE_MANAGER,
   SET_CLASS_MANAGE_MODAL,
+  SET_PREVIEW_IMAGE,
 } from "./constants";
 import {
   AddImageToAnnotationProps,
@@ -27,6 +28,10 @@ export const addImagesToAnnotation = (payload: AddImageToAnnotationProps) => ({
 });
 export const changePreviewImage = (payload: ChangePreviewImageProps) => ({
   type: CHANGE_PREVIEW_IMAGE,
+  payload,
+});
+export const setPreviewImage = (payload: ChangePreviewImageProps) => ({
+  type: SET_PREVIEW_IMAGE,
   payload,
 });
 export const saveAnnotationStateManager = (

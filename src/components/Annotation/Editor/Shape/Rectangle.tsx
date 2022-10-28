@@ -2,25 +2,25 @@ import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Box } from "konva/lib/shapes/Transformer";
 import { Vector2d } from "konva/lib/types";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Rect, Transformer } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
+  selectorDrawObject,
   selectorDrawObjectState,
   selectorSelectedRectangle,
 } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
-import { RectangleProps, RectangleSpec } from "../type";
+import { RectangleCompProps, RectangleProps, RectangleSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
-
-const Rectangle = function ({
+const RectangleComp = ({
   spec,
   onMouseOverHandler,
   onMouseOutHandler,
-}: RectangleProps) {
+}: RectangleCompProps) => {
   const shapeRef = React.useRef<Konva.Rect>(null);
   const trRef = React.useRef<any>(null);
   const dispatch = useDispatch();
@@ -36,6 +36,11 @@ const Rectangle = function ({
   const isSelected = useMemo(() => {
     return currentRectangle != null && spec.id === currentRectangle.id;
   }, [currentRectangle?.id]);
+  useEffect(() => {
+    if (isSelected == true) {
+      shapeRef.current?.moveToTop();
+    }
+  }, [isSelected]);
   const onChange = (rect: RectangleSpec) => {
     dispatch(
       updateDrawObject({
@@ -150,5 +155,22 @@ const Rectangle = function ({
       )}
     </React.Fragment>
   );
+};
+const Rectangle = function ({
+  id,
+  onMouseOverHandler,
+  onMouseOutHandler,
+}: RectangleProps) {
+  const drawObject = useSelector(selectorDrawObject(id));
+  if (drawObject) {
+    return (
+      <RectangleComp
+        spec={drawObject.data as RectangleSpec}
+        onMouseOutHandler={onMouseOutHandler}
+        onMouseOverHandler={onMouseOverHandler}
+      />
+    );
+  }
+  return <></>;
 };
 export default Rectangle;

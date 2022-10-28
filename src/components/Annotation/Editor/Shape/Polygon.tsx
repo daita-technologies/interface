@@ -7,6 +7,7 @@ import { Circle, Group, Line } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import {
   changeCurrentStatus,
+  removeDrawObjectStateIdByAI,
   setHiddenDrawObject,
   setSelectedShape,
   updateDrawObject,
@@ -14,21 +15,23 @@ import {
 import {
   selectorCurrentDrawState,
   selectorDetectedArea,
+  selectorDrawObject,
   selectorDrawObjectState,
+  selectorDrawObjectStateIdByAI,
   selectorSelectedPolygonOrLineStrip,
   selectorZoom,
 } from "reduxes/annotation/selector";
 import { DrawState } from "reduxes/annotation/type";
 import { CIRCLE_STYLE, CORNER_RADIUS, STROKE_WIDTH_LINE } from "../const";
-import { CssStyle, PolygonProps } from "../type";
+import { CssStyle, PolygonCompProps, PolygonProps, PolygonSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 import { dragBoundFunc, minMax } from "../utils";
 
-const Polygon = ({
+const PolygonComp = ({
   spec,
   onMouseOverHandler,
   onMouseOutHandler,
-}: PolygonProps) => {
+}: PolygonCompProps) => {
   const {
     points,
     polygonState: { isFinished, isLineStrip },
@@ -42,7 +45,7 @@ const Polygon = ({
   const zoom = useSelector(selectorZoom);
   const groupRef = React.useRef<Konva.Group>(null);
   const currentDrawState = useSelector(selectorCurrentDrawState);
-
+  const drawObjectStateIdByAI = useSelector(selectorDrawObjectStateIdByAI);
   const isSelected = useMemo(() => {
     return currentpolygon != null && spec.id === currentpolygon.id;
   }, [currentpolygon?.id]);
@@ -51,6 +54,12 @@ const Polygon = ({
       ? currentpolygon.polygonState.mousePosition
       : null;
   }, [currentpolygon]);
+  useEffect(() => {
+    if (isSelected == true) {
+      groupRef.current?.moveToTop();
+    }
+  }, [isSelected]);
+
   useEffect(() => {
     if (detectedArea) {
       const polygonRect = groupRef.current?.getClientRect();
@@ -64,9 +73,8 @@ const Polygon = ({
           polygonRect.height <= detectedArea.height
         ) {
           dispatch(
-            setHiddenDrawObject({
-              drawObjectId: spec.id,
-              isHidden: false,
+            removeDrawObjectStateIdByAI({
+              drawObjectStateIds: [spec.id],
             })
           );
         }
@@ -376,7 +384,10 @@ const Polygon = ({
   useEffect(() => {
     setLineStyle({ ...spec.cssStyle, strokeWidth: STROKE_WIDTH_LINE });
   }, [spec.cssStyle]);
-
+  const isVisible = useMemo(() => {
+    const isVis = drawObjectState ? !drawObjectState.isHidden : true;
+    return isVis && !drawObjectStateIdByAI.includes(spec.id);
+  }, [drawObjectState, drawObjectStateIdByAI]);
   return (
     <Group
       ref={groupRef}
@@ -388,7 +399,7 @@ const Polygon = ({
       onMouseOut={handleGroupMouseOut}
       onMouseDown={mousedownHandler}
       onClick={commonShapeEvent.handleCick}
-      visible={drawObjectState ? !drawObjectState.isHidden : true}
+      visible={isVisible}
     >
       <Line
         points={flattenedPoints}
@@ -400,9 +411,27 @@ const Polygon = ({
       />
       {(isSelected || !isFinished) &&
         commonShapeEvent.isLock !== true &&
+        points.length < 30 &&
         renderPoints()}
     </Group>
   );
+};
+const Polygon = ({
+  id,
+  onMouseOverHandler,
+  onMouseOutHandler,
+}: PolygonProps) => {
+  const drawObject = useSelector(selectorDrawObject(id));
+  if (drawObject) {
+    return (
+      <PolygonComp
+        spec={drawObject.data as PolygonSpec}
+        onMouseOutHandler={onMouseOutHandler}
+        onMouseOverHandler={onMouseOverHandler}
+      />
+    );
+  }
+  return <></>;
 };
 
 export default Polygon;

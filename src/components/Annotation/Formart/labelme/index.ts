@@ -94,7 +94,11 @@ export const importAnnotation = (
                       label: { label: shape.label },
                     },
                   };
-                } else if (shape.shape_type === "polygon") {
+                } else if (
+                  shape.shape_type === "polygon" ||
+                  shape.shape_type === "line" ||
+                  shape.shape_type === "linestrip"
+                ) {
                   const drawObject = createPolygon({ x: 0, y: 0 });
                   const points = shape.points as PolygonFormatter;
                   const formatedPoints = points.map((arr) => {
@@ -105,7 +109,12 @@ export const importAnnotation = (
                     data: {
                       ...drawObject.data,
                       points: formatedPoints,
-                      polygonState: { isFinished: true },
+                      polygonState: {
+                        isFinished: true,
+                        isLineStrip:
+                          shape.shape_type === "line" ||
+                          shape.shape_type === "linestrip",
+                      },
                       label: { label: shape.label },
                     },
                   };
@@ -115,7 +124,7 @@ export const importAnnotation = (
                   const center = { x: points[0][0], y: points[0][1] };
                   const disX = points[1][0] - points[0][0];
                   const disY = points[1][1] - points[0][1];
-                  const radius = Math.sqrt(Math.abs(disX * disX - disY * disY));
+                  const radius = Math.sqrt(Math.abs(disX * disX + disY * disY));
 
                   drawObjectById[drawObject.data.id] = {
                     type: drawObject.type,
@@ -127,6 +136,10 @@ export const importAnnotation = (
                       label: { label: shape.label },
                     },
                   };
+                  console.log(
+                    "  drawObjectById[drawObject.data.id]",
+                    drawObjectById[drawObject.data.id]
+                  );
                 } else if (shape.shape_type === "ellipse") {
                   const drawObject = createEllipse({ x: 0, y: 0 });
                   const points = shape.points as EllipseFormatter;
@@ -166,21 +179,25 @@ export const convert = (
         shape_type: "rectangle",
         label: label.label,
       });
-    } else if (value.type === DrawType.POLYGON) {
-      const { points, label } = value.data as PolygonSpec;
+    } else if (
+      value.type === DrawType.POLYGON ||
+      value.type === DrawType.LINE_STRIP
+    ) {
+      const { points, label, polygonState } = value.data as PolygonSpec;
       shape.push({
         points: points.map((point) => [point.x, point.y]) as PolygonFormatter,
-        shape_type: "polygon",
-        label: label.label,
-      });
-    } else if (value.type === DrawType.ELLIPSE) {
-      const { x, y, radiusX, radiusY, label } = value.data as EllipseSpec;
-      shape.push({
-        points: { x, y, radiusX, radiusY } as EllipseFormatter,
-        shape_type: "ellipse",
+        shape_type: polygonState.isLineStrip === true ? "linestrip" : "polygon",
         label: label.label,
       });
     }
+    // else if (value.type === DrawType.ELLIPSE) {
+    //   const { x, y, radiusX, radiusY, label } = value.data as EllipseSpec;
+    //   shape.push({
+    //     points: { x, y, radiusX, radiusY } as EllipseFormatter,
+    //     shape_type: "ellipse",
+    //     label: label.label,
+    //   });
+    // }
   }
   return shape;
 };

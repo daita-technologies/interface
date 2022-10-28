@@ -8,6 +8,7 @@ import {
   SAVE_ANNOTATION_STATE_MANAGER,
   SET_ANNOTATION_STATE_MANAGER,
   SET_CLASS_MANAGE_MODAL,
+  SET_PREVIEW_IMAGE,
 } from "./constants";
 import {
   AddImageToAnnotationProps,
@@ -52,6 +53,13 @@ const annotationManagerReducer = (
       };
     }
     case CHANGE_PREVIEW_IMAGE: {
+      const { imageName } = payload as ChangePreviewImageProps;
+      return {
+        ...state,
+        currentPreviewImageName: imageName,
+      };
+    }
+    case SET_PREVIEW_IMAGE: {
       const { imageName } = payload as ChangePreviewImageProps;
       return {
         ...state,

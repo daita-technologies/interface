@@ -5,22 +5,26 @@ import {
   initialRectangles,
 } from "components/Annotation/Editor/type";
 import {
+  ADD_DRAW_OBJECTS_BY_AI,
   CHANGE_CURRENT_DRAW_STATE,
   CHANGE_CURRENT_DRAW_TYPE,
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
   DELETE_DRAW_OBJECT,
   REDO_DRAW_OBJECT,
+  REMOVE_DRAW_OBJECTS_BY_AI,
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
+  SET_IS_DRAGGING_VIEW_PORT,
   SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   UNDO_DRAW_OBJECT,
-  UPDATE_DRAW_OBJET,
+  UPDATE_DRAW_OBJECT,
   UPDATE_LABEL_OF_DRAW_OBJECT,
 } from "./constants";
 import {
+  AddDrawObjectStateIdByAIPayload,
   AnnotationReducer,
   ChangeCurrentDrawStatePayload,
   ChangeCurrentDrawTypePayload,
@@ -31,11 +35,14 @@ import {
   DrawObjectState,
   DrawState,
   DrawType,
+  RemoveDrawObjectStateIdByAIPayload,
   ResetCurrentStateDrawObjectPayload,
   SetHiddenDrawObjectPayload,
+  SetIsDraggingViewportPayload,
   SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
   SetSelectShapePayload,
+  StateHistory,
   UpdateDrawObjectPayload,
   UpdateLabelOfDrawObjectPayload,
 } from "./type";
@@ -81,6 +88,31 @@ const inititalState: AnnotationReducer = {
   statehHistory: { historyStep: 0, stateHistoryItems: [] },
   drawObjectStateById: {},
   detectedArea: null,
+  isDraggingViewport: false,
+  drawObjectStateIdByAI: [],
+};
+const updateStateHistory = (
+  drawObjectById: Record<string, DrawObject>,
+  statehHistory: StateHistory
+) => {
+  let newStateHistory = { ...statehHistory };
+  if (
+    newStateHistory.historyStep >= 0 &&
+    newStateHistory.historyStep < newStateHistory.stateHistoryItems.length
+  ) {
+    newStateHistory.stateHistoryItems = newStateHistory.stateHistoryItems.slice(
+      0,
+      newStateHistory.historyStep
+    );
+  }
+  newStateHistory.historyStep = newStateHistory.stateHistoryItems.length + 1;
+  newStateHistory.stateHistoryItems = [
+    ...newStateHistory.stateHistoryItems,
+    {
+      drawObjectById: structuredClone(drawObjectById),
+    },
+  ];
+  return newStateHistory;
 };
 const annotationReducer = (
   state = inititalState,
@@ -111,35 +143,28 @@ const annotationReducer = (
 
     case CREATE_DRAW_OBJECT: {
       const { drawObject } = payload as CreateDrawObjectPayload;
+      let newStateHistory = updateStateHistory(
+        state.drawObjectById,
+        state.statehHistory
+      );
       return {
         ...state,
         drawObjectById: {
           ...state.drawObjectById,
           [drawObject.data.id]: drawObject,
         },
+        statehHistory: newStateHistory,
       };
     }
-    case UPDATE_DRAW_OBJET: {
+    case UPDATE_DRAW_OBJECT: {
       const { data } = payload as UpdateDrawObjectPayload;
       const drawObject = state.drawObjectById[data.id];
-      const { statehHistory } = state;
-      let newStateHistory = statehHistory;
+      let newStateHistory = state.statehHistory;
       if (state.currentDrawState !== DrawState.DRAWING) {
-        if (
-          statehHistory.historyStep >= 0 &&
-          statehHistory.historyStep < statehHistory.stateHistoryItems.length
-        ) {
-          statehHistory.stateHistoryItems =
-            statehHistory.stateHistoryItems.slice(0, statehHistory.historyStep);
-        }
-        statehHistory.historyStep = statehHistory.stateHistoryItems.length + 1;
-        statehHistory.stateHistoryItems = [
-          ...statehHistory.stateHistoryItems,
-          {
-            drawObjectById: structuredClone(state.drawObjectById),
-          },
-        ];
-        newStateHistory = { ...statehHistory };
+        newStateHistory = updateStateHistory(
+          state.drawObjectById,
+          state.statehHistory
+        );
       }
       return {
         ...state,
@@ -197,11 +222,10 @@ const annotationReducer = (
       });
       return {
         ...state,
-        currentDrawState: DrawState.FREE,
-        selectedDrawObjectId: null,
+        ...inititalState,
         drawObjectById: { ...drawObjectById },
-        zoom: { zoom: 1, position: { x: 0, y: 0 } },
         drawObjectStateById,
+        drawObjectStateIdByAI: [...state.drawObjectStateIdByAI],
       };
     }
     case UPDATE_LABEL_OF_DRAW_OBJECT: {
@@ -238,11 +262,19 @@ const annotationReducer = (
         } else {
           stateHistoryItems = [...state.statehHistory.stateHistoryItems];
         }
+        const undoDrawObjectById =
+          statehHistory.stateHistoryItems[state.statehHistory.historyStep - 1]
+            .drawObjectById;
+        Object.entries(undoDrawObjectById).map(([key, value]) => {
+          undoDrawObjectById[key].data = {
+            ...undoDrawObjectById[key].data,
+            label: state.drawObjectById[key].data.label,
+            cssStyle: state.drawObjectById[key].data.cssStyle,
+          };
+        });
         return {
           ...state,
-          drawObjectById:
-            statehHistory.stateHistoryItems[state.statehHistory.historyStep - 1]
-              .drawObjectById,
+          drawObjectById: undoDrawObjectById,
           statehHistory: {
             ...state.statehHistory,
             stateHistoryItems,
@@ -314,6 +346,41 @@ const annotationReducer = (
       return {
         ...state,
         detectedArea,
+      };
+    }
+    case SET_IS_DRAGGING_VIEW_PORT: {
+      const { isDraggingViewport } = payload as SetIsDraggingViewportPayload;
+      return {
+        ...state,
+        isDraggingViewport,
+      };
+    }
+    case ADD_DRAW_OBJECTS_BY_AI: {
+      const { drawObjectStateIds } = payload as AddDrawObjectStateIdByAIPayload;
+      const newList = [...state.drawObjectStateIdByAI];
+      drawObjectStateIds.forEach((id) => {
+        if (!state.drawObjectStateIdByAI.includes(id)) {
+          newList.push(id);
+        }
+      });
+      return {
+        ...state,
+        drawObjectStateIdByAI: newList,
+      };
+    }
+    case REMOVE_DRAW_OBJECTS_BY_AI: {
+      const { drawObjectStateIds } =
+        payload as RemoveDrawObjectStateIdByAIPayload;
+      const newList = [...state.drawObjectStateIdByAI];
+      drawObjectStateIds.forEach((id) => {
+        const indexOf = newList.indexOf(id);
+        if (indexOf !== -1) {
+          newList.splice(indexOf, 1);
+        }
+      });
+      return {
+        ...state,
+        drawObjectStateIdByAI: newList,
       };
     }
     default:
