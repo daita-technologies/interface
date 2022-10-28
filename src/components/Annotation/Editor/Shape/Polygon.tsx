@@ -411,6 +411,7 @@ const PolygonComp = ({
       />
       {(isSelected || !isFinished) &&
         commonShapeEvent.isLock !== true &&
+        points.length < 30 &&
         renderPoints()}
     </Group>
   );
