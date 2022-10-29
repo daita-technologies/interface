@@ -7,24 +7,16 @@ import {
   fetchDetailAnnotationProjects,
   setCurrentAnnotationProject,
 } from "reduxes/annotationProject/action";
-import {
-  selectorAnnotationCurrentProject,
-  selectorCurrentAnnotationFiles,
-  selectorCurrentAnnotationAndFileInfo,
-} from "reduxes/annotationProject/selector";
+import { selectorAnnotationCurrentProject } from "reduxes/annotationProject/selector";
 import { getLocalStorage } from "utils/general";
 import AnnotationEditor from "./AnnotationEditor";
 
 const AnnotationPage = function () {
   const dispatch = useDispatch();
   const { projectName } = useParams<{ projectName: string }>();
-  const currentAnnotationAndFileInfo = useSelector(
-    selectorCurrentAnnotationAndFileInfo
-  );
   const annotationCurrentProject = useSelector(
     selectorAnnotationCurrentProject
   );
-  const currentAnnotationFiles = useSelector(selectorCurrentAnnotationFiles);
 
   useEffect(() => {
     if (!annotationCurrentProject) {

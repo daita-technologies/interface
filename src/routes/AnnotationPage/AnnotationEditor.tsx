@@ -2,7 +2,12 @@ import { Box, CircularProgress } from "@mui/material";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAnnotationFiles } from "reduxes/annotationProject/action";
+import { resetAnnotation } from "reduxes/annotation/action";
+import { resetAnnotationManager } from "reduxes/annotationmanager/action";
+import {
+  fetchAnnotationFiles,
+  setAnnotationFiles,
+} from "reduxes/annotationProject/action";
 import {
   selectorAnnotationCurrentProject,
   selectorCurrentAnnotationFiles,
@@ -22,28 +27,19 @@ const AnnotationEditor = function () {
 
   useEffect(() => {
     if (annotationCurrentProject) {
-      if (
-        currentAnnotationFiles &&
-        currentAnnotationFiles.next_token.project_id ===
-          annotationCurrentProject?.project_id
-      ) {
-        dispatch(
-          fetchAnnotationFiles({
-            idToken: getLocalStorage(ID_TOKEN_NAME),
-            nextToken: currentAnnotationFiles.next_token.filename,
-            projectId: annotationCurrentProject.project_id,
-          })
-        );
-      } else {
-        dispatch(
-          fetchAnnotationFiles({
-            idToken: getLocalStorage(ID_TOKEN_NAME),
-            nextToken: "",
-            projectId: annotationCurrentProject.project_id,
-          })
-        );
-      }
+      dispatch(
+        fetchAnnotationFiles({
+          idToken: getLocalStorage(ID_TOKEN_NAME),
+          nextToken: "",
+          projectId: annotationCurrentProject.project_id,
+        })
+      );
     }
+    return () => {
+      dispatch(setAnnotationFiles({ annotationAndFileInfoApi: null }));
+      dispatch(resetAnnotationManager());
+      dispatch(resetAnnotation());
+    };
   }, [annotationCurrentProject]);
 
   const renderContent = () => {

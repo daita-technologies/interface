@@ -13,6 +13,7 @@ import {
   DELETE_DRAW_OBJECT,
   REDO_DRAW_OBJECT,
   REMOVE_DRAW_OBJECTS_BY_AI,
+  RESET_ANNOTATION,
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
@@ -382,6 +383,9 @@ const annotationReducer = (
         ...state,
         drawObjectStateIdByAI: newList,
       };
+    }
+    case RESET_ANNOTATION: {
+      return { ...inititalState };
     }
     default:
       return state;

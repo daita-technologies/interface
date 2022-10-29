@@ -5,6 +5,7 @@ import {
   EDIT_CLASS_LABEL,
   EDIT_CLASS_MANAGE_MODAL,
   FETCH_FILE_AND_ANNOTATION,
+  RESET_ANNOTATION_MANAGER,
   SAVE_ANNOTATION_STATE_MANAGER,
   SAVE_REMOTE_NEW_CLASS_LABEL,
   SET_ANNOTATION_STATE_MANAGER,
@@ -73,4 +74,7 @@ export const fetchingFileAndAnnotaiton = (
 ) => ({
   type: FETCH_FILE_AND_ANNOTATION,
   payload,
+});
+export const resetAnnotationManager = () => ({
+  type: RESET_ANNOTATION_MANAGER,
 });

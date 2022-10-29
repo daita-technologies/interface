@@ -6,6 +6,7 @@ import {
   FETCH_ANNOTATION_FILES,
   FETCH_DETAIL_ANNOTATION_PROJECT,
   FETCH_LIST_ANNOTATION_PROJECTS,
+  SET_ANNOTATION_FILES,
   SET_CURRENT_ANNOTATION_PROJECT,
   SET_IS_OPEN_DELETE_ANNOTATION_PROJECT_CONFIRM,
   SHOW_DIALOG_CLONE_PROJECT_TO_ANNOTATION,
@@ -17,6 +18,7 @@ import {
   FetchAnnotationFilesProps,
   FetchDetailAnnotationProjectsProps,
   FetchListAnnotationProjectsProps,
+  SetAnnotationFilesProps,
   SetCurrentAnnotationProjectProps,
   SetDialogCloneProjectToAnnotationProps,
 } from "./type";
@@ -73,5 +75,11 @@ export const setIsOpenDeleteProject = (
   payload: null | SetIsOpenDeleteConfirmPayload
 ) => ({
   type: SET_IS_OPEN_DELETE_ANNOTATION_PROJECT_CONFIRM,
+  payload,
+});
+export const setAnnotationFiles = (
+  payload: null | SetAnnotationFilesProps
+) => ({
+  type: SET_ANNOTATION_FILES,
   payload,
 });
