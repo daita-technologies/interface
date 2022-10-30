@@ -52,6 +52,7 @@ import {
 import { selectorS3 } from "reduxes/general/selector";
 import annotationProjectApi from "services/annotationProjectApi";
 import { getLocalStorage } from "utils/general";
+import { selectorDrawObjectStateIdByAI } from "reduxes/annotation/selector";
 
 function getKeyS3(s3Key: string) {
   const splitKey = s3Key.split("/");
@@ -285,7 +286,16 @@ function* handleSaveAnnotationStateManager(action: any): any {
     const filename = splitKey.join("") + ".json";
     s3key_jsonlabel = annotationCurrentProject.s3_label + "/" + filename;
   }
-  const json = exportAnnotationToJson(drawObjectById);
+  const drawObjectStateIdByAI: string[] = yield select(
+    selectorDrawObjectStateIdByAI
+  );
+  const drawObjectByIdExcluceAIDetect: Record<string, DrawObject> = {};
+  Object.entries(drawObjectById).forEach(([key, value]) => {
+    if (!drawObjectStateIdByAI.includes(key)) {
+      drawObjectByIdExcluceAIDetect[key] = value;
+    }
+  });
+  const json = exportAnnotationToJson(drawObjectByIdExcluceAIDetect);
   const { bucketName, key } = getKeyS3(s3key_jsonlabel);
 
   const uploadParams = {
