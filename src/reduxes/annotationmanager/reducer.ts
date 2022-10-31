@@ -26,7 +26,7 @@ const inititalState: AnnotationManagerReducer = {
   idDrawObjectByImageName: {},
   images: {},
   currentPreviewImageName: null,
-  labelClassPropertiesByLabelClass: initialLabelClassPropertiesByLabelClass,
+  labelClassPropertiesByLabelClass: {}, // initialLabelClassPropertiesByLabelClass,
   dialogClassManageModal: {
     isOpen: false,
   },
