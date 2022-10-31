@@ -1,6 +1,7 @@
 import { ImageSourceType } from "reduxes/album/type";
 import {
   GENERATE_PROJECT_STATUS_TYPE,
+  GroupProjectInfo,
   SetIsOpenDeleteConfirmPayload,
 } from "reduxes/project/type";
 
@@ -80,6 +81,7 @@ export interface GroupAnnotationProjectInfo {
   size: number;
 }
 export interface ApiListAnnotationProjectsItem {
+  groups: GroupProjectInfo;
   project_id: string;
   project_name: string;
   gen_status: GENERATE_PROJECT_STATUS_TYPE;

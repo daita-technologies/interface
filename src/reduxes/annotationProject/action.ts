@@ -1,4 +1,7 @@
-import { SetIsOpenDeleteConfirmPayload } from "reduxes/project/type";
+import {
+  SetIsOpenDeleteConfirmPayload,
+  UpdateProjectStatisticPayload,
+} from "reduxes/project/type";
 import {
   CLONE_PROJECT_TO_ANNOTATION,
   DELETE_ANNOTATION_PROJECT,
@@ -10,6 +13,7 @@ import {
   SET_CURRENT_ANNOTATION_PROJECT,
   SET_IS_OPEN_DELETE_ANNOTATION_PROJECT_CONFIRM,
   SHOW_DIALOG_CLONE_PROJECT_TO_ANNOTATION,
+  UPDATE_STATISTIC_PROJECT,
 } from "./constants";
 import {
   CloneProjectToAnnotationProps,
@@ -81,5 +85,11 @@ export const setAnnotationFiles = (
   payload: null | SetAnnotationFilesProps
 ) => ({
   type: SET_ANNOTATION_FILES,
+  payload,
+});
+export const updateCurrentAnnotationProjectStatistic = (
+  payload: UpdateProjectStatisticPayload
+) => ({
+  type: UPDATE_STATISTIC_PROJECT,
   payload,
 });

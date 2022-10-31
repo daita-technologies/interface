@@ -1,6 +1,7 @@
 import {
   DeleteProjectSucceedPayload,
   SetIsOpenDeleteConfirmPayload,
+  UpdateProjectStatisticPayload,
 } from "reduxes/project/type";
 import { objectIndexOf } from "utils/general";
 import {
@@ -14,11 +15,11 @@ import {
   SET_CURRENT_ANNOTATION_PROJECT,
   SET_IS_OPEN_DELETE_ANNOTATION_PROJECT_CONFIRM,
   SHOW_DIALOG_CLONE_PROJECT_TO_ANNOTATION,
+  UPDATE_STATISTIC_PROJECT,
 } from "./constants";
 import {
   AnnotationFilesApi,
   AnnotationProjectReducer,
-  FetchAnnotationFilesProps,
   SetAnnotationFilesProps,
   SetCurrentAnnotationProjectProps,
   SetDialogCloneProjectToAnnotationProps,
@@ -208,6 +209,88 @@ const annotationProjectReducer = (
         ...state,
         deleteConfirmDialogInfo: null,
       };
+    }
+    case UPDATE_STATISTIC_PROJECT: {
+      const { projectId, updateInfo } =
+        payload as UpdateProjectStatisticPayload;
+      if (
+        state.currentProjectInfo &&
+        state.currentProjectInfo.project_id === projectId
+      ) {
+        const { groups } = state.currentProjectInfo;
+        const { fileInfo, typeMethod } = updateInfo;
+        const { isExist, isDelete, size, sizeOld } = fileInfo;
+        let newSize = 0;
+        let newCount = 0;
+        if (groups) {
+          newSize = groups[typeMethod]?.size || 0;
+          newCount = groups[typeMethod]?.count || 0;
+          if (isDelete) {
+            newSize -= size;
+            newCount -= 1;
+          } else if (isExist) {
+            newSize += fileInfo.size - (sizeOld || 0);
+          } else {
+            newSize += size;
+            newCount += 1;
+          }
+
+          return {
+            ...state,
+            currentProjectInfo: {
+              ...state.currentProjectInfo,
+              groups: {
+                ...groups,
+                [typeMethod]: {
+                  ...groups[typeMethod],
+                  size: newSize,
+                  count: newCount,
+                },
+              },
+            },
+          };
+        }
+
+        newSize = 0;
+        newCount = 0;
+        if (isExist) {
+          newSize += fileInfo.size - (sizeOld || 0);
+        } else {
+          newSize += size;
+          newCount += 1;
+        }
+
+        const matchProjectIndex = objectIndexOf(
+          state.listProjects,
+          projectId,
+          "project_id"
+        );
+
+        const newListProjects = [...state.listProjects];
+        if (matchProjectIndex > -1) {
+          let targetGroups = newListProjects[matchProjectIndex].groups;
+          if (!targetGroups) {
+            targetGroups = {};
+          }
+          targetGroups[typeMethod] = {
+            size: newSize,
+            count: newCount,
+            data_number: [0, 0, 0],
+          };
+        }
+        const currentProjectInfo = {
+          ...state.currentProjectInfo,
+        };
+        currentProjectInfo.groups[typeMethod] = {
+          size: newSize,
+          count: newCount,
+        };
+        return {
+          ...state,
+          currentProjectInfo,
+        };
+      }
+      return state;
     }
   }
   return state;

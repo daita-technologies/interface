@@ -1,47 +1,40 @@
 import { Upload } from "@aws-sdk/lib-storage";
 import {
-  IDENTITY_ID_NAME,
   ID_TOKEN_NAME,
   LIMIT_UPLOAD_IMAGE_SIZE,
-  MAXIMUM_ZIP_FILE_SIZE,
-  MAX_ALLOW_UPLOAD_IMAGES,
   ORIGINAL_SOURCE,
-  UPLOAD_TASK_PROCESS_TYPE,
 } from "constants/defaultValues";
-import { S3_BUCKET_NAME } from "constants/s3Values";
 import {
   ADDED_UPLOAD_FILE_STATUS,
   CHECKING_UPLOAD_FILE_STATUS,
   CHECK_IMAGE,
-  CHECK_ZIP_FILE,
   FAILED_UPLOAD_FILE_STATUS,
   QUEUEING_UPLOAD_FILE_STATUS,
   UPLOADED_UPLOAD_FILE_STATUS,
   UPLOADING_UPLOAD_FILE_STATUS,
 } from "constants/uploadFile";
 import MD5 from "crypto-js/md5";
-import JSZip from "jszip";
 import { toast } from "react-toastify";
 import { channel } from "redux-saga";
 import {
   actionChannel,
   all,
   call,
-  delay,
   fork,
   put,
   select,
   take,
   takeEvery,
 } from "redux-saga/effects";
-import { addImageToAlbumFromFile } from "reduxes/album/action";
+import { updateCurrentAnnotationProjectStatistic } from "reduxes/annotationProject/action";
+import { selectorAnnotationCurrentProject } from "reduxes/annotationProject/selector";
+import { AnnotationProjectInfo } from "reduxes/annotationProject/type";
 import { selectorS3 } from "reduxes/general/selector";
 import {
-  fetchTaskInfo,
-  updateCurrentProjectStatistic,
-} from "reduxes/project/action";
-import { selectorCurrentProjectTotalOriginalImage } from "reduxes/project/selector";
-import { alertGoToTaskDashboard } from "reduxes/task/action";
+  CheckFileUploadParams,
+  UploadFileParams,
+  UploadFilesType,
+} from "reduxes/upload/type";
 import {
   clearFileArrayAnnotationProject,
   notifyExistFileAnnotationProject,
@@ -62,29 +55,23 @@ import {
   selectorUploadedFileCountAnnotationProject,
   selectorUploadFilesAnnotationProject,
 } from "reduxes/uploadAnnotationImage/selector";
-import {
-  CheckFileUploadParams,
-  UploadFileParams,
-  UploadFilesType,
-} from "reduxes/upload/type";
-import { projectApi } from "services";
+import annotationProjectApi from "services/annotationProjectApi";
 import {
   arrayBufferToWordArray,
   formatBytes,
-  generatePhotoKey,
-  generateZipFileKey,
   getLocalStorage,
-  isImageFile,
-  isZipFile,
   objectIndexOf,
   readAsArrayBuffer,
 } from "utils/general";
+import { getKeyS3 } from "./annotationEditorSaga";
 
 function* handleUpdateUploadToBackend(action: any): any {
   try {
     const { projectId, projectName, fileName, isReplace } = action.payload;
     const uploadFiles = yield select(selectorUploadFilesAnnotationProject);
-    const IDENTITY_ID = yield getLocalStorage(IDENTITY_ID_NAME) || "";
+    const annotationCurrentProject: AnnotationProjectInfo = yield select(
+      selectorAnnotationCurrentProject
+    );
     const readerResult = yield call(
       readAsArrayBuffer,
       uploadFiles[fileName].file
@@ -92,13 +79,13 @@ function* handleUpdateUploadToBackend(action: any): any {
     if (readerResult) {
       const hash = MD5(arrayBufferToWordArray(readerResult)).toString();
 
-      yield call(projectApi.uploadedUpdate, {
+      yield call(annotationProjectApi.uploadedUpdate, {
         idToken: getLocalStorage(ID_TOKEN_NAME) || "",
         projectId,
         projectName,
         listObjectInfo: [
           {
-            s3Key: `${S3_BUCKET_NAME}/${IDENTITY_ID}/${projectId}/${fileName}`,
+            s3Key: `${annotationCurrentProject.s3_raw_data}/${fileName}`,
             fileName,
             hash,
             size: uploadFiles[fileName].file.size,
@@ -133,100 +120,6 @@ function* watchUploadProgressChannel() {
     yield put(action);
   }
 }
-function* isZipFileValid(action: {
-  type: string;
-  payload: UploadFileParams;
-}): any {
-  const totalOriginalImage = yield select(
-    selectorCurrentProjectTotalOriginalImage
-  );
-  const { fileName } = action.payload;
-  const uploadFiles = yield select(selectorUploadFilesAnnotationProject);
-  const { file } = uploadFiles[fileName];
-
-  try {
-    if (file.size >= MAXIMUM_ZIP_FILE_SIZE) {
-      yield put(
-        updateFileAnnotationProject({
-          fileName,
-          updateInfo: {
-            error: `The file size exceeds the limit allowed (${formatBytes(
-              file.size
-            )}/${formatBytes(
-              MAXIMUM_ZIP_FILE_SIZE
-            )}). Please remove it to start a new uploading`,
-            status: FAILED_UPLOAD_FILE_STATUS,
-          },
-        })
-      );
-      return false;
-    }
-    const zip = yield JSZip.loadAsync(file);
-    let countImages = 0;
-    let validateFileSizeCounter = 0;
-    zip.forEach((relativePath: any, zipEntry: any) => {
-      const { name } = zipEntry;
-      if (isImageFile(name)) {
-        // eslint-disable-next-line no-underscore-dangle
-        if (zipEntry._data.uncompressedSize <= LIMIT_UPLOAD_IMAGE_SIZE) {
-          validateFileSizeCounter += 1;
-        }
-        countImages += 1;
-      }
-    });
-    if (countImages === 0) {
-      yield put(
-        updateFileAnnotationProject({
-          fileName,
-          updateInfo: {
-            error: `Not found any images in the zip files. Please remove it to start a new uploading`,
-            status: FAILED_UPLOAD_FILE_STATUS,
-          },
-        })
-      );
-      return false;
-    }
-    if (validateFileSizeCounter === 0) {
-      yield put(
-        updateFileAnnotationProject({
-          fileName,
-          updateInfo: {
-            error: `Not found any images with a size of less than ${formatBytes(
-              LIMIT_UPLOAD_IMAGE_SIZE
-            )}. Please remove it to start a new uploading`,
-            status: FAILED_UPLOAD_FILE_STATUS,
-          },
-        })
-      );
-      return false;
-    }
-    if (countImages + totalOriginalImage <= MAX_ALLOW_UPLOAD_IMAGES) {
-      return true;
-    }
-    const totalImage = totalOriginalImage + countImages;
-    const exceedCount = totalImage - MAX_ALLOW_UPLOAD_IMAGES;
-    yield put(
-      updateFileAnnotationProject({
-        fileName,
-        updateInfo: {
-          error: `The number of images exceed ${exceedCount} (${totalImage}/ ${MAX_ALLOW_UPLOAD_IMAGES}). Please remove it to start a new uploading`,
-          status: FAILED_UPLOAD_FILE_STATUS,
-        },
-      })
-    );
-  } catch (e) {
-    yield put(
-      updateFileAnnotationProject({
-        fileName,
-        updateInfo: {
-          error: `Failed to parse zip file ${fileName}. Please remove it to start a new uploading`,
-          status: FAILED_UPLOAD_FILE_STATUS,
-        },
-      })
-    );
-  }
-  return false;
-}
 function* processUploadDone() {
   const UpdatedUploadFiles: UploadFilesType = yield select(
     selectorUploadFilesAnnotationProject
@@ -241,139 +134,6 @@ function* processUploadDone() {
       totalUploadFileQuantity: null,
     })
   );
-}
-function* handleUploadZipFile(action: {
-  type: string;
-  payload: UploadFileParams;
-}): any {
-  try {
-    const isValid = yield call(isZipFileValid, {
-      type: CHECK_ZIP_FILE,
-      payload: action.payload,
-    });
-    if (isValid === false) {
-      return;
-    }
-    const { fileName, projectId, projectName } = action.payload;
-    const uploadFiles = yield select(selectorUploadFilesAnnotationProject);
-    const s3 = yield select(selectorS3);
-    const IDENTITY_ID = yield getLocalStorage(IDENTITY_ID_NAME) || "";
-
-    const zipFileKey = generateZipFileKey({
-      indentityId: IDENTITY_ID,
-      projectId,
-      fileName,
-    });
-    try {
-      if (uploadFiles[fileName]) {
-        const uploadParams = {
-          Bucket: S3_BUCKET_NAME,
-          Key: zipFileKey,
-          Body: uploadFiles[fileName].file,
-        };
-
-        yield put(
-          updateFileAnnotationProject({
-            fileName,
-            updateInfo: {
-              error: "",
-              status: UPLOADING_UPLOAD_FILE_STATUS,
-            },
-          })
-        );
-
-        const parallelUploads3 = new Upload({
-          client: s3,
-          queueSize: 4,
-          params: uploadParams,
-        });
-        parallelUploads3.on("httpUploadProgress", (progress) => {
-          uploadProgressChannel.put(
-            updateFileAnnotationProject({
-              fileName,
-              updateInfo: {
-                uploadProgress: Number(
-                  Number(
-                    ((progress.loaded || 0) / (progress.total || 1)) * 100
-                  ).toFixed(0) || "0"
-                ),
-              },
-            })
-          );
-        });
-        yield parallelUploads3.done();
-        const uploadFilesForChecking = yield select(
-          selectorUploadFilesAnnotationProject
-        );
-        if (!uploadFilesForChecking[fileName]) {
-          yield put({ type: UPLOAD_FILE_ANNOTATION_PROJECT.FAILED });
-          return;
-        }
-        yield put(
-          updateFileAnnotationProject({
-            fileName,
-            updateInfo: {
-              error: "",
-              status: UPLOADED_UPLOAD_FILE_STATUS,
-            },
-          })
-        );
-        const uploadZipFileResponse = yield call(projectApi.uploadZipFile, {
-          idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-          projectId,
-          projectName,
-          typeMethod: ORIGINAL_SOURCE,
-          fileUrl: `s3://${S3_BUCKET_NAME}/${zipFileKey}`,
-        });
-        if (uploadZipFileResponse.error === false) {
-          yield delay(2000);
-          yield put(
-            fetchTaskInfo({
-              idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-              taskId: uploadZipFileResponse.data.task_id,
-              processType: UPLOAD_TASK_PROCESS_TYPE,
-              isNotify: true,
-              projectId,
-            })
-          );
-        }
-        const uploadedFile = yield select(
-          selectorUploadedFileCountAnnotationProject
-        );
-        const totalUploadFile = yield select(
-          selectorTotalUploadFileQuantityAnnotationProject
-        );
-        const failAndInvalidFileCount = yield select(
-          selectorFailAndInvalidFileCountAnnotationProject
-        );
-        if (uploadedFile + failAndInvalidFileCount >= totalUploadFile) {
-          yield put(
-            alertGoToTaskDashboard({
-              message: `Uploading of the ZIP file has been started successfully. Please wait a moment until we unzip the file. You can check the status under "My Tasks".`,
-              projectId,
-            })
-          );
-          yield processUploadDone();
-        }
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        toast.error(`There was an error uploading your file: ${err.message}`);
-        yield put(
-          updateFileAnnotationProject({
-            fileName,
-            updateInfo: {
-              error: err.message,
-              status: FAILED_UPLOAD_FILE_STATUS,
-            },
-          })
-        );
-      }
-    }
-  } catch (e: any) {
-    yield put({ type: UPLOAD_FILE_ANNOTATION_PROJECT.FAILED });
-    toast.error(e.message);
-  }
 }
 function* isImageValid(action: {
   type: string;
@@ -414,14 +174,11 @@ function* handleUploadFile(action: {
       isExist,
     } = action.payload;
     const uploadFiles = yield select(selectorUploadFilesAnnotationProject);
+    const annotationCurrentProject: AnnotationProjectInfo = yield select(
+      selectorAnnotationCurrentProject
+    );
     const s3 = yield select(selectorS3);
-    const IDENTITY_ID = yield getLocalStorage(IDENTITY_ID_NAME) || "";
-
-    const photoKey = generatePhotoKey({
-      indentityId: IDENTITY_ID,
-      projectId,
-      fileName,
-    });
+    const keyS3 = getKeyS3(annotationCurrentProject.s3_raw_data);
 
     try {
       if (uploadFiles[fileName]) {
@@ -432,9 +189,10 @@ function* handleUploadFile(action: {
         if (isValid === false) {
           return;
         }
+        const s3KeyFile = `${keyS3.key}/${fileName}`;
         const uploadParams = {
-          Bucket: S3_BUCKET_NAME,
-          Key: photoKey,
+          Bucket: keyS3.bucketName,
+          Key: s3KeyFile,
           Body: uploadFiles[fileName].file,
         };
 
@@ -484,21 +242,8 @@ function* handleUploadFile(action: {
           })
         );
 
-        // TODO: MOVE ADD TO ALBUM TO ABOVE UPDATE BACKEND
         yield put(
-          addImageToAlbumFromFile({
-            filename: fileName,
-            typeOfImage: ORIGINAL_SOURCE,
-            url: window.URL.createObjectURL(uploadFiles[fileName].file),
-            size: uploadFiles[fileName].file.size,
-            s3_key: `${S3_BUCKET_NAME}/${photoKey}`,
-            photoKey,
-            thumbnail: "",
-          })
-        );
-
-        yield put(
-          updateCurrentProjectStatistic({
+          updateCurrentAnnotationProjectStatistic({
             projectId,
             updateInfo: {
               typeMethod: ORIGINAL_SOURCE,
@@ -582,7 +327,7 @@ function* handleCheckFilesToUpload(action: {
         },
       })
     );
-    const checkedFileResponse = yield call(projectApi.uploadCheck, {
+    const checkedFileResponse = yield call(annotationProjectApi.uploadCheck, {
       idToken,
       projectId,
       listFileName,
@@ -675,18 +420,11 @@ function* handleCheckFilesToUpload(action: {
 function* handleUploadRequest(requestChannel: any) {
   while (true) {
     const { payload } = yield take(requestChannel);
-    const { fileName } = payload;
-    if (isZipFile(fileName)) {
-      yield call(handleUploadZipFile, {
-        type: UPLOAD_FILE_ANNOTATION_PROJECT.REQUESTED,
-        payload,
-      });
-    } else {
-      yield call(handleUploadFile, {
-        type: UPLOAD_FILE_ANNOTATION_PROJECT.REQUESTED,
-        payload,
-      });
-    }
+
+    yield call(handleUploadFile, {
+      type: UPLOAD_FILE_ANNOTATION_PROJECT.REQUESTED,
+      payload,
+    });
   }
 }
 

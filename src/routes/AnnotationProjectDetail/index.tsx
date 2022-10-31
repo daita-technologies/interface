@@ -29,6 +29,7 @@ import {
   selectorIsFetchingDetailAnnotationProject,
 } from "reduxes/annotationProject/selector";
 import { formatBytes, getLocalStorage, separateNumber } from "utils/general";
+import UploadAnnotationImage from "./UploadAnnotationImage";
 
 const annotationProjectDetail = function () {
   const { projectName } = useParams<{ projectName: string }>();
@@ -85,6 +86,9 @@ const annotationProjectDetail = function () {
     return () => {};
   }, [annotationCurrentProject]);
   const renderContent = () => {
+    if (!annotationCurrentProject) {
+      return <></>;
+    }
     let totalOriginalImage = 0;
     let totalPreprocessImage = 0;
     let totalAugmentImage = 0;
@@ -113,63 +117,79 @@ const annotationProjectDetail = function () {
       }
     }
     return (
-      <>
-        <Box flex={1} mr={1}>
-          <Typography fontSize={18} fontWeight="bold">
-            Data
-          </Typography>
-          <Typography fontSize={14}>Original</Typography>
-          <Typography fontSize={14}>Preprocessing</Typography>
-          <Typography fontSize={14}>Augmentation</Typography>
-          <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
-          <Typography fontSize={18} fontWeight="bold">
-            Total
-          </Typography>
-        </Box>
-        <Box flex={1} mr={1}>
-          <Typography fontSize={18} fontWeight="bold">
-            Number of Images
-          </Typography>
-          <Typography fontSize={14}>
-            {separateNumber(totalOriginalImage.toString())}
-          </Typography>
-          <Typography fontSize={14}>
-            {separateNumber(totalPreprocessImage.toString())}
-          </Typography>
-          <Typography fontSize={14}>
-            {separateNumber(totalAugmentImage.toString())}
-          </Typography>
-          <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
-          <Typography fontSize={18} fontWeight="bold">
-            {separateNumber(
-              (
-                totalOriginalImage +
-                totalPreprocessImage +
-                totalAugmentImage
-              ).toString()
-            )}
-          </Typography>
-        </Box>
+      <Box display="flex" flexDirection="column" width="100%">
+        <Box
+          display="flex"
+          mt={2}
+          p={2}
+          bgcolor="background.paper"
+          borderRadius={2}
+        >
+          <Box flex={1} mr={1}>
+            <Typography fontSize={18} fontWeight="bold">
+              Data
+            </Typography>
+            <Typography fontSize={14}>Original</Typography>
+            <Typography fontSize={14}>Preprocessing</Typography>
+            <Typography fontSize={14}>Augmentation</Typography>
+            <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
+            <Typography fontSize={18} fontWeight="bold">
+              Total
+            </Typography>
+          </Box>
+          <Box flex={1} mr={1}>
+            <Typography fontSize={18} fontWeight="bold">
+              Number of Images
+            </Typography>
+            <Typography fontSize={14}>
+              {separateNumber(totalOriginalImage.toString())}
+            </Typography>
+            <Typography fontSize={14}>
+              {separateNumber(totalPreprocessImage.toString())}
+            </Typography>
+            <Typography fontSize={14}>
+              {separateNumber(totalAugmentImage.toString())}
+            </Typography>
+            <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
+            <Typography fontSize={18} fontWeight="bold">
+              {separateNumber(
+                (
+                  totalOriginalImage +
+                  totalPreprocessImage +
+                  totalAugmentImage
+                ).toString()
+              )}
+            </Typography>
+          </Box>
 
-        <Box flex={1} ml={1}>
-          <Typography fontSize={18} fontWeight="bold">
-            Dataset Storage
-          </Typography>
-          <Typography fontSize={14}>
-            {formatBytes(totalOriginalSize)}
-          </Typography>
-          <Typography fontSize={14}>
-            {formatBytes(totalPreprocessSize)}
-          </Typography>
-          <Typography fontSize={14}>{formatBytes(totalAugmentSize)}</Typography>
-          <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
-          <Typography fontSize={18} fontWeight="bold">
-            {formatBytes(
-              totalOriginalSize + totalPreprocessSize + totalAugmentSize
-            )}
-          </Typography>
+          <Box flex={1} ml={1}>
+            <Typography fontSize={18} fontWeight="bold">
+              Dataset Storage
+            </Typography>
+            <Typography fontSize={14}>
+              {formatBytes(totalOriginalSize)}
+            </Typography>
+            <Typography fontSize={14}>
+              {formatBytes(totalPreprocessSize)}
+            </Typography>
+            <Typography fontSize={14}>
+              {formatBytes(totalAugmentSize)}
+            </Typography>
+            <Divider sx={{ borderColor: "text.secondary", my: 1 }} />
+            <Typography fontSize={18} fontWeight="bold">
+              {formatBytes(
+                totalOriginalSize + totalPreprocessSize + totalAugmentSize
+              )}
+            </Typography>
+          </Box>
         </Box>
-      </>
+        <Box>
+          <UploadAnnotationImage
+            projectId={annotationCurrentProject.project_id}
+            projectName={annotationCurrentProject.project_name}
+          />
+        </Box>
+      </Box>
     );
     // if (annotationCurrentProjectName && annotationCurrentProject) {
     //   return (
@@ -226,14 +246,7 @@ const annotationProjectDetail = function () {
     };
     return (
       <Box>
-        <Box
-          mt={2}
-          p={2}
-          display="flex"
-          bgcolor="background.paper"
-          borderRadius={2}
-          flex={1}
-        >
+        <Box mt={2} p={2} display="flex" borderRadius={2} flex={1}>
           {renderContent()}
         </Box>
         <Box mt={10} display="flex" justifyContent="flex-end" gap={2}>

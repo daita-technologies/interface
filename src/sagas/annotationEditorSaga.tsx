@@ -29,6 +29,7 @@ import {
   addDrawObjectStateIdByAI,
   resetCurrentStateDrawObject,
 } from "reduxes/annotation/action";
+import { selectorDrawObjectStateIdByAI } from "reduxes/annotation/selector";
 import {
   DrawObject,
   ResetCurrentStateDrawObjectPayload,
@@ -52,9 +53,8 @@ import {
 import { selectorS3 } from "reduxes/general/selector";
 import annotationProjectApi from "services/annotationProjectApi";
 import { getLocalStorage } from "utils/general";
-import { selectorDrawObjectStateIdByAI } from "reduxes/annotation/selector";
 
-function getKeyS3(s3Key: string) {
+export function getKeyS3(s3Key: string) {
   const splitKey = s3Key.split("/");
   const bucketName = splitKey.splice(0, 1)[0];
   const key = splitKey.join("/");
