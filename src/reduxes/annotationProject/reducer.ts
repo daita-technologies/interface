@@ -10,6 +10,7 @@ import {
   FETCH_ANNOTATION_FILES,
   FETCH_DETAIL_ANNOTATION_PROJECT,
   FETCH_LIST_ANNOTATION_PROJECTS,
+  SET_ANNOTATION_FILES,
   SET_CURRENT_ANNOTATION_PROJECT,
   SET_IS_OPEN_DELETE_ANNOTATION_PROJECT_CONFIRM,
   SHOW_DIALOG_CLONE_PROJECT_TO_ANNOTATION,
@@ -17,6 +18,8 @@ import {
 import {
   AnnotationFilesApi,
   AnnotationProjectReducer,
+  FetchAnnotationFilesProps,
+  SetAnnotationFilesProps,
   SetCurrentAnnotationProjectProps,
   SetDialogCloneProjectToAnnotationProps,
 } from "./type";
@@ -149,6 +152,17 @@ const annotationProjectReducer = (
         ...state,
         currentAnnotationAndFileInfo: payload.currentAnnotationAndFileInfo,
       };
+    case SET_ANNOTATION_FILES: {
+      const { annotationAndFileInfoApi } = payload as SetAnnotationFilesProps;
+      return {
+        ...state,
+        currentAnnotationAndFileInfo: annotationAndFileInfoApi,
+        currentAnnotationFiles:
+          annotationAndFileInfoApi === null
+            ? null
+            : state.currentAnnotationFiles,
+      };
+    }
     case FETCH_ANNOTATION_FILES.SUCCEEDED:
       const { items, next_token, projectId } = payload as AnnotationFilesApi;
       const { currentAnnotationFiles } = state;

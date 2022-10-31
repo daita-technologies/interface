@@ -129,3 +129,6 @@ export interface DeleteAnnotationProjectProps {
   projectId: string;
   projectName: string;
 }
+export interface SetAnnotationFilesProps {
+  annotationAndFileInfoApi: AnnotationAndFileInfoApi | null;
+}

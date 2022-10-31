@@ -5,6 +5,7 @@ import {
   CHANGE_PREVIEW_IMAGE,
   EDIT_CLASS_LABEL,
   EDIT_CLASS_MANAGE_MODAL,
+  RESET_ANNOTATION_MANAGER,
   SAVE_ANNOTATION_STATE_MANAGER,
   SET_ANNOTATION_STATE_MANAGER,
   SET_CLASS_MANAGE_MODAL,
@@ -149,6 +150,9 @@ const annotationManagerReducer = (
           [imageName]: { ...drawObjectById },
         },
       };
+    }
+    case RESET_ANNOTATION_MANAGER: {
+      return { ...inititalState };
     }
     default:
       return state;

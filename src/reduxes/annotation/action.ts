@@ -7,6 +7,7 @@ import {
   DELETE_DRAW_OBJECT,
   REDO_DRAW_OBJECT,
   REMOVE_DRAW_OBJECTS_BY_AI,
+  RESET_ANNOTATION,
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
@@ -115,4 +116,7 @@ export const removeDrawObjectStateIdByAI = (
 ) => ({
   type: REMOVE_DRAW_OBJECTS_BY_AI,
   payload,
+});
+export const resetAnnotation = () => ({
+  type: RESET_ANNOTATION,
 });

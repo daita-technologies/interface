@@ -66,7 +66,6 @@ const LabelAnnotation = function () {
     });
     return retList.sort();
   }, [drawObjectById, drawObjectStateIdByAI]);
-  console.log("listIdsDrawObjectById", listIdsDrawObjectById);
   // eslint-disable-next-line react/no-unstable-nested-components
   function Row({ index, style }: { index: number; style: CSSProperties }) {
     if (listIdsDrawObjectById[index]) {

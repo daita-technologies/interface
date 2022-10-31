@@ -6,6 +6,7 @@ import PolylineIcon from "@mui/icons-material/Polyline";
 import RedoIcon from "@mui/icons-material/Redo";
 import SaveIcon from "@mui/icons-material/Save";
 import UndoIcon from "@mui/icons-material/Undo";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { LoadingButton } from "@mui/lab";
 import {
   Box,
@@ -45,6 +46,7 @@ import {
   selectorAnnotationStatehHistory,
   selectorcurrentDrawType,
   selectorDrawObjectById,
+  selectorDrawObjectStateIdByAI,
 } from "reduxes/annotation/selector";
 import { DrawObject, DrawType } from "reduxes/annotation/type";
 import {
@@ -70,6 +72,7 @@ const ControlPanel = () => {
   const currentPreviewImageName = useSelector(selectorCurrentPreviewImageName);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const isSavingAnnotation = useSelector(selectorIsSavingAnnotation);
+  const drawObjectStateIdByAI = useSelector(selectorDrawObjectStateIdByAI);
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
   );
@@ -339,6 +342,10 @@ const ControlPanel = () => {
       );
     }
   };
+  const isAIDetectAvailable = React.useMemo(
+    () => drawObjectStateIdByAI && drawObjectStateIdByAI.length !== 0,
+    [drawObjectStateIdByAI]
+  );
   return (
     <>
       <Box sx={{ minWidth: 100 }} display="flex" flexDirection="column" gap={1}>
@@ -386,14 +393,24 @@ const ControlPanel = () => {
           sx={{ border: "1px dashed grey" }}
           justifyContent="space-evenly"
         >
-          <Tooltip title="AI Detection">
+          <Tooltip
+            title={
+              isAIDetectAvailable
+                ? "AI Detection"
+                : "Don't have any detected object by AI"
+            }
+          >
             <span>
               <IconButton
                 onClick={(e) =>
                   selectModeHandle(e, DrawType.DETECTED_RECTANGLE)
                 }
               >
-                <ImageSearchIcon fontSize="large" />
+                {isAIDetectAvailable ? (
+                  <ImageSearchIcon fontSize="large" />
+                ) : (
+                  <WarningAmberIcon fontSize="large" />
+                )}
               </IconButton>
             </span>
           </Tooltip>
