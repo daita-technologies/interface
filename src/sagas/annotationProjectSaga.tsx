@@ -169,18 +169,20 @@ function* handleFetchDetailProject(action: any): any {
           currentProjectInfo: annotationProjectInfo,
         },
       });
-      for (const classLabel of annotationProjectInfo.ls_category.ls_class) {
-        const strokeColor = "#" + intToRGB(hashCode(classLabel.class_name));
-        yield put(
-          addNewClassLabel({
-            labelClassProperties: {
-              label: { label: classLabel.class_name },
-              cssStyle: {
-                fill: convertStrokeColorToFillColor(strokeColor),
+      if (annotationProjectInfo.ls_category?.ls_class) {
+        for (const classLabel of annotationProjectInfo.ls_category.ls_class) {
+          const strokeColor = "#" + intToRGB(hashCode(classLabel.class_name));
+          yield put(
+            addNewClassLabel({
+              labelClassProperties: {
+                label: { label: classLabel.class_name },
+                cssStyle: {
+                  fill: convertStrokeColorToFillColor(strokeColor),
+                },
               },
-            },
-          })
-        );
+            })
+          );
+        }
       }
     } else {
       yield put({
@@ -189,6 +191,7 @@ function* handleFetchDetailProject(action: any): any {
       toast.error(fetchDetailProjectResponse.message);
     }
   } catch (e: any) {
+    console.log(e);
     yield put({ type: FETCH_DETAIL_ANNOTATION_PROJECT.FAILED });
     toast.error(e.message);
   }
