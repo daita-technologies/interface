@@ -244,7 +244,6 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
   }
 }
 function* handleAddNewClassLabel(action: any): any {
-  console.log(action.payload);
   const annotationCurrentProject: AnnotationProjectInfo = yield select(
     selectorAnnotationCurrentProject
   );

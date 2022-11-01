@@ -191,7 +191,6 @@ function* handleFetchDetailProject(action: any): any {
       toast.error(fetchDetailProjectResponse.message);
     }
   } catch (e: any) {
-    console.log(e);
     yield put({ type: FETCH_DETAIL_ANNOTATION_PROJECT.FAILED });
     toast.error(e.message);
   }
