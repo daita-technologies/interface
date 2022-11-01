@@ -15,7 +15,7 @@ import {
   PREPROCESS_SOURCE,
 } from "constants/defaultValues";
 import { ANNOTATION_EDITOR_ROUTE_NAME } from "constants/routeName";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
@@ -29,6 +29,7 @@ import {
   selectorIsFetchingDetailAnnotationProject,
 } from "reduxes/annotationProject/selector";
 import { formatBytes, getLocalStorage, separateNumber } from "utils/general";
+import SegmentationProgressModal from "./SegmentationProgressModal";
 import UploadAnnotationImage from "./UploadAnnotationImage";
 
 const annotationProjectDetail = function () {
@@ -42,6 +43,20 @@ const annotationProjectDetail = function () {
   const isFetchingDetailAnnotationProject = useSelector(
     selectorIsFetchingDetailAnnotationProject
   );
+
+  const [
+    isOpenCheckSegmentationProgressModal,
+    setIsOpenCheckSegmentationProgressModal,
+  ] = useState(false);
+
+  const onCloseCheckSegmentationProgressModal = () => {
+    setIsOpenCheckSegmentationProgressModal(false);
+  };
+
+  const onOpenCheckSegmentationProgressModal = () => {
+    setIsOpenCheckSegmentationProgressModal(true);
+  };
+
   useEffect(() => {
     dispatch(setCurrentAnnotationProject({ projectName }));
     dispatch(
@@ -249,6 +264,14 @@ const annotationProjectDetail = function () {
         <Box mt={2} p={2} display="flex" borderRadius={2} flex={1}>
           {renderContent()}
         </Box>
+        <Box mt={1} px={2}>
+          <Button
+            variant="outlined"
+            onClick={onOpenCheckSegmentationProgressModal}
+          >
+            Check Segmentation Progress
+          </Button>
+        </Box>
         <Box mt={10} display="flex" justifyContent="flex-end" gap={2}>
           <Button
             variant="outlined"
@@ -276,6 +299,10 @@ const annotationProjectDetail = function () {
         </Typography>
         <Divider sx={{ my: 1, borderWidth: 2, borderColor: "text.primary" }} />
         {renderProject()}
+        <SegmentationProgressModal
+          isOpen={isOpenCheckSegmentationProgressModal}
+          onClose={onCloseCheckSegmentationProgressModal}
+        />
       </Box>
     </>
   );

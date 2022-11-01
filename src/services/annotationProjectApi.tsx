@@ -27,6 +27,12 @@ export interface SaveLabelProps {
   fileId: string;
   dictS3Key: Record<string, string>;
 }
+
+export type CheckSegmentationProgressDataFields = {
+  total: number;
+  finished: number;
+};
+
 const annotationProjectApi = {
   cloneProbjectToAnnotation: ({
     fromProjectName,
@@ -175,6 +181,21 @@ const annotationProjectApi = {
         ls_object_info: listObjectInfo.map((info) =>
           convertToUnderScoreValue(info)
         ),
+      },
+      { headers: getAuthHeader() }
+    ),
+  checkSegmentationProgress: ({
+    idToken,
+    projectId,
+  }: {
+    idToken?: string;
+    projectId: string;
+  }) =>
+    axios.post(
+      `${annotationProjectApiURL}/annotation/project/check_ai_segm_progress`,
+      {
+        id_token: idToken || getLocalStorage(ID_TOKEN_NAME) || "",
+        project_id: projectId,
       },
       { headers: getAuthHeader() }
     ),
