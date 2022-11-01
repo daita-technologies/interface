@@ -120,31 +120,31 @@ const ImagePreview = function () {
     // });
   }, []);
 
-  const onDrop = (acceptedFiles: File[]) => {
-    if (acceptedFiles && acceptedFiles.length > 0) {
-      for (const file of acceptedFiles) {
-        loadImage(file).then(({ image, fileName }) => {
-          const property: AnnotationImagesProperty = {
-            image: file,
-            width: image.width,
-            height: image.height,
-          };
-          dispatch(
-            addImagesToAnnotation({ annotationImagesProperties: [property] })
-          );
-          if (!currentPreviewImageName) {
-            dispatch(changePreviewImage({ imageName: acceptedFiles[0].name }));
-          }
-        });
-      }
-    }
-  };
-  const dropZone = useDropzone({
-    onDrop,
-    accept: IMAGE_EXTENSIONS.join(","),
-    noDragEventsBubbling: true,
-  });
-  const { getRootProps, isDragActive, getInputProps } = dropZone;
+  // const onDrop = (acceptedFiles: File[]) => {
+  //   if (acceptedFiles && acceptedFiles.length > 0) {
+  //     for (const file of acceptedFiles) {
+  //       loadImage(file).then(({ image, fileName }) => {
+  //         const property: AnnotationImagesProperty = {
+  //           image: file,
+  //           width: image.width,
+  //           height: image.height,
+  //         };
+  //         dispatch(
+  //           addImagesToAnnotation({ annotationImagesProperties: [property] })
+  //         );
+  //         if (!currentPreviewImageName) {
+  //           dispatch(changePreviewImage({ imageName: acceptedFiles[0].name }));
+  //         }
+  //       });
+  //     }
+  //   }
+  // };
+  // const dropZone = useDropzone({
+  //   onDrop,
+  //   accept: IMAGE_EXTENSIONS.join(","),
+  //   noDragEventsBubbling: true,
+  // });
+  // const { getRootProps, isDragActive, getInputProps } = dropZone;
   // const fileThumbByImageName = useMemo(() => {
   //   const thumbs: Record<string, string> = {};
   //   Object.entries(annotationManagerImages).map(
@@ -179,7 +179,7 @@ const ImagePreview = function () {
     }
     return (
       <>
-        <Box
+        {/* <Box
           sx={{
             background: `url("/assets/images/upload-image.png") no-repeat center`,
             border: "1px solid",
@@ -194,7 +194,7 @@ const ImagePreview = function () {
           {...getRootProps()}
         >
           <input {...getInputProps()} />
-        </Box>
+        </Box> */}
         <List
           sx={{
             maxWidth: "90%",

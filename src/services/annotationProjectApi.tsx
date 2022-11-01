@@ -12,6 +12,10 @@ import {
   FetchAnnotationFilesProps,
 } from "reduxes/annotationProject/type";
 import { getLocalStorage } from "utils/general";
+import {
+  convertToUnderScoreValue,
+  UploadUpdateListObjectInfo,
+} from "./projectApi";
 export interface AddListOfClassNameToCategoryProps {
   idToken: string;
   categoryId: string;
@@ -60,6 +64,24 @@ const annotationProjectApi = {
       {
         id_token: idToken,
         project_name: projectName,
+      },
+      { headers: getAuthHeader() }
+    ),
+  uploadCheck: ({
+    idToken,
+    projectId,
+    listFileName,
+  }: {
+    idToken: string;
+    projectId: string;
+    listFileName: Array<string>;
+  }) =>
+    axios.post(
+      `${annotationProjectApiURL}/annotation/project/upload_check`,
+      {
+        id_token: idToken,
+        project_id: projectId,
+        ls_filename: listFileName,
       },
       { headers: getAuthHeader() }
     ),
@@ -130,6 +152,29 @@ const annotationProjectApi = {
         id_token: idToken,
         project_id: projectId,
         project_name: projectName,
+      },
+      { headers: getAuthHeader() }
+    ),
+  uploadedUpdate: ({
+    idToken,
+    projectId,
+    projectName,
+    listObjectInfo,
+  }: {
+    idToken: string;
+    projectId: string;
+    projectName: string;
+    listObjectInfo: Array<UploadUpdateListObjectInfo>;
+  }) =>
+    axios.post(
+      `${annotationProjectApiURL}/annotation/project/upload_update`,
+      {
+        id_token: idToken,
+        project_id: projectId,
+        project_name: projectName,
+        ls_object_info: listObjectInfo.map((info) =>
+          convertToUnderScoreValue(info)
+        ),
       },
       { headers: getAuthHeader() }
     ),

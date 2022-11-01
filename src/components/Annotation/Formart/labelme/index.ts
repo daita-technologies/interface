@@ -136,10 +136,6 @@ export const importAnnotation = (
                       label: { label: shape.label },
                     },
                   };
-                  console.log(
-                    "  drawObjectById[drawObject.data.id]",
-                    drawObjectById[drawObject.data.id]
-                  );
                 } else if (shape.shape_type === "ellipse") {
                   const drawObject = createEllipse({ x: 0, y: 0 });
                   const points = shape.points as EllipseFormatter;
