@@ -1,0 +1,1 @@
+export type CONVERT_ANNOTATION_TYPE = "LABLE_ME" | "SCALE_AI" | "LABEL_BOX";

@@ -12,8 +12,6 @@ import {
   UPLOADED_UPLOAD_FILE_STATUS,
   UPLOADING_UPLOAD_FILE_STATUS,
 } from "constants/uploadFile";
-import { useSelector } from "react-redux";
-import { RootState } from "reduxes";
 import { formatBytes } from "utils/general";
 import { UploadFileItemProps } from "./type";
 
@@ -21,9 +19,7 @@ function UploadFileItem(props: UploadFileItemProps) {
   const { fileName, onClickDelete, onClickReplaceUpload, isUploading, style } =
     props;
 
-  const { file, status, error, uploadProgress } = useSelector(
-    (state: RootState) => state.uploadReducer.files[fileName]
-  );
+  const { file, status, error, uploadProgress } = props.handleFileType;
   const deleteButton = (
     <Box>
       <IconButton onClick={() => onClickDelete(file.name)} color="error">

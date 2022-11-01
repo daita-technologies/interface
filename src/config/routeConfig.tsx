@@ -1,4 +1,7 @@
 import {
+  ANNOTATION_EDITOR_ROUTE_NAME,
+  ANNOTATION_PROJECT_DETAIL_ROUTE_NAME,
+  ANNOTATION_PROJECT_ROUTE_NAME,
   DATASET_HEALTH_CHECK_ROUTE_NAME,
   MY_TASKS_ROUTE_NAME,
   OLD_DATASET_HEALTH_CHECK_ROUTE_NAME,
@@ -17,9 +20,12 @@ import {
   TaskDashboard,
   VerifyAccountPage,
 } from "routes";
+import AnnotationPage from "routes/AnnotationPage";
+import AnnotationProject from "routes/AnnotationProject";
 import PrivacyPolicy from "routes/PrivacyPolicy";
 import Terms from "routes/Terms";
 import { CustomRouteProps } from "./type";
+import AnnotationProjectDetail from "routes/AnnotationProjectDetail";
 
 export const CustomRoute = function ({
   path,
@@ -63,6 +69,20 @@ export const customLayoutRouteConfig = [
     component: Terms,
     exact: true,
     isPrivate: false,
+  },
+];
+export const emptyLayoutRouteConfig = [
+  {
+    path: `/${ANNOTATION_EDITOR_ROUTE_NAME}/:projectName/:fileName`,
+    component: AnnotationPage,
+    exact: true,
+    isPrivate: true,
+  },
+  {
+    path: `/${ANNOTATION_EDITOR_ROUTE_NAME}/:projectName`,
+    component: AnnotationPage,
+    exact: true,
+    isPrivate: true,
   },
 ];
 const routeConfig = [
@@ -155,6 +175,18 @@ const routeConfig = [
       />
     ),
     exact: false,
+    isPrivate: true,
+  },
+  {
+    path: `/${ANNOTATION_PROJECT_ROUTE_NAME}`,
+    component: AnnotationProject,
+    exact: true,
+    isPrivate: true,
+  },
+  {
+    path: `/${ANNOTATION_PROJECT_DETAIL_ROUTE_NAME}/:projectName`,
+    component: AnnotationProjectDetail,
+    exact: true,
     isPrivate: true,
   },
 ];
