@@ -21,6 +21,7 @@ import {
   selectorDialogCloneProjectToAnnotation,
   selectorIsCloningProjectToAnnotation,
 } from "reduxes/annotationProject/selector";
+import { useEffect } from "react";
 
 const CloneProjectModal = function () {
   const dispatch = useDispatch();
@@ -30,15 +31,23 @@ const CloneProjectModal = function () {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<CloneProjectToAnnotationFields>({
     mode: "onChange",
-    defaultValues: {
-      fromProjectName: dialogCloneProjectToAnnotation.projectName,
-      annotationProjectName: "",
-      annotationProjectDescription: "",
-    },
   });
+  useEffect(() => {
+    setValue(
+      "fromProjectName",
+      dialogCloneProjectToAnnotation.projectName
+        ? dialogCloneProjectToAnnotation.projectName
+        : ""
+    );
+    if (!dialogCloneProjectToAnnotation.isShow) {
+      setValue("annotationProjectName", "");
+      setValue("annotationProjectDescription", "");
+    }
+  }, [dialogCloneProjectToAnnotation]);
 
   const isLoading = useSelector(selectorIsCloningProjectToAnnotation);
   const onSubmit = (fields: CloneProjectToAnnotationFields) => {
