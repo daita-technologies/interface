@@ -103,6 +103,19 @@ const FILE_UPLOAD_EXTENSIONS = [
   ...IMAGE_EXTENSIONS,
   ...COMPRESS_FILE_EXTENSIONS,
 ];
+export const loadImage = (file: File, fileName?: string) =>
+  new Promise<LoadImageResult>((resolve) => {
+    const image = new Image();
+    const objectUrl = window.URL.createObjectURL(file);
+    image.onload = () => {
+      resolve({
+        image,
+        fileName: fileName ? fileName : file.name,
+      });
+      window.URL.revokeObjectURL(objectUrl);
+    };
+    image.src = objectUrl;
+  });
 const UploadFile = function (props: UploadFileProps) {
   const { projectId, projectName } = props;
 
@@ -170,19 +183,7 @@ const UploadFile = function (props: UploadFileProps) {
         ).toFixed(0)
       : 0
   );
-  const loadImage = (file: File, fileName: string) =>
-    new Promise<LoadImageResult>((resolve) => {
-      const image = new Image();
-      const objectUrl = window.URL.createObjectURL(file);
-      image.onload = () => {
-        resolve({
-          image,
-          fileName,
-        });
-        window.URL.revokeObjectURL(objectUrl);
-      };
-      image.src = objectUrl;
-    });
+
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       if (acceptedFiles.length > MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME) {
@@ -387,6 +388,7 @@ const UploadFile = function (props: UploadFileProps) {
         onClickReplaceUpload={onReplaceUpload}
         isUploading={isUploading}
         style={style}
+        handleFileType={uploadFiles[listFileName[index]]}
       />
     );
   }

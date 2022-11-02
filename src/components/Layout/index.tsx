@@ -5,6 +5,7 @@ import {
   Footer,
   Sidebar,
 } from "components";
+import DeleteAnnotationProjectConfirmDialog from "components/DeleteAnnotationProjectConfirmDialog";
 import React from "react";
 import { Helmet } from "react-helmet";
 import { useSelector } from "react-redux";
@@ -31,6 +32,7 @@ const Layout = function ({ children }: LayoutProps) {
           {/* <Header /> */}
           <Container maxWidth="xl">{children}</Container>
           <DeleteConfirmDialog />
+          <DeleteAnnotationProjectConfirmDialog />
         </Box>
       </Box>
       {isLogged && <FeedbackComponent />}

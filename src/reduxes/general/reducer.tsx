@@ -1,3 +1,4 @@
+import { DELETE_ANNOTATION_PROJECT } from "reduxes/annotationProject/constants";
 import { LOG_OUT } from "reduxes/auth/constants";
 import { DELETE_PROJECT } from "reduxes/project/constants";
 import generateS3Client from "utils/s3";
@@ -39,6 +40,12 @@ const generalReducer = (state = inititalState, action: any): GeneralReducer => {
     case DELETE_PROJECT.SUCCEEDED:
       return { ...state, isShow: false };
     case DELETE_PROJECT.FAILED:
+      return { ...state, isShow: false };
+    case DELETE_ANNOTATION_PROJECT.REQUESTED:
+      return { ...state, isShow: true };
+    case DELETE_ANNOTATION_PROJECT.SUCCEEDED:
+      return { ...state, isShow: false };
+    case DELETE_ANNOTATION_PROJECT.FAILED:
       return { ...state, isShow: false };
     case SET_IS_CHECKING_APP: {
       const { isChecking } = payload as SetIsCheckingAppPayload;

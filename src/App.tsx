@@ -1,9 +1,11 @@
 import { Box } from "@mui/material";
 import { Layout, PageLoading, ScrollToTop } from "components";
+import EmptyLayout from "components/Layout/EmptyLayout";
 import GuestLayout from "components/Layout/GuestLayout";
 import routeConfig, {
   customLayoutRouteConfig,
   CustomRoute,
+  emptyLayoutRouteConfig,
 } from "config/routeConfig";
 import { TOKEN_NAME } from "constants/defaultValues";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
@@ -58,6 +60,23 @@ Apply here: contact@daita.tech
                 )}
               </Switch>
             </GuestLayout>
+          </Route>
+          <Route path={emptyLayoutRouteConfig.map((t) => t.path)}>
+            <EmptyLayout>
+              <Switch>
+                {emptyLayoutRouteConfig.map(
+                  ({ path, exact, component, isPrivate }) => (
+                    <CustomRoute
+                      key={`route-${path}`}
+                      path={path}
+                      exact={exact}
+                      component={component}
+                      isPrivate={isPrivate}
+                    />
+                  )
+                )}
+              </Switch>
+            </EmptyLayout>
           </Route>
           <Route path={routeConfig.map((t) => t.path)}>
             <Layout>
