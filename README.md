@@ -1,6 +1,6 @@
 # DAITA Platform User Interface
 
-React-based user interface for the DAITA platform.
+React-based user interface for the DAITA platform. Yeah :-D
 
 ## Libraries
 
