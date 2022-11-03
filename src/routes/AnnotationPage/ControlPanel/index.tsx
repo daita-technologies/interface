@@ -36,6 +36,7 @@ import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import {
   changeCurrentDrawType,
+  changeCurrentStatus,
   changeZoom,
   createDrawObject,
   redoDrawObject,
@@ -44,11 +45,12 @@ import {
 } from "reduxes/annotation/action";
 import {
   selectorAnnotationStatehHistory,
+  selectorCurrentDrawState,
   selectorcurrentDrawType,
   selectorDrawObjectById,
   selectorDrawObjectStateIdByAI,
 } from "reduxes/annotation/selector";
-import { DrawObject, DrawType } from "reduxes/annotation/type";
+import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
 import {
   addImagesToAnnotation,
   addNewClassLabel,
@@ -64,10 +66,21 @@ import {
 } from "reduxes/annotationmanager/selecetor";
 import { hashCode, intToRGB } from "../LabelAnnotation";
 import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
+import NearMeIcon from "@mui/icons-material/NearMe";
+import {
+  MAX_HEIGHT_IMAGE_IN_EDITOR,
+  MAX_WIDTH_IMAGE_IN_EDITOR,
+} from "components/Annotation/Editor/const";
+import { getFitScaleEditor } from "components/Annotation/Editor/utils";
 
 const ControlPanel = () => {
   const dispatch = useDispatch();
-  const currentDrawType = useSelector(selectorcurrentDrawType);
+  const [drawType, setDrawType] = React.useState<DrawType | null>(
+    useSelector(selectorcurrentDrawType)
+  );
+  const [drawState, setDrawState] = React.useState<DrawState | null>(
+    useSelector(selectorCurrentDrawState)
+  );
   const drawObjectById = useSelector(selectorDrawObjectById);
   const currentPreviewImageName = useSelector(selectorCurrentPreviewImageName);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
@@ -88,14 +101,32 @@ const ControlPanel = () => {
   );
 
   const resetScaleHandler = () => {
-    dispatch(changeZoom({ zoom: { zoom: 1, position: { x: 0, y: 0 } } }));
+    if (currentAnnotationFile) {
+      const { width, height } = currentAnnotationFile;
+      const zoom = getFitScaleEditor(width, height);
+      dispatch(
+        changeZoom({
+          zoom: { zoom, position: { x: 0, y: 0 } },
+        })
+      );
+    }
   };
 
   const selectModeHandle = (
     event: React.MouseEvent<HTMLElement>,
-    drawType: DrawType
+    type: DrawType
   ) => {
-    dispatch(changeCurrentDrawType({ currentDrawType: drawType }));
+    dispatch(changeCurrentDrawType({ currentDrawType: type }));
+    setDrawType(type);
+    setDrawState(null);
+  };
+  const handleSelectDrawState = (
+    event: React.MouseEvent<HTMLElement>,
+    state: DrawState
+  ) => {
+    dispatch(changeCurrentStatus({ drawState: state }));
+    setDrawState(state);
+    setDrawType(null);
   };
   const handleExportLabelMe = () => {
     if (currentAnnotationFile && drawObjectById) {
@@ -350,7 +381,7 @@ const ControlPanel = () => {
     <>
       <Box sx={{ minWidth: 100 }} display="flex" flexDirection="column" gap={1}>
         <ToggleButtonGroup
-          value={currentDrawType}
+          value={drawType}
           exclusive
           onChange={selectModeHandle}
           aria-label="mode"
@@ -385,6 +416,23 @@ const ControlPanel = () => {
             aria-label="ellipse"
           >
             <PolylineIcon />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <ToggleButtonGroup
+          value={drawState}
+          exclusive
+          onChange={handleSelectDrawState}
+          aria-label="mode"
+          className="annotationControlPanel"
+          size="large"
+          sx={{ border: "1px dashed grey" }}
+        >
+          <ToggleButton
+            className="annotationBtn"
+            value={DrawState.SELECTING}
+            aria-label="selecting"
+          >
+            <NearMeIcon />
           </ToggleButton>
         </ToggleButtonGroup>
         <Box

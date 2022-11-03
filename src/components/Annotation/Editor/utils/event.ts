@@ -1,12 +1,17 @@
 import { Layer } from "konva/lib/Layer";
 import { KonvaEventObject } from "konva/lib/Node";
+import { Stage } from "konva/lib/Stage";
 import { Vector2d } from "konva/lib/types";
+import {
+  MAX_HEIGHT_IMAGE_IN_EDITOR,
+  MAX_WIDTH_IMAGE_IN_EDITOR,
+} from "../const";
 import { ScaleResult } from "../type";
 const scaleBy = 1.2;
 
 export function getNewPositionOnWheel(
   e: KonvaEventObject<WheelEvent>,
-  obj: Layer,
+  obj: Layer | Stage,
   pointer: Vector2d
 ): ScaleResult {
   e.evt.preventDefault();
@@ -28,4 +33,20 @@ export function getNewPositionOnWheel(
     y: pointer.y - mousePointTo.y * newScale,
   };
   return { newPosition, newScale };
+}
+export function getFitScaleEditor(width: number, height: number) {
+  const widthRatio = MAX_WIDTH_IMAGE_IN_EDITOR / width;
+  const heightRatio = MAX_HEIGHT_IMAGE_IN_EDITOR / height;
+  let newWidth = width;
+  let newHeight = height;
+  if (widthRatio < 1 || heightRatio < 1) {
+    if (widthRatio < heightRatio) {
+      newWidth = MAX_WIDTH_IMAGE_IN_EDITOR;
+      newHeight = newHeight * widthRatio;
+    } else {
+      newHeight = MAX_HEIGHT_IMAGE_IN_EDITOR;
+      newWidth = newWidth * heightRatio;
+    }
+  }
+  return newWidth / width;
 }
