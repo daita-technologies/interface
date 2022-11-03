@@ -38,6 +38,7 @@ const PolygonDrawLayer = () => {
   const [points, setPoints] = useState<Vector2d[]>([]);
   const [mousePosition, setMousePosition] = useState<Vector2d | null>(null);
   const [mouseOverPoint, setMouseOverPoint] = useState(false);
+  const layer = useRef<Konva.Layer | null>(null);
 
   useEffect(() => {
     const flatPoints: number[] = points
@@ -162,7 +163,6 @@ const PolygonDrawLayer = () => {
       dispatch(changeCurrentStatus({ drawState: DrawState.DRAWING }));
     }
   };
-  const layer = useRef<Konva.Layer | null>(null);
   useEffect(() => {
     layer.current?.moveToTop();
   }, []);
@@ -172,7 +172,7 @@ const PolygonDrawLayer = () => {
       onMouseMove={mousemoveHandler}
       onMouseDown={mousedownHandler}
     >
-      <DummyRect parentLayer={layer.current} />
+      <DummyRect />
       <Group>
         <Line
           points={flattenedPoints}

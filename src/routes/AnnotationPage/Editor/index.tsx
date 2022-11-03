@@ -32,7 +32,6 @@ import {
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
-  selectorcurrentDrawType,
   selectorDrawObjectById,
   selectorIsDraggingViewport,
   selectorSelectedDrawObjectId,
@@ -41,9 +40,6 @@ import {
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 import BaseImage from "./BaseImage";
-import useEllipseEvent from "./Hook/useElipseEvent";
-import usePolygonEvent from "./Hook/usePolygonEvent";
-import useRectangleEvent from "./Hook/useRectangleEvent";
 import DrawLayer from "./Layer/DrawLayer";
 
 const Editor = () => {

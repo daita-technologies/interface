@@ -13,6 +13,9 @@ import DummyRect from "./DummyRect";
 
 const EllipseDrawLayer = () => {
   const dispatch = useDispatch();
+  const [centerPoint, setCenterPoint] = useState<Vector2d | null>(null);
+  const [radiusX, setRadiusX] = useState<number>(0);
+  const [radiusY, setRadiusY] = useState<number>(0);
 
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
@@ -55,10 +58,7 @@ const EllipseDrawLayer = () => {
       setRadiusY(0);
     }
   };
-  const [centerPoint, setCenterPoint] = useState<Vector2d | null>(null);
-  const [radiusX, setRadiusX] = useState<number>(0);
-  const [radiusY, setRadiusY] = useState<number>(0);
-  console.log("rect");
+
   return (
     <Layer
       ref={layer}
@@ -66,7 +66,7 @@ const EllipseDrawLayer = () => {
       onMouseDown={mousedownHandler}
       onMouseUp={handleMouseUp}
     >
-      <DummyRect parentLayer={layer.current} />
+      <DummyRect />
       {centerPoint && (
         <Ellipse
           x={centerPoint.x}

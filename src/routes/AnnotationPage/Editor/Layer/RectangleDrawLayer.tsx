@@ -63,7 +63,7 @@ const RectangleDrawLayer = () => {
       onMouseDown={mousedownHandler}
       onMouseUp={handleMouseUp}
     >
-      <DummyRect parentLayer={layer.current} />
+      <DummyRect />
       {startPoint && (
         <Rect
           x={startPoint.x}

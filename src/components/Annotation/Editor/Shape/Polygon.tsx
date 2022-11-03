@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   changeCurrentStatus,
   removeDrawObjectStateIdByAI,
-  setHiddenDrawObject,
   setSelectedShape,
   updateDrawObject,
 } from "reduxes/annotation/action";
@@ -286,6 +285,24 @@ const PolygonComp = ({
     );
     commonShapeEvent.handleDragEnd(e);
   };
+  const converFlattenPointToPoint = (flatPoints: number[]) => {
+    const newPoints: Vector2d[] = [];
+    for (let index = 0; index < flatPoints.length; index = index + 2) {
+      newPoints.push({ x: flatPoints[index], y: flatPoints[index + 1] });
+    }
+    return newPoints;
+  };
+  const handleTransformEnd = (e: KonvaEventObject<DragEvent>) => {
+    dispatch(
+      updateDrawObject({
+        data: {
+          ...spec,
+          points: converFlattenPointToPoint(flattenedPoints as number[]),
+        },
+      })
+    );
+    e.cancelBubble = true;
+  };
   const handlePointDragMove = (e: KonvaEventObject<DragEvent>) => {
     const { points } = spec;
     if (groupRef && groupRef.current) {
@@ -294,17 +311,13 @@ const PolygonComp = ({
         x: groupRef.current.getRelativePointerPosition().x,
         y: groupRef.current.getRelativePointerPosition().y,
       };
-      dispatch(
-        updateDrawObject({
-          data: {
-            ...spec,
-            points: [
-              ...points.slice(0, index),
-              pos,
-              ...points.slice(index + 1),
-            ],
-          },
-        })
+      const newPoints = [
+        ...points.slice(0, index),
+        pos,
+        ...points.slice(index + 1),
+      ];
+      setFlattenedPoints(
+        newPoints.reduce((a, b) => a.concat([b.x, b.y]), [] as number[])
       );
     }
   };
@@ -361,7 +374,7 @@ const PolygonComp = ({
           draggable
           onDragMove={handlePointDragMove}
           onDragStart={commonShapeEvent.handleTransformStart}
-          onDragEnd={commonShapeEvent.handleTransformEnd}
+          onDragEnd={handleTransformEnd}
           dragBoundFunc={dragBound}
           {...CIRCLE_STYLE}
           {...startPointAttr}

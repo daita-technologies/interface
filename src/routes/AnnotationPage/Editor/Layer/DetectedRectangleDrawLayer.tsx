@@ -58,7 +58,7 @@ const DetectedRectangleDrawLayer = () => {
       onMouseDown={mousedownHandler}
       onMouseUp={mouseupHandler}
     >
-      <DummyRect parentLayer={layer.current} />
+      <DummyRect />
       {localDetectedArea && (
         <Rect
           ref={refDetectedArea}
