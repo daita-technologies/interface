@@ -1,5 +1,8 @@
 import Box from "@mui/material/Box";
-import { getNewPositionOnWheel } from "components/Annotation/Editor/utils";
+import {
+  getFitScaleEditor,
+  getNewPositionOnWheel,
+} from "components/Annotation/Editor/utils";
 import { KonvaEventObject } from "konva/lib/Node";
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Layer, Rect, Stage, Text } from "react-konva";
@@ -24,34 +27,23 @@ import {
   changeZoom,
   deleteDrawObject,
   redoDrawObject,
-  setDetectedArea,
   setIsDraggingViewpor,
   undoDrawObject,
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
-  selectorcurrentDrawType,
   selectorDrawObjectById,
   selectorIsDraggingViewport,
   selectorSelectedDrawObjectId,
   selectorZoom,
 } from "reduxes/annotation/selector";
-import {
-  DetectedAreaType,
-  DrawObject,
-  DrawState,
-  DrawType,
-} from "reduxes/annotation/type";
+import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
-import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
 import BaseImage from "./BaseImage";
-import useEllipseEvent from "./Hook/useElipseEvent";
-import usePolygonEvent from "./Hook/usePolygonEvent";
-import useRectangleEvent from "./Hook/useRectangleEvent";
+import DrawLayer from "./Layer/DrawLayer";
 
 const Editor = () => {
   const dispatch = useDispatch();
-  const drawType = useSelector(selectorcurrentDrawType);
   const imageRef = useRef<Konva.Image | null>(null);
   const layer = useRef<Konva.Layer | null>(null);
   const group = useRef<Konva.Group | null>(null);
@@ -59,86 +51,17 @@ const Editor = () => {
   const [keyDown, setKeyDown] = useState<string | null>();
   const refBoundDiv = useRef<HTMLDivElement | null>(null);
   const refTextPosition = useRef<Konva.Text | null>(null);
-  const refDetectedArea = useRef<Konva.Rect | null>(null);
 
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const drawObjectById = useSelector(selectorDrawObjectById);
   const selectedDrawObjectId = useSelector(selectorSelectedDrawObjectId);
-  const polygonHook = usePolygonEvent();
-  const rectangleHook = useRectangleEvent();
-  const ellipseHook = useEllipseEvent();
   const currentDrawState = useSelector(selectorCurrentDrawState);
   const zoom = useSelector(selectorZoom);
-  const [localDetectedArea, setLocalDetectedArea] =
-    useState<DetectedAreaType | null>(null);
   const isDraggingViewport = useSelector(selectorIsDraggingViewport);
 
   const toolTipLayer = useRef<Konva.Layer>(null);
   const toolTip = useRef<Konva.Text>(null);
   const toolTipRect = useRef<Konva.Rect>(null);
-  const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
-    if (keyDown === " ") {
-      return;
-    }
-    const editorEventPayload = { eventObject: e };
-    if (drawType === DrawType.RECTANGLE) {
-      rectangleHook.handleMouseDown(editorEventPayload);
-    } else if (
-      drawType === DrawType.POLYGON ||
-      drawType === DrawType.LINE_STRIP
-    ) {
-      polygonHook.handleMouseDown(editorEventPayload);
-    } else if (drawType === DrawType.ELLIPSE) {
-      ellipseHook.handleMouseDown(editorEventPayload);
-    } else if (drawType === DrawType.DETECTED_RECTANGLE) {
-      const position =
-        editorEventPayload.eventObject.currentTarget.getRelativePointerPosition();
-      if (position) {
-        setLocalDetectedArea({
-          x: position.x,
-          y: position.y,
-          width: 3,
-          height: 3,
-        });
-      }
-    }
-  };
-  const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
-    const editorEventPayload = { eventObject: e };
-    if (drawType === DrawType.RECTANGLE) {
-      rectangleHook.handleMouseMove(editorEventPayload);
-    } else if (
-      drawType === DrawType.POLYGON ||
-      drawType === DrawType.LINE_STRIP
-    ) {
-      polygonHook.handleMouseMove(editorEventPayload);
-    } else if (drawType === DrawType.ELLIPSE) {
-      ellipseHook.handleMouseMove(editorEventPayload);
-    } else if (drawType === DrawType.DETECTED_RECTANGLE) {
-      const position =
-        editorEventPayload.eventObject.currentTarget.getRelativePointerPosition();
-      if (position) {
-        if (localDetectedArea)
-          setLocalDetectedArea({
-            ...localDetectedArea,
-            width: position.x - localDetectedArea.x,
-            height: position.y - localDetectedArea.y,
-          });
-      }
-    }
-    const mousePos = e.target?.getStage()?.getPointerPosition();
-    // if (mousePos) drawPosition(mousePos);
-    // debounce(() => {
-
-    // }, 2000)();
-  };
-  const drawPosition = (mousePos: Vector2d | undefined) => {
-    if (mousePos) {
-      refTextPosition.current?.text(
-        "x: " + Math.round(mousePos.x) + ", y: " + Math.round(mousePos.y)
-      );
-    }
-  };
   const stageProps = useMemo(() => {
     if (currentAnnotationFile) {
       const { height, width } = currentAnnotationFile;
@@ -165,26 +88,6 @@ const Editor = () => {
     return null;
   }, [currentAnnotationFile]);
 
-  const mouseupHandler = (e: KonvaEventObject<MouseEvent>) => {
-    if (drawType === DrawType.RECTANGLE) {
-      if (currentDrawState === DrawState.DRAWING) {
-        rectangleHook.handleMouseUp();
-      }
-    } else if (drawType === DrawType.ELLIPSE) {
-      if (currentDrawState === DrawState.DRAWING) {
-        ellipseHook.handleMouseUp();
-      }
-    } else if (drawType === DrawType.DETECTED_RECTANGLE) {
-      if (localDetectedArea && refDetectedArea.current) {
-        dispatch(
-          setDetectedArea({
-            detectedArea: { ...refDetectedArea.current.getClientRect() },
-          })
-        );
-      }
-      setLocalDetectedArea(null);
-    }
-  };
   // useEffect(() => {
   //   if (drawType === DrawType.DETECTED_RECTANGLE) {
   //     if (localDetectedArea && refDetectedArea.current) {
@@ -220,22 +123,18 @@ const Editor = () => {
       linestrips: linestripsById,
     };
   }, [drawObjectById]);
-  const clickStageHandler = (e: KonvaEventObject<MouseEvent>) => {
-    if (currentDrawState !== DrawState.DRAWING) {
-      dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
-    }
-  };
   const polygons = useMemo(() => {
     return {
       ...drawObjects.polygons,
       ...drawObjects.linestrips,
     };
   }, [drawObjects.polygons]);
+  const refZoom = stageRef;
+
   const wheelHandler = (e: KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
-    const ref = layer;
     if (
-      !ref?.current ||
+      !refZoom?.current ||
       !e.evt.ctrlKey ||
       !stageRef?.current ||
       !stageRef.current.getPointerPosition()
@@ -247,18 +146,21 @@ const Editor = () => {
     if (points) {
       const { newPosition, newScale } = getNewPositionOnWheel(
         e,
-        ref.current,
+        refZoom.current,
         points
       );
-      if (newScale <= 1) return;
-      // ref.current.scale({ x: newScale, y: newScale });
+      if (currentAnnotationFile) {
+        const { height, width } = currentAnnotationFile;
+        const zoom = getFitScaleEditor(width, height);
+        if (newScale <= zoom) return;
+      }
       dispatch(changeZoom({ zoom: { zoom: newScale, position: newPosition } }));
     }
   };
   useEffect(() => {
-    if (layer && layer.current) {
-      layer.current.scale({ x: zoom.zoom, y: zoom.zoom });
-      layer.current.position(zoom.position);
+    if (refZoom && refZoom.current) {
+      refZoom.current.scale({ x: zoom.zoom, y: zoom.zoom });
+      refZoom.current.position(zoom.position);
     }
   }, [zoom]);
 
@@ -275,7 +177,9 @@ const Editor = () => {
       dispatch(undoDrawObject());
     } else if (e.key === " ") {
       setKeyDown(e.key);
-      dispatch(changeCurrentStatus({ drawState: DrawState.ZOOMDRAGGING }));
+      if (currentDrawState !== DrawState.ZOOMDRAGGING) {
+        dispatch(changeCurrentStatus({ drawState: DrawState.ZOOMDRAGGING }));
+      }
     } else if (e.key === "Delete") {
       if (selectedDrawObjectId) {
         dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
@@ -399,20 +303,17 @@ const Editor = () => {
                 height={
                   stageProps ? stageProps.height : MAX_HEIGHT_IMAGE_IN_EDITOR
                 }
+                onWheel={wheelHandler}
+                draggable={isDraggingViewport}
               >
                 <Provider store={store}>
+                  <DrawLayer />
                   <Layer ref={layer}>
+                    <BaseImage />
                     <Group
                       ref={group}
-                      onClick={clickStageHandler}
-                      onWheel={wheelHandler}
-                      onMouseMove={mousemoveHandler}
-                      onMouseDown={mousedownHandler}
-                      onMouseUp={mouseupHandler}
-                      draggable={isDraggingViewport}
                       // dragBoundFunc={dragBoundFunc}
                     >
-                      <BaseImage />
                       {Object.keys(drawObjects.rectangles).map((key) => {
                         return (
                           <Rectangle
@@ -449,15 +350,6 @@ const Editor = () => {
                           />
                         );
                       })}
-                      {localDetectedArea && (
-                        <Rect
-                          ref={refDetectedArea}
-                          {...localDetectedArea}
-                          fill={convertStrokeColorToFillColor("#000000")}
-                          strokeWidth={4}
-                          stroke="#000000"
-                        />
-                      )}
                     </Group>
                   </Layer>
                   <Layer
