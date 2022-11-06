@@ -38,7 +38,7 @@ const PolygonComp = ({
   const dispatch = useDispatch();
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
   const currentpolygon = useSelector(selectorSelectedPolygonOrLineStrip);
-  const detectedArea = useSelector(selectorDetectedArea);
+  // const detectedArea = useSelector(selectorDetectedArea);
   const drawObjectState = useSelector(selectorDrawObjectState(spec.id));
 
   const zoom = useSelector(selectorZoom);
@@ -59,27 +59,27 @@ const PolygonComp = ({
     }
   }, [isSelected]);
 
-  useEffect(() => {
-    if (detectedArea) {
-      const polygonRect = groupRef.current?.getClientRect();
-      if (polygonRect) {
-        if (
-          polygonRect.x >= detectedArea.x &&
-          polygonRect.x <= detectedArea.x + detectedArea.width &&
-          polygonRect.y >= detectedArea.y &&
-          polygonRect.y <= detectedArea.y + detectedArea.height &&
-          polygonRect.width <= detectedArea.width &&
-          polygonRect.height <= detectedArea.height
-        ) {
-          dispatch(
-            removeDrawObjectStateIdByAI({
-              drawObjectStateIds: [spec.id],
-            })
-          );
-        }
-      }
-    }
-  }, [detectedArea]);
+  // useEffect(() => {
+  //   if (detectedArea) {
+  //     const polygonRect = groupRef.current?.getClientRect();
+  //     if (polygonRect) {
+  //       if (
+  //         polygonRect.x >= detectedArea.x &&
+  //         polygonRect.x <= detectedArea.x + detectedArea.width &&
+  //         polygonRect.y >= detectedArea.y &&
+  //         polygonRect.y <= detectedArea.y + detectedArea.height &&
+  //         polygonRect.width <= detectedArea.width &&
+  //         polygonRect.height <= detectedArea.height
+  //       ) {
+  //         dispatch(
+  //           removeDrawObjectStateIdByAI({
+  //             drawObjectStateIds: [spec.id],
+  //           })
+  //         );
+  //       }
+  //     }
+  //   }
+  // }, [detectedArea]);
 
   const [stage, setStage] = useState<Stage>();
   const [flattenedPoints, setFlattenedPoints] = useState<number[]>();

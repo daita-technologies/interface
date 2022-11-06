@@ -105,6 +105,7 @@ export interface SetLockDrawObecjtPayload {
 }
 export interface SetLockDetectedAreaPayload {
   detectedArea: DetectedAreaType | null;
+  scale: { x: number; y: number };
 }
 export interface SetIsDraggingViewportPayload {
   isDraggingViewport: boolean;
