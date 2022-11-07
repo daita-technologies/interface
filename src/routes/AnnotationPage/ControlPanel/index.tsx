@@ -128,25 +128,39 @@ const ControlPanel = () => {
     setDrawState(state);
     setDrawType(null);
   };
+  const getDrawObjectToExport = () => {
+    if (drawObjectById) {
+      const filteredDrawObjectById = { ...drawObjectById };
+      drawObjectStateIdByAI.forEach((id) => {
+        delete filteredDrawObjectById[id];
+      });
+      return filteredDrawObjectById;
+    }
+    return null;
+  };
   const handleExportLabelMe = () => {
-    if (currentAnnotationFile && drawObjectById) {
-      exportAnnotationLabelMe(currentAnnotationFile, drawObjectById);
+    const drawObjectToExport = getDrawObjectToExport();
+    if (currentAnnotationFile && drawObjectToExport) {
+      exportAnnotationLabelMe(currentAnnotationFile, drawObjectToExport);
     }
   };
   const handleExportScaleAI = () => {
-    if (drawObjectById) {
-      exportAnnotationScaleAI(drawObjectById);
+    const drawObjectToExport = getDrawObjectToExport();
+    if (drawObjectToExport) {
+      exportAnnotationScaleAI(drawObjectToExport);
     }
   };
   const handleExportLabelBox = () => {
-    if (drawObjectById) {
-      exportAnnotationLabelBox(drawObjectById);
+    const drawObjectToExport = getDrawObjectToExport();
+    if (drawObjectToExport) {
+      exportAnnotationLabelBox(drawObjectToExport);
     }
   };
   const handleExportDaita = () => {
-    if (drawObjectById) {
+    const drawObjectToExport = getDrawObjectToExport();
+    if (drawObjectToExport) {
       exportAnnotationDaita(
-        drawObjectById,
+        drawObjectToExport,
         currentPreviewImageName ? currentPreviewImageName : "imagename"
       );
     }
