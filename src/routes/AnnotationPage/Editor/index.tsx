@@ -26,6 +26,7 @@ import {
   changeCurrentStatus,
   changeZoom,
   deleteDrawObject,
+  recoverPreviousDrawState,
   redoDrawObject,
   setIsDraggingViewpor,
   undoDrawObject,
@@ -167,7 +168,7 @@ const Editor = () => {
   const keyUpHandler = (): void => {
     setKeyDown(null);
     if (currentDrawState === DrawState.ZOOMDRAGGING) {
-      dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
+      dispatch(recoverPreviousDrawState());
     }
   };
   const keyDownHandler = (e: KeyboardEvent<HTMLDivElement>) => {

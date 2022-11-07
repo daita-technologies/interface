@@ -26,6 +26,7 @@ export interface DrawObject {
 }
 export interface AnnotationReducer {
   currentDrawState: DrawState;
+  previousDrawState: DrawState;
   currentDrawType: DrawType;
   selectedDrawObjectId: string | null;
   zoom: ZoomProps;

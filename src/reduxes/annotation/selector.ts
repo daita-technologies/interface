@@ -60,6 +60,8 @@ export const selectorDrawObjectById = (state: RootState) =>
   state.annotationReducer.drawObjectById;
 export const selectorCurrentDrawState = (state: RootState) =>
   state.annotationReducer.currentDrawState;
+export const selectorPreviousDrawState = (state: RootState) =>
+  state.annotationReducer.previousDrawState;
 export const selectorZoom = (state: RootState) => state.annotationReducer.zoom;
 export const selectorAnnotationHistoryStep = (state: RootState) =>
   state.annotationReducer.statehHistory.historyStep;

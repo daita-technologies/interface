@@ -5,6 +5,7 @@ import {
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
   DELETE_DRAW_OBJECT,
+  RECOVER_PREVIOUS_DRAWSTATE,
   REDO_DRAW_OBJECT,
   REMOVE_DRAW_OBJECTS_BY_AI,
   RESET_ANNOTATION,
@@ -119,4 +120,7 @@ export const removeDrawObjectStateIdByAI = (
 });
 export const resetAnnotation = () => ({
   type: RESET_ANNOTATION,
+});
+export const recoverPreviousDrawState = () => ({
+  type: RECOVER_PREVIOUS_DRAWSTATE,
 });

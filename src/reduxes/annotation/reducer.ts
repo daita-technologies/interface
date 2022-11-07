@@ -11,6 +11,7 @@ import {
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
   DELETE_DRAW_OBJECT,
+  RECOVER_PREVIOUS_DRAWSTATE,
   REDO_DRAW_OBJECT,
   REMOVE_DRAW_OBJECTS_BY_AI,
   RESET_ANNOTATION,
@@ -86,6 +87,7 @@ const inititalState: AnnotationReducer = {
   // })(),
   drawObjectById: {},
   currentDrawState: DrawState.FREE,
+  previousDrawState: DrawState.FREE,
   statehHistory: { historyStep: 0, stateHistoryItems: [] },
   drawObjectStateById: {},
   detectedArea: null,
@@ -186,6 +188,7 @@ const annotationReducer = (
         selectedDrawObjectId:
           drawState === DrawState.FREE ? null : state.selectedDrawObjectId,
         currentDrawState: drawState,
+        previousDrawState: state.currentDrawState,
       };
     }
     case SET_SELECT_SHAPE: {
@@ -386,6 +389,12 @@ const annotationReducer = (
     }
     case RESET_ANNOTATION: {
       return { ...inititalState };
+    }
+    case RECOVER_PREVIOUS_DRAWSTATE: {
+      return {
+        ...state,
+        currentDrawState: state.previousDrawState,
+      };
     }
     default:
       return state;
