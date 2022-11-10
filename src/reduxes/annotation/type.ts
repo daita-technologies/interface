@@ -32,12 +32,14 @@ export interface AnnotationReducer {
   zoom: ZoomProps;
   drawObjectById: Record<string, DrawObject>;
   drawObjectStateById: Record<string, DrawObjectState>;
-  drawObjectStateIdByAI: string[];
+  drawObjectStateIdByAI: Record<string, DrawObjectByAIState>;
   statehHistory: StateHistory;
   detectedArea: DetectedAreaType | null;
   isDraggingViewport: boolean;
 }
-
+export interface DrawObjectByAIState {
+  isShow: boolean;
+}
 export interface DetectedAreaType {
   x: number;
   y: number;
@@ -114,6 +116,6 @@ export interface SetIsDraggingViewportPayload {
 export interface AddDrawObjectStateIdByAIPayload {
   drawObjectStateIds: string[];
 }
-export interface RemoveDrawObjectStateIdByAIPayload {
+export interface ShowDrawObjectStateIdByAIPayload {
   drawObjectStateIds: string[];
 }

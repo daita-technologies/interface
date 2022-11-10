@@ -63,7 +63,10 @@ const LabelAnnotation = function () {
   const listIdsDrawObjectById = useMemo(() => {
     const retList: string[] = [];
     Object.keys(drawObjectById).map((id) => {
-      if (!drawObjectStateIdByAI.includes(id)) {
+      if (
+        !drawObjectStateIdByAI[id] ||
+        drawObjectStateIdByAI[id].isShow === true
+      ) {
         retList.push(id);
       }
     });

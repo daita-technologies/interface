@@ -374,7 +374,11 @@ const PolygonComp = ({
   }, [spec.cssStyle]);
   const isVisible = useMemo(() => {
     const isVis = drawObjectState ? !drawObjectState.isHidden : true;
-    return isVis && !drawObjectStateIdByAI.includes(spec.id);
+    return (
+      isVis &&
+      (!drawObjectStateIdByAI[spec.id] ||
+        drawObjectStateIdByAI[spec.id].isShow === true)
+    );
   }, [drawObjectState, drawObjectStateIdByAI]);
   return (
     <Group

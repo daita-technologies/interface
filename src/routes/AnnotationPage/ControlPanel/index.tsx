@@ -7,6 +7,8 @@ import PolylineIcon from "@mui/icons-material/Polyline";
 import RedoIcon from "@mui/icons-material/Redo";
 import SaveIcon from "@mui/icons-material/Save";
 import UndoIcon from "@mui/icons-material/Undo";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -41,8 +43,10 @@ import {
   changeCurrentDrawType,
   changeZoom,
   createDrawObject,
+  hiddenAllDrawObjectStateIdByAI,
   redoDrawObject,
   resetCurrentStateDrawObject,
+  showAllDrawObjectStateIdByAI,
   undoDrawObject,
 } from "reduxes/annotation/action";
 import {
@@ -68,7 +72,6 @@ import {
 } from "reduxes/annotationmanager/selecetor";
 import { hashCode, intToRGB } from "../LabelAnnotation";
 import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
-
 const ControlPanel = () => {
   const dispatch = useDispatch();
   const currentDrawType = useSelector(selectorCurrentDrawType);
@@ -123,7 +126,7 @@ const ControlPanel = () => {
   const getDrawObjectToExport = () => {
     if (drawObjectById) {
       const filteredDrawObjectById = { ...drawObjectById };
-      drawObjectStateIdByAI.forEach((id) => {
+      Object.keys(drawObjectStateIdByAI).forEach((id) => {
         delete filteredDrawObjectById[id];
       });
       return filteredDrawObjectById;
@@ -380,9 +383,19 @@ const ControlPanel = () => {
     }
   };
   const isAIDetectAvailable = React.useMemo(
-    () => drawObjectStateIdByAI && drawObjectStateIdByAI.length !== 0,
+    () =>
+      drawObjectStateIdByAI && Object.keys(drawObjectStateIdByAI).length !== 0,
     [drawObjectStateIdByAI]
   );
+  const [isShowAllAIDetect, setIsShowAllAIDetect] = React.useState(false);
+  const handleClickShowAllAIDetect = () => {
+    setIsShowAllAIDetect(!isShowAllAIDetect);
+    if (isShowAllAIDetect) {
+      dispatch(hiddenAllDrawObjectStateIdByAI());
+    } else {
+      dispatch(showAllDrawObjectStateIdByAI());
+    }
+  };
   return (
     <>
       <Box sx={{ minWidth: 100 }} display="flex" flexDirection="column" gap={1}>
@@ -447,29 +460,42 @@ const ControlPanel = () => {
           mt={3}
           sx={{ border: "1px dashed grey" }}
           justifyContent="space-evenly"
+          flexDirection="column"
+          gap={2}
         >
-          <Tooltip
-            title={
-              isAIDetectAvailable
-                ? "AI Detection"
-                : "Don't have any detected object by AI"
-            }
-          >
-            <span>
-              <IconButton
-                onClick={(e) =>
-                  selectModeHandle(e, DrawType.DETECTED_RECTANGLE)
-                }
-              >
-                {isAIDetectAvailable ? (
-                  <ImageSearchIcon fontSize="large" />
-                ) : (
-                  <WarningAmberIcon fontSize="large" />
-                )}
+          <Box display="flex" justifyContent="center">
+            <Tooltip
+              title={
+                isAIDetectAvailable
+                  ? "AI Detection"
+                  : "Don't have any detected object by AI"
+              }
+            >
+              <span>
+                <IconButton
+                  onClick={(e) =>
+                    selectModeHandle(e, DrawType.DETECTED_RECTANGLE)
+                  }
+                >
+                  {isAIDetectAvailable ? (
+                    <ImageSearchIcon fontSize="large" />
+                  ) : (
+                    <WarningAmberIcon fontSize="large" />
+                  )}
+                </IconButton>
+              </span>
+            </Tooltip>
+          </Box>
+          {isAIDetectAvailable && (
+            <Box display="flex" justifyContent="center" alignItems="center">
+              Segmentations
+              <IconButton onClick={handleClickShowAllAIDetect}>
+                {isShowAllAIDetect ? <VisibilityIcon /> : <VisibilityOffIcon />}
               </IconButton>
-            </span>
-          </Tooltip>
+            </Box>
+          )}
         </Box>
+
         <Box
           display="flex"
           mt={3}

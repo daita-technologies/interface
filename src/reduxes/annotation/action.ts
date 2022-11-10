@@ -5,9 +5,9 @@ import {
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
   DELETE_DRAW_OBJECT,
+  HIDDEN_ALL_DRAW_OBJECTS_BY_AI,
   RECOVER_PREVIOUS_DRAWSTATE,
   REDO_DRAW_OBJECT,
-  REMOVE_DRAW_OBJECTS_BY_AI,
   RESET_ANNOTATION,
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_DETECTED_AREA,
@@ -15,6 +15,8 @@ import {
   SET_IS_DRAGGING_VIEW_PORT,
   SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
+  SHOW_ALL_DRAW_OBJECTS_BY_AI,
+  SHOW_DRAW_OBJECTS_BY_AI,
   UNDO_DRAW_OBJECT,
   UPDATE_DRAW_OBJECT,
   UPDATE_LABEL_OF_DRAW_OBJECT,
@@ -26,13 +28,13 @@ import {
   ChangeZoomPayload,
   CreateDrawObjectPayload,
   DeleteDrawObjectPayload,
-  RemoveDrawObjectStateIdByAIPayload,
   ResetCurrentStateDrawObjectPayload,
   SetHiddenDrawObjectPayload,
   SetIsDraggingViewportPayload,
   SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
   SetSelectShapePayload,
+  ShowDrawObjectStateIdByAIPayload,
   UpdateDrawObjectPayload,
   UpdateLabelOfDrawObjectPayload,
 } from "./type";
@@ -112,10 +114,10 @@ export const addDrawObjectStateIdByAI = (
   type: ADD_DRAW_OBJECTS_BY_AI,
   payload,
 });
-export const removeDrawObjectStateIdByAI = (
-  payload: RemoveDrawObjectStateIdByAIPayload
+export const showDrawObjectStateIdByAI = (
+  payload: ShowDrawObjectStateIdByAIPayload
 ) => ({
-  type: REMOVE_DRAW_OBJECTS_BY_AI,
+  type: SHOW_DRAW_OBJECTS_BY_AI,
   payload,
 });
 export const resetAnnotation = () => ({
@@ -123,4 +125,10 @@ export const resetAnnotation = () => ({
 });
 export const recoverPreviousDrawState = () => ({
   type: RECOVER_PREVIOUS_DRAWSTATE,
+});
+export const showAllDrawObjectStateIdByAI = () => ({
+  type: SHOW_ALL_DRAW_OBJECTS_BY_AI,
+});
+export const hiddenAllDrawObjectStateIdByAI = () => ({
+  type: HIDDEN_ALL_DRAW_OBJECTS_BY_AI,
 });
