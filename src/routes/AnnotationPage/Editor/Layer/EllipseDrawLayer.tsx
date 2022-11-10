@@ -4,42 +4,40 @@ import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Vector2d } from "konva/lib/types";
 import { useEffect, useRef, useState } from "react";
-import { Ellipse, Layer } from "react-konva";
-import { useDispatch } from "react-redux";
+import { Ellipse, Layer, Rect } from "react-konva";
+import { useDispatch, useSelector } from "react-redux";
 import { createDrawObject } from "reduxes/annotation/action";
 import { DrawType } from "reduxes/annotation/type";
+import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 import { createEllipse } from "../Hook/useElipseEvent";
-import DummyRect from "./DummyRect";
 
 const EllipseDrawLayer = () => {
   const dispatch = useDispatch();
-  const [centerPoint, setCenterPoint] = useState<Vector2d | null>(null);
-  const [radiusX, setRadiusX] = useState<number>(0);
-  const [radiusY, setRadiusY] = useState<number>(0);
+  const [startPoint, setStartPoint] = useState<Vector2d | null>(null);
+  const [endPoint, setEndPoint] = useState<Vector2d | null>(null);
+  const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
 
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
-    if (!position || !centerPoint) return;
-    setCenterPoint({
-      x: (position.x + (centerPoint.x - radiusX)) / 2,
-      y: (position.y + (centerPoint.y - radiusY)) / 2,
-    });
-    setRadiusX((position.x - (centerPoint.x - radiusX)) / 2.0);
-    setRadiusY((position.y - (centerPoint.y - radiusY)) / 2.0);
+    if (!position || !startPoint) return;
+    setEndPoint({ ...position });
   };
 
   const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
     if (!position) return;
-    setCenterPoint({ ...position });
+    setStartPoint({ ...position });
   };
   const layer = useRef<Konva.Layer | null>(null);
   useEffect(() => {
     layer.current?.moveToTop();
   }, []);
   const handleMouseUp = () => {
-    if (centerPoint) {
-      const ellipse = createEllipse(centerPoint);
+    if (startPoint && endPoint) {
+      const ellipse = createEllipse({
+        x: (startPoint.x + endPoint.x) / 2,
+        y: (startPoint.y + endPoint.y) / 2,
+      });
       const spec = ellipse.data as EllipseSpec;
       dispatch(
         createDrawObject({
@@ -47,18 +45,22 @@ const EllipseDrawLayer = () => {
             type: DrawType.ELLIPSE,
             data: {
               ...spec,
-              radiusX,
-              radiusY,
+              radiusX: Math.abs(endPoint.x - startPoint.x) / 2,
+              radiusY: Math.abs(endPoint.y - startPoint.y) / 2,
             } as EllipseSpec,
           },
         })
       );
-      setCenterPoint(null);
-      setRadiusX(0);
-      setRadiusY(0);
+    }
+    setStartPoint(null);
+    setEndPoint(null);
+  };
+  const renderDummyRect = () => {
+    if (currentAnnotationFile) {
+      const { width, height } = currentAnnotationFile;
+      return <Rect width={width} height={height} />;
     }
   };
-
   return (
     <Layer
       ref={layer}
@@ -66,13 +68,13 @@ const EllipseDrawLayer = () => {
       onMouseDown={mousedownHandler}
       onMouseUp={handleMouseUp}
     >
-      <DummyRect />
-      {centerPoint && (
+      {renderDummyRect()}
+      {startPoint && endPoint && (
         <Ellipse
-          x={centerPoint.x}
-          y={centerPoint.y}
-          radiusX={radiusX}
-          radiusY={radiusY}
+          x={(startPoint.x + endPoint.x) / 2}
+          y={(startPoint.y + endPoint.y) / 2}
+          radiusX={Math.abs(endPoint.x - startPoint.x) / 2}
+          radiusY={Math.abs(endPoint.y - startPoint.y) / 2}
           {...LINE_STYLE}
         />
       )}

@@ -1,6 +1,6 @@
 import { KonvaEventObject } from "konva/lib/Node";
 import { useEffect, useRef, useState } from "react";
-import { Circle, Group, Layer, Line } from "react-konva";
+import { Circle, Group, Layer, Line, Rect } from "react-konva";
 
 import {
   CIRCLE_STYLE,
@@ -23,6 +23,7 @@ import { DrawState, DrawType } from "reduxes/annotation/type";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
 import { createPolygon } from "../Hook/usePolygonEvent";
 import DummyRect from "./DummyRect";
+import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 
 const PolygonDrawLayer = () => {
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ const PolygonDrawLayer = () => {
   const [mousePosition, setMousePosition] = useState<Vector2d | null>(null);
   const [mouseOverPoint, setMouseOverPoint] = useState(false);
   const layer = useRef<Konva.Layer | null>(null);
+  const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
 
   useEffect(() => {
     const flatPoints: number[] = points
@@ -50,6 +52,14 @@ const PolygonDrawLayer = () => {
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
     if (!position) return;
+    // console.log("position", position);
+    if (position.x < 0) {
+      position.x = 0;
+    }
+    if (position.y < 0) {
+      position.y = 0;
+    }
+    // console.log("set position", position);
     setMousePosition(position);
   };
   const handleMouseDownPoint = (e: KonvaEventObject<DragEvent>) => {
@@ -166,13 +176,34 @@ const PolygonDrawLayer = () => {
   useEffect(() => {
     layer.current?.moveToTop();
   }, []);
+  const handleMouseOut = (e: KonvaEventObject<MouseEvent>) => {
+    const position = e.currentTarget.getRelativePointerPosition();
+    if (!position) return;
+    // console.log("position", position);
+    if (position.x < 0) {
+      position.x = 0;
+    }
+    if (position.y < 0) {
+      position.y = 0;
+    }
+    // console.log("set position", position);
+    setMousePosition(position);
+  };
+  const renderDummyRect = () => {
+    if (currentAnnotationFile) {
+      const { width, height } = currentAnnotationFile;
+      return <Rect width={width} height={height} />;
+    }
+  };
+
   return (
     <Layer
       ref={layer}
       onMouseMove={mousemoveHandler}
+      onMouseOut={handleMouseOut}
       onMouseDown={mousedownHandler}
     >
-      <DummyRect />
+      {renderDummyRect()}
       <Group>
         <Line
           points={flattenedPoints}
