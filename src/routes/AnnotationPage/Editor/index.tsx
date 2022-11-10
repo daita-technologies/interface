@@ -43,6 +43,9 @@ import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecet
 import BaseImage from "./BaseImage";
 import DrawLayer from "./Layer/DrawLayer";
 
+const TOOLTIP_WIDTH = 200;
+const TOOLTIP_HEIGHT = 40;
+
 const Editor = () => {
   const dispatch = useDispatch();
   const imageRef = useRef<Konva.Image | null>(null);
@@ -89,17 +92,6 @@ const Editor = () => {
     return null;
   }, [currentAnnotationFile]);
 
-  // useEffect(() => {
-  //   if (drawType === DrawType.DETECTED_RECTANGLE) {
-  //     if (localDetectedArea && refDetectedArea.current) {
-  //       dispatch(
-  //         setDetectedArea({
-  //           detectedArea: { ...refDetectedArea.current.getClientRect() },
-  //         })
-  //       );
-  //     }
-  //   }
-  // }, [localDetectedArea]);
   const drawObjects = useMemo(() => {
     const rectanglesById: Record<string, DrawObject> = {};
     const polygonsById: Record<string, DrawObject> = {};
@@ -223,11 +215,25 @@ const Editor = () => {
       return;
     }
     const shape = drawObject.data;
-    if (layer?.current && toolTipLayer.current && toolTip.current) {
+    if (
+      layer?.current &&
+      toolTipLayer.current &&
+      toolTip.current &&
+      currentAnnotationFile
+    ) {
       const mousePos = layer.current.getRelativePointerPosition();
+      let disX = 5;
+      let disY = 5;
+      if (mousePos.x + TOOLTIP_WIDTH > currentAnnotationFile.width) {
+        disX = -TOOLTIP_WIDTH * 2;
+      }
+      if (mousePos.y + 2 * TOOLTIP_HEIGHT > currentAnnotationFile.height) {
+        disY = -TOOLTIP_HEIGHT * 2;
+      }
+
       toolTipLayer.current.position({
-        x: mousePos.x + 5,
-        y: mousePos.y + 5,
+        x: mousePos.x + disX,
+        y: mousePos.y + disY,
       });
       toolTipLayer.current.setAttrs({ id: shape.id });
       toolTip.current.text(
@@ -366,13 +372,13 @@ const Editor = () => {
                       stroke={"#555"}
                       strokeWidth={2}
                       fill={"#ddd"}
-                      width={200}
-                      height={40}
+                      width={TOOLTIP_WIDTH}
+                      height={TOOLTIP_HEIGHT}
                     />
                     <Text
                       align="center"
-                      width={200}
-                      height={40}
+                      width={TOOLTIP_WIDTH}
+                      height={TOOLTIP_HEIGHT}
                       fontSize={15}
                       padding={14}
                       ref={toolTip}
