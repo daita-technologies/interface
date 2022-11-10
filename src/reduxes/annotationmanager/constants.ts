@@ -1,7 +1,7 @@
 import { asyncAction } from "utils/general";
 
 export const ADD_IMAGES = "ADD_IMAGES";
-export const CHANGE_PREVIEW_IMAGE = "CHANGE_PREVIEW_IMAGE";
+export const CHANGE_PREVIEW_IMAGE = asyncAction("CHANGE_PREVIEW_IMAGE");
 export const SET_PREVIEW_IMAGE = "SET_PREVIEW_IMAGE";
 export const SAVE_ANNOTATION_STATE_MANAGER = asyncAction(
   "SAVE_ANNOTATION_STATE_MANAGER"

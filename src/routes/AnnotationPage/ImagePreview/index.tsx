@@ -1,23 +1,16 @@
 import { Box, List, ListItem, Skeleton, Typography } from "@mui/material";
-import { loadImage } from "components/UploadFile";
-import { IMAGE_EXTENSIONS } from "constants/defaultValues";
-import { useEffect, useMemo } from "react";
-import { useDropzone } from "react-dropzone";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
 import { selectorDrawObjectById } from "reduxes/annotation/selector";
 import {
-  addImagesToAnnotation,
-  changePreviewImage,
-  saveAnnotationStateManager,
+  requestChangePreviewImage,
   setAnnotationStateManager,
 } from "reduxes/annotationmanager/action";
 import {
-  selectorAnnotationManagerImages,
   selectorCurrentPreviewImageName,
   selectorIdDrawObjectByImageName,
 } from "reduxes/annotationmanager/selecetor";
-import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
 import { selectorCurrentAnnotationFiles } from "reduxes/annotationProject/selector";
 
 const createFile = async (imageName: string, url: string) => {
@@ -53,7 +46,7 @@ const ImagePreview = function () {
   useEffect(() => {
     if (currentAnnotationFiles) {
       dispatch(
-        changePreviewImage({
+        requestChangePreviewImage({
           imageName: currentAnnotationFiles.items[0].filename,
         })
       );
@@ -171,7 +164,7 @@ const ImagePreview = function () {
         drawObjectById: idDrawObjectByImageName[imageName],
       })
     );
-    dispatch(changePreviewImage({ imageName }));
+    dispatch(requestChangePreviewImage({ imageName }));
   };
   const renderContent = () => {
     if (!currentAnnotationFiles) {

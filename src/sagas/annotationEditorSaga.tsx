@@ -37,6 +37,8 @@ import {
 import {
   addImagesToAnnotation,
   addNewClassLabel,
+  requestChangePreviewImageFail,
+  requestChangePreviewImageSuccess,
   setAnnotationStateManager,
 } from "reduxes/annotationmanager/action";
 import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
@@ -236,8 +238,10 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
     );
     if (image) {
       yield put(addImagesToAnnotation({ annotationImagesProperties: [image] }));
+      yield put(requestChangePreviewImageSuccess());
     } else {
       toast.error("Fail to get image data");
+      yield put(requestChangePreviewImageFail());
     }
   } catch (e: any) {
     toast.error(e.message);
@@ -325,7 +329,7 @@ function* handleSaveAnnotationStateManager(action: any): any {
   }
 }
 function* annotationEditorSaga() {
-  yield takeLatest(CHANGE_PREVIEW_IMAGE, handleChangeImagePreview);
+  yield takeLatest(CHANGE_PREVIEW_IMAGE.REQUESTED, handleChangeImagePreview);
   yield takeLatest(
     SAVE_REMOTE_NEW_CLASS_LABEL.REQUESTED,
     handleAddNewClassLabel

@@ -27,9 +27,17 @@ export const addImagesToAnnotation = (payload: AddImageToAnnotationProps) => ({
   type: ADD_IMAGES,
   payload,
 });
-export const changePreviewImage = (payload: ChangePreviewImageProps) => ({
-  type: CHANGE_PREVIEW_IMAGE,
+export const requestChangePreviewImage = (
+  payload: ChangePreviewImageProps
+) => ({
+  type: CHANGE_PREVIEW_IMAGE.REQUESTED,
   payload,
+});
+export const requestChangePreviewImageSuccess = () => ({
+  type: CHANGE_PREVIEW_IMAGE.SUCCEEDED,
+});
+export const requestChangePreviewImageFail = () => ({
+  type: CHANGE_PREVIEW_IMAGE.FAILED,
 });
 export const setPreviewImage = (payload: ChangePreviewImageProps) => ({
   type: SET_PREVIEW_IMAGE,

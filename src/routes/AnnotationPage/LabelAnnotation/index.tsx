@@ -1,5 +1,5 @@
 import AddIcon from "@mui/icons-material/Add";
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import Box from "@mui/material/Box";
 import { LabelClassProperties } from "components/Annotation/Editor/type";
 import { CSSProperties, useMemo } from "react";
@@ -11,7 +11,10 @@ import {
   selectorDrawObjectStateIdByAI,
 } from "reduxes/annotation/selector";
 import { setDialogClassManageModal } from "reduxes/annotationmanager/action";
-import { selectorDialogClassManageModal } from "reduxes/annotationmanager/selecetor";
+import {
+  selectorDialogClassManageModal,
+  selectorIsFetchingImageData,
+} from "reduxes/annotationmanager/selecetor";
 import ClassItem from "./ClassItem";
 import { convertStrokeColorToFillColor } from "./ClassLabel";
 import ClassManageModel from "./ClassManageModal";
@@ -47,7 +50,7 @@ const LabelAnnotation = function () {
   const dispatch = useDispatch();
   const drawObjectById = useSelector(selectorDrawObjectById);
   const drawObjectStateIdByAI = useSelector(selectorDrawObjectStateIdByAI);
-
+  const issFetchingImageData = useSelector(selectorIsFetchingImageData);
   const hanleOpenClassManageModalClick = () => {
     dispatch(
       setDialogClassManageModal({
@@ -73,7 +76,15 @@ const LabelAnnotation = function () {
     }
     return <></>;
   }
+
   const renderList = () => {
+    if (issFetchingImageData) {
+      return (
+        <Box display="flex" justifyContent="center" height={700}>
+          <CircularProgress size={20} />
+        </Box>
+      );
+    }
     return (
       <Box sx={{ overflowY: "auto" }} height={700}>
         <AutoSizer>
