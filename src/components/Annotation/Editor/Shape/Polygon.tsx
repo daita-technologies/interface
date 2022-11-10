@@ -6,14 +6,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Circle, Group, Line } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  changeCurrentStatus,
-  removeDrawObjectStateIdByAI,
+  changeCurrentDrawState,
   setSelectedShape,
   updateDrawObject,
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
-  selectorDetectedArea,
   selectorDrawObject,
   selectorDrawObjectState,
   selectorDrawObjectStateIdByAI,
@@ -58,29 +56,6 @@ const PolygonComp = ({
       groupRef.current?.moveToTop();
     }
   }, [isSelected]);
-
-  // useEffect(() => {
-  //   if (detectedArea) {
-  //     const polygonRect = groupRef.current?.getClientRect();
-  //     if (polygonRect) {
-  //       if (
-  //         polygonRect.x >= detectedArea.x &&
-  //         polygonRect.x <= detectedArea.x + detectedArea.width &&
-  //         polygonRect.y >= detectedArea.y &&
-  //         polygonRect.y <= detectedArea.y + detectedArea.height &&
-  //         polygonRect.width <= detectedArea.width &&
-  //         polygonRect.height <= detectedArea.height
-  //       ) {
-  //         dispatch(
-  //           removeDrawObjectStateIdByAI({
-  //             drawObjectStateIds: [spec.id],
-  //           })
-  //         );
-  //       }
-  //     }
-  //   }
-  // }, [detectedArea]);
-
   const [stage, setStage] = useState<Stage>();
   const [flattenedPoints, setFlattenedPoints] = useState<number[]>();
   const [mouseOverPoint, setMouseOverPoint] = useState(false);
@@ -250,7 +225,7 @@ const PolygonComp = ({
         })
       );
       dispatch(
-        changeCurrentStatus({
+        changeCurrentDrawState({
           drawState: DrawState.SELECTING,
         })
       );
@@ -301,7 +276,7 @@ const PolygonComp = ({
         },
       })
     );
-    e.cancelBubble = true;
+    commonShapeEvent.handleTransformEnd(e);
   };
   const handlePointDragMove = (e: KonvaEventObject<DragEvent>) => {
     const { points } = spec;

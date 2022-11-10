@@ -1,6 +1,7 @@
 import Crop32Icon from "@mui/icons-material/Crop32";
 import HexagonIcon from "@mui/icons-material/Hexagon";
 import ImageSearchIcon from "@mui/icons-material/ImageSearch";
+import NearMeIcon from "@mui/icons-material/NearMe";
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import PolylineIcon from "@mui/icons-material/Polyline";
 import RedoIcon from "@mui/icons-material/Redo";
@@ -22,6 +23,7 @@ import {
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { CssStyle } from "components/Annotation/Editor/type";
+import { getFitScaleEditor } from "components/Annotation/Editor/utils";
 import {
   exportAnnotationDaita,
   exportAnnotationLabelBox,
@@ -35,8 +37,8 @@ import * as React from "react";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  changeCurrentDrawState,
   changeCurrentDrawType,
-  changeCurrentStatus,
   changeZoom,
   createDrawObject,
   redoDrawObject,
@@ -46,7 +48,7 @@ import {
 import {
   selectorAnnotationStatehHistory,
   selectorCurrentDrawState,
-  selectorcurrentDrawType,
+  selectorCurrentDrawType,
   selectorDrawObjectById,
   selectorDrawObjectStateIdByAI,
 } from "reduxes/annotation/selector";
@@ -66,21 +68,13 @@ import {
 } from "reduxes/annotationmanager/selecetor";
 import { hashCode, intToRGB } from "../LabelAnnotation";
 import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
-import NearMeIcon from "@mui/icons-material/NearMe";
-import {
-  MAX_HEIGHT_IMAGE_IN_EDITOR,
-  MAX_WIDTH_IMAGE_IN_EDITOR,
-} from "components/Annotation/Editor/const";
-import { getFitScaleEditor } from "components/Annotation/Editor/utils";
 
 const ControlPanel = () => {
   const dispatch = useDispatch();
-  const [drawType, setDrawType] = React.useState<DrawType | null>(
-    useSelector(selectorcurrentDrawType)
-  );
-  const [drawState, setDrawState] = React.useState<DrawState | null>(
-    useSelector(selectorCurrentDrawState)
-  );
+  const currentDrawType = useSelector(selectorCurrentDrawType);
+  const currentDrawState = useSelector(selectorCurrentDrawState);
+  // const [drawType, setDrawType] = React.useState<DrawType | null>();
+  // const [drawState, setDrawState] = React.useState<DrawState | null>();
   const drawObjectById = useSelector(selectorDrawObjectById);
   const currentPreviewImageName = useSelector(selectorCurrentPreviewImageName);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
@@ -117,16 +111,14 @@ const ControlPanel = () => {
     type: DrawType
   ) => {
     dispatch(changeCurrentDrawType({ currentDrawType: type }));
-    setDrawType(type);
-    setDrawState(null);
+    dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
   };
   const handleSelectDrawState = (
     event: React.MouseEvent<HTMLElement>,
     state: DrawState
   ) => {
-    dispatch(changeCurrentStatus({ drawState: state }));
-    setDrawState(state);
-    setDrawType(null);
+    dispatch(changeCurrentDrawState({ drawState: state }));
+    dispatch(changeCurrentDrawType({ currentDrawType: null }));
   };
   const getDrawObjectToExport = () => {
     if (drawObjectById) {
@@ -395,7 +387,24 @@ const ControlPanel = () => {
     <>
       <Box sx={{ minWidth: 100 }} display="flex" flexDirection="column" gap={1}>
         <ToggleButtonGroup
-          value={drawType}
+          value={currentDrawState}
+          exclusive
+          onChange={handleSelectDrawState}
+          aria-label="mode"
+          className="annotationControlPanel"
+          size="large"
+          sx={{ border: "1px dashed grey" }}
+        >
+          <ToggleButton
+            className="annotationBtn"
+            value={DrawState.SELECTING}
+            aria-label="selecting"
+          >
+            <NearMeIcon />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <ToggleButtonGroup
+          value={currentDrawType}
           exclusive
           onChange={selectModeHandle}
           aria-label="mode"
@@ -432,23 +441,7 @@ const ControlPanel = () => {
             <PolylineIcon />
           </ToggleButton>
         </ToggleButtonGroup>
-        <ToggleButtonGroup
-          value={drawState}
-          exclusive
-          onChange={handleSelectDrawState}
-          aria-label="mode"
-          className="annotationControlPanel"
-          size="large"
-          sx={{ border: "1px dashed grey" }}
-        >
-          <ToggleButton
-            className="annotationBtn"
-            value={DrawState.SELECTING}
-            aria-label="selecting"
-          >
-            <NearMeIcon />
-          </ToggleButton>
-        </ToggleButtonGroup>
+
         <Box
           display="flex"
           mt={3}

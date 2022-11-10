@@ -2,7 +2,7 @@ import { Layer } from "react-konva";
 import { useSelector } from "react-redux";
 import {
   selectorCurrentDrawState,
-  selectorcurrentDrawType,
+  selectorCurrentDrawType,
 } from "reduxes/annotation/selector";
 import { DrawState, DrawType } from "reduxes/annotation/type";
 import DetectedRectangleDrawLayer from "./DetectedRectangleDrawLayer";
@@ -12,7 +12,7 @@ import RectangleDrawLayer from "./RectangleDrawLayer";
 
 const DrawLayer = () => {
   const currentDrawState = useSelector(selectorCurrentDrawState);
-  const drawType = useSelector(selectorcurrentDrawType);
+  const drawType = useSelector(selectorCurrentDrawType);
 
   const render = () => {
     if (

@@ -6,7 +6,7 @@ import {
 import { RootState } from "reduxes";
 import { DrawType } from "./type";
 
-export const selectorcurrentDrawType = (state: RootState) =>
+export const selectorCurrentDrawType = (state: RootState) =>
   state.annotationReducer.currentDrawType;
 export const selectorSelectedDrawObjectId = (state: RootState) =>
   state.annotationReducer.selectedDrawObjectId;

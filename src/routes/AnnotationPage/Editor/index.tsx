@@ -23,7 +23,7 @@ import {
   useSelector,
 } from "react-redux";
 import {
-  changeCurrentStatus,
+  changeCurrentDrawState,
   changeZoom,
   deleteDrawObject,
   recoverPreviousDrawState,
@@ -171,7 +171,7 @@ const Editor = () => {
     } else if (e.key === " ") {
       setKeyDown(e.key);
       if (currentDrawState !== DrawState.ZOOMDRAGGING) {
-        dispatch(changeCurrentStatus({ drawState: DrawState.ZOOMDRAGGING }));
+        dispatch(changeCurrentDrawState({ drawState: DrawState.ZOOMDRAGGING }));
       }
     } else if (e.key === "Delete") {
       if (selectedDrawObjectId) {

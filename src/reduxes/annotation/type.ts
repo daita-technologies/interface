@@ -27,7 +27,7 @@ export interface DrawObject {
 export interface AnnotationReducer {
   currentDrawState: DrawState;
   previousDrawState: DrawState;
-  currentDrawType: DrawType;
+  currentDrawType: DrawType | null;
   selectedDrawObjectId: string | null;
   zoom: ZoomProps;
   drawObjectById: Record<string, DrawObject>;
@@ -61,7 +61,7 @@ export interface ControlPanelProp {
   onResetScale: () => void;
 }
 export interface ChangeCurrentDrawTypePayload {
-  currentDrawType: DrawType;
+  currentDrawType: DrawType | null;
 }
 export interface ZoomProps {
   zoom: number;

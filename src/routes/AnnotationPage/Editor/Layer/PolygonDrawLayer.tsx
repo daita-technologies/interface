@@ -12,12 +12,12 @@ import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  changeCurrentStatus,
+  changeCurrentDrawState,
   createDrawObject,
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
-  selectorcurrentDrawType,
+  selectorCurrentDrawType,
 } from "reduxes/annotation/selector";
 import { DrawState, DrawType } from "reduxes/annotation/type";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
@@ -28,7 +28,7 @@ import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecet
 const PolygonDrawLayer = () => {
   const dispatch = useDispatch();
   const isLineStrip =
-    useSelector(selectorcurrentDrawType) === DrawType.LINE_STRIP;
+    useSelector(selectorCurrentDrawType) === DrawType.LINE_STRIP;
   const [flattenedPoints, setFlattenedPoints] = useState<number[]>([]);
   const [lineStyle, setLineStyle] = useState<CssStyle>({
     fill: convertStrokeColorToFillColor("#affaaa"),
@@ -79,7 +79,7 @@ const PolygonDrawLayer = () => {
           },
         })
       );
-      dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
+      dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
       setPoints([]);
       setIsFinished(false);
       setMousePosition(null);
@@ -170,7 +170,7 @@ const PolygonDrawLayer = () => {
     if (!position) return;
     setPoints([...points, position]);
     if (currentDrawState === DrawState.FREE) {
-      dispatch(changeCurrentStatus({ drawState: DrawState.DRAWING }));
+      dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
     }
   };
   useEffect(() => {

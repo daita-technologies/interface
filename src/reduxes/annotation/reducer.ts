@@ -45,7 +45,7 @@ import {
 } from "./type";
 
 const inititalState: AnnotationReducer = {
-  currentDrawType: DrawType.RECTANGLE,
+  currentDrawType: null,
   selectedDrawObjectId: null,
   zoom: { zoom: 1, position: { x: 0, y: 0 } },
   // drawObjectById: (() => {
@@ -81,7 +81,7 @@ const inititalState: AnnotationReducer = {
   //   return ret;
   // })(),
   drawObjectById: {},
-  currentDrawState: DrawState.FREE,
+  currentDrawState: DrawState.SELECTING,
   previousDrawState: DrawState.FREE,
   statehHistory: { historyStep: 0, stateHistoryItems: [] },
   drawObjectStateById: {},

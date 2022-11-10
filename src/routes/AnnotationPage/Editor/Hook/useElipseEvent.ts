@@ -2,7 +2,7 @@ import { LINE_STYLE } from "components/Annotation/Editor/const";
 import { EllipseSpec } from "components/Annotation/Editor/type";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  changeCurrentStatus,
+  changeCurrentDrawState,
   createDrawObject,
   setSelectedShape,
   updateDrawObject,
@@ -47,7 +47,7 @@ const useEllipseEvent = () => {
       let drawObject = createEllipse(position);
       dispatch(createDrawObject({ drawObject }));
       dispatch(setSelectedShape({ selectedDrawObjectId: drawObject.data.id }));
-      dispatch(changeCurrentStatus({ drawState: DrawState.DRAWING }));
+      dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
     }
   };
 
@@ -71,7 +71,7 @@ const useEllipseEvent = () => {
   };
   const handleMouseUp = () => {
     if (currentDrawState === DrawState.DRAWING) {
-      dispatch(changeCurrentStatus({ drawState: DrawState.SELECTING }));
+      dispatch(changeCurrentDrawState({ drawState: DrawState.SELECTING }));
     }
   };
   return { handleMouseDown, handleMouseMove, handleMouseUp };

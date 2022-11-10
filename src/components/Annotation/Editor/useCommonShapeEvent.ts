@@ -2,7 +2,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  changeCurrentStatus,
+  changeCurrentDrawState,
   setSelectedShape,
 } from "reduxes/annotation/action";
 import {
@@ -31,7 +31,7 @@ const useCommonShapeEvent = ({
   const dispatch = useDispatch();
   const handleDragEnd = (e: KonvaEventObject<DragEvent>) => {
     dispatch(
-      changeCurrentStatus({
+      changeCurrentDrawState({
         drawState: DrawState.SELECTING,
       })
     );
@@ -39,7 +39,7 @@ const useCommonShapeEvent = ({
   };
   const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
     dispatch(
-      changeCurrentStatus({
+      changeCurrentDrawState({
         drawState: DrawState.DRAGGING,
       })
     );
@@ -50,7 +50,7 @@ const useCommonShapeEvent = ({
   };
   const handleTransformStart = (e: KonvaEventObject<MouseEvent>) => {
     dispatch(
-      changeCurrentStatus({
+      changeCurrentDrawState({
         drawState: DrawState.TRANSFORMING,
       })
     );
@@ -58,7 +58,7 @@ const useCommonShapeEvent = ({
   };
   const handleTransformEnd = (e: KonvaEventObject<Event>) => {
     dispatch(
-      changeCurrentStatus({
+      changeCurrentDrawState({
         drawState: DrawState.SELECTING,
       })
     );

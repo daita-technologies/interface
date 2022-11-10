@@ -3,14 +3,14 @@ import { PolygonSpec } from "components/Annotation/Editor/type";
 import { Vector2d } from "konva/lib/types";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  changeCurrentStatus,
+  changeCurrentDrawState,
   createDrawObject,
   setSelectedShape,
   updateDrawObject,
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
-  selectorcurrentDrawType,
+  selectorCurrentDrawType,
   selectorSelectedPolygonOrLineStrip,
 } from "reduxes/annotation/selector";
 import {
@@ -46,7 +46,7 @@ const usePolygonEvent = () => {
   const dispatch = useDispatch();
   const polygon = useSelector(selectorSelectedPolygonOrLineStrip);
   const currentDrawState = useSelector(selectorCurrentDrawState);
-  const drawType = useSelector(selectorcurrentDrawType);
+  const drawType = useSelector(selectorCurrentDrawType);
 
   const handleMouseDown = (e: EditorEventPayload) => {
     const position = e.eventObject.currentTarget.getRelativePointerPosition();
@@ -64,7 +64,7 @@ const usePolygonEvent = () => {
         dispatch(
           setSelectedShape({ selectedDrawObjectId: drawObject.data.id })
         );
-        dispatch(changeCurrentStatus({ drawState: DrawState.DRAWING }));
+        dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
       }
     } else {
       const polygonAfterBuild = buildPolygon(polygon as PolygonSpec, position);

@@ -56,7 +56,7 @@ export const updateDrawObject = (payload: UpdateDrawObjectPayload) => ({
   payload,
 });
 
-export const changeCurrentStatus = (
+export const changeCurrentDrawState = (
   payload: ChangeCurrentDrawStatePayload
 ) => ({
   type: CHANGE_CURRENT_DRAW_STATE,
