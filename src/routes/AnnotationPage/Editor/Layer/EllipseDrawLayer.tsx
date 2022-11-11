@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { Ellipse, Layer, Rect } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { createDrawObject } from "reduxes/annotation/action";
+import { selectorMouseUpOutLayerPosition } from "reduxes/annotation/selector";
 import { DrawType } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 import { createEllipse } from "../Hook/useElipseEvent";
@@ -16,7 +17,12 @@ const EllipseDrawLayer = () => {
   const [startPoint, setStartPoint] = useState<Vector2d | null>(null);
   const [endPoint, setEndPoint] = useState<Vector2d | null>(null);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
-
+  const mouseUpOutLayerPosition = useSelector(selectorMouseUpOutLayerPosition);
+  useEffect(() => {
+    if (mouseUpOutLayerPosition) {
+      handleMouseUp();
+    }
+  }, [mouseUpOutLayerPosition]);
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
     if (!position || !startPoint) return;
@@ -27,6 +33,8 @@ const EllipseDrawLayer = () => {
     const position = e.currentTarget.getRelativePointerPosition();
     if (!position) return;
     setStartPoint({ ...position });
+    e.evt.preventDefault();
+    e.evt.stopPropagation();
   };
   const layer = useRef<Konva.Layer | null>(null);
   useEffect(() => {

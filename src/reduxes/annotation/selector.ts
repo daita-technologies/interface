@@ -94,3 +94,7 @@ export const selectorDrawObjectStateIdByAI = (state: RootState) =>
   state.annotationReducer.drawObjectStateIdByAI;
 export const selectorKeyDownInEditor = (state: RootState) =>
   state.annotationReducer.keyDownInEditor;
+export const selectorMouseDownOutLayerPosition = (state: RootState) =>
+  state.annotationReducer.mouseDownOutLayerPosition;
+export const selectorMouseUpOutLayerPosition = (state: RootState) =>
+  state.annotationReducer.mouseUpOutLayerPosition;

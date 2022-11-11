@@ -16,6 +16,8 @@ import {
   SET_IS_DRAGGING_VIEW_PORT,
   SET_KEY_DOWN_IN_EDITOR,
   SET_LOCK_DRAW_OBJECT,
+  SET_MOUSE_DOWN_OUT_LAYER_POSITION,
+  SET_MOUSE_UP_OUT_LAYER_POSITION,
   SET_SELECT_SHAPE,
   SHOW_ALL_DRAW_OBJECTS_BY_AI,
   SHOW_DRAW_OBJECTS_BY_AI,
@@ -42,6 +44,7 @@ import {
   SetKeyDownPayload,
   SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
+  SetMouseOutLayerPosition,
   SetSelectShapePayload,
   ShowDrawObjectStateIdByAIPayload,
   StateHistory,
@@ -94,6 +97,8 @@ const inititalState: AnnotationReducer = {
   isDraggingViewport: false,
   drawObjectStateIdByAI: {},
   keyDownInEditor: null,
+  mouseUpOutLayerPosition: null,
+  mouseDownOutLayerPosition: null,
 };
 const updateStateHistory = (
   drawObjectById: Record<string, DrawObject>,
@@ -442,6 +447,20 @@ const annotationReducer = (
     case SET_KEY_DOWN_IN_EDITOR: {
       const { keyDownInEditor } = payload as SetKeyDownPayload;
       return { ...state, keyDownInEditor };
+    }
+    case SET_MOUSE_UP_OUT_LAYER_POSITION: {
+      const { position } = payload as SetMouseOutLayerPosition;
+      return {
+        ...state,
+        mouseUpOutLayerPosition: position,
+      };
+    }
+    case SET_MOUSE_DOWN_OUT_LAYER_POSITION: {
+      const { position } = payload as SetMouseOutLayerPosition;
+      return {
+        ...state,
+        mouseDownOutLayerPosition: position,
+      };
     }
     default:
       return state;

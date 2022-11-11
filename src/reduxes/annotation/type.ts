@@ -37,6 +37,8 @@ export interface AnnotationReducer {
   detectedArea: DetectedAreaType | null;
   isDraggingViewport: boolean;
   keyDownInEditor: string | null;
+  mouseUpOutLayerPosition: Vector2d | null;
+  mouseDownOutLayerPosition: Vector2d | null;
 }
 export interface DrawObjectByAIState {
   isShow: boolean;
@@ -123,4 +125,7 @@ export interface ShowDrawObjectStateIdByAIPayload {
 
 export interface SetKeyDownPayload {
   keyDownInEditor: string | null;
+}
+export interface SetMouseOutLayerPosition {
+  position: Vector2d | null;
 }

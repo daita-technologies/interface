@@ -83,13 +83,13 @@ const LabelAnnotation = function () {
   const renderList = () => {
     if (issFetchingImageData) {
       return (
-        <Box display="flex" justifyContent="center" height={700}>
+        <Box display="flex" justifyContent="center" height={780}>
           <CircularProgress size={20} />
         </Box>
       );
     }
     return (
-      <Box sx={{ overflowY: "auto" }} height={700}>
+      <Box sx={{ overflowY: "auto" }} height={780}>
         <AutoSizer>
           {({ height, width }) => (
             <FixedSizeList

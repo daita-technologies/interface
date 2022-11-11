@@ -19,6 +19,7 @@ import {
   selectorCurrentDrawState,
   selectorCurrentDrawType,
   selectorKeyDownInEditor,
+  selectorMouseDownOutLayerPosition,
 } from "reduxes/annotation/selector";
 import { DrawState, DrawType } from "reduxes/annotation/type";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
@@ -43,7 +44,14 @@ const PolygonDrawLayer = () => {
   const layer = useRef<Konva.Layer | null>(null);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const keyDownInEditor = useSelector(selectorKeyDownInEditor);
-
+  const mouseDownOutLayerPosition = useSelector(
+    selectorMouseDownOutLayerPosition
+  );
+  useEffect(() => {
+    if (mouseDownOutLayerPosition) {
+      mousedownHandler();
+    }
+  }, [mouseDownOutLayerPosition]);
   useEffect(() => {
     const flatPoints: number[] = points
       .concat(isFinished || !mousePosition ? [] : mousePosition)
@@ -175,12 +183,16 @@ const PolygonDrawLayer = () => {
   };
   const currentDrawState = useSelector(selectorCurrentDrawState);
 
-  const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
-    const position = e.currentTarget.getRelativePointerPosition();
-    if (!position) return;
-    setPoints([...points, position]);
-    if (currentDrawState === DrawState.FREE) {
-      dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
+  const mousedownHandler = (e?: KonvaEventObject<MouseEvent>) => {
+    if (mousePosition) {
+      setPoints([...points, mousePosition]);
+      if (currentDrawState === DrawState.FREE) {
+        dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
+      }
+      if (e) {
+        e.evt.preventDefault();
+        e.evt.stopPropagation();
+      }
     }
   };
   useEffect(() => {

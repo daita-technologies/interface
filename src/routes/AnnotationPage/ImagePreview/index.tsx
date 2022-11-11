@@ -241,16 +241,6 @@ const ImagePreview = function () {
       </>
     );
   };
-  return (
-    <Box
-      display="flex"
-      gap={2}
-      height="25vh"
-      minHeight={200}
-      sx={{ padding: "30px 30px" }}
-    >
-      {renderContent()}
-    </Box>
-  );
+  return <>{renderContent()}</>;
 };
 export default ImagePreview;
