@@ -85,7 +85,7 @@ const inititalState: AnnotationReducer = {
   // })(),
   drawObjectById: {},
   currentDrawState: DrawState.SELECTING,
-  previousDrawState: DrawState.FREE,
+  previousDrawState: DrawState.SELECTING,
   statehHistory: { historyStep: 0, stateHistoryItems: [] },
   drawObjectStateById: {},
   detectedArea: null,
@@ -208,7 +208,6 @@ const annotationReducer = (
       delete state.drawObjectById[drawObjectId];
       return {
         ...state,
-        currentDrawState: DrawState.FREE,
         selectedDrawObjectId: null,
         drawObjectById: { ...state.drawObjectById },
       };
