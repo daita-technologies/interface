@@ -92,3 +92,5 @@ export const selectorIsDraggingViewport = (state: RootState) =>
   state.annotationReducer.isDraggingViewport;
 export const selectorDrawObjectStateIdByAI = (state: RootState) =>
   state.annotationReducer.drawObjectStateIdByAI;
+export const selectorKeyDownInEditor = (state: RootState) =>
+  state.annotationReducer.keyDownInEditor;

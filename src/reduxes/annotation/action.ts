@@ -13,6 +13,7 @@ import {
   SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
   SET_IS_DRAGGING_VIEW_PORT,
+  SET_KEY_DOWN_IN_EDITOR,
   SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   SHOW_ALL_DRAW_OBJECTS_BY_AI,
@@ -31,6 +32,7 @@ import {
   ResetCurrentStateDrawObjectPayload,
   SetHiddenDrawObjectPayload,
   SetIsDraggingViewportPayload,
+  SetKeyDownPayload,
   SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
   SetSelectShapePayload,
@@ -131,4 +133,8 @@ export const showAllDrawObjectStateIdByAI = () => ({
 });
 export const hiddenAllDrawObjectStateIdByAI = () => ({
   type: HIDDEN_ALL_DRAW_OBJECTS_BY_AI,
+});
+export const setKeyDownInEditor = (payload: SetKeyDownPayload) => ({
+  type: SET_KEY_DOWN_IN_EDITOR,
+  payload,
 });

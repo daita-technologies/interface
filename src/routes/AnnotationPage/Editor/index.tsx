@@ -29,6 +29,8 @@ import {
   recoverPreviousDrawState,
   redoDrawObject,
   setIsDraggingViewpor,
+  setKeyDownInEditor,
+  setSelectedShape,
   undoDrawObject,
 } from "reduxes/annotation/action";
 import {
@@ -159,6 +161,7 @@ const Editor = () => {
 
   const keyUpHandler = (): void => {
     setKeyDown(null);
+    dispatch(setKeyDownInEditor({ keyDownInEditor: null }));
     if (currentDrawState === DrawState.ZOOMDRAGGING) {
       dispatch(recoverPreviousDrawState());
     }
@@ -181,15 +184,7 @@ const Editor = () => {
         }
       }
     } else if (e.key === "Escape") {
-      if (selectedDrawObjectId) {
-        if (drawObjectById[selectedDrawObjectId].type === DrawType.POLYGON) {
-          const polygon = drawObjectById[selectedDrawObjectId]
-            .data as PolygonSpec;
-          if (!polygon.polygonState.isFinished) {
-            dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
-          }
-        }
-      }
+      dispatch(setKeyDownInEditor({ keyDownInEditor: e.key }));
     }
   };
 
@@ -279,6 +274,9 @@ const Editor = () => {
     }
     return currentAnnotationFile.image === null;
   }, [currentAnnotationFile]);
+  const handleMouseDown = () => {
+    dispatch(setSelectedShape({ selectedDrawObjectId: null }));
+  };
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -311,6 +309,7 @@ const Editor = () => {
                   stageProps ? stageProps.height : MAX_HEIGHT_IMAGE_IN_EDITOR
                 }
                 onWheel={wheelHandler}
+                onMouseDown={handleMouseDown}
                 draggable={isDraggingViewport}
               >
                 <Provider store={store}>

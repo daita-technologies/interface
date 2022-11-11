@@ -400,7 +400,6 @@ const ControlPanel = () => {
     currentDrawState === DrawState.SELECTING ||
     currentDrawState === DrawState.DRAGGING ||
     currentDrawState === DrawState.TRANSFORMING;
-  console.log("isSelected", isSelected, currentDrawState);
   return (
     <>
       <Box sx={{ minWidth: 100 }} display="flex" flexDirection="column" gap={1}>

@@ -36,6 +36,7 @@ export interface AnnotationReducer {
   statehHistory: StateHistory;
   detectedArea: DetectedAreaType | null;
   isDraggingViewport: boolean;
+  keyDownInEditor: string | null;
 }
 export interface DrawObjectByAIState {
   isShow: boolean;
@@ -118,4 +119,8 @@ export interface AddDrawObjectStateIdByAIPayload {
 }
 export interface ShowDrawObjectStateIdByAIPayload {
   drawObjectStateIds: string[];
+}
+
+export interface SetKeyDownPayload {
+  keyDownInEditor: string | null;
 }

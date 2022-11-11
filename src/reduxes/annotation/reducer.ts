@@ -14,6 +14,7 @@ import {
   SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
   SET_IS_DRAGGING_VIEW_PORT,
+  SET_KEY_DOWN_IN_EDITOR,
   SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
   SHOW_ALL_DRAW_OBJECTS_BY_AI,
@@ -38,6 +39,7 @@ import {
   ResetCurrentStateDrawObjectPayload,
   SetHiddenDrawObjectPayload,
   SetIsDraggingViewportPayload,
+  SetKeyDownPayload,
   SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
   SetSelectShapePayload,
@@ -91,6 +93,7 @@ const inititalState: AnnotationReducer = {
   detectedArea: null,
   isDraggingViewport: false,
   drawObjectStateIdByAI: {},
+  keyDownInEditor: null,
 };
 const updateStateHistory = (
   drawObjectById: Record<string, DrawObject>,
@@ -435,6 +438,10 @@ const annotationReducer = (
         newDrawObjectStateIdByAI[key] = { ...value, isShow: false };
       });
       return { ...state, drawObjectStateIdByAI: newDrawObjectStateIdByAI };
+    }
+    case SET_KEY_DOWN_IN_EDITOR: {
+      const { keyDownInEditor } = payload as SetKeyDownPayload;
+      return { ...state, keyDownInEditor };
     }
     default:
       return state;
