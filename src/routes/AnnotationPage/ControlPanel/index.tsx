@@ -396,21 +396,27 @@ const ControlPanel = () => {
       dispatch(showAllDrawObjectStateIdByAI());
     }
   };
+  const isSelected =
+    currentDrawState === DrawState.SELECTING ||
+    currentDrawState === DrawState.DRAGGING ||
+    currentDrawState === DrawState.TRANSFORMING;
+  console.log("isSelected", isSelected, currentDrawState);
   return (
     <>
       <Box sx={{ minWidth: 100 }} display="flex" flexDirection="column" gap={1}>
         <ToggleButtonGroup
           value={currentDrawState}
           exclusive
-          onChange={handleSelectDrawState}
           aria-label="mode"
           className="annotationControlPanel"
           size="large"
           sx={{ border: "1px dashed grey" }}
+          onChange={handleSelectDrawState}
         >
           <ToggleButton
-            className="annotationBtn"
             value={DrawState.SELECTING}
+            className="annotationBtn"
+            selected={isSelected}
             aria-label="selecting"
           >
             <NearMeIcon />

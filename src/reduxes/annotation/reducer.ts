@@ -128,7 +128,9 @@ const annotationReducer = (
         ...state,
         currentDrawType,
         selectedDrawObjectId: null,
-        currentDrawState: DrawState.FREE,
+        currentDrawState: currentDrawType
+          ? DrawState.FREE
+          : DrawState.SELECTING,
       };
     }
     case CHANGE_ZOOM: {
