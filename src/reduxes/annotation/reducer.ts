@@ -215,11 +215,16 @@ const annotationReducer = (
     }
     case DELETE_DRAW_OBJECT: {
       const { drawObjectId } = payload as DeleteDrawObjectPayload;
+      const newStateHistory = updateStateHistory(
+        state.drawObjectById,
+        state.statehHistory
+      );
       delete state.drawObjectById[drawObjectId];
       return {
         ...state,
         selectedDrawObjectId: null,
         drawObjectById: { ...state.drawObjectById },
+        statehHistory: newStateHistory,
       };
     }
     case RESET_CURRENT_STATE_DRAW_OBJECT: {
@@ -279,8 +284,8 @@ const annotationReducer = (
         Object.entries(undoDrawObjectById).map(([key, value]) => {
           undoDrawObjectById[key].data = {
             ...undoDrawObjectById[key].data,
-            label: state.drawObjectById[key].data.label,
-            cssStyle: state.drawObjectById[key].data.cssStyle,
+            label: value.data.label,
+            cssStyle: value.data.cssStyle,
           };
         });
         return {
