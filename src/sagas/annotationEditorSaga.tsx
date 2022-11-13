@@ -32,6 +32,7 @@ import {
 import { selectorDrawObjectStateIdByAI } from "reduxes/annotation/selector";
 import {
   DrawObject,
+  DrawObjectByAIState,
   ResetCurrentStateDrawObjectPayload,
 } from "reduxes/annotation/type";
 import {
@@ -289,12 +290,11 @@ function* handleSaveAnnotationStateManager(action: any): any {
     const filename = splitKey.join("") + ".json";
     s3key_jsonlabel = annotationCurrentProject.s3_label + "/" + filename;
   }
-  const drawObjectStateIdByAI: string[] = yield select(
-    selectorDrawObjectStateIdByAI
-  );
+  const drawObjectStateIdByAI: Record<string, DrawObjectByAIState> =
+    yield select(selectorDrawObjectStateIdByAI);
   const drawObjectByIdExcluceAIDetect: Record<string, DrawObject> = {};
   Object.entries(drawObjectById).forEach(([key, value]) => {
-    if (!drawObjectStateIdByAI.includes(key)) {
+    if (!drawObjectStateIdByAI[key]) {
       drawObjectByIdExcluceAIDetect[key] = value;
     }
   });

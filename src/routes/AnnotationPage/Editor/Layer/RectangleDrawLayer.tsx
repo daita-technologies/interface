@@ -7,10 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { Layer, Rect } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { createDrawObject } from "reduxes/annotation/action";
-import {
-  selectorMouseDownOutLayerPosition,
-  selectorMouseUpOutLayerPosition,
-} from "reduxes/annotation/selector";
+import { selectorMouseUpOutLayerPosition } from "reduxes/annotation/selector";
 import { DrawType } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 import { createRectangle } from "../Hook/useRectangleEvent";

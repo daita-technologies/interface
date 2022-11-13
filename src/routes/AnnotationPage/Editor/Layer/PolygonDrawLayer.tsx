@@ -22,10 +22,9 @@ import {
   selectorMouseDownOutLayerPosition,
 } from "reduxes/annotation/selector";
 import { DrawState, DrawType } from "reduxes/annotation/type";
+import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
 import { createPolygon } from "../Hook/usePolygonEvent";
-import DummyRect from "./DummyRect";
-import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 
 const PolygonDrawLayer = () => {
   const dispatch = useDispatch();

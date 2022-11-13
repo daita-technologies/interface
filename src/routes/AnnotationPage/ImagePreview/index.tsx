@@ -1,11 +1,15 @@
 import { Box, List, ListItem, Skeleton, Typography } from "@mui/material";
+import useConfirmDialog from "hooks/useConfirmDialog";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
-import { selectorDrawObjectById } from "reduxes/annotation/selector";
+import {
+  selectorAnnotationHistoryStep,
+  selectorDrawObjectById,
+} from "reduxes/annotation/selector";
 import {
   requestChangePreviewImage,
-  setAnnotationStateManager,
+  saveAnnotationStateManager,
 } from "reduxes/annotationmanager/action";
 import {
   selectorCurrentPreviewImageName,
@@ -30,6 +34,8 @@ const ImagePreview = function () {
   const drawObjectById = useSelector(selectorDrawObjectById);
   const idDrawObjectByImageName = useSelector(selectorIdDrawObjectByImageName);
   const currentAnnotationFiles = useSelector(selectorCurrentAnnotationFiles);
+  const annotationHistoryStep = useSelector(selectorAnnotationHistoryStep);
+  const { openConfirmDialog, closeConfirmDialog } = useConfirmDialog();
 
   // useEffect(() => {
   //   if (currentAnnotationFiles) {
@@ -151,20 +157,45 @@ const ImagePreview = function () {
     if (imageName === currentPreviewImageName) {
       return;
     }
-    if (currentPreviewImageName) {
+    if (annotationHistoryStep === 0) {
       dispatch(
-        setAnnotationStateManager({
-          imageName: currentPreviewImageName,
-          drawObjectById,
+        resetCurrentStateDrawObject({
+          drawObjectById: idDrawObjectByImageName[imageName],
         })
       );
+      dispatch(requestChangePreviewImage({ imageName }));
+      return;
     }
-    dispatch(
-      resetCurrentStateDrawObject({
-        drawObjectById: idDrawObjectByImageName[imageName],
-      })
-    );
-    dispatch(requestChangePreviewImage({ imageName }));
+    openConfirmDialog({
+      content: (
+        <Box lineHeight={1.5}>
+          <Typography>
+            If you change the preview image, all annotation already processed
+            will be lost. Do you still want to CANCEL?
+          </Typography>
+        </Box>
+      ),
+      negativeText: "Cancel",
+      positiveText: "Save",
+      onClickNegative: closeConfirmDialog,
+      onClickPositive: () => {
+        if (currentPreviewImageName) {
+          dispatch(
+            saveAnnotationStateManager({
+              imageName: currentPreviewImageName,
+              drawObjectById,
+            })
+          );
+        }
+        dispatch(
+          resetCurrentStateDrawObject({
+            drawObjectById: idDrawObjectByImageName[imageName],
+          })
+        );
+        dispatch(requestChangePreviewImage({ imageName }));
+        closeConfirmDialog();
+      },
+    });
   };
   const renderContent = () => {
     if (!currentAnnotationFiles) {
