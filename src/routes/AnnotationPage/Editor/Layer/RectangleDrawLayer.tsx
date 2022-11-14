@@ -7,9 +7,12 @@ import { Vector2d } from "konva/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { Layer, Rect } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
-import { createDrawObject } from "reduxes/annotation/action";
+import {
+  changeCurrentDrawState,
+  createDrawObject,
+} from "reduxes/annotation/action";
 import { selectorMouseUpOutLayerPosition } from "reduxes/annotation/selector";
-import { DrawType } from "reduxes/annotation/type";
+import { DrawState, DrawType } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 
 function RectangleDrawLayer() {
@@ -44,6 +47,7 @@ function RectangleDrawLayer() {
     const position = e.currentTarget.getRelativePointerPosition();
     if (!position) return;
     setStartPoint({ ...position });
+    dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
     e.evt.preventDefault();
     e.evt.stopPropagation();
   };
@@ -75,6 +79,7 @@ function RectangleDrawLayer() {
     }
     setStartPoint(null);
     setEndPoint(null);
+    dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
   };
 
   const handleMouseOut = (e: KonvaEventObject<MouseEvent>) => {

@@ -3,14 +3,8 @@ import useConfirmDialog from "hooks/useConfirmDialog";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
-import {
-  selectorAnnotationHistoryStep,
-  selectorDrawObjectById,
-} from "reduxes/annotation/selector";
-import {
-  requestChangePreviewImage,
-  saveAnnotationStateManager,
-} from "reduxes/annotationmanager/action";
+import { selectorAnnotationStatehHistory } from "reduxes/annotation/selector";
+import { requestChangePreviewImage } from "reduxes/annotationmanager/action";
 import {
   selectorCurrentPreviewImageName,
   selectorIdDrawObjectByImageName,
@@ -23,10 +17,9 @@ function ImagePreview() {
   // const annotationManagerImages = useSelector(selectorAnnotationManagerImages);
 
   const currentPreviewImageName = useSelector(selectorCurrentPreviewImageName);
-  const drawObjectById = useSelector(selectorDrawObjectById);
   const idDrawObjectByImageName = useSelector(selectorIdDrawObjectByImageName);
   const currentAnnotationFiles = useSelector(selectorCurrentAnnotationFiles);
-  const annotationHistoryStep = useSelector(selectorAnnotationHistoryStep);
+  const annotationStatehHistory = useSelector(selectorAnnotationStatehHistory);
   const { openConfirmDialog, closeConfirmDialog } = useConfirmDialog();
 
   // useEffect(() => {
@@ -149,7 +142,15 @@ function ImagePreview() {
     if (imageName === currentPreviewImageName) {
       return;
     }
-    if (annotationHistoryStep === 0) {
+    if (
+      !annotationStatehHistory.stateHistoryItems[
+        annotationStatehHistory.historyStep - 1
+      ] ||
+      annotationStatehHistory.savedStateHistoryId ===
+        annotationStatehHistory.stateHistoryItems[
+          annotationStatehHistory.historyStep - 1
+        ].id
+    ) {
       dispatch(
         resetCurrentStateDrawObject({
           drawObjectById: idDrawObjectByImageName[imageName],
@@ -168,7 +169,7 @@ function ImagePreview() {
         </Box>
       ),
       negativeText: "Cancel",
-      positiveText: "Dont't Save",
+      positiveText: "Don't Save",
       onClickNegative: () => {
         closeConfirmDialog();
       },

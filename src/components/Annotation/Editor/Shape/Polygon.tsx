@@ -345,6 +345,7 @@ function PolygonComp({
 
       return (
         <Circle
+          key={`${x}_${y}`}
           x={x}
           y={y}
           radius={CORNER_RADIUS_AJUST_ZOOM * 1.5}

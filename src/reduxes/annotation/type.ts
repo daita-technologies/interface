@@ -54,10 +54,12 @@ export interface DrawObjectState {
   isHidden?: boolean;
 }
 export interface StateHistory {
+  savedStateHistoryId: string | null;
   historyStep: number;
   stateHistoryItems: StateHistoryItem[];
 }
 export interface StateHistoryItem {
+  id: string;
   drawObjectById: Record<string, DrawObject>;
 }
 export interface ControlPanelProp {

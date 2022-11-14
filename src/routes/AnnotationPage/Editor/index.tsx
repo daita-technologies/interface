@@ -197,26 +197,39 @@ function Editor() {
       }
     } else if (e.key === "Escape") {
       dispatch(setKeyDownInEditor({ keyDownInEditor: e.key }));
-    } else if (e.key === SELECT_SHORT_KEY) {
-      dispatch(changeCurrentDrawState({ drawState: DrawState.SELECTING }));
-      dispatch(changeCurrentDrawType({ currentDrawType: null }));
-    } else if (e.key === DRAW_RECTANGLE_SHORT_KEY) {
-      dispatch(changeCurrentDrawType({ currentDrawType: DrawType.RECTANGLE }));
-      dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
-    } else if (e.key === DRAW_POLYGON_SHORT_KEY) {
-      dispatch(changeCurrentDrawType({ currentDrawType: DrawType.POLYGON }));
-      dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
-    } else if (e.key === DRAW_ELLIPSE_SHORT_KEY) {
-      dispatch(changeCurrentDrawType({ currentDrawType: DrawType.ELLIPSE }));
-      dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
-    } else if (e.key === DRAW_LINE_SHORT_KEY) {
-      dispatch(changeCurrentDrawType({ currentDrawType: DrawType.LINE_STRIP }));
-      dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
-    } else if (e.key === DRAW_SEGMENTATION_SHORT_KEY) {
-      dispatch(
-        changeCurrentDrawType({ currentDrawType: DrawType.DETECTED_RECTANGLE })
-      );
-      dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+    }
+    if (
+      currentDrawState === null ||
+      currentDrawState === DrawState.FREE ||
+      currentDrawState === DrawState.SELECTING
+    ) {
+      if (e.key === SELECT_SHORT_KEY) {
+        dispatch(changeCurrentDrawState({ drawState: DrawState.SELECTING }));
+        dispatch(changeCurrentDrawType({ currentDrawType: null }));
+      } else if (e.key === DRAW_RECTANGLE_SHORT_KEY) {
+        dispatch(
+          changeCurrentDrawType({ currentDrawType: DrawType.RECTANGLE })
+        );
+        dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+      } else if (e.key === DRAW_POLYGON_SHORT_KEY) {
+        dispatch(changeCurrentDrawType({ currentDrawType: DrawType.POLYGON }));
+        dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+      } else if (e.key === DRAW_ELLIPSE_SHORT_KEY) {
+        dispatch(changeCurrentDrawType({ currentDrawType: DrawType.ELLIPSE }));
+        dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+      } else if (e.key === DRAW_LINE_SHORT_KEY) {
+        dispatch(
+          changeCurrentDrawType({ currentDrawType: DrawType.LINE_STRIP })
+        );
+        dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+      } else if (e.key === DRAW_SEGMENTATION_SHORT_KEY) {
+        dispatch(
+          changeCurrentDrawType({
+            currentDrawType: DrawType.DETECTED_RECTANGLE,
+          })
+        );
+        dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+      }
     }
   };
 
@@ -369,7 +382,7 @@ function Editor() {
                   stageProps ? stageProps.height : MAX_HEIGHT_IMAGE_IN_EDITOR
                 }
                 onWheel={wheelHandler}
-                onMouseDown={selectHandleMouseDown}
+                onClick={selectHandleMouseDown}
                 draggable={isDraggingViewport}
               >
                 <Provider store={store}>

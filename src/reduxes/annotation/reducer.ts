@@ -1,4 +1,6 @@
 import { PolygonSpec } from "components/Annotation/Editor/type";
+import { SAVE_REMOTE_NEW_CLASS_LABEL } from "reduxes/annotationmanager/constants";
+import { v4 as uuidv4 } from "uuid";
 import {
   ADD_DRAW_OBJECTS_BY_AI,
   CHANGE_CURRENT_DRAW_STATE,
@@ -48,6 +50,7 @@ import {
   SetSelectShapePayload,
   ShowDrawObjectStateIdByAIPayload,
   StateHistory,
+  StateHistoryItem,
   UpdateDrawObjectPayload,
   UpdateLabelOfDrawObjectPayload,
 } from "./type";
@@ -91,7 +94,11 @@ const inititalState: AnnotationReducer = {
   drawObjectById: {},
   currentDrawState: DrawState.SELECTING,
   previousDrawState: DrawState.SELECTING,
-  statehHistory: { historyStep: 0, stateHistoryItems: [] },
+  statehHistory: {
+    savedStateHistoryId: null,
+    historyStep: 0,
+    stateHistoryItems: [],
+  },
   drawObjectStateById: {},
   detectedArea: null,
   isDraggingViewport: false,
@@ -118,6 +125,7 @@ const updateStateHistory = (
   newStateHistory.stateHistoryItems = [
     ...newStateHistory.stateHistoryItems,
     {
+      id: uuidv4(),
       drawObjectById: structuredClone(drawObjectById),
     },
   ];
@@ -269,7 +277,7 @@ const annotationReducer = (
     case UNDO_DRAW_OBJECT: {
       const { statehHistory } = state;
       if (state.statehHistory.historyStep > 0) {
-        let stateHistoryItems;
+        let stateHistoryItems: StateHistoryItem[];
         if (
           state.statehHistory.historyStep ===
           state.statehHistory.stateHistoryItems.length
@@ -277,6 +285,7 @@ const annotationReducer = (
           stateHistoryItems = [
             ...statehHistory.stateHistoryItems,
             {
+              id: uuidv4(),
               drawObjectById: structuredClone(state.drawObjectById),
             },
           ];
@@ -464,6 +473,17 @@ const annotationReducer = (
       return {
         ...state,
         mouseDownOutLayerPosition: position,
+      };
+    }
+    case SAVE_REMOTE_NEW_CLASS_LABEL.SUCCEEDED: {
+      const history = state.statehHistory;
+      return {
+        ...state,
+        statehHistory: {
+          ...history,
+          savedStateHistoryId:
+            history.stateHistoryItems[history.historyStep].id,
+        },
       };
     }
     default:

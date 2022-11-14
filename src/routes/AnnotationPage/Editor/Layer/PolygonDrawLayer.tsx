@@ -162,14 +162,10 @@ function PolygonDrawLayer() {
         />
       );
     });
-  const currentDrawState = useSelector(selectorCurrentDrawState);
-
   const mousedownHandler = (e?: KonvaEventObject<MouseEvent>) => {
     if (mousePosition) {
       setPoints([...points, mousePosition]);
-      if (currentDrawState === DrawState.FREE) {
-        dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
-      }
+      dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
       if (e) {
         e.evt.preventDefault();
         e.evt.stopPropagation();

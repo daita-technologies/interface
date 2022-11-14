@@ -4,9 +4,12 @@ import { Vector2d } from "konva/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { Layer, Rect } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
-import { setDetectedArea } from "reduxes/annotation/action";
+import {
+  changeCurrentDrawState,
+  setDetectedArea,
+} from "reduxes/annotation/action";
 import { selectorMouseUpOutLayerPosition } from "reduxes/annotation/selector";
-import { DetectedAreaType } from "reduxes/annotation/type";
+import { DetectedAreaType, DrawState } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
 
@@ -28,6 +31,9 @@ function DetectedRectangleDrawLayer() {
         height: 3,
       });
     }
+    dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
+    e.evt.preventDefault();
+    e.evt.stopPropagation();
   };
 
   const updateMousePosition = (position: Vector2d) => {
@@ -72,6 +78,7 @@ function DetectedRectangleDrawLayer() {
       );
     }
     setLocalDetectedArea(null);
+    dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
   };
   const layer = useRef<Konva.Layer | null>(null);
   useEffect(() => {
