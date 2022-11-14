@@ -14,7 +14,6 @@ import {
   MAX_WIDTH_IMAGE_IN_EDITOR,
 } from "components/Annotation/Editor/const";
 import Konva from "konva";
-import { Vector2d } from "konva/lib/types";
 import {
   Provider,
   ReactReduxContext,
@@ -45,8 +44,6 @@ import {
 } from "reduxes/annotation/selector";
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
-import BaseImage from "./BaseImage";
-import DrawLayer from "./Layer/DrawLayer";
 import {
   DRAW_ELLIPSE_SHORT_KEY,
   DRAW_LINE_SHORT_KEY,
@@ -55,6 +52,8 @@ import {
   DRAW_SEGMENTATION_SHORT_KEY,
   SELECT_SHORT_KEY,
 } from "../constants";
+import BaseImage from "./BaseImage";
+import DrawLayer from "./Layer/DrawLayer";
 
 const TOOLTIP_WIDTH = 200;
 const TOOLTIP_HEIGHT = 40;

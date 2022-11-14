@@ -1,14 +1,14 @@
+import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
+import { Vector2d } from "konva/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { Layer, Rect } from "react-konva";
-import Konva from "konva";
 import { useDispatch, useSelector } from "react-redux";
 import { setDetectedArea } from "reduxes/annotation/action";
 import { selectorMouseUpOutLayerPosition } from "reduxes/annotation/selector";
 import { DetectedAreaType } from "reduxes/annotation/type";
-import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
-import { Vector2d } from "konva/lib/types";
+import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
 
 function DetectedRectangleDrawLayer() {
   const dispatch = useDispatch();

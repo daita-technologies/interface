@@ -381,10 +381,7 @@ const annotationReducer = (
                   point.y > (detectedArea.y + detectedArea.height) * scaleY
               );
               if (!isInvalid) {
-                newDrawObjectStateIdByAI[drawObjectId] = {
-                  ...newDrawObjectStateIdByAI[drawObjectId],
-                  isShow: true,
-                };
+                delete newDrawObjectStateIdByAI[drawObjectId];
               }
             }
           }

@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setDialogClassManageModal } from "reduxes/annotationmanager/action";
 import { selectorDialogClassManageModal } from "reduxes/annotationmanager/selecetor";
 import useClassManageEditor from "./useClassManageEditor";
+// eslint-disable-next-line import/no-cycle
 import useListClassView from "./useListClassView";
 
 const ClassManageModel = function () {

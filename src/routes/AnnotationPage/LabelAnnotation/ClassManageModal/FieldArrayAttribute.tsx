@@ -1,12 +1,7 @@
 import ClearIcon from "@mui/icons-material/Clear";
 import { Box, IconButton, TextField } from "@mui/material";
 import { MyButton } from "components";
-import {
-  Control,
-  useFieldArray,
-  UseFormRegister,
-  UseFormSetValue,
-} from "react-hook-form";
+import { Control, useFieldArray, UseFormRegister } from "react-hook-form";
 import { LabelForm } from "../ClassLabel/type";
 
 export default function FieldArrayAttribute({
