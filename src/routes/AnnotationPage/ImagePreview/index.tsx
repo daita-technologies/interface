@@ -1,6 +1,7 @@
 import { Box, List, ListItem, Skeleton, Typography } from "@mui/material";
+import { BeforeUnload } from "components";
 import useConfirmDialog from "hooks/useConfirmDialog";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
 import { selectorAnnotationStatehHistory } from "reduxes/annotation/selector";
@@ -10,6 +11,7 @@ import {
   selectorIdDrawObjectByImageName,
 } from "reduxes/annotationmanager/selecetor";
 import { selectorCurrentAnnotationFiles } from "reduxes/annotationProject/selector";
+import { QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE } from "../constants";
 import ImagePreviewBadge from "./ImagePreviewBadge";
 
 function ImagePreview() {
@@ -138,19 +140,23 @@ function ImagePreview() {
   //   );
   //   return thumbs;
   // }, [annotationManagerImages]);
+  const needConfirmChangePreviewImageDialog = useMemo(
+    () =>
+      annotationStatehHistory.stateHistoryItems[
+        annotationStatehHistory.historyStep - 1
+      ] &&
+      annotationStatehHistory.savedStateHistoryId !==
+        annotationStatehHistory.stateHistoryItems[
+          annotationStatehHistory.historyStep - 1
+        ].id,
+    [annotationStatehHistory]
+  );
+
   const handleSelectPreview = (imageName: string) => {
     if (imageName === currentPreviewImageName) {
       return;
     }
-    if (
-      !annotationStatehHistory.stateHistoryItems[
-        annotationStatehHistory.historyStep - 1
-      ] ||
-      annotationStatehHistory.savedStateHistoryId ===
-        annotationStatehHistory.stateHistoryItems[
-          annotationStatehHistory.historyStep - 1
-        ].id
-    ) {
+    if (!needConfirmChangePreviewImageDialog) {
       dispatch(
         resetCurrentStateDrawObject({
           drawObjectById: idDrawObjectByImageName[imageName],
@@ -162,10 +168,7 @@ function ImagePreview() {
     openConfirmDialog({
       content: (
         <Box lineHeight={1.5}>
-          <Typography>
-            If you change the preview image, all annotation already processed
-            will be lost. Do you still want to CANCEL?
-          </Typography>
+          <Typography>{QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE}</Typography>
         </Box>
       ),
       negativeText: "Cancel",
@@ -206,6 +209,10 @@ function ImagePreview() {
         >
           <input {...getInputProps()} />
         </Box> */}
+        <BeforeUnload
+          isActive={needConfirmChangePreviewImageDialog}
+          message={QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE}
+        />
         <List
           sx={{
             maxWidth: "90%",
