@@ -97,6 +97,7 @@ const inititalState: AnnotationProjectReducer = {
   deleteConfirmDialogInfo: null,
 };
 const annotationProjectReducer = (
+  // eslint-disable-next-line @typescript-eslint/default-param-last
   state = inititalState,
   action: any
 ): AnnotationProjectReducer => {
@@ -114,6 +115,7 @@ const annotationProjectReducer = (
     case CLONE_PROJECT_TO_ANNOTATION.FAILED:
       return { ...state, isCloningProjectToAnnotation: false };
     case SHOW_DIALOG_CLONE_PROJECT_TO_ANNOTATION:
+      // eslint-disable-next-line no-case-declarations
       const { dialogCloneProjectToAnnotation } =
         payload as SetDialogCloneProjectToAnnotationProps;
       if (!dialogCloneProjectToAnnotation.isShow) {
@@ -165,7 +167,9 @@ const annotationProjectReducer = (
       };
     }
     case FETCH_ANNOTATION_FILES.SUCCEEDED:
+      // eslint-disable-next-line no-case-declarations, @typescript-eslint/naming-convention
       const { items, next_token, projectId } = payload as AnnotationFilesApi;
+      // eslint-disable-next-line no-case-declarations
       const { currentAnnotationFiles } = state;
       if (
         currentAnnotationFiles &&
@@ -177,6 +181,7 @@ const annotationProjectReducer = (
           ...items,
         ];
       } else {
+        // eslint-disable-next-line no-param-reassign
         state.currentAnnotationFiles = { items, next_token, projectId };
       }
       return {
@@ -189,10 +194,11 @@ const annotationProjectReducer = (
       };
     }
     case DELETE_ANNOTATION_PROJECT.SUCCEEDED: {
-      const { projectId } = payload as DeleteProjectSucceedPayload;
+      const { projectId: projectIdPayload } =
+        payload as DeleteProjectSucceedPayload;
       const matchProjectIndex = objectIndexOf(
         state.listProjects,
-        projectId,
+        projectIdPayload,
         "project_id"
       );
       if (matchProjectIndex > -1) {
@@ -211,11 +217,11 @@ const annotationProjectReducer = (
       };
     }
     case UPDATE_STATISTIC_PROJECT: {
-      const { projectId, updateInfo } =
+      const { projectId: projectIdPayload, updateInfo } =
         payload as UpdateProjectStatisticPayload;
       if (
         state.currentProjectInfo &&
-        state.currentProjectInfo.project_id === projectId
+        state.currentProjectInfo.project_id === projectIdPayload
       ) {
         const { groups } = state.currentProjectInfo;
         const { fileInfo, typeMethod } = updateInfo;
@@ -262,7 +268,7 @@ const annotationProjectReducer = (
 
         const matchProjectIndex = objectIndexOf(
           state.listProjects,
-          projectId,
+          projectIdPayload,
           "project_id"
         );
 
@@ -292,6 +298,8 @@ const annotationProjectReducer = (
       }
       return state;
     }
+    default:
+      return state;
   }
   return state;
 };

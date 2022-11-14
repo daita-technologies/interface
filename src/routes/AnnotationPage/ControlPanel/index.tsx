@@ -76,9 +76,13 @@ import {
   DRAW_RECTANGLE_SHORT_KEY,
   SELECT_SHORT_KEY,
 } from "../constants";
-import { hashCode, intToRGB } from "../LabelAnnotation";
 import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
-const ControlPanel = () => {
+import {
+  hashCode,
+  intToRGB,
+} from "../LabelAnnotation/ClassManageModal/useListClassView";
+
+function ControlPanel() {
   const dispatch = useDispatch();
   const currentDrawType = useSelector(selectorCurrentDrawType);
   const currentDrawState = useSelector(selectorCurrentDrawState);
@@ -132,8 +136,8 @@ const ControlPanel = () => {
   const getDrawObjectToExport = () => {
     if (drawObjectById) {
       const filteredDrawObjectById = { ...drawObjectById };
-      Object.keys(drawObjectStateIdByAI).forEach((id) => {
-        delete filteredDrawObjectById[id];
+      Object.keys(drawObjectStateIdByAI).forEach((drawObjectId) => {
+        delete filteredDrawObjectById[drawObjectId];
       });
       return filteredDrawObjectById;
     }
@@ -162,16 +166,16 @@ const ControlPanel = () => {
     if (drawObjectToExport) {
       exportAnnotationDaita(
         drawObjectToExport,
-        currentPreviewImageName ? currentPreviewImageName : "imagename"
+        currentPreviewImageName || "imagename"
       );
     }
   };
   const updateDrawObject = (value: DrawObject) => {
     const drawObjectRet: DrawObject = { ...value };
-    const label = value.data.label.label;
+    const { label } = value.data.label;
     let classLabel = labelClassPropertiesByLabelClass[label];
     if (!classLabel) {
-      const strokeColor = "#" + intToRGB(hashCode(label));
+      const strokeColor = `#${intToRGB(hashCode(label))}`;
       const fillColor = convertStrokeColorToFillColor(strokeColor);
       classLabel = {
         label: { label },
@@ -185,6 +189,7 @@ const ControlPanel = () => {
 
     const css = drawObjectRet.data.cssStyle;
     const newCss = classLabel.cssStyle;
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const prop in css) {
       drawObjectRet.data.cssStyle = {
         ...drawObjectRet.data.cssStyle,
@@ -197,10 +202,10 @@ const ControlPanel = () => {
     return drawObjectRet;
   };
   const importLabelMe = async (acceptedFile: File) => {
-    const { annotationImagesProperty, drawObjectById } =
+    const { annotationImagesProperty, drawObjectById: imnportDrawObjectById } =
       await importAnnotationLabelMe(acceptedFile);
-    Object.entries(drawObjectById).map(([key, value]) => {
-      drawObjectById[key] = updateDrawObject(value);
+    Object.entries(imnportDrawObjectById).forEach(([key, value]) => {
+      imnportDrawObjectById[key] = updateDrawObject(value);
     });
     dispatch(
       addImagesToAnnotation({
@@ -210,13 +215,13 @@ const ControlPanel = () => {
     dispatch(
       setAnnotationStateManager({
         imageName: annotationImagesProperty.image.name,
-        drawObjectById: drawObjectById,
+        drawObjectById: imnportDrawObjectById,
       })
     );
 
     dispatch(
       resetCurrentStateDrawObject({
-        drawObjectById: drawObjectById,
+        drawObjectById,
       })
     );
     dispatch(
@@ -226,10 +231,10 @@ const ControlPanel = () => {
     );
   };
   const importDaita = async (acceptedFile: File) => {
-    const { annotationImagesProperty, drawObjectById } =
+    const { annotationImagesProperty, drawObjectById: importDrawObjectById } =
       await importFileAnnotationDaita(acceptedFile);
-    Object.entries(drawObjectById).map(([key, value]) => {
-      drawObjectById[key] = updateDrawObject(value);
+    Object.entries(importDrawObjectById).forEach(([key, value]) => {
+      importDrawObjectById[key] = updateDrawObject(value);
     });
     dispatch(
       addImagesToAnnotation({
@@ -239,13 +244,13 @@ const ControlPanel = () => {
     dispatch(
       setAnnotationStateManager({
         imageName: annotationImagesProperty.image.name,
-        drawObjectById: drawObjectById,
+        drawObjectById: importDrawObjectById,
       })
     );
 
     dispatch(
       resetCurrentStateDrawObject({
-        drawObjectById: drawObjectById,
+        drawObjectById: importDrawObjectById,
       })
     );
     dispatch(
@@ -255,17 +260,18 @@ const ControlPanel = () => {
     );
   };
   const importScaleAI = async (acceptedFile: File) => {
-    const { drawObjectById } = await importAnnotationScaleAI(acceptedFile);
+    const { drawObjectById: importDrawObjectById } =
+      await importAnnotationScaleAI(acceptedFile);
     // dispatch(
     //   resetCurrentStateDrawObject({
     //     drawObjectById: drawObjectById,
     //   })
     // );
-    Object.entries(drawObjectById).map(([key, value]) => {
-      drawObjectById[key] = updateDrawObject(value);
+    Object.entries(importDrawObjectById).forEach(([key, value]) => {
+      importDrawObjectById[key] = updateDrawObject(value);
       dispatch(
         createDrawObject({
-          drawObject: drawObjectById[key],
+          drawObject: importDrawObjectById[key],
         })
       );
     });
@@ -273,7 +279,7 @@ const ControlPanel = () => {
   const onDrop = async (acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       const snapImportType = importType;
-      for (const acceptedFile of acceptedFiles) {
+      acceptedFiles.forEach((acceptedFile) => {
         if (snapImportType === "LABEL_ME") {
           importLabelMe(acceptedFile);
         } else if (snapImportType === "SCALE_AI") {
@@ -281,7 +287,7 @@ const ControlPanel = () => {
         } else if (snapImportType === "DAITA") {
           importDaita(acceptedFile);
         }
-      }
+      });
     }
   };
   const dropZone = useDropzone({
@@ -289,7 +295,7 @@ const ControlPanel = () => {
     accept: ".json",
     noDragEventsBubbling: true,
   });
-  const { getRootProps, isDragActive, getInputProps } = dropZone;
+  const { getRootProps, getInputProps } = dropZone;
   const handleUndoDrawObject = () => {
     dispatch(undoDrawObject());
   };
@@ -361,7 +367,8 @@ const ControlPanel = () => {
           </ListItem>
         </List>
       );
-    } else if (anchorEl?.id === "export") {
+    }
+    if (anchorEl?.id === "export") {
       return (
         <List>
           <ListItem disablePadding>
@@ -387,6 +394,7 @@ const ControlPanel = () => {
         </List>
       );
     }
+    return <List />;
   };
   const isAIDetectAvailable = React.useMemo(
     () =>
@@ -407,192 +415,190 @@ const ControlPanel = () => {
     currentDrawState === DrawState.DRAGGING ||
     currentDrawState === DrawState.TRANSFORMING;
   return (
-    <>
-      <Box sx={{ minWidth: 100 }} display="flex" flexDirection="column" gap={1}>
-        <ToggleButtonGroup
-          value={currentDrawState}
-          exclusive
-          aria-label="mode"
-          className="annotationControlPanel"
-          size="large"
-          sx={{ border: "1px dashed grey" }}
-          onChange={handleSelectDrawState}
+    <Box sx={{ minWidth: 100 }} display="flex" flexDirection="column" gap={1}>
+      <ToggleButtonGroup
+        value={currentDrawState}
+        exclusive
+        aria-label="mode"
+        className="annotationControlPanel"
+        size="large"
+        sx={{ border: "1px dashed grey" }}
+        onChange={handleSelectDrawState}
+      >
+        <ToggleButton
+          value={DrawState.SELECTING}
+          className="annotationBtn"
+          selected={isSelected}
+          aria-label="selecting"
         >
-          <ToggleButton
-            value={DrawState.SELECTING}
-            className="annotationBtn"
-            selected={isSelected}
-            aria-label="selecting"
-          >
-            <Tooltip title={`Select (${SELECT_SHORT_KEY})`}>
-              <NearMeIcon />
-            </Tooltip>
-          </ToggleButton>
-        </ToggleButtonGroup>
-        <ToggleButtonGroup
-          value={currentDrawType}
-          exclusive
-          onChange={selectModeHandle}
-          aria-label="mode"
-          className="annotationControlPanel"
-          size="large"
-          sx={{ border: "1px dashed grey" }}
-        >
-          <ToggleButton
-            className="annotationBtn"
-            value={DrawType.RECTANGLE}
-            aria-label="Rectangle"
-          >
-            <Tooltip title={`Rctangle (${DRAW_RECTANGLE_SHORT_KEY})`}>
-              <Crop32Icon />
-            </Tooltip>
-          </ToggleButton>
-          <ToggleButton
-            className="annotationBtn"
-            value={DrawType.POLYGON}
-            aria-label="Polygon"
-          >
-            <Tooltip title={`Polygon (${DRAW_POLYGON_SHORT_KEY})`}>
-              <HexagonIcon />
-            </Tooltip>
-          </ToggleButton>
-          <ToggleButton
-            className="annotationBtn"
-            value={DrawType.ELLIPSE}
-            aria-label="ellipse"
-          >
-            <Tooltip title={`Ellipse (${DRAW_ELLIPSE_SHORT_KEY})`}>
-              <PanoramaFishEyeIcon />
-            </Tooltip>
-          </ToggleButton>
-          <ToggleButton
-            className="annotationBtn"
-            value={DrawType.LINE_STRIP}
-            aria-label="line"
-          >
-            <Tooltip title={`Line (${DRAW_ELLIPSE_SHORT_KEY})`}>
-              <PolylineIcon />
-            </Tooltip>
-          </ToggleButton>
-        </ToggleButtonGroup>
-        <Box
-          display="flex"
-          mt={3}
-          sx={{ border: "1px dashed grey" }}
-          justifyContent="space-evenly"
-          flexDirection="column"
-          gap={2}
-        >
-          <Box display="flex" justifyContent="center">
-            <Tooltip
-              title={
-                isAIDetectAvailable
-                  ? "AI Detection"
-                  : "Don't have any detected object by AI"
-              }
-            >
-              <span>
-                <IconButton
-                  onClick={(e) =>
-                    selectModeHandle(e, DrawType.DETECTED_RECTANGLE)
-                  }
-                >
-                  {isAIDetectAvailable ? (
-                    <ImageSearchIcon fontSize="large" />
-                  ) : (
-                    <WarningAmberIcon fontSize="large" />
-                  )}
-                </IconButton>
-              </span>
-            </Tooltip>
-          </Box>
-          {isAIDetectAvailable && (
-            <Box display="flex" justifyContent="center" alignItems="center">
-              Segmentations
-              <IconButton onClick={handleClickShowAllAIDetect}>
-                {isShowAllAIDetect ? <VisibilityIcon /> : <VisibilityOffIcon />}
-              </IconButton>
-            </Box>
-          )}
-        </Box>
-
-        <Box
-          display="flex"
-          mt={3}
-          sx={{ border: "1px dashed grey" }}
-          justifyContent="space-evenly"
-        >
-          <Tooltip title="Ctrl+Z">
-            <span>
-              <IconButton
-                onClick={handleUndoDrawObject}
-                disabled={annotationStatehHistory.historyStep == 0}
-              >
-                <UndoIcon fontSize="large" />
-              </IconButton>
-            </span>
+          <Tooltip title={`Select (${SELECT_SHORT_KEY})`}>
+            <NearMeIcon />
           </Tooltip>
-          <Tooltip title="Ctrl+Shift+Z">
+        </ToggleButton>
+      </ToggleButtonGroup>
+      <ToggleButtonGroup
+        value={currentDrawType}
+        exclusive
+        onChange={selectModeHandle}
+        aria-label="mode"
+        className="annotationControlPanel"
+        size="large"
+        sx={{ border: "1px dashed grey" }}
+      >
+        <ToggleButton
+          className="annotationBtn"
+          value={DrawType.RECTANGLE}
+          aria-label="Rectangle"
+        >
+          <Tooltip title={`Rctangle (${DRAW_RECTANGLE_SHORT_KEY})`}>
+            <Crop32Icon />
+          </Tooltip>
+        </ToggleButton>
+        <ToggleButton
+          className="annotationBtn"
+          value={DrawType.POLYGON}
+          aria-label="Polygon"
+        >
+          <Tooltip title={`Polygon (${DRAW_POLYGON_SHORT_KEY})`}>
+            <HexagonIcon />
+          </Tooltip>
+        </ToggleButton>
+        <ToggleButton
+          className="annotationBtn"
+          value={DrawType.ELLIPSE}
+          aria-label="ellipse"
+        >
+          <Tooltip title={`Ellipse (${DRAW_ELLIPSE_SHORT_KEY})`}>
+            <PanoramaFishEyeIcon />
+          </Tooltip>
+        </ToggleButton>
+        <ToggleButton
+          className="annotationBtn"
+          value={DrawType.LINE_STRIP}
+          aria-label="line"
+        >
+          <Tooltip title={`Line (${DRAW_ELLIPSE_SHORT_KEY})`}>
+            <PolylineIcon />
+          </Tooltip>
+        </ToggleButton>
+      </ToggleButtonGroup>
+      <Box
+        display="flex"
+        mt={3}
+        sx={{ border: "1px dashed grey" }}
+        justifyContent="space-evenly"
+        flexDirection="column"
+        gap={2}
+      >
+        <Box display="flex" justifyContent="center">
+          <Tooltip
+            title={
+              isAIDetectAvailable
+                ? "AI Detection"
+                : "Don't have any detected object by AI"
+            }
+          >
             <span>
               <IconButton
-                onClick={handleRedoDrawObject}
-                disabled={
-                  annotationStatehHistory.historyStep >=
-                  annotationStatehHistory.stateHistoryItems.length - 1
+                onClick={(e) =>
+                  selectModeHandle(e, DrawType.DETECTED_RECTANGLE)
                 }
               >
-                <RedoIcon fontSize="large" />
+                {isAIDetectAvailable ? (
+                  <ImageSearchIcon fontSize="large" />
+                ) : (
+                  <WarningAmberIcon fontSize="large" />
+                )}
               </IconButton>
             </span>
           </Tooltip>
         </Box>
-        <Button
-          variant="outlined"
-          onClick={resetScaleHandler}
-          sx={{ marginTop: 3 }}
-        >
-          Reset Scale
-        </Button>
-        <Box display="flex" gap={1}>
-          <Button
-            variant="contained"
-            color="warning"
-            // onClick={importHander}
-            id="import"
-            onClick={handleClickExport}
-          >
-            Import
-          </Button>
-          <Button variant="contained" onClick={handleClickExport} id="export">
-            Export
-          </Button>
-          <Popover
-            id={id}
-            open={open}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-          >
-            {renderPopupContent()}
-          </Popover>
-        </Box>
-        <Box display="flex" flex={1} justifyContent="center">
-          <LoadingButton
-            onClick={handleSaveAnnotation}
-            endIcon={<SaveIcon />}
-            loading={isSavingAnnotation}
-            loadingPosition="end"
-            variant="contained"
-            color="success"
-          >
-            Save
-          </LoadingButton>
-        </Box>
+        {isAIDetectAvailable && (
+          <Box display="flex" justifyContent="center" alignItems="center">
+            Segmentations
+            <IconButton onClick={handleClickShowAllAIDetect}>
+              {isShowAllAIDetect ? <VisibilityIcon /> : <VisibilityOffIcon />}
+            </IconButton>
+          </Box>
+        )}
       </Box>
-    </>
+
+      <Box
+        display="flex"
+        mt={3}
+        sx={{ border: "1px dashed grey" }}
+        justifyContent="space-evenly"
+      >
+        <Tooltip title="Ctrl+Z">
+          <span>
+            <IconButton
+              onClick={handleUndoDrawObject}
+              disabled={annotationStatehHistory.historyStep === 0}
+            >
+              <UndoIcon fontSize="large" />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title="Ctrl+Shift+Z">
+          <span>
+            <IconButton
+              onClick={handleRedoDrawObject}
+              disabled={
+                annotationStatehHistory.historyStep >=
+                annotationStatehHistory.stateHistoryItems.length - 1
+              }
+            >
+              <RedoIcon fontSize="large" />
+            </IconButton>
+          </span>
+        </Tooltip>
+      </Box>
+      <Button
+        variant="outlined"
+        onClick={resetScaleHandler}
+        sx={{ marginTop: 3 }}
+      >
+        Reset Scale
+      </Button>
+      <Box display="flex" gap={1}>
+        <Button
+          variant="contained"
+          color="warning"
+          // onClick={importHander}
+          id="import"
+          onClick={handleClickExport}
+        >
+          Import
+        </Button>
+        <Button variant="contained" onClick={handleClickExport} id="export">
+          Export
+        </Button>
+        <Popover
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+        >
+          {renderPopupContent()}
+        </Popover>
+      </Box>
+      <Box display="flex" flex={1} justifyContent="center">
+        <LoadingButton
+          onClick={handleSaveAnnotation}
+          endIcon={<SaveIcon />}
+          loading={isSavingAnnotation}
+          loadingPosition="end"
+          variant="contained"
+          color="success"
+        >
+          Save
+        </LoadingButton>
+      </Box>
+    </Box>
   );
-};
+}
 export default ControlPanel;

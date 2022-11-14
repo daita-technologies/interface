@@ -1,9 +1,6 @@
 import { Box, Button, Container, Typography } from "@mui/material";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
-import {
-  ANNOTATION_PROJECT_DETAIL_ROUTE_NAME,
-  ANNOTATION_PROJECT_ROUTE_NAME,
-} from "constants/routeName";
+import { ANNOTATION_PROJECT_DETAIL_ROUTE_NAME } from "constants/routeName";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
@@ -13,9 +10,8 @@ import { ApiListAnnotationProjectsItem } from "reduxes/annotationProject/type";
 import { getLocalStorage } from "utils/general";
 import { AnnotationProjectItemProps } from "./type";
 
-const ProjectItem = function ({ projectInfo }: AnnotationProjectItemProps) {
+function ProjectItem({ projectInfo }: AnnotationProjectItemProps) {
   const history = useHistory();
-  const dispatch = useDispatch();
 
   const limitTooLongLineStyle = {
     display: "-webkit-box",
@@ -53,7 +49,7 @@ const ProjectItem = function ({ projectInfo }: AnnotationProjectItemProps) {
         justifyContent="center"
         minHeight={160}
         maxHeight={160}
-      ></Box>
+      />
       <Box
         pt={1}
         px={2}
@@ -61,7 +57,7 @@ const ProjectItem = function ({ projectInfo }: AnnotationProjectItemProps) {
         alignItems="center"
         justifyContent="space-between"
       >
-        <Button sx={{ padding: 0 }} onClick={() => console.log("object")}>
+        <Button sx={{ padding: 0 }}>
           <Typography color="text.primary" fontSize={14} fontWeight="medium">
             Open
           </Typography>
@@ -69,8 +65,8 @@ const ProjectItem = function ({ projectInfo }: AnnotationProjectItemProps) {
       </Box>
     </Box>
   );
-};
-const annotationProject = function () {
+}
+function annotationProject() {
   const dispatch = useDispatch();
   const listProjects = useSelector(selectorAnnotationListProjects);
   useEffect(() => {
@@ -97,5 +93,5 @@ const annotationProject = function () {
       </Box>
     </Container>
   );
-};
+}
 export default annotationProject;

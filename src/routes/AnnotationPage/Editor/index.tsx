@@ -59,9 +59,8 @@ import {
 const TOOLTIP_WIDTH = 200;
 const TOOLTIP_HEIGHT = 40;
 
-const Editor = () => {
+function Editor() {
   const dispatch = useDispatch();
-  const imageRef = useRef<Konva.Image | null>(null);
   const layer = useRef<Konva.Layer | null>(null);
   const group = useRef<Konva.Group | null>(null);
   const stageRef = useRef<Konva.Stage | null>(null);
@@ -91,10 +90,10 @@ const Editor = () => {
       if (widthRatio < 1 || heightRatio < 1) {
         if (widthRatio < heightRatio) {
           newWidth = MAX_WIDTH_IMAGE_IN_EDITOR;
-          newHeight = newHeight * widthRatio;
+          newHeight *= widthRatio;
         } else {
           newHeight = MAX_HEIGHT_IMAGE_IN_EDITOR;
-          newWidth = newWidth * heightRatio;
+          newWidth *= heightRatio;
         }
       }
       return {
@@ -131,12 +130,13 @@ const Editor = () => {
       linestrips: linestripsById,
     };
   }, [drawObjectById]);
-  const polygons = useMemo(() => {
-    return {
+  const polygons = useMemo(
+    () => ({
       ...drawObjects.polygons,
       ...drawObjects.linestrips,
-    };
-  }, [drawObjects.polygons]);
+    }),
+    [drawObjects.polygons]
+  );
   const refZoom = stageRef;
 
   const wheelHandler = (e: KonvaEventObject<WheelEvent>) => {
@@ -159,8 +159,8 @@ const Editor = () => {
       );
       if (currentAnnotationFile) {
         const { height, width } = currentAnnotationFile;
-        const zoom = getFitScaleEditor(width, height);
-        if (newScale <= zoom) return;
+        const fitScaleEditor = getFitScaleEditor(width, height);
+        if (newScale <= fitScaleEditor) return;
       }
       dispatch(changeZoom({ zoom: { zoom: newScale, position: newPosition } }));
     }
@@ -180,9 +180,9 @@ const Editor = () => {
     }
   };
   const keyDownHandler = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.ctrlKey && e.shiftKey && e.key == "Z") {
+    if (e.ctrlKey && e.shiftKey && e.key === "Z") {
       dispatch(redoDrawObject());
-    } else if (e.ctrlKey && e.key == "z") {
+    } else if (e.ctrlKey && e.key === "z") {
       dispatch(undoDrawObject());
     } else if (e.key === " ") {
       setKeyDown(e.key);
@@ -192,7 +192,7 @@ const Editor = () => {
     } else if (e.key === "Delete") {
       if (selectedDrawObjectId) {
         dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
-        if (toolTipLayer.current?.attrs["id"] === selectedDrawObjectId) {
+        if (toolTipLayer.current?.attrs.id === selectedDrawObjectId) {
           toolTipLayer.current.hide();
         }
       }
@@ -224,10 +224,8 @@ const Editor = () => {
   useEffect(() => {
     if (keyDown === " ") {
       dispatch(setIsDraggingViewpor({ isDraggingViewport: true }));
-    } else {
-      if (isDraggingViewport === true) {
-        dispatch(setIsDraggingViewpor({ isDraggingViewport: false }));
-      }
+    } else if (isDraggingViewport === true) {
+      dispatch(setIsDraggingViewpor({ isDraggingViewport: false }));
     }
   }, [keyDown]);
   const mouseOverBoundDivHandler = () => {
@@ -279,23 +277,23 @@ const Editor = () => {
       toolTipLayer.current.hide();
     }
   };
-  const dragBoundFunc = (pos: Vector2d) => {
-    if (!layer.current || !imageRef.current) {
-      return { x: 0, y: 0 };
-    }
-    let { x, y } = pos;
-    const sw = layer.current.width();
-    const sh = layer.current.height();
-    const box = imageRef.current.getClientRect();
-    const minMaxX = [0, box.width];
-    const minMaxY = [0, box.height];
+  // const dragBoundFunc = (pos: Vector2d) => {
+  //   if (!layer.current || !imageRef.current) {
+  //     return { x: 0, y: 0 };
+  //   }
+  //   let { x, y } = pos;
+  //   const sw = layer.current.width();
+  //   const sh = layer.current.height();
+  //   const box = imageRef.current.getClientRect();
+  //   const minMaxX = [0, box.width];
+  //   const minMaxY = [0, box.height];
 
-    if (minMaxY[0] + y < 0) y = -1 * minMaxY[0];
-    if (minMaxX[0] + x < 0) x = -1 * minMaxX[0];
-    if (minMaxY[1] + y > sh) y = sh - minMaxY[1];
-    if (minMaxX[1] + x > sw) x = sw - minMaxX[1];
-    return { x, y };
-  };
+  //   if (minMaxY[0] + y < 0) y = -1 * minMaxY[0];
+  //   if (minMaxX[0] + x < 0) x = -1 * minMaxX[0];
+  //   if (minMaxY[1] + y > sh) y = sh - minMaxY[1];
+  //   if (minMaxX[1] + x > sw) x = sw - minMaxX[1];
+  //   return { x, y };
+  // };
   useEffect(() => {
     if (zoom.zoom === 1) {
       group.current?.setPosition({ x: 0, y: 0 });
@@ -339,147 +337,138 @@ const Editor = () => {
           <CircularProgress size={24} />
         </Box>
       );
-    } else {
-      return (
-        <Box
-          ref={refBoundDiv}
-          tabIndex={0}
-          onKeyDown={keyDownHandler}
-          onKeyUp={keyUpHandler}
-          onMouseOver={mouseOverBoundDivHandler}
-          onMouseDown={handleMouseDownOutLayer}
-          onMouseUp={handleMouseUpOutLayer}
-          id="testId"
-          width="100%"
-          height="100%"
-        >
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="100%"
-          >
-            <ReactReduxContext.Consumer>
-              {({ store }) => (
-                <Stage
-                  ref={stageRef}
-                  scaleX={stageProps ? stageProps.scaleX : 1}
-                  scaleY={stageProps ? stageProps.scaleY : 1}
-                  width={
-                    stageProps ? stageProps.width : MAX_WIDTH_IMAGE_IN_EDITOR
-                  }
-                  height={
-                    stageProps ? stageProps.height : MAX_HEIGHT_IMAGE_IN_EDITOR
-                  }
-                  onWheel={wheelHandler}
-                  onMouseDown={selectHandleMouseDown}
-                  draggable={isDraggingViewport}
-                >
-                  <Provider store={store}>
-                    <DrawLayer />
-                    <Layer ref={layer}>
-                      <BaseImage />
-                      <Group
-                        ref={group}
-                        // dragBoundFunc={dragBoundFunc}
-                      >
-                        {Object.keys(drawObjects.rectangles).map((key) => {
-                          return (
-                            <Rectangle
-                              key={key}
-                              id={key}
-                              onMouseOverHandler={(e) =>
-                                onMouseOverToolTipHandler(e, key)
-                              }
-                              onMouseOutHandler={onMouseOutToolTipHandler}
-                            />
-                          );
-                        })}
-                        {Object.keys(drawObjects.ellipses).map((key) => {
-                          return (
-                            <Ellipse
-                              key={key}
-                              id={key}
-                              onMouseOverHandler={(e) =>
-                                onMouseOverToolTipHandler(e, key)
-                              }
-                              onMouseOutHandler={onMouseOutToolTipHandler}
-                            />
-                          );
-                        })}
-                        {Object.keys(polygons).map((key) => {
-                          return (
-                            <Polygon
-                              key={key}
-                              id={key}
-                              onMouseOverHandler={(e) => {
-                                onMouseOverToolTipHandler(e, key);
-                              }}
-                              onMouseOutHandler={onMouseOutToolTipHandler}
-                            />
-                          );
-                        })}
-                      </Group>
-                    </Layer>
-                    <Layer
-                      ref={toolTipLayer}
-                      visible={false}
-                      scaleX={stageProps ? 1 / stageProps.scaleX : 1}
-                      scaleY={stageProps ? 1 / stageProps.scaleY : 1}
-                    >
-                      <Rect
-                        ref={toolTipRect}
-                        x={0}
-                        y={0}
-                        stroke={"#555"}
-                        strokeWidth={2}
-                        fill={"#ddd"}
-                        width={TOOLTIP_WIDTH}
-                        height={TOOLTIP_HEIGHT}
-                      />
-                      <Text
-                        align="center"
-                        width={TOOLTIP_WIDTH}
-                        height={TOOLTIP_HEIGHT}
-                        fontSize={15}
-                        padding={14}
-                        ref={toolTip}
-                      />
-                    </Layer>
-                    <Layer>
-                      <Text
-                        ref={refTextPosition}
-                        x={10}
-                        y={10}
-                        fontFamily="Calibri"
-                        fontSize={34}
-                        text=""
-                        fill="black"
-                      />
-                    </Layer>
-                  </Provider>
-                </Stage>
-              )}
-            </ReactReduxContext.Consumer>
-          </Box>
-        </Box>
-      );
     }
-  };
-  return (
-    <>
+    return (
       <Box
-        display="flex"
-        justifyContent="center"
+        ref={refBoundDiv}
+        tabIndex={0}
+        onKeyDown={keyDownHandler}
+        onKeyUp={keyUpHandler}
+        onMouseOver={mouseOverBoundDivHandler}
+        onMouseDown={handleMouseDownOutLayer}
+        onMouseUp={handleMouseUpOutLayer}
+        id="testId"
         width="100%"
         height="100%"
-        margin="auto"
-        flexWrap="wrap"
       >
-        {renderContent()}
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100%"
+        >
+          <ReactReduxContext.Consumer>
+            {({ store }) => (
+              <Stage
+                ref={stageRef}
+                scaleX={stageProps ? stageProps.scaleX : 1}
+                scaleY={stageProps ? stageProps.scaleY : 1}
+                width={
+                  stageProps ? stageProps.width : MAX_WIDTH_IMAGE_IN_EDITOR
+                }
+                height={
+                  stageProps ? stageProps.height : MAX_HEIGHT_IMAGE_IN_EDITOR
+                }
+                onWheel={wheelHandler}
+                onMouseDown={selectHandleMouseDown}
+                draggable={isDraggingViewport}
+              >
+                <Provider store={store}>
+                  <DrawLayer />
+                  <Layer ref={layer}>
+                    <BaseImage />
+                    <Group
+                      ref={group}
+                      // dragBoundFunc={dragBoundFunc}
+                    >
+                      {Object.keys(drawObjects.rectangles).map((key) => (
+                        <Rectangle
+                          key={key}
+                          id={key}
+                          onMouseOverHandler={(e) =>
+                            onMouseOverToolTipHandler(e, key)
+                          }
+                          onMouseOutHandler={onMouseOutToolTipHandler}
+                        />
+                      ))}
+                      {Object.keys(drawObjects.ellipses).map((key) => (
+                        <Ellipse
+                          key={key}
+                          id={key}
+                          onMouseOverHandler={(e) =>
+                            onMouseOverToolTipHandler(e, key)
+                          }
+                          onMouseOutHandler={onMouseOutToolTipHandler}
+                        />
+                      ))}
+                      {Object.keys(polygons).map((key) => (
+                        <Polygon
+                          key={key}
+                          id={key}
+                          onMouseOverHandler={(e) => {
+                            onMouseOverToolTipHandler(e, key);
+                          }}
+                          onMouseOutHandler={onMouseOutToolTipHandler}
+                        />
+                      ))}
+                    </Group>
+                  </Layer>
+                  <Layer
+                    ref={toolTipLayer}
+                    visible={false}
+                    scaleX={stageProps ? 1 / stageProps.scaleX : 1}
+                    scaleY={stageProps ? 1 / stageProps.scaleY : 1}
+                  >
+                    <Rect
+                      ref={toolTipRect}
+                      x={0}
+                      y={0}
+                      stroke="#555"
+                      strokeWidth={2}
+                      fill="#ddd"
+                      width={TOOLTIP_WIDTH}
+                      height={TOOLTIP_HEIGHT}
+                    />
+                    <Text
+                      align="center"
+                      width={TOOLTIP_WIDTH}
+                      height={TOOLTIP_HEIGHT}
+                      fontSize={15}
+                      padding={14}
+                      ref={toolTip}
+                    />
+                  </Layer>
+                  <Layer>
+                    <Text
+                      ref={refTextPosition}
+                      x={10}
+                      y={10}
+                      fontFamily="Calibri"
+                      fontSize={34}
+                      text=""
+                      fill="black"
+                    />
+                  </Layer>
+                </Provider>
+              </Stage>
+            )}
+          </ReactReduxContext.Consumer>
+        </Box>
       </Box>
-    </>
+    );
+  };
+  return (
+    <Box
+      display="flex"
+      justifyContent="center"
+      width="100%"
+      height="100%"
+      margin="auto"
+      flexWrap="wrap"
+    >
+      {renderContent()}
+    </Box>
   );
-};
+}
 
 export default Editor;

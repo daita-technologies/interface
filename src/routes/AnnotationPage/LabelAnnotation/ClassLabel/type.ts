@@ -1,4 +1,4 @@
-import { Label, LabelAttribute } from "components/Annotation/Editor/type";
+import { LabelAttribute } from "components/Annotation/Editor/type";
 import { DrawObject } from "reduxes/annotation/type";
 
 export interface ClassLabelProps {

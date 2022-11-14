@@ -1,7 +1,6 @@
 import AddIcon from "@mui/icons-material/Add";
 import { Button, CircularProgress } from "@mui/material";
 import Box from "@mui/material/Box";
-import { LabelClassProperties } from "components/Annotation/Editor/type";
 import { CSSProperties, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AutoSizer } from "react-virtualized";
@@ -16,37 +15,9 @@ import {
   selectorIsFetchingImageData,
 } from "reduxes/annotationmanager/selecetor";
 import ClassItem from "./ClassItem";
-import { convertStrokeColorToFillColor } from "./ClassLabel";
 import ClassManageModel from "./ClassManageModal";
 
-export const hashCode = (str: string) => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return hash;
-};
-
-export const intToRGB = (i: number) => {
-  const c = (i & 0x00ffffff).toString(16).toUpperCase();
-  return "00000".substring(0, 6 - c.length) + c;
-};
-export const getBackgroundColor = (
-  labelClassProperties: LabelClassProperties
-) => {
-  if (labelClassProperties) {
-    if (labelClassProperties?.cssStyle?.stroke) {
-      return labelClassProperties.cssStyle.stroke;
-    }
-    if (labelClassProperties.label?.label) {
-      return convertStrokeColorToFillColor(
-        "#" + intToRGB(hashCode(labelClassProperties.label.label))
-      );
-    }
-  }
-  return "gray";
-};
-const LabelAnnotation = function () {
+function LabelAnnotation() {
   const dispatch = useDispatch();
   const drawObjectById = useSelector(selectorDrawObjectById);
   const drawObjectStateIdByAI = useSelector(selectorDrawObjectStateIdByAI);
@@ -62,7 +33,7 @@ const LabelAnnotation = function () {
   const dialogClassManageModal = useSelector(selectorDialogClassManageModal);
   const listIdsDrawObjectById = useMemo(() => {
     const retList: string[] = [];
-    Object.keys(drawObjectById).map((id) => {
+    Object.keys(drawObjectById).forEach((id) => {
       if (
         !drawObjectStateIdByAI[id] ||
         drawObjectStateIdByAI[id].isShow === true
@@ -77,7 +48,7 @@ const LabelAnnotation = function () {
     if (listIdsDrawObjectById[index]) {
       return <ClassItem style={style} id={listIdsDrawObjectById[index]} />;
     }
-    return <></>;
+    return null;
   }
 
   const renderList = () => {
@@ -134,5 +105,5 @@ const LabelAnnotation = function () {
       {dialogClassManageModal.isOpen && <ClassManageModel />}
     </Box>
   );
-};
+}
 export default LabelAnnotation;

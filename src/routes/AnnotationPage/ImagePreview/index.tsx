@@ -1,11 +1,4 @@
-import {
-  Badge,
-  Box,
-  List,
-  ListItem,
-  Skeleton,
-  Typography,
-} from "@mui/material";
+import { Box, List, ListItem, Skeleton, Typography } from "@mui/material";
 import useConfirmDialog from "hooks/useConfirmDialog";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,16 +18,7 @@ import {
 import { selectorCurrentAnnotationFiles } from "reduxes/annotationProject/selector";
 import ImagePreviewBadge from "./ImagePreviewBadge";
 
-const createFile = async (imageName: string, url: string) => {
-  let response = await fetch(url);
-  let data = await response.blob();
-  let metadata = {
-    type: "image/jpeg",
-  };
-  let file = new File([data], imageName, metadata);
-  return file;
-};
-const ImagePreview = function () {
+function ImagePreview() {
   const dispatch = useDispatch();
   // const annotationManagerImages = useSelector(selectorAnnotationManagerImages);
 
@@ -183,28 +167,12 @@ const ImagePreview = function () {
           </Typography>
         </Box>
       ),
-      negativeText: "Skip",
-      positiveText: "Save",
+      negativeText: "Cancel",
+      positiveText: "Dont't Save",
       onClickNegative: () => {
-        if (currentPreviewImageName) {
-          dispatch(
-            resetCurrentStateDrawObject({
-              drawObjectById: idDrawObjectByImageName[imageName],
-            })
-          );
-          dispatch(requestChangePreviewImage({ imageName }));
-          closeConfirmDialog();
-        }
+        closeConfirmDialog();
       },
       onClickPositive: () => {
-        if (currentPreviewImageName) {
-          dispatch(
-            saveAnnotationStateManager({
-              imageName: currentPreviewImageName,
-              drawObjectById,
-            })
-          );
-        }
         dispatch(
           resetCurrentStateDrawObject({
             drawObjectById: idDrawObjectByImageName[imageName],
@@ -246,52 +214,50 @@ const ImagePreview = function () {
             padding: 0,
           }}
         >
-          {currentAnnotationFiles.items.map((item) => {
-            return (
-              <ListItem key={item.filename}>
-                <ImagePreviewBadge filename={item.filename}>
+          {currentAnnotationFiles.items.map((item) => (
+            <ListItem key={item.filename}>
+              <ImagePreviewBadge filename={item.filename}>
+                <Box
+                  sx={{
+                    // background: `url(${fileThumbByImageName[imageName]})no-repeat center`,
+                    border:
+                      item.filename === currentPreviewImageName
+                        ? "3px solid red"
+                        : "1px solid",
+                    backgroundSize: "contain",
+                    height: 100,
+                    cursor: "pointer",
+                  }}
+                  width="250px"
+                  position="relative"
+                  onClick={() => {
+                    handleSelectPreview(item.filename);
+                  }}
+                >
                   <Box
-                    sx={{
-                      // background: `url(${fileThumbByImageName[imageName]})no-repeat center`,
-                      border:
-                        item.filename === currentPreviewImageName
-                          ? "3px solid red"
-                          : "1px solid",
-                      backgroundSize: "contain",
-                      height: 100,
-                      cursor: "pointer",
-                    }}
-                    width="250px"
-                    position="relative"
-                    onClick={() => {
-                      handleSelectPreview(item.filename);
-                    }}
+                    display="flex"
+                    justifyContent="center"
+                    height="100%"
+                    alignItems="center"
                   >
-                    <Box
-                      display="flex"
-                      justifyContent="center"
-                      height="100%"
-                      alignItems="center"
+                    <Typography
+                      sx={{
+                        color: "text.primary",
+                        p: 1,
+                      }}
+                      noWrap
                     >
-                      <Typography
-                        sx={{
-                          color: "text.primary",
-                          p: 1,
-                        }}
-                        noWrap
-                      >
-                        {item.filename}
-                      </Typography>
-                    </Box>
+                      {item.filename}
+                    </Typography>
                   </Box>
-                </ImagePreviewBadge>
-              </ListItem>
-            );
-          })}
+                </Box>
+              </ImagePreviewBadge>
+            </ListItem>
+          ))}
         </List>
       </>
     );
   };
   return <>{renderContent()}</>;
-};
+}
 export default ImagePreview;

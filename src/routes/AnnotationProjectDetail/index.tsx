@@ -72,7 +72,7 @@ const annotationProjectDetail = function () {
         })
       );
     };
-  }, [location, projectName]);
+  }, [projectName]);
 
   useEffect(() => {
     if (
@@ -102,15 +102,15 @@ const annotationProjectDetail = function () {
   }, [annotationCurrentProject]);
   const renderContent = () => {
     if (!annotationCurrentProject) {
-      return <></>;
+      return null;
     }
     let totalOriginalImage = 0;
     let totalPreprocessImage = 0;
-    let totalAugmentImage = 0;
+    const totalAugmentImage = 0;
 
     let totalOriginalSize = 0;
     let totalPreprocessSize = 0;
-    let totalAugmentSize = 0;
+    const totalAugmentSize = 0;
     if (annotationCurrentProject) {
       const originalSourceInfo =
         annotationCurrentProject.groups[ORIGINAL_SOURCE];
@@ -292,19 +292,17 @@ const annotationProjectDetail = function () {
     );
   };
   return (
-    <>
-      <Box mt={4} mb={10}>
-        <Typography variant="h4" component="h1">
-          {projectName}
-        </Typography>
-        <Divider sx={{ my: 1, borderWidth: 2, borderColor: "text.primary" }} />
-        {renderProject()}
-        <SegmentationProgressModal
-          isOpen={isOpenCheckSegmentationProgressModal}
-          onClose={onCloseCheckSegmentationProgressModal}
-        />
-      </Box>
-    </>
+    <Box mt={4} mb={10}>
+      <Typography variant="h4" component="h1">
+        {projectName}
+      </Typography>
+      <Divider sx={{ my: 1, borderWidth: 2, borderColor: "text.primary" }} />
+      {renderProject()}
+      <SegmentationProgressModal
+        isOpen={isOpenCheckSegmentationProgressModal}
+        onClose={onCloseCheckSegmentationProgressModal}
+      />
+    </Box>
   );
 };
 export default annotationProjectDetail;

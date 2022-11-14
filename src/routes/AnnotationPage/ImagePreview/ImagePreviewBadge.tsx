@@ -1,9 +1,8 @@
-import { Badge } from "@mui/material";
-import { Box } from "@mui/system";
+import { Badge, Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { selectorCurrentAnnotationFiles } from "reduxes/annotationProject/selector";
 
-const ImagePreviewBadge = function ({
+function ImagePreviewBadge({
   filename,
   children,
 }: {
@@ -11,9 +10,7 @@ const ImagePreviewBadge = function ({
   children: React.ReactNode | React.ReactNode[];
 }) {
   const currentAnnotationFiles = useSelector(selectorCurrentAnnotationFiles);
-  const renderCBadgeContent = () => {
-    return <Box sx={{ color: "white" }}>AI</Box>;
-  };
+  const renderCBadgeContent = () => <Box sx={{ color: "white" }}>AI</Box>;
   if (currentAnnotationFiles) {
     const annotationFile = currentAnnotationFiles.items.find(
       (t) => t.filename === filename
@@ -29,5 +26,5 @@ const ImagePreviewBadge = function ({
     }
   }
   return <> {children}</>;
-};
+}
 export default ImagePreviewBadge;

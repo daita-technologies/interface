@@ -1,14 +1,10 @@
-import {
-  EllipseSpec,
-  PolygonSpec,
-  RectangleSpec,
-} from "components/Annotation/Editor/type";
+import { createEllipse } from "components/Annotation/Editor/Shape/EllipseShape";
+import { createPolygon } from "components/Annotation/Editor/Shape/Polygon";
+import { createRectangle } from "components/Annotation/Editor/Shape/Rectangle";
+import { PolygonSpec, RectangleSpec } from "components/Annotation/Editor/type";
 import { loadImage } from "components/UploadFile";
 import { DrawObject, DrawType } from "reduxes/annotation/type";
 import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
-import { createEllipse } from "routes/AnnotationPage/Editor/Hook/useElipseEvent";
-import { createPolygon } from "routes/AnnotationPage/Editor/Hook/usePolygonEvent";
-import { createRectangle } from "routes/AnnotationPage/Editor/Hook/useRectangleEvent";
 import {
   AnnotationFormatter,
   CircleFormatter,
@@ -21,34 +17,10 @@ import {
   Shape,
 } from "./type";
 
-export const exportAnnotation = (
-  annotationImagesProperty: AnnotationImagesProperty,
-  drawObjectById: Record<string, DrawObject>
-) => {
-  const shapes: Shape[] = convert(drawObjectById);
-  const { image } = annotationImagesProperty;
-  const reader = new FileReader();
-  reader.readAsDataURL(image);
-  reader.onload = () => {
-    const annotationFormatter: AnnotationFormatter = createAnnotationFormatter(
-      shapes,
-      reader.result as string
-    );
-    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-      JSON.stringify(annotationFormatter, null, 2)
-    )}`;
-    const link = document.createElement("a");
-    link.href = jsonString;
-    link.download = "data.json";
-
-    link.click();
-  };
-};
-
 export const importAnnotation = (
   file: File
-): Promise<FileAndAnnotationImportInfo> => {
-  return new Promise<FileAndAnnotationImportInfo>((resolve) => {
+): Promise<FileAndAnnotationImportInfo> =>
+  new Promise<FileAndAnnotationImportInfo>((resolve) => {
     const reader = new FileReader();
     reader.readAsText(file);
     const drawObjectById: Record<string, DrawObject> = {};
@@ -69,13 +41,13 @@ export const importAnnotation = (
             type: "image/jpg",
           });
           loadImage(loadedFile)
-            .then(({ image, fileName }) => {
+            .then(({ image }) => {
               const property: AnnotationImagesProperty = {
                 image: loadedFile,
                 width: image.width,
                 height: image.height,
               };
-              for (const shape of annotationFormatter.shapes) {
+              annotationFormatter.shapes.forEach((shape) => {
                 if (shape.shape_type === "rectangle") {
                   const drawObject = createRectangle({ x: 0, y: 0 });
                   const points = shape.points as RectangleFormatter;
@@ -101,9 +73,10 @@ export const importAnnotation = (
                 ) {
                   const drawObject = createPolygon({ x: 0, y: 0 });
                   const points = shape.points as PolygonFormatter;
-                  const formatedPoints = points.map((arr) => {
-                    return { x: arr[0], y: arr[1] };
-                  });
+                  const formatedPoints = points.map((arr) => ({
+                    x: arr[0],
+                    y: arr[1],
+                  }));
                   drawObjectById[drawObject.data.id] = {
                     type: drawObject.type,
                     data: {
@@ -148,7 +121,7 @@ export const importAnnotation = (
                     },
                   };
                 }
-              }
+              });
               resolve({
                 annotationImagesProperty: property,
                 drawObjectById,
@@ -158,13 +131,12 @@ export const importAnnotation = (
         });
     };
   });
-};
 
 export const convert = (
   drawObjectById: Record<string, DrawObject>
 ): Shape[] => {
   const shape: Shape[] = [];
-  for (const [key, value] of Object.entries(drawObjectById)) {
+  Object.entries(drawObjectById).forEach(([, value]) => {
     if (value.type === DrawType.RECTANGLE) {
       const { x, y, width, height, label } = value.data as RectangleSpec;
       shape.push({
@@ -194,6 +166,29 @@ export const convert = (
     //     label: label.label,
     //   });
     // }
-  }
+  });
   return shape;
+};
+export const exportAnnotation = (
+  annotationImagesProperty: AnnotationImagesProperty,
+  drawObjectById: Record<string, DrawObject>
+) => {
+  const shapes: Shape[] = convert(drawObjectById);
+  const { image } = annotationImagesProperty;
+  const reader = new FileReader();
+  reader.readAsDataURL(image);
+  reader.onload = () => {
+    const annotationFormatter: AnnotationFormatter = createAnnotationFormatter(
+      shapes,
+      reader.result as string
+    );
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(annotationFormatter, null, 2)
+    )}`;
+    const link = document.createElement("a");
+    link.href = jsonString;
+    link.download = "data.json";
+
+    link.click();
+  };
 };

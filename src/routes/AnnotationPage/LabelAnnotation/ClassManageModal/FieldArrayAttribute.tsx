@@ -29,39 +29,37 @@ export default function FieldArrayAttribute({
   return (
     <Box display="flex" flexDirection="column" pl={10} gap={2}>
       <Box display="flex" alignItems="flex-end" flexDirection="column" gap={2}>
-        {fields.map((item, index) => {
-          return (
-            <Box
-              key={item.id}
-              display="flex"
-              alignItems="flex-end"
-              width="100%"
-              gap={1}
-            >
-              <TextField
-                {...register(`attributes.${index}.key`)}
-                fullWidth
-                margin="dense"
-                id="attribute-name"
-                label="Attribute namne"
-                type="text"
-                variant="standard"
-              />
-              <TextField
-                {...register(`attributes.${index}.value`)}
-                fullWidth
-                margin="dense"
-                id="attribute-value"
-                label="value"
-                type="text"
-                variant="standard"
-              />
-              <IconButton onClick={() => handleRemoveAttribute(index)}>
-                <ClearIcon />
-              </IconButton>
-            </Box>
-          );
-        })}
+        {fields.map((item, index) => (
+          <Box
+            key={item.id}
+            display="flex"
+            alignItems="flex-end"
+            width="100%"
+            gap={1}
+          >
+            <TextField
+              {...register(`attributes.${index}.key`)}
+              fullWidth
+              margin="dense"
+              id="attribute-name"
+              label="Attribute namne"
+              type="text"
+              variant="standard"
+            />
+            <TextField
+              {...register(`attributes.${index}.value`)}
+              fullWidth
+              margin="dense"
+              id="attribute-value"
+              label="value"
+              type="text"
+              variant="standard"
+            />
+            <IconButton onClick={() => handleRemoveAttribute(index)}>
+              <ClearIcon />
+            </IconButton>
+          </Box>
+        ))}
       </Box>
 
       <MyButton

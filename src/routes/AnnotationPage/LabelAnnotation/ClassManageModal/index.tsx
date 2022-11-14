@@ -21,12 +21,14 @@ const ClassManageModel = function () {
     dispatch(setDialogClassManageModal({ isOpen: false }));
   };
   const getClassManageDialogProps = () => {
-    if (!!dialogClassManageModal.isOpen) {
+    if (dialogClassManageModal.isOpen) {
       if (dialogClassManageModal.classManageModalType === "VIEW") {
         return listClassView;
-      } else if (dialogClassManageModal.classManageModalType === "EDIT") {
+      }
+      if (dialogClassManageModal.classManageModalType === "EDIT") {
         return classManageEditor;
-      } else if (dialogClassManageModal.classManageModalType === "CREATE") {
+      }
+      if (dialogClassManageModal.classManageModalType === "CREATE") {
         return classManageEditor;
       }
     }

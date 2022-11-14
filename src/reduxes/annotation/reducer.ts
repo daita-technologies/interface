@@ -104,7 +104,7 @@ const updateStateHistory = (
   drawObjectById: Record<string, DrawObject>,
   statehHistory: StateHistory
 ) => {
-  let newStateHistory = { ...statehHistory };
+  const newStateHistory = { ...statehHistory };
   if (
     newStateHistory.historyStep >= 0 &&
     newStateHistory.historyStep < newStateHistory.stateHistoryItems.length
@@ -124,6 +124,7 @@ const updateStateHistory = (
   return newStateHistory;
 };
 const annotationReducer = (
+  // eslint-disable-next-line @typescript-eslint/default-param-last
   state = inititalState,
   action: any
 ): AnnotationReducer => {
@@ -132,13 +133,15 @@ const annotationReducer = (
   switch (actionType) {
     case CHANGE_CURRENT_DRAW_TYPE: {
       const { currentDrawType } = payload as ChangeCurrentDrawTypePayload;
+      const newCurrentDrawState = currentDrawType
+        ? DrawState.FREE
+        : DrawState.SELECTING;
+
       return {
         ...state,
-        currentDrawType,
         selectedDrawObjectId: null,
-        currentDrawState: currentDrawType
-          ? DrawState.FREE
-          : DrawState.SELECTING,
+        currentDrawState: newCurrentDrawState,
+        currentDrawType,
       };
     }
     case CHANGE_ZOOM: {
@@ -154,7 +157,7 @@ const annotationReducer = (
 
     case CREATE_DRAW_OBJECT: {
       const { drawObject } = payload as CreateDrawObjectPayload;
-      let newStateHistory = updateStateHistory(
+      const newStateHistory = updateStateHistory(
         state.drawObjectById,
         state.statehHistory
       );
@@ -210,6 +213,7 @@ const annotationReducer = (
       return {
         ...state,
         currentDrawState: DrawState.SELECTING,
+        currentDrawType: null,
         selectedDrawObjectId,
       };
     }
@@ -219,9 +223,10 @@ const annotationReducer = (
         state.drawObjectById,
         state.statehHistory
       );
-      delete state.drawObjectById[drawObjectId];
+      const newState = { ...state };
+      delete newState.drawObjectById[drawObjectId];
       return {
-        ...state,
+        ...newState,
         selectedDrawObjectId: null,
         drawObjectById: { ...state.drawObjectById },
         statehHistory: newStateHistory,
@@ -281,7 +286,7 @@ const annotationReducer = (
         const undoDrawObjectById =
           statehHistory.stateHistoryItems[state.statehHistory.historyStep - 1]
             .drawObjectById;
-        Object.entries(undoDrawObjectById).map(([key, value]) => {
+        Object.entries(undoDrawObjectById).forEach(([key, value]) => {
           undoDrawObjectById[key].data = {
             ...undoDrawObjectById[key].data,
             label: value.data.label,
@@ -297,9 +302,8 @@ const annotationReducer = (
             historyStep: statehHistory.historyStep - 1,
           },
         };
-      } else {
-        return state;
       }
+      return state;
     }
     case REDO_DRAW_OBJECT: {
       const { statehHistory } = state;
@@ -317,9 +321,8 @@ const annotationReducer = (
             historyStep: statehHistory.historyStep + 1,
           },
         };
-      } else {
-        return state;
       }
+      return state;
     }
     case SET_HIDDEN_DRAW_OBJECT: {
       const { drawObjectId, isHidden } = payload as SetHiddenDrawObjectPayload;
@@ -364,20 +367,19 @@ const annotationReducer = (
         const scaleX = 1 / scale.x;
         const scaleY = 1 / scale.y;
 
-        for (const drawObjectId of Object.keys(state.drawObjectStateIdByAI)) {
+        Object.keys(state.drawObjectStateIdByAI).forEach((drawObjectId) => {
           const drawObject = state.drawObjectById[drawObjectId];
           if (drawObject) {
             const { type, data } = drawObject;
             if (type === DrawType.POLYGON) {
-              const points = (data as PolygonSpec).points;
-              const isInvalid = points.some((point) => {
-                return (
+              const { points } = data as PolygonSpec;
+              const isInvalid = points.some(
+                (point) =>
                   point.x < detectedArea.x * scaleX ||
                   point.y < detectedArea.y * scaleY ||
                   point.x > (detectedArea.x + detectedArea.width) * scaleX ||
                   point.y > (detectedArea.y + detectedArea.height) * scaleY
-                );
-              });
+              );
               if (!isInvalid) {
                 newDrawObjectStateIdByAI[drawObjectId] = {
                   ...newDrawObjectStateIdByAI[drawObjectId],
@@ -386,7 +388,7 @@ const annotationReducer = (
               }
             }
           }
-        }
+        });
       }
       return {
         ...state,
@@ -437,14 +439,14 @@ const annotationReducer = (
     }
     case SHOW_ALL_DRAW_OBJECTS_BY_AI: {
       const newDrawObjectStateIdByAI: Record<string, DrawObjectByAIState> = {};
-      Object.entries(state.drawObjectStateIdByAI).map(([key, value]) => {
+      Object.entries(state.drawObjectStateIdByAI).forEach(([key, value]) => {
         newDrawObjectStateIdByAI[key] = { ...value, isShow: true };
       });
       return { ...state, drawObjectStateIdByAI: newDrawObjectStateIdByAI };
     }
     case HIDDEN_ALL_DRAW_OBJECTS_BY_AI: {
       const newDrawObjectStateIdByAI: Record<string, DrawObjectByAIState> = {};
-      Object.entries(state.drawObjectStateIdByAI).map(([key, value]) => {
+      Object.entries(state.drawObjectStateIdByAI).forEach(([key, value]) => {
         newDrawObjectStateIdByAI[key] = { ...value, isShow: false };
       });
       return { ...state, drawObjectStateIdByAI: newDrawObjectStateIdByAI };

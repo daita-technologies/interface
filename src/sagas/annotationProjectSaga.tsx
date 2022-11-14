@@ -18,8 +18,11 @@ import {
   CloneProjectToAnnotationProps,
 } from "reduxes/annotationProject/type";
 import history from "routerHistory";
-import { hashCode, intToRGB } from "routes/AnnotationPage/LabelAnnotation";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
+import {
+  hashCode,
+  intToRGB,
+} from "routes/AnnotationPage/LabelAnnotation/ClassManageModal/useListClassView";
 import annotationProjectApi from "services/annotationProjectApi";
 
 function* handleCloneProjectToAnnotation(action: {
@@ -170,8 +173,9 @@ function* handleFetchDetailProject(action: any): any {
         },
       });
       if (annotationProjectInfo.ls_category?.ls_class) {
+        // eslint-disable-next-line no-restricted-syntax
         for (const classLabel of annotationProjectInfo.ls_category.ls_class) {
-          const strokeColor = "#" + intToRGB(hashCode(classLabel.class_name));
+          const strokeColor = `#${intToRGB(hashCode(classLabel.class_name))}`;
           yield put(
             addNewClassLabel({
               labelClassProperties: {

@@ -113,13 +113,13 @@ export const loadImage = (file: File, fileName?: string) =>
     image.onload = () => {
       resolve({
         image,
-        fileName: fileName ? fileName : file.name,
+        fileName: fileName || file.name,
       });
       window.URL.revokeObjectURL(objectUrl);
     };
     image.src = objectUrl;
   });
-const UploadAnnotationImage = function (props: UploadFileProps) {
+function UploadAnnotationImage(props: UploadFileProps) {
   const { projectId, projectName } = props;
 
   const dispatch = useDispatch();
@@ -559,6 +559,6 @@ const UploadAnnotationImage = function (props: UploadFileProps) {
       </Box>
     </Box>
   );
-};
+}
 
 export default UploadAnnotationImage;

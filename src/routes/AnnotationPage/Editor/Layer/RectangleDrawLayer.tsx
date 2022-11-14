@@ -1,4 +1,5 @@
 import { LINE_STYLE } from "components/Annotation/Editor/const";
+import { createRectangle } from "components/Annotation/Editor/Shape/Rectangle";
 import { RectangleSpec } from "components/Annotation/Editor/type";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
@@ -10,46 +11,33 @@ import { createDrawObject } from "reduxes/annotation/action";
 import { selectorMouseUpOutLayerPosition } from "reduxes/annotation/selector";
 import { DrawType } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
-import { createRectangle } from "../Hook/useRectangleEvent";
 
-const RectangleDrawLayer = () => {
+function RectangleDrawLayer() {
   const dispatch = useDispatch();
   const [startPoint, setStartPoint] = useState<Vector2d | null>(null);
   const [endPoint, setEndPoint] = useState<Vector2d | null>(null);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const mouseUpOutLayerPosition = useSelector(selectorMouseUpOutLayerPosition);
-  useEffect(() => {
-    if (mouseUpOutLayerPosition) {
-      handleMouseUp();
-    }
-  }, [mouseUpOutLayerPosition]);
 
-  const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
-    const position = e.currentTarget.getRelativePointerPosition();
-    updateMousePosition(position);
-  };
   const updateMousePosition = (position: Vector2d) => {
     if (!position || !startPoint) return;
-    if (position.x < 0) {
-      position.x = 0;
+    let { x, y } = position;
+    if (x < 0) {
+      x = 0;
     }
     if (
       currentAnnotationFile?.width &&
       position.x > currentAnnotationFile?.width
     ) {
-      position.x = currentAnnotationFile?.width;
+      x = currentAnnotationFile?.width;
     }
-    if (position.y < 0) {
-      position.y = 0;
+    if (y < 0) {
+      y = 0;
     }
-    if (
-      currentAnnotationFile?.height &&
-      position.y > currentAnnotationFile?.height
-    ) {
-      position.y = currentAnnotationFile?.height;
+    if (currentAnnotationFile?.height && y > currentAnnotationFile?.height) {
+      y = currentAnnotationFile?.height;
     }
-
-    setEndPoint({ ...position });
+    setEndPoint({ x, y });
   };
 
   const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
@@ -98,8 +86,18 @@ const RectangleDrawLayer = () => {
       const { width, height } = currentAnnotationFile;
       return <Rect width={width} height={height} />;
     }
+    return null;
   };
+  useEffect(() => {
+    if (mouseUpOutLayerPosition) {
+      handleMouseUp();
+    }
+  }, [mouseUpOutLayerPosition]);
 
+  const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
+    const position = e.currentTarget.getRelativePointerPosition();
+    updateMousePosition(position);
+  };
   return (
     <Layer
       ref={layer}
@@ -120,5 +118,5 @@ const RectangleDrawLayer = () => {
       )}
     </Layer>
   );
-};
+}
 export default RectangleDrawLayer;

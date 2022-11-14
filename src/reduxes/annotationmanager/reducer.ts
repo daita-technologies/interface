@@ -136,8 +136,8 @@ const annotationManagerReducer = (
         ...state,
         dialogClassManageModal: {
           isOpen,
-          className: !!isOpen ? className : "",
-          classManageModalType: !!isOpen ? classManageModalType : undefined,
+          className: isOpen ? className : "",
+          classManageModalType: isOpen ? classManageModalType : undefined,
         },
       };
     }

@@ -3,7 +3,7 @@ import { Image } from "react-konva";
 import { useSelector } from "react-redux";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 
-export default () => {
+export default function BaseImage() {
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const [image, setImage] = useState<HTMLImageElement>();
 
@@ -22,4 +22,4 @@ export default () => {
       height={currentAnnotationFile?.height}
     />
   );
-};
+}

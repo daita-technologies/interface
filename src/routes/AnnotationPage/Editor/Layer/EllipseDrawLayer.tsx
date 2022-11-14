@@ -1,4 +1,5 @@
 import { LINE_STYLE } from "components/Annotation/Editor/const";
+import { createEllipse } from "components/Annotation/Editor/Shape/EllipseShape";
 import { EllipseSpec } from "components/Annotation/Editor/type";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
@@ -10,19 +11,14 @@ import { createDrawObject } from "reduxes/annotation/action";
 import { selectorMouseUpOutLayerPosition } from "reduxes/annotation/selector";
 import { DrawType } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
-import { createEllipse } from "../Hook/useElipseEvent";
 
-const EllipseDrawLayer = () => {
+function EllipseDrawLayer() {
   const dispatch = useDispatch();
   const [startPoint, setStartPoint] = useState<Vector2d | null>(null);
   const [endPoint, setEndPoint] = useState<Vector2d | null>(null);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const mouseUpOutLayerPosition = useSelector(selectorMouseUpOutLayerPosition);
-  useEffect(() => {
-    if (mouseUpOutLayerPosition) {
-      handleMouseUp();
-    }
-  }, [mouseUpOutLayerPosition]);
+
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
     if (!position || !startPoint) return;
@@ -68,7 +64,13 @@ const EllipseDrawLayer = () => {
       const { width, height } = currentAnnotationFile;
       return <Rect width={width} height={height} />;
     }
+    return null;
   };
+  useEffect(() => {
+    if (mouseUpOutLayerPosition) {
+      handleMouseUp();
+    }
+  }, [mouseUpOutLayerPosition]);
   return (
     <Layer
       ref={layer}
@@ -88,5 +90,5 @@ const EllipseDrawLayer = () => {
       )}
     </Layer>
   );
-};
+}
 export default EllipseDrawLayer;

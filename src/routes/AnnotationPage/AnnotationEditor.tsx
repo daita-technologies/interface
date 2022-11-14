@@ -73,13 +73,12 @@ const AnnotationEditor = function () {
           </Box>
         </Box>
       );
-    } else {
-      return (
-        <Box display="flex" alignItems="center" justifyContent="center" my={2}>
-          <CircularProgress size={20} />
-        </Box>
-      );
     }
+    return (
+      <Box display="flex" alignItems="center" justifyContent="center" my={2}>
+        <CircularProgress size={20} />
+      </Box>
+    );
   };
   return <Box>{renderContent()}</Box>;
 };

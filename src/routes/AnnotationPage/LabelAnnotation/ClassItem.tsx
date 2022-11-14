@@ -29,18 +29,21 @@ import {
 } from "reduxes/annotation/selector";
 import { DrawType } from "reduxes/annotation/type";
 import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
-import { getBackgroundColor } from ".";
 import ClassLabel from "./ClassLabel";
+import { getBackgroundColor } from "./ClassManageModal/useListClassView";
 import { ClassItemProps } from "./type";
 
 const renderIcon = (drawType: DrawType) => {
   if (drawType === DrawType.RECTANGLE) {
     return <Crop32Icon />;
-  } else if (drawType === DrawType.LINE_STRIP) {
+  }
+  if (drawType === DrawType.LINE_STRIP) {
     return <PolylineIcon />;
-  } else if (drawType === DrawType.ELLIPSE) {
+  }
+  if (drawType === DrawType.ELLIPSE) {
     return <PanoramaFishEyeIcon />;
-  } else if (drawType === DrawType.POLYGON) {
+  }
+  if (drawType === DrawType.POLYGON) {
     return <HexagonIcon />;
   }
   return <FolderIcon />;
@@ -68,19 +71,19 @@ function ClassItem({ style, id }: ClassItemProps) {
 
   const drawObjectState = useSelector(selectorDrawObjectState(id));
   const isDrawObjectHidden = useMemo(
-    () => drawObjectState && drawObjectState.isHidden == true,
+    () => drawObjectState && drawObjectState.isHidden === true,
     [drawObjectState]
   );
   const isDrawObjectLock = useMemo(
-    () => drawObjectState && drawObjectState.isLock == true,
+    () => drawObjectState && drawObjectState.isLock === true,
     [drawObjectState]
   );
   const labelClassProperties =
     labelClassPropertiesByLabelClass[drawObject.data?.label?.label];
-  const handleClickLock = (id: string) => {
+  const handleClickLock = (drawObjectId: string) => {
     dispatch(
       setLockDrawObject({
-        drawObjectId: id,
+        drawObjectId,
         isLock: !isDrawObjectLock,
       })
     );
@@ -93,14 +96,14 @@ function ClassItem({ style, id }: ClassItemProps) {
       })
     );
   };
-  const renderSecondaryAction = useCallback(() => {
-    return (
+  const renderSecondaryAction = useCallback(
+    () => (
       <Box display="flex">
         <IconButton edge="end" aria-label="delete" onClick={handleClickDelete}>
           <DeleteIcon />
         </IconButton>
         <IconButton edge="end" aria-label="hidden" onClick={handleClickHidden}>
-          {isDrawObjectHidden == true ? (
+          {isDrawObjectHidden === true ? (
             <VisibilityOffIcon />
           ) : (
             <VisibilityIcon />
@@ -114,16 +117,18 @@ function ClassItem({ style, id }: ClassItemProps) {
           {isDrawObjectHidden === true ? <LockIcon /> : <LockOpenIcon />}
         </IconButton>
       </Box>
-    );
-  }, [isDrawObjectHidden]);
-  const renderCss = useCallback(() => {
-    return {
+    ),
+    [isDrawObjectHidden]
+  );
+  const renderCss = useCallback(
+    () => ({
       border: isSelect ? "1px solid" : "",
       cursor: "pointer",
-    };
-  }, [isSelect]);
-  const renderListAvatar = useCallback(() => {
-    return (
+    }),
+    [isSelect]
+  );
+  const renderListAvatar = useCallback(
+    () => (
       <ListItemAvatar>
         <Avatar
           sx={{
@@ -135,23 +140,22 @@ function ClassItem({ style, id }: ClassItemProps) {
           {renderIcon(drawObject.type)}
         </Avatar>
       </ListItemAvatar>
-    );
-  }, [labelClassProperties, drawObject]);
+    ),
+    [labelClassProperties, drawObject]
+  );
 
-  const renderContent = () => {
-    return (
-      <ListItem
-        onSelect={() => handleSelect()}
-        secondaryAction={renderSecondaryAction()}
-        sx={renderCss()}
-      >
-        {renderListAvatar()}
-        <ListItemText>
-          <ClassLabel drawObject={drawObject} />
-        </ListItemText>
-      </ListItem>
-    );
-  };
+  const renderContent = () => (
+    <ListItem
+      onSelect={() => handleSelect()}
+      secondaryAction={renderSecondaryAction()}
+      sx={renderCss()}
+    >
+      {renderListAvatar()}
+      <ListItemText>
+        <ClassLabel drawObject={drawObject} />
+      </ListItemText>
+    </ListItem>
+  );
   return (
     <Box
       display="flex"
