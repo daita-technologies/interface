@@ -49,7 +49,6 @@ const DetectedRectangleDrawLayer = () => {
         if (position.x < 0) {
           position.x = 0;
         }
-        console.log("currentAnnotationFile.width", currentAnnotationFile.width);
         if (
           currentAnnotationFile.width &&
           position.x > currentAnnotationFile.width

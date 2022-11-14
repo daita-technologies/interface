@@ -70,6 +70,12 @@ import {
   selectorIsSavingAnnotation,
   selectorLabelClassPropertiesByLabelClass,
 } from "reduxes/annotationmanager/selecetor";
+import {
+  DRAW_ELLIPSE_SHORT_KEY,
+  DRAW_POLYGON_SHORT_KEY,
+  DRAW_RECTANGLE_SHORT_KEY,
+  SELECT_SHORT_KEY,
+} from "../constants";
 import { hashCode, intToRGB } from "../LabelAnnotation";
 import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
 const ControlPanel = () => {
@@ -418,7 +424,9 @@ const ControlPanel = () => {
             selected={isSelected}
             aria-label="selecting"
           >
-            <NearMeIcon />
+            <Tooltip title={`Select (${SELECT_SHORT_KEY})`}>
+              <NearMeIcon />
+            </Tooltip>
           </ToggleButton>
         </ToggleButtonGroup>
         <ToggleButtonGroup
@@ -435,31 +443,38 @@ const ControlPanel = () => {
             value={DrawType.RECTANGLE}
             aria-label="Rectangle"
           >
-            <Crop32Icon />
+            <Tooltip title={`Rctangle (${DRAW_RECTANGLE_SHORT_KEY})`}>
+              <Crop32Icon />
+            </Tooltip>
           </ToggleButton>
           <ToggleButton
             className="annotationBtn"
             value={DrawType.POLYGON}
             aria-label="Polygon"
           >
-            <HexagonIcon />
+            <Tooltip title={`Polygon (${DRAW_POLYGON_SHORT_KEY})`}>
+              <HexagonIcon />
+            </Tooltip>
           </ToggleButton>
           <ToggleButton
             className="annotationBtn"
             value={DrawType.ELLIPSE}
             aria-label="ellipse"
           >
-            <PanoramaFishEyeIcon />
+            <Tooltip title={`Ellipse (${DRAW_ELLIPSE_SHORT_KEY})`}>
+              <PanoramaFishEyeIcon />
+            </Tooltip>
           </ToggleButton>
           <ToggleButton
             className="annotationBtn"
             value={DrawType.LINE_STRIP}
-            aria-label="ellipse"
+            aria-label="line"
           >
-            <PolylineIcon />
+            <Tooltip title={`Line (${DRAW_ELLIPSE_SHORT_KEY})`}>
+              <PolylineIcon />
+            </Tooltip>
           </ToggleButton>
         </ToggleButtonGroup>
-
         <Box
           display="flex"
           mt={3}
