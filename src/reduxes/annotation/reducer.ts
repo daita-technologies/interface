@@ -1,9 +1,4 @@
-import {
-  initialEllipses,
-  initialLineStrips,
-  initialPolygons,
-  initialRectangles,
-} from "components/Annotation/Editor/type";
+import { PolygonSpec } from "components/Annotation/Editor/type";
 import {
   ADD_DRAW_OBJECTS_BY_AI,
   CHANGE_CURRENT_DRAW_STATE,
@@ -49,7 +44,7 @@ import {
 } from "./type";
 
 const inititalState: AnnotationReducer = {
-  currentDrawType: DrawType.POLYGON,
+  currentDrawType: DrawType.RECTANGLE,
   selectedDrawObjectId: null,
   zoom: { zoom: 1, position: { x: 0, y: 0 } },
   // drawObjectById: (() => {
@@ -343,10 +338,37 @@ const annotationReducer = (
       };
     }
     case SET_DETECTED_AREA: {
-      const { detectedArea } = payload as SetLockDetectedAreaPayload;
+      const { detectedArea, scale } = payload as SetLockDetectedAreaPayload;
+      const newDrawObjectStateIdByAI = new Set(state.drawObjectStateIdByAI);
+      if (detectedArea) {
+        const scaleX = 1 / scale.x;
+        const scaleY = 1 / scale.y;
+
+        for (const drawObjectId of state.drawObjectStateIdByAI) {
+          const drawObject = state.drawObjectById[drawObjectId];
+          if (drawObject) {
+            const { type, data } = drawObject;
+            if (type === DrawType.POLYGON) {
+              const points = (data as PolygonSpec).points;
+              const isInvalid = points.some((point) => {
+                return (
+                  point.x < detectedArea.x * scaleX ||
+                  point.y < detectedArea.y * scaleY ||
+                  point.x > (detectedArea.x + detectedArea.width) * scaleX ||
+                  point.y > (detectedArea.y + detectedArea.height) * scaleY
+                );
+              });
+              if (!isInvalid) {
+                newDrawObjectStateIdByAI.delete(drawObjectId);
+              }
+            }
+          }
+        }
+      }
       return {
         ...state,
         detectedArea,
+        drawObjectStateIdByAI: Array.from(newDrawObjectStateIdByAI),
       };
     }
     case SET_IS_DRAGGING_VIEW_PORT: {

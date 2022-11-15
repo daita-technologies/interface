@@ -42,6 +42,7 @@ const DetectedRectangleDrawLayer = () => {
       dispatch(
         setDetectedArea({
           detectedArea: { ...refDetectedArea.current.getClientRect() },
+          scale: refDetectedArea.current.getAbsoluteScale(),
         })
       );
     }
