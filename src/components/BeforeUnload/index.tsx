@@ -2,7 +2,10 @@ import { useEffect } from "react";
 import { Prompt } from "react-router-dom";
 import { BeforeUnloadProps } from "./type";
 
-const BeforeUnload = function ({ message, isActive }: BeforeUnloadProps) {
+const BeforeUnload = function ({
+  message,
+  isActive = false,
+}: BeforeUnloadProps) {
   useEffect(() => {
     const handleBeforeUnload = () =>
       message || "Changes you made may not saved.";

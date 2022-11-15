@@ -1,3 +1,4 @@
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Crop32Icon from "@mui/icons-material/Crop32";
 import HexagonIcon from "@mui/icons-material/Hexagon";
 import ImageSearchIcon from "@mui/icons-material/ImageSearch";
@@ -21,6 +22,7 @@ import {
   ListItemText,
   Popover,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
@@ -38,6 +40,7 @@ import {
 import * as React from "react";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import {
   changeCurrentDrawState,
   changeCurrentDrawType,
@@ -70,6 +73,7 @@ import {
   selectorIsSavingAnnotation,
   selectorLabelClassPropertiesByLabelClass,
 } from "reduxes/annotationmanager/selecetor";
+import { selectorAnnotationCurrentProjectName } from "reduxes/annotationProject/selector";
 import {
   DRAW_ELLIPSE_SHORT_KEY,
   DRAW_POLYGON_SHORT_KEY,
@@ -83,12 +87,17 @@ import {
 } from "../LabelAnnotation/ClassManageModal/useListClassView";
 
 function ControlPanel() {
+  const history = useHistory();
   const dispatch = useDispatch();
   const currentDrawType = useSelector(selectorCurrentDrawType);
   const currentDrawState = useSelector(selectorCurrentDrawState);
   // const [drawType, setDrawType] = React.useState<DrawType | null>();
   // const [drawState, setDrawState] = React.useState<DrawState | null>();
   const drawObjectById = useSelector(selectorDrawObjectById);
+  const annotationCurrentProjectName = useSelector(
+    selectorAnnotationCurrentProjectName
+  );
+  const savedCurrentAnnotationProjectName = React.useRef<string>("");
   const currentPreviewImageName = useSelector(selectorCurrentPreviewImageName);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const isSavingAnnotation = useSelector(selectorIsSavingAnnotation);
@@ -106,6 +115,12 @@ function ControlPanel() {
   const labelClassPropertiesByLabelClass = useSelector(
     selectorLabelClassPropertiesByLabelClass
   );
+
+  React.useEffect(() => {
+    if (annotationCurrentProjectName) {
+      savedCurrentAnnotationProjectName.current = annotationCurrentProjectName;
+    }
+  }, [annotationCurrentProjectName]);
 
   const resetScaleHandler = () => {
     if (currentAnnotationFile) {
@@ -410,12 +425,40 @@ function ControlPanel() {
       dispatch(showAllDrawObjectStateIdByAI());
     }
   };
+  const onClickGoBack = () => {
+    if (
+      savedCurrentAnnotationProjectName &&
+      savedCurrentAnnotationProjectName.current
+    ) {
+      history.push(
+        `/annotation/project/${savedCurrentAnnotationProjectName.current}`
+      );
+    } else {
+      history.goBack();
+    }
+  };
   const isSelected =
     currentDrawState === DrawState.SELECTING ||
     currentDrawState === DrawState.DRAGGING ||
     currentDrawState === DrawState.TRANSFORMING;
   return (
     <Box sx={{ minWidth: 100 }} display="flex" flexDirection="column" gap={1}>
+      <Button
+        sx={{ alignSelf: "flex-start" }}
+        color="info"
+        variant="text"
+        onClick={onClickGoBack}
+        startIcon={<ArrowBackIcon />}
+      >
+        <Typography
+          color="text.primary"
+          fontSize={14}
+          fontWeight="medium"
+          textTransform="initial"
+        >
+          Back
+        </Typography>
+      </Button>
       <ToggleButtonGroup
         value={currentDrawState}
         exclusive

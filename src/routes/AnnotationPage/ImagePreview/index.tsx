@@ -11,7 +11,10 @@ import {
   selectorIdDrawObjectByImageName,
 } from "reduxes/annotationmanager/selecetor";
 import { selectorCurrentAnnotationFiles } from "reduxes/annotationProject/selector";
-import { QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE } from "../constants";
+import {
+  QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE,
+  QUIT_ANNOTATION_EDITOR_PROMPT_MESSAGE,
+} from "../constants";
 import ImagePreviewBadge from "./ImagePreviewBadge";
 
 function ImagePreview() {
@@ -210,8 +213,8 @@ function ImagePreview() {
           <input {...getInputProps()} />
         </Box> */}
         <BeforeUnload
-          isActive={needConfirmChangePreviewImageDialog}
-          message={QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE}
+          isActive={!!needConfirmChangePreviewImageDialog}
+          message={QUIT_ANNOTATION_EDITOR_PROMPT_MESSAGE}
         />
         <List
           sx={{
