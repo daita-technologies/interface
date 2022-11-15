@@ -534,6 +534,7 @@ function ControlPanel() {
         flexDirection="column"
         gap={2}
         pt={2}
+        pb={1}
       >
         <Box display="flex" justifyContent="center">
           <Tooltip
