@@ -19,3 +19,5 @@ export const selectorCurrentAnnotationFiles = (state: RootState) =>
 export const selectorDeleteAnnotationProjectConfirmDialogInfo = (
   state: RootState
 ) => state.annotationProjectReducer.deleteConfirmDialogInfo;
+export const selectorIsFetchingListAnnotationProject = (state: RootState) =>
+  state.annotationProjectReducer.isFetchingProjects;

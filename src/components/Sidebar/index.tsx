@@ -375,13 +375,13 @@ const Sidebar = function () {
             />
             <NavItem
               name="Annotation Dashboard"
-              Icon={CommentBankIcon}
+              Icon={DashboardIcon}
               to={`/${ANNOTATION_PROJECT_ROUTE_NAME}`}
             />
 
             <NavAnnotationProjectItem
               name="My Annotation Project"
-              Icon={CommentBankIcon}
+              Icon={AssignmentIcon}
               subNav={annotationListProjects}
             />
             <NavItem

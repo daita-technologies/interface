@@ -89,7 +89,7 @@ const inititalState: AnnotationProjectReducer = {
   // ],
   listProjects: [],
   dialogCloneProjectToAnnotation: { isShow: false },
-  isFetchingProjects: false,
+  isFetchingProjects: null,
   currentProjectInfo: null,
   isFetchingDetailProject: false,
   currentAnnotationAndFileInfo: null,
