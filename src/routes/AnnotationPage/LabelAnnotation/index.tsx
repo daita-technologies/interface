@@ -54,13 +54,13 @@ function LabelAnnotation() {
   const renderList = () => {
     if (issFetchingImageData) {
       return (
-        <Box display="flex" justifyContent="center" height={780}>
+        <Box display="flex" justifyContent="center" height={640}>
           <CircularProgress size={20} />
         </Box>
       );
     }
     return (
-      <Box sx={{ overflowY: "auto" }} height={780}>
+      <Box sx={{ overflowY: "auto" }} height={640}>
         <AutoSizer>
           {({ height, width }) => (
             <FixedSizeList
@@ -79,9 +79,12 @@ function LabelAnnotation() {
   };
   return (
     <Box
+      display="flex"
+      flexDirection="column"
       sx={{
         width: "100%",
         maxWidth: 360,
+        height: "100%",
         bgcolor: "background.paper",
       }}
     >
@@ -101,7 +104,7 @@ function LabelAnnotation() {
           </Button>
         </Box>
       </Box>
-      {renderList()}
+      <Box bgcolor="background.paper">{renderList()}</Box>
       {dialogClassManageModal.isOpen && <ClassManageModel />}
     </Box>
   );

@@ -359,9 +359,10 @@ function Editor() {
         onMouseOver={mouseOverBoundDivHandler}
         onMouseDown={handleMouseDownOutLayer}
         onMouseUp={handleMouseUpOutLayer}
-        id="testId"
+        id="annotation-editor-bound"
         width="100%"
         height="100%"
+        sx={{ outline: "none" }}
       >
         <Box
           display="flex"

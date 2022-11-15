@@ -51,7 +51,7 @@ const AnnotationEditor = function () {
       return (
         <Box display="flex" sx={{ height: "100vh" }} flexDirection="column">
           <Box display="flex" height="85vh">
-            <Box flexBasis="10%">
+            <Box flexBasis="10%" sx={{ overflowY: "auto", minWidth: "240px" }}>
               <Box sx={{ padding: 3 }}>
                 <ControlPanel />
               </Box>
@@ -68,7 +68,12 @@ const AnnotationEditor = function () {
               <LabelAnnotation />
             </Box>
           </Box>
-          <Box display="flex" gap={2} height="15vh" sx={{ padding: 1 }}>
+          <Box
+            display="flex"
+            gap={2}
+            height="15vh"
+            sx={{ padding: 1, backgroundColor: "#2a3648" }}
+          >
             <ImagePreview />
           </Box>
         </Box>

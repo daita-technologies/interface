@@ -218,7 +218,6 @@ function ImagePreview() {
         />
         <List
           sx={{
-            maxWidth: "90%",
             overflow: "auto",
             display: "flex",
             flexDirection: "row",
@@ -236,7 +235,7 @@ function ImagePreview() {
                         ? "3px solid red"
                         : "1px solid",
                     backgroundSize: "contain",
-                    height: 100,
+                    height: 60,
                     cursor: "pointer",
                   }}
                   width="250px"
