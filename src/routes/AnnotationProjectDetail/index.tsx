@@ -216,7 +216,7 @@ const annotationProjectDetail = function () {
     // }
   };
   const handleAnnotateProjectClick = () => {
-    history.push(`/${ANNOTATION_EDITOR_ROUTE_NAME}/${projectName}`);
+    window.open(`/${ANNOTATION_EDITOR_ROUTE_NAME}/${projectName}`, "_blank");
   };
   const renderProject = () => {
     if (
