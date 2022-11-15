@@ -13,6 +13,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { LoadingButton } from "@mui/lab";
 import {
+  Badge,
   Box,
   Button,
   IconButton,
@@ -532,6 +533,7 @@ function ControlPanel() {
         justifyContent="space-evenly"
         flexDirection="column"
         gap={2}
+        pt={2}
       >
         <Box display="flex" justifyContent="center">
           <Tooltip
@@ -542,17 +544,26 @@ function ControlPanel() {
             }
           >
             <span>
-              <IconButton
-                onClick={(e) =>
-                  selectModeHandle(e, DrawType.DETECTED_RECTANGLE)
+              <Badge
+                badgeContent={
+                  !isAIDetectAvailable ? (
+                    <WarningAmberIcon
+                      sx={{ color: "warning.light" }}
+                      fontSize="small"
+                    />
+                  ) : undefined
                 }
               >
-                {isAIDetectAvailable ? (
+                <IconButton
+                  sx={{ p: 0 }}
+                  onClick={(e) =>
+                    selectModeHandle(e, DrawType.DETECTED_RECTANGLE)
+                  }
+                  disabled={!isAIDetectAvailable}
+                >
                   <ImageSearchIcon fontSize="large" />
-                ) : (
-                  <WarningAmberIcon fontSize="large" />
-                )}
-              </IconButton>
+                </IconButton>
+              </Badge>
             </span>
           </Tooltip>
         </Box>
