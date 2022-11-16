@@ -1,6 +1,6 @@
 import { KonvaEventObject } from "konva/lib/Node";
 import { useEffect, useRef, useState } from "react";
-import { Circle, Group, Layer, Line } from "react-konva";
+import { Circle, Group, Layer, Line, Rect } from "react-konva";
 
 import {
   CIRCLE_STYLE,
@@ -12,24 +12,26 @@ import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  changeCurrentStatus,
+  changeCurrentDrawState,
   createDrawObject,
 } from "reduxes/annotation/action";
 import {
   selectorCurrentDrawState,
-  selectorcurrentDrawType,
+  selectorCurrentDrawType,
+  selectorKeyDownInEditor,
+  selectorMouseDownOutLayerPosition,
 } from "reduxes/annotation/selector";
 import { DrawState, DrawType } from "reduxes/annotation/type";
+import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
-import { createPolygon } from "../Hook/usePolygonEvent";
-import DummyRect from "./DummyRect";
+import { createPolygon } from "components/Annotation/Editor/Shape/Polygon";
 
-const PolygonDrawLayer = () => {
+function PolygonDrawLayer() {
   const dispatch = useDispatch();
   const isLineStrip =
-    useSelector(selectorcurrentDrawType) === DrawType.LINE_STRIP;
+    useSelector(selectorCurrentDrawType) === DrawType.LINE_STRIP;
   const [flattenedPoints, setFlattenedPoints] = useState<number[]>([]);
-  const [lineStyle, setLineStyle] = useState<CssStyle>({
+  const [lineStyle] = useState<CssStyle>({
     fill: convertStrokeColorToFillColor("#affaaa"),
     stroke: "#affaaa",
     strokeWidth: STROKE_WIDTH_LINE,
@@ -39,17 +41,29 @@ const PolygonDrawLayer = () => {
   const [mousePosition, setMousePosition] = useState<Vector2d | null>(null);
   const [mouseOverPoint, setMouseOverPoint] = useState(false);
   const layer = useRef<Konva.Layer | null>(null);
-
-  useEffect(() => {
-    const flatPoints: number[] = points
-      .concat(isFinished || !mousePosition ? [] : mousePosition)
-      .reduce((a, b) => a.concat([b.x, b.y]), [] as number[]);
-    setFlattenedPoints(flatPoints);
-  }, [points, isFinished, mousePosition]);
-
+  const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
+  const keyDownInEditor = useSelector(selectorKeyDownInEditor);
+  const mouseDownOutLayerPosition = useSelector(
+    selectorMouseDownOutLayerPosition
+  );
+  const resetDraw = () => {
+    setPoints([]);
+    setIsFinished(false);
+    setMousePosition(null);
+    setMouseOverPoint(false);
+    setFlattenedPoints([]);
+  };
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
     if (!position) return;
+    // console.log("position", position);
+    if (position.x < 0) {
+      position.x = 0;
+    }
+    if (position.y < 0) {
+      position.y = 0;
+    }
+    // console.log("set position", position);
     setMousePosition(position);
   };
   const handleMouseDownPoint = (e: KonvaEventObject<DragEvent>) => {
@@ -69,15 +83,12 @@ const PolygonDrawLayer = () => {
           },
         })
       );
-      dispatch(changeCurrentStatus({ drawState: DrawState.FREE }));
-      setPoints([]);
-      setIsFinished(false);
-      setMousePosition(null);
-      setMouseOverPoint(false);
-      setFlattenedPoints([]);
+      dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+      resetDraw();
     }
     e.cancelBubble = true;
   };
+
   const handleMouseOverStartPoint = (e: KonvaEventObject<DragEvent>) => {
     if (isFinished || points.length < 3) return;
     e.target.scale({ x: 2, y: 2 });
@@ -108,8 +119,8 @@ const PolygonDrawLayer = () => {
       e.target.scale({ x: 2, y: 2 });
     }
   };
-  const renderPoints = () => {
-    return points.map((point, index) => {
+  const renderPoints = () =>
+    points.map((point, index) => {
       const x = point.x - CORNER_RADIUS / 2;
       const y = point.y - CORNER_RADIUS / 2;
       let startPointAttr;
@@ -143,7 +154,6 @@ const PolygonDrawLayer = () => {
 
       return (
         <Circle
-          key={index}
           x={x}
           y={y}
           radius={CORNER_RADIUS * 1.5}
@@ -152,27 +162,64 @@ const PolygonDrawLayer = () => {
         />
       );
     });
-  };
-  const currentDrawState = useSelector(selectorCurrentDrawState);
-
-  const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
-    const position = e.currentTarget.getRelativePointerPosition();
-    if (!position) return;
-    setPoints([...points, position]);
-    if (currentDrawState === DrawState.FREE) {
-      dispatch(changeCurrentStatus({ drawState: DrawState.DRAWING }));
+  const mousedownHandler = (e?: KonvaEventObject<MouseEvent>) => {
+    if (mousePosition) {
+      setPoints([...points, mousePosition]);
+      dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
+      if (e) {
+        e.evt.preventDefault();
+        e.evt.stopPropagation();
+      }
     }
   };
   useEffect(() => {
     layer.current?.moveToTop();
   }, []);
+  const handleMouseOut = (e: KonvaEventObject<MouseEvent>) => {
+    const position = e.currentTarget.getRelativePointerPosition();
+    if (!position) return;
+    // console.log("position", position);
+    if (position.x < 0) {
+      position.x = 0;
+    }
+    if (position.y < 0) {
+      position.y = 0;
+    }
+    // console.log("set position", position);
+    setMousePosition(position);
+  };
+  const renderDummyRect = () => {
+    if (currentAnnotationFile) {
+      const { width, height } = currentAnnotationFile;
+      return <Rect width={width} height={height} />;
+    }
+    return null;
+  };
+  useEffect(() => {
+    if (mouseDownOutLayerPosition) {
+      mousedownHandler();
+    }
+  }, [mouseDownOutLayerPosition]);
+  useEffect(() => {
+    const flatPoints: number[] = points
+      .concat(isFinished || !mousePosition ? [] : mousePosition)
+      .reduce((a, b) => a.concat([b.x, b.y]), [] as number[]);
+    setFlattenedPoints(flatPoints);
+  }, [points, isFinished, mousePosition]);
+  useEffect(() => {
+    if (keyDownInEditor === "Escape") {
+      resetDraw();
+    }
+  }, [keyDownInEditor]);
   return (
     <Layer
       ref={layer}
       onMouseMove={mousemoveHandler}
+      onMouseOut={handleMouseOut}
       onMouseDown={mousedownHandler}
+      // onKeyDown={keyDownHandler}
     >
-      <DummyRect />
+      {renderDummyRect()}
       <Group>
         <Line
           points={flattenedPoints}
@@ -184,5 +231,5 @@ const PolygonDrawLayer = () => {
       </Group>
     </Layer>
   );
-};
+}
 export default PolygonDrawLayer;

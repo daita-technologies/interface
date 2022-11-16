@@ -12,15 +12,33 @@ import {
   selectorDrawObjectState,
   selectorSelectedRectangle,
 } from "reduxes/annotation/selector";
-import { DrawState } from "reduxes/annotation/type";
-import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
+import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
+import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { RectangleCompProps, RectangleProps, RectangleSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
-const RectangleComp = ({
+
+export const createRectangle = (position: {
+  x: number;
+  y: number;
+}): DrawObject => {
+  const id = `RECTANGLE-${Math.floor(Math.random() * 100000)}`;
+  const rect: RectangleSpec = {
+    x: position.x,
+    y: position.y,
+    width: 10,
+    height: 10,
+    id,
+    rotation: 0,
+    label: { label: id },
+    cssStyle: { ...LINE_STYLE },
+  };
+  return { type: DrawType.RECTANGLE, data: rect };
+};
+function RectangleComp({
   spec,
   onMouseOverHandler,
   onMouseOutHandler,
-}: RectangleCompProps) => {
+}: RectangleCompProps) {
   const shapeRef = React.useRef<Konva.Rect>(null);
   const trRef = React.useRef<any>(null);
   const dispatch = useDispatch();
@@ -33,11 +51,12 @@ const RectangleComp = ({
     spec.cssStyle.strokeWidth
   );
 
-  const isSelected = useMemo(() => {
-    return currentRectangle != null && spec.id === currentRectangle.id;
-  }, [currentRectangle?.id]);
+  const isSelected = useMemo(
+    () => currentRectangle != null && spec.id === currentRectangle.id,
+    [currentRectangle?.id]
+  );
   useEffect(() => {
-    if (isSelected == true) {
+    if (isSelected === true) {
       shapeRef.current?.moveToTop();
     }
   }, [isSelected]);
@@ -122,7 +141,7 @@ const RectangleComp = ({
   };
 
   return (
-    <React.Fragment>
+    <>
       <Rect
         ref={shapeRef}
         dragBoundFunc={groupDragBound}
@@ -149,14 +168,14 @@ const RectangleComp = ({
           anchorStrokeWidth={CIRCLE_STYLE.strokeWidth}
           anchorStroke={CIRCLE_STYLE.stroke}
           anchorSize={CORNER_RADIUS * 1.8}
-          ignoreStroke={true}
+          ignoreStroke
           boundBoxFunc={boundBoxFunc}
         />
       )}
-    </React.Fragment>
+    </>
   );
-};
-const Rectangle = function ({
+}
+function Rectangle({
   id,
   onMouseOverHandler,
   onMouseOutHandler,
@@ -171,6 +190,6 @@ const Rectangle = function ({
       />
     );
   }
-  return <></>;
-};
+  return null;
+}
 export default Rectangle;

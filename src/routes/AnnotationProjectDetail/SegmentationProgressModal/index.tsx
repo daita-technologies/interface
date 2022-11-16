@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
-import { SegmentationProgressModalProps } from "./type";
 
 import { useEffect, useMemo, useState } from "react";
 import annotationProjectApi, {
@@ -17,8 +16,9 @@ import annotationProjectApi, {
 } from "services/annotationProjectApi";
 import { useSelector } from "react-redux";
 import { selectorAnnotationCurrentProject } from "reduxes/annotationProject/selector";
+import { SegmentationProgressModalProps } from "./type";
 
-const SegmentationProgressModal = function ({
+function SegmentationProgressModal({
   isOpen,
   onClose,
 }: SegmentationProgressModalProps) {
@@ -144,6 +144,6 @@ const SegmentationProgressModal = function ({
     );
   }
   return null;
-};
+}
 
 export default SegmentationProgressModal;

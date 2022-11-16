@@ -13,29 +13,27 @@ const filter = createFilterOptions<LabelClassPropertiesOptionType>();
 
 export const convertStrokeColorToFillColor = (color: string) => {
   if (color && color.length > 1) {
-    return color + "33";
+    return `${color}33`;
   }
   return "";
 };
 
-const ClassLabel = function ({ drawObject }: ClassLabelProps) {
+function ClassLabel({ drawObject }: ClassLabelProps) {
   const dispatch = useDispatch();
   const labelClassPropertiesByLabelClass = useSelector(
     selectorLabelClassPropertiesByLabelClass
   );
 
   const listLabelClassProperties: LabelClassPropertiesOptionType[] =
-    React.useMemo(() => {
-      return Object.entries(labelClassPropertiesByLabelClass).map(
-        ([key, value]) => {
-          return {
-            inputValue: "",
-            color: value.cssStyle.stroke,
-            label: value.label,
-          };
-        }
-      ) as LabelClassPropertiesOptionType[];
-    }, [labelClassPropertiesByLabelClass]);
+    React.useMemo(
+      () =>
+        Object.entries(labelClassPropertiesByLabelClass).map(([, value]) => ({
+          inputValue: "",
+          color: value.cssStyle.stroke,
+          label: value.label,
+        })) as LabelClassPropertiesOptionType[],
+      [labelClassPropertiesByLabelClass]
+    );
 
   const handleChangeClassLabel = (label: string) => {
     const properties = labelClassPropertiesByLabelClass[label];
@@ -60,75 +58,69 @@ const ClassLabel = function ({ drawObject }: ClassLabelProps) {
     }, [labelClassPropertiesByLabelClass, drawObject]);
 
   return (
-    <React.Fragment>
-      <Autocomplete
-        value={labelClassProperties}
-        onChange={(event, newValue) => {
-          if (typeof newValue === "string") {
-            setTimeout(() => {
-              dispatch(
-                setDialogClassManageModal({
-                  isOpen: true,
-                  className: newValue,
-                  classManageModalType: "CREATE",
-                })
-              );
-            });
-          } else if (newValue && newValue.inputValue) {
+    <Autocomplete
+      value={labelClassProperties}
+      onChange={(event, newValue) => {
+        if (typeof newValue === "string") {
+          setTimeout(() => {
             dispatch(
               setDialogClassManageModal({
                 isOpen: true,
-                className: newValue.inputValue,
+                className: newValue,
                 classManageModalType: "CREATE",
               })
             );
-          } else {
-            if (newValue) {
-              handleChangeClassLabel(newValue.label.label);
-            }
-          }
-        }}
-        filterOptions={(options, params) => {
-          const filtered = filter(options, params);
+          });
+        } else if (newValue && newValue.inputValue) {
+          dispatch(
+            setDialogClassManageModal({
+              isOpen: true,
+              className: newValue.inputValue,
+              classManageModalType: "CREATE",
+            })
+          );
+        } else if (newValue) {
+          handleChangeClassLabel(newValue.label.label);
+        }
+      }}
+      filterOptions={(options, params) => {
+        const filtered = filter(options, params);
 
-          if (params.inputValue !== "") {
-            filtered.push({
-              inputValue: params.inputValue,
-              label: { label: `Add "${params.inputValue}"` },
-              color: "",
-            });
-          }
+        if (params.inputValue !== "") {
+          filtered.push({
+            inputValue: params.inputValue,
+            label: { label: `Add "${params.inputValue}"` },
+            color: "",
+          });
+        }
 
-          return filtered;
-        }}
-        options={listLabelClassProperties}
-        getOptionLabel={(option) => {
-          if (!option || !option.label) {
-            return "";
-          }
-          if (typeof option === "string") {
-            return option;
-          }
-          if (option.inputValue) {
-            return option.inputValue;
-          }
-          return option.label.label;
-        }}
-        selectOnFocus
-        clearOnBlur
-        handleHomeEndKeys
-        renderOption={(props, option) => (
-          <li {...props}>{option.label.label}</li>
-        )}
-        sx={{ maxWidth: 180 }}
-        freeSolo
-        renderInput={(params) => (
-          <TextField {...params} size="small" variant="standard" />
-        )}
-      />
-    </React.Fragment>
+        return filtered;
+      }}
+      options={listLabelClassProperties}
+      getOptionLabel={(option) => {
+        if (!option || !option.label) {
+          return "";
+        }
+        if (typeof option === "string") {
+          return option;
+        }
+        if (option.inputValue) {
+          return option.inputValue;
+        }
+        return option.label.label;
+      }}
+      selectOnFocus
+      clearOnBlur
+      handleHomeEndKeys
+      renderOption={(props, option) => <li {...props}>{option.label.label}</li>}
+      sx={{ maxWidth: 180 }}
+      freeSolo
+      renderInput={(params) => (
+        <TextField {...params} size="small" variant="standard" />
+      )}
+    />
   );
-};
+}
 interface LabelClassPropertiesOptionType {
   inputValue?: string;
   color: string;

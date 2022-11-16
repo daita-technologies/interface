@@ -1,7 +1,6 @@
 import AddIcon from "@mui/icons-material/Add";
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import Box from "@mui/material/Box";
-import { LabelClassProperties } from "components/Annotation/Editor/type";
 import { CSSProperties, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AutoSizer } from "react-virtualized";
@@ -11,43 +10,18 @@ import {
   selectorDrawObjectStateIdByAI,
 } from "reduxes/annotation/selector";
 import { setDialogClassManageModal } from "reduxes/annotationmanager/action";
-import { selectorDialogClassManageModal } from "reduxes/annotationmanager/selecetor";
+import {
+  selectorDialogClassManageModal,
+  selectorIsFetchingImageData,
+} from "reduxes/annotationmanager/selecetor";
 import ClassItem from "./ClassItem";
-import { convertStrokeColorToFillColor } from "./ClassLabel";
 import ClassManageModel from "./ClassManageModal";
 
-export const hashCode = (str: string) => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return hash;
-};
-
-export const intToRGB = (i: number) => {
-  const c = (i & 0x00ffffff).toString(16).toUpperCase();
-  return "00000".substring(0, 6 - c.length) + c;
-};
-export const getBackgroundColor = (
-  labelClassProperties: LabelClassProperties
-) => {
-  if (labelClassProperties) {
-    if (labelClassProperties?.cssStyle?.stroke) {
-      return labelClassProperties.cssStyle.stroke;
-    }
-    if (labelClassProperties.label?.label) {
-      return convertStrokeColorToFillColor(
-        "#" + intToRGB(hashCode(labelClassProperties.label.label))
-      );
-    }
-  }
-  return "gray";
-};
-const LabelAnnotation = function () {
+function LabelAnnotation() {
   const dispatch = useDispatch();
   const drawObjectById = useSelector(selectorDrawObjectById);
   const drawObjectStateIdByAI = useSelector(selectorDrawObjectStateIdByAI);
-
+  const issFetchingImageData = useSelector(selectorIsFetchingImageData);
   const hanleOpenClassManageModalClick = () => {
     dispatch(
       setDialogClassManageModal({
@@ -59,8 +33,11 @@ const LabelAnnotation = function () {
   const dialogClassManageModal = useSelector(selectorDialogClassManageModal);
   const listIdsDrawObjectById = useMemo(() => {
     const retList: string[] = [];
-    Object.keys(drawObjectById).map((id) => {
-      if (!drawObjectStateIdByAI.includes(id)) {
+    Object.keys(drawObjectById).forEach((id) => {
+      if (
+        !drawObjectStateIdByAI[id] ||
+        drawObjectStateIdByAI[id].isShow === true
+      ) {
         retList.push(id);
       }
     });
@@ -71,11 +48,19 @@ const LabelAnnotation = function () {
     if (listIdsDrawObjectById[index]) {
       return <ClassItem style={style} id={listIdsDrawObjectById[index]} />;
     }
-    return <></>;
+    return null;
   }
+
   const renderList = () => {
+    if (issFetchingImageData) {
+      return (
+        <Box display="flex" justifyContent="center" height={640}>
+          <CircularProgress size={20} />
+        </Box>
+      );
+    }
     return (
-      <Box sx={{ overflowY: "auto" }} height={700}>
+      <Box sx={{ overflowY: "auto" }} height={640}>
         <AutoSizer>
           {({ height, width }) => (
             <FixedSizeList
@@ -94,9 +79,12 @@ const LabelAnnotation = function () {
   };
   return (
     <Box
+      display="flex"
+      flexDirection="column"
       sx={{
         width: "100%",
         maxWidth: 360,
+        height: "100%",
         bgcolor: "background.paper",
       }}
     >
@@ -116,9 +104,9 @@ const LabelAnnotation = function () {
           </Button>
         </Box>
       </Box>
-      {renderList()}
+      <Box bgcolor="background.paper">{renderList()}</Box>
       {dialogClassManageModal.isOpen && <ClassManageModel />}
     </Box>
   );
-};
+}
 export default LabelAnnotation;

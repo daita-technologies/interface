@@ -32,11 +32,14 @@ import {
 import { selectorDrawObjectStateIdByAI } from "reduxes/annotation/selector";
 import {
   DrawObject,
+  DrawObjectByAIState,
   ResetCurrentStateDrawObjectPayload,
 } from "reduxes/annotation/type";
 import {
   addImagesToAnnotation,
   addNewClassLabel,
+  requestChangePreviewImageFail,
+  requestChangePreviewImageSuccess,
   setAnnotationStateManager,
 } from "reduxes/annotationmanager/action";
 import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
@@ -108,19 +111,18 @@ function* handleGetAnnotationFile(s3_key: string): any {
   }
   return null;
 }
-function* handleChangeImagePreview(action: any): any {
-  yield handleFetchAnnotationAndFileInfo(action);
-}
+
 function updateDrawObject(
   value: DrawObject,
   labelClassPropertiesByLabelClass: Record<string, LabelClassProperties>
 ): any {
   const drawObjectRet: DrawObject = { ...value };
   const css = drawObjectRet.data.cssStyle;
-  const label = value.data.label.label;
-  let classLabel = labelClassPropertiesByLabelClass[label];
+  const { label } = value.data.label;
+  const classLabel = labelClassPropertiesByLabelClass[label];
   if (classLabel) {
     const newCss = classLabel.cssStyle;
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const prop in css) {
       drawObjectRet.data.cssStyle = {
         ...drawObjectRet.data.cssStyle,
@@ -133,6 +135,7 @@ function updateDrawObject(
   }
   return drawObjectRet;
 }
+
 function* handleFetchAnnotationAndFileInfo(action: any): any {
   const annotationCurrentProject: AnnotationProjectInfo = yield select(
     selectorAnnotationCurrentProject
@@ -158,6 +161,7 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
       currentAnnotationAndFileInfo: fetchDetailProjectResponse.data,
     },
   });
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const { file_info, label_info } = fetchDetailProjectResponse.data;
   try {
     const image = yield handleGetDataImage(
@@ -182,7 +186,7 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
     const labelClassPropertiesByLabelClass = yield select(
       selectorLabelClassPropertiesByLabelClass
     );
-    const drawObjectById = annotation.drawObjectById;
+    const { drawObjectById } = annotation;
     Object.entries(drawObjectById).map(([key, value]) => {
       drawObjectById[key] = updateDrawObject(
         value,
@@ -217,7 +221,7 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
         yield put(
           setAnnotationStateManager({
             imageName: file_info.filename,
-            drawObjectById: drawObjectById,
+            drawObjectById,
           })
         );
       }
@@ -225,23 +229,28 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
     yield put(
       setAnnotationStateManager({
         imageName: file_info.filename,
-        drawObjectById: drawObjectById,
+        drawObjectById,
       })
     );
 
     yield put(
       resetCurrentStateDrawObject({
-        drawObjectById: drawObjectById,
+        drawObjectById,
       })
     );
     if (image) {
       yield put(addImagesToAnnotation({ annotationImagesProperties: [image] }));
+      yield put(requestChangePreviewImageSuccess());
     } else {
       toast.error("Fail to get image data");
+      yield put(requestChangePreviewImageFail());
     }
   } catch (e: any) {
     toast.error(e.message);
   }
+}
+function* handleChangeImagePreview(action: any): any {
+  yield handleFetchAnnotationAndFileInfo(action);
 }
 function* handleAddNewClassLabel(action: any): any {
   const annotationCurrentProject: AnnotationProjectInfo = yield select(
@@ -269,7 +278,7 @@ function* handleSaveAnnotationStateManager(action: any): any {
     selectorCurrentAnnotationAndFileInfo
   );
   const s3 = yield select(selectorS3);
-  let s3key_jsonlabel = "";
+  let s3keyJsonlabel = "";
   const annotationCurrentProject: AnnotationProjectInfo = yield select(
     selectorAnnotationCurrentProject
   );
@@ -277,25 +286,23 @@ function* handleSaveAnnotationStateManager(action: any): any {
     currentAnnotationAndFileInfo.label_info &&
     currentAnnotationAndFileInfo.label_info.length > 0
   ) {
-    s3key_jsonlabel =
-      currentAnnotationAndFileInfo.label_info[0].s3key_jsonlabel;
+    s3keyJsonlabel = currentAnnotationAndFileInfo.label_info[0].s3key_jsonlabel;
   } else {
     const splitKey = imageName.split(".");
     splitKey.splice(splitKey.length - 1, 1);
-    const filename = splitKey.join("") + ".json";
-    s3key_jsonlabel = annotationCurrentProject.s3_label + "/" + filename;
+    const filename = `${splitKey.join("")}.json`;
+    s3keyJsonlabel = `${annotationCurrentProject.s3_label}/${filename}`;
   }
-  const drawObjectStateIdByAI: string[] = yield select(
-    selectorDrawObjectStateIdByAI
-  );
+  const drawObjectStateIdByAI: Record<string, DrawObjectByAIState> =
+    yield select(selectorDrawObjectStateIdByAI);
   const drawObjectByIdExcluceAIDetect: Record<string, DrawObject> = {};
   Object.entries(drawObjectById).forEach(([key, value]) => {
-    if (!drawObjectStateIdByAI.includes(key)) {
+    if (!drawObjectStateIdByAI[key]) {
       drawObjectByIdExcluceAIDetect[key] = value;
     }
   });
   const json = exportAnnotationToJson(drawObjectByIdExcluceAIDetect);
-  const { bucketName, key } = getKeyS3(s3key_jsonlabel);
+  const { bucketName, key } = getKeyS3(s3keyJsonlabel);
 
   const uploadParams = {
     Bucket: bucketName,
@@ -313,7 +320,7 @@ function* handleSaveAnnotationStateManager(action: any): any {
     idToken: getLocalStorage(ID_TOKEN_NAME) || "",
     fileId: currentAnnotationAndFileInfo.file_info.file_id,
     dictS3Key: {
-      [annotationCurrentProject.ls_category.category_id]: s3key_jsonlabel,
+      [annotationCurrentProject.ls_category.category_id]: s3keyJsonlabel,
     },
   });
   if (saveLabelResponse.error !== true) {
@@ -325,7 +332,7 @@ function* handleSaveAnnotationStateManager(action: any): any {
   }
 }
 function* annotationEditorSaga() {
-  yield takeLatest(CHANGE_PREVIEW_IMAGE, handleChangeImagePreview);
+  yield takeLatest(CHANGE_PREVIEW_IMAGE.REQUESTED, handleChangeImagePreview);
   yield takeLatest(
     SAVE_REMOTE_NEW_CLASS_LABEL.REQUESTED,
     handleAddNewClassLabel

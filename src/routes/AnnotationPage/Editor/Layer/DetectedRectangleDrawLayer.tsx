@@ -1,19 +1,25 @@
+import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
+import { Vector2d } from "konva/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { Layer, Rect } from "react-konva";
-
-import Konva from "konva";
-import { useDispatch } from "react-redux";
-import { setDetectedArea } from "reduxes/annotation/action";
-import { DetectedAreaType } from "reduxes/annotation/type";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  changeCurrentDrawState,
+  setDetectedArea,
+} from "reduxes/annotation/action";
+import { selectorMouseUpOutLayerPosition } from "reduxes/annotation/selector";
+import { DetectedAreaType, DrawState } from "reduxes/annotation/type";
+import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
-import DummyRect from "./DummyRect";
 
-const DetectedRectangleDrawLayer = () => {
+function DetectedRectangleDrawLayer() {
   const dispatch = useDispatch();
   const refDetectedArea = useRef<Konva.Rect | null>(null);
   const [localDetectedArea, setLocalDetectedArea] =
     useState<DetectedAreaType | null>(null);
+  const mouseUpOutLayerPosition = useSelector(selectorMouseUpOutLayerPosition);
+  const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
 
   const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
@@ -25,19 +31,44 @@ const DetectedRectangleDrawLayer = () => {
         height: 3,
       });
     }
+    dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
+    e.evt.preventDefault();
+    e.evt.stopPropagation();
+  };
+
+  const updateMousePosition = (position: Vector2d) => {
+    if (position && currentAnnotationFile) {
+      if (localDetectedArea) {
+        let { x, y } = position;
+        if (x < 0) {
+          x = 0;
+        }
+        if (currentAnnotationFile.width && x > currentAnnotationFile.width) {
+          x = currentAnnotationFile.width;
+        }
+        if (y < 0) {
+          y = 0;
+        }
+        if (currentAnnotationFile.height && y > currentAnnotationFile.height) {
+          y = currentAnnotationFile.height;
+        }
+        setLocalDetectedArea({
+          ...localDetectedArea,
+          width: x - localDetectedArea.x,
+          height: y - localDetectedArea.y,
+        });
+      }
+    }
+  };
+  const handleMouseOut = (e: KonvaEventObject<MouseEvent>) => {
+    const position = e.currentTarget.getRelativePointerPosition();
+    updateMousePosition(position);
   };
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
-    if (position) {
-      if (localDetectedArea)
-        setLocalDetectedArea({
-          ...localDetectedArea,
-          width: position.x - localDetectedArea.x,
-          height: position.y - localDetectedArea.y,
-        });
-    }
+    updateMousePosition(position);
   };
-  const mouseupHandler = (e: KonvaEventObject<MouseEvent>) => {
+  const mouseupHandler = () => {
     if (localDetectedArea && refDetectedArea.current) {
       dispatch(
         setDetectedArea({
@@ -47,19 +78,33 @@ const DetectedRectangleDrawLayer = () => {
       );
     }
     setLocalDetectedArea(null);
+    dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
   };
   const layer = useRef<Konva.Layer | null>(null);
   useEffect(() => {
     layer.current?.moveToTop();
   }, []);
+  const renderDummyRect = () => {
+    if (currentAnnotationFile) {
+      const { width, height } = currentAnnotationFile;
+      return <Rect width={width} height={height} />;
+    }
+    return null;
+  };
+  useEffect(() => {
+    if (mouseUpOutLayerPosition) {
+      mouseupHandler();
+    }
+  }, [mouseUpOutLayerPosition]);
   return (
     <Layer
       ref={layer}
       onMouseMove={mousemoveHandler}
       onMouseDown={mousedownHandler}
       onMouseUp={mouseupHandler}
+      onMouseOut={handleMouseOut}
     >
-      <DummyRect />
+      {renderDummyRect()}
       {localDetectedArea && (
         <Rect
           ref={refDetectedArea}
@@ -71,5 +116,5 @@ const DetectedRectangleDrawLayer = () => {
       )}
     </Layer>
   );
-};
+}
 export default DetectedRectangleDrawLayer;

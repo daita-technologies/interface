@@ -53,11 +53,24 @@ const annotationManagerReducer = (
         images: { ...stateImages },
       };
     }
-    case CHANGE_PREVIEW_IMAGE: {
+    case CHANGE_PREVIEW_IMAGE.REQUESTED: {
       const { imageName } = payload as ChangePreviewImageProps;
       return {
         ...state,
         currentPreviewImageName: imageName,
+        isFetchingImageData: true,
+      };
+    }
+    case CHANGE_PREVIEW_IMAGE.SUCCEEDED: {
+      return {
+        ...state,
+        isFetchingImageData: false,
+      };
+    }
+    case CHANGE_PREVIEW_IMAGE.FAILED: {
+      return {
+        ...state,
+        isFetchingImageData: false,
       };
     }
     case SET_PREVIEW_IMAGE: {
@@ -123,8 +136,8 @@ const annotationManagerReducer = (
         ...state,
         dialogClassManageModal: {
           isOpen,
-          className: !!isOpen ? className : "",
-          classManageModalType: !!isOpen ? classManageModalType : undefined,
+          className: isOpen ? className : "",
+          classManageModalType: isOpen ? classManageModalType : undefined,
         },
       };
     }

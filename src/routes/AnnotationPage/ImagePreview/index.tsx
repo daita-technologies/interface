@@ -1,42 +1,31 @@
 import { Box, List, ListItem, Skeleton, Typography } from "@mui/material";
-import { loadImage } from "components/UploadFile";
-import { IMAGE_EXTENSIONS } from "constants/defaultValues";
+import { BeforeUnload } from "components";
+import useConfirmDialog from "hooks/useConfirmDialog";
 import { useEffect, useMemo } from "react";
-import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
-import { selectorDrawObjectById } from "reduxes/annotation/selector";
+import { selectorAnnotationStatehHistory } from "reduxes/annotation/selector";
+import { requestChangePreviewImage } from "reduxes/annotationmanager/action";
 import {
-  addImagesToAnnotation,
-  changePreviewImage,
-  saveAnnotationStateManager,
-  setAnnotationStateManager,
-} from "reduxes/annotationmanager/action";
-import {
-  selectorAnnotationManagerImages,
   selectorCurrentPreviewImageName,
   selectorIdDrawObjectByImageName,
 } from "reduxes/annotationmanager/selecetor";
-import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
 import { selectorCurrentAnnotationFiles } from "reduxes/annotationProject/selector";
+import {
+  QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE,
+  QUIT_ANNOTATION_EDITOR_PROMPT_MESSAGE,
+} from "../constants";
+import ImagePreviewBadge from "./ImagePreviewBadge";
 
-const createFile = async (imageName: string, url: string) => {
-  let response = await fetch(url);
-  let data = await response.blob();
-  let metadata = {
-    type: "image/jpeg",
-  };
-  let file = new File([data], imageName, metadata);
-  return file;
-};
-const ImagePreview = function () {
+function ImagePreview() {
   const dispatch = useDispatch();
   // const annotationManagerImages = useSelector(selectorAnnotationManagerImages);
 
   const currentPreviewImageName = useSelector(selectorCurrentPreviewImageName);
-  const drawObjectById = useSelector(selectorDrawObjectById);
   const idDrawObjectByImageName = useSelector(selectorIdDrawObjectByImageName);
   const currentAnnotationFiles = useSelector(selectorCurrentAnnotationFiles);
+  const annotationStatehHistory = useSelector(selectorAnnotationStatehHistory);
+  const { openConfirmDialog, closeConfirmDialog } = useConfirmDialog();
 
   // useEffect(() => {
   //   if (currentAnnotationFiles) {
@@ -53,7 +42,7 @@ const ImagePreview = function () {
   useEffect(() => {
     if (currentAnnotationFiles) {
       dispatch(
-        changePreviewImage({
+        requestChangePreviewImage({
           imageName: currentAnnotationFiles.items[0].filename,
         })
       );
@@ -154,24 +143,52 @@ const ImagePreview = function () {
   //   );
   //   return thumbs;
   // }, [annotationManagerImages]);
+  const needConfirmChangePreviewImageDialog = useMemo(
+    () =>
+      annotationStatehHistory.stateHistoryItems[
+        annotationStatehHistory.historyStep - 1
+      ] &&
+      annotationStatehHistory.savedStateHistoryId !==
+        annotationStatehHistory.stateHistoryItems[
+          annotationStatehHistory.historyStep - 1
+        ].id,
+    [annotationStatehHistory]
+  );
+
   const handleSelectPreview = (imageName: string) => {
     if (imageName === currentPreviewImageName) {
       return;
     }
-    if (currentPreviewImageName) {
+    if (!needConfirmChangePreviewImageDialog) {
       dispatch(
-        setAnnotationStateManager({
-          imageName: currentPreviewImageName,
-          drawObjectById,
+        resetCurrentStateDrawObject({
+          drawObjectById: idDrawObjectByImageName[imageName],
         })
       );
+      dispatch(requestChangePreviewImage({ imageName }));
+      return;
     }
-    dispatch(
-      resetCurrentStateDrawObject({
-        drawObjectById: idDrawObjectByImageName[imageName],
-      })
-    );
-    dispatch(changePreviewImage({ imageName }));
+    openConfirmDialog({
+      content: (
+        <Box lineHeight={1.5}>
+          <Typography>{QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE}</Typography>
+        </Box>
+      ),
+      negativeText: "Cancel",
+      positiveText: "Don't Save",
+      onClickNegative: () => {
+        closeConfirmDialog();
+      },
+      onClickPositive: () => {
+        dispatch(
+          resetCurrentStateDrawObject({
+            drawObjectById: idDrawObjectByImageName[imageName],
+          })
+        );
+        dispatch(requestChangePreviewImage({ imageName }));
+        closeConfirmDialog();
+      },
+    });
   };
   const renderContent = () => {
     if (!currentAnnotationFiles) {
@@ -195,18 +212,21 @@ const ImagePreview = function () {
         >
           <input {...getInputProps()} />
         </Box> */}
+        <BeforeUnload
+          isActive={!!needConfirmChangePreviewImageDialog}
+          message={QUIT_ANNOTATION_EDITOR_PROMPT_MESSAGE}
+        />
         <List
           sx={{
-            maxWidth: "90%",
             overflow: "auto",
             display: "flex",
             flexDirection: "row",
             padding: 0,
           }}
         >
-          {currentAnnotationFiles.items.map((item) => {
-            return (
-              <ListItem key={item.filename}>
+          {currentAnnotationFiles.items.map((item) => (
+            <ListItem key={item.filename}>
+              <ImagePreviewBadge filename={item.filename}>
                 <Box
                   sx={{
                     // background: `url(${fileThumbByImageName[imageName]})no-repeat center`,
@@ -215,7 +235,7 @@ const ImagePreview = function () {
                         ? "3px solid red"
                         : "1px solid",
                     backgroundSize: "contain",
-                    height: "100%",
+                    height: 60,
                     cursor: "pointer",
                   }}
                   width="250px"
@@ -241,23 +261,13 @@ const ImagePreview = function () {
                     </Typography>
                   </Box>
                 </Box>
-              </ListItem>
-            );
-          })}
+              </ImagePreviewBadge>
+            </ListItem>
+          ))}
         </List>
       </>
     );
   };
-  return (
-    <Box
-      display="flex"
-      gap={2}
-      height="25vh"
-      minHeight={200}
-      sx={{ padding: "30px 30px" }}
-    >
-      {renderContent()}
-    </Box>
-  );
-};
+  return <>{renderContent()}</>;
+}
 export default ImagePreview;

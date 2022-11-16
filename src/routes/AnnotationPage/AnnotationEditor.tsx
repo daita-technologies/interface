@@ -50,37 +50,40 @@ const AnnotationEditor = function () {
     ) {
       return (
         <Box display="flex" sx={{ height: "100vh" }} flexDirection="column">
-          <Box display="flex">
-            <Box display="flex" gap={0} flexGrow={2}>
-              <Box>
-                <Box sx={{ minWidth: 100, padding: 3, maxWidth: 200 }}>
-                  <ControlPanel />
-                </Box>
-              </Box>
-              <Box sx={{ backgroundColor: "#101c2d" }} flexGrow={10}>
-                <Editor />
+          <Box display="flex" height="85vh">
+            <Box flexBasis="10%" sx={{ overflowY: "auto", minWidth: "240px" }}>
+              <Box sx={{ padding: 3 }}>
+                <ControlPanel />
               </Box>
             </Box>
             <Box
-              display="flex"
-              justifyContent="center"
-              sx={{ backgroundColor: "#313c4b" }}
-              width={50}
-              flexGrow={10}
+              sx={{ backgroundColor: "#101c2d" }}
+              flexBasis="70%"
+              padding="2px"
             >
+              <Editor />
+            </Box>
+            {/* </Box> */}
+            <Box sx={{ backgroundColor: "#313c4b" }} flexBasis="20%">
               <LabelAnnotation />
             </Box>
           </Box>
-          <ImagePreview />
-        </Box>
-      );
-    } else {
-      return (
-        <Box display="flex" alignItems="center" justifyContent="center" my={2}>
-          <CircularProgress size={20} />
+          <Box
+            display="flex"
+            gap={2}
+            height="15vh"
+            sx={{ padding: 1, backgroundColor: "#2a3648" }}
+          >
+            <ImagePreview />
+          </Box>
         </Box>
       );
     }
+    return (
+      <Box display="flex" alignItems="center" justifyContent="center" my={2}>
+        <CircularProgress size={20} />
+      </Box>
+    );
   };
   return <Box>{renderContent()}</Box>;
 };

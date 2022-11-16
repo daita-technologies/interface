@@ -7,6 +7,7 @@ import {
   MAX_WIDTH_IMAGE_IN_EDITOR,
 } from "../const";
 import { ScaleResult } from "../type";
+
 const scaleBy = 1.2;
 
 export function getNewPositionOnWheel(
@@ -38,14 +39,11 @@ export function getFitScaleEditor(width: number, height: number) {
   const widthRatio = MAX_WIDTH_IMAGE_IN_EDITOR / width;
   const heightRatio = MAX_HEIGHT_IMAGE_IN_EDITOR / height;
   let newWidth = width;
-  let newHeight = height;
   if (widthRatio < 1 || heightRatio < 1) {
     if (widthRatio < heightRatio) {
       newWidth = MAX_WIDTH_IMAGE_IN_EDITOR;
-      newHeight = newHeight * widthRatio;
     } else {
-      newHeight = MAX_HEIGHT_IMAGE_IN_EDITOR;
-      newWidth = newWidth * heightRatio;
+      newWidth *= heightRatio;
     }
   }
   return newWidth / width;

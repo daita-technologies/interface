@@ -66,8 +66,8 @@ export const ID_2_LABEL_DAITA: Record<number, string> = {
 };
 export const LABEL_2_ID_DAITA: Record<string, number> = (() => {
   const temp: Record<string, number> = {};
-  Object.entries(ID_2_LABEL_DAITA).map(([key, value]) => {
-    temp[value] = parseInt(key);
+  Object.entries(ID_2_LABEL_DAITA).forEach(([key, value]) => {
+    temp[value] = parseInt(key, 10);
   });
   return temp;
 })();

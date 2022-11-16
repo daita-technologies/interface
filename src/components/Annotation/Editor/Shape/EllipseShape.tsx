@@ -12,12 +12,30 @@ import {
   selectorDrawObjectState,
   selectorSelectedEllipse,
 } from "reduxes/annotation/selector";
-import { DrawState } from "reduxes/annotation/type";
-import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
+import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
+import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { EllipseCompProps, EllipseProps, EllipseSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 
-const EllipseComp = function ({
+export const createEllipse = (position: {
+  x: number;
+  y: number;
+}): DrawObject => {
+  const id = `ELLIPSE-${Math.floor(Math.random() * 100000)}`;
+  const shape: EllipseSpec = {
+    x: position.x,
+    y: position.y,
+    radiusX: 1,
+    radiusY: 1,
+    rotation: 0,
+    id,
+    label: { label: id },
+    cssStyle: { ...LINE_STYLE },
+  };
+  return { type: DrawType.ELLIPSE, data: shape };
+};
+
+function EllipseComp({
   spec,
   onMouseOverHandler,
   onMouseOutHandler,
@@ -34,11 +52,12 @@ const EllipseComp = function ({
     spec.cssStyle.strokeWidth
   );
 
-  const isSelected = useMemo(() => {
-    return currentShape != null && spec.id === currentShape.id;
-  }, [currentShape?.id]);
+  const isSelected = useMemo(
+    () => currentShape != null && spec.id === currentShape.id,
+    [currentShape?.id]
+  );
   useEffect(() => {
-    if (isSelected == true) {
+    if (isSelected === true) {
       shapeRef.current?.moveToTop();
     }
   }, [isSelected]);
@@ -81,17 +100,15 @@ const EllipseComp = function ({
   const handleTransformEnd = (e: KonvaEventObject<Event>) => {
     const node = shapeRef.current;
     if (!node) return;
-
-    let radiusX = (node.width() * node.scaleX()) / 2.0;
-    let radiusY = (node.height() * node.scaleY()) / 2.0;
-
+    const radiusX = (node.width() * node.scaleX()) / 2.0;
+    const radiusY = (node.height() * node.scaleY()) / 2.0;
     onChange({
       ...spec,
       x: node.x(),
       y: node.y(),
       rotation: node.attrs.rotation,
-      radiusX: radiusX,
-      radiusY: radiusY,
+      radiusX,
+      radiusY,
     });
     node.scale({ x: 1, y: 1 });
     commonShapeEvent.handleTransformEnd(e);
@@ -122,7 +139,7 @@ const EllipseComp = function ({
   };
 
   return (
-    <React.Fragment>
+    <>
       <Ellipse
         ref={shapeRef}
         dragBoundFunc={groupDragBound}
@@ -149,14 +166,14 @@ const EllipseComp = function ({
           anchorStrokeWidth={CIRCLE_STYLE.strokeWidth}
           anchorStroke={CIRCLE_STYLE.stroke}
           anchorSize={CORNER_RADIUS * 1.8}
-          ignoreStroke={true}
+          ignoreStroke
           boundBoxFunc={boundBoxFunc}
         />
       )}
-    </React.Fragment>
+    </>
   );
-};
-const EllipseShape = function ({
+}
+function EllipseShape({
   id,
   onMouseOverHandler,
   onMouseOutHandler,
@@ -171,6 +188,6 @@ const EllipseShape = function ({
       />
     );
   }
-  return <></>;
-};
+  return null;
+}
 export default EllipseShape;
