@@ -76,7 +76,8 @@ function* handleFetchListProjects(action: any): any {
         type: FETCH_LIST_ANNOTATION_PROJECTS.FAILED,
       });
       toast.error(
-        fetchListProjectsResponse.message || "Can't fetch list projects."
+        fetchListProjectsResponse.message ||
+          "Can't fetch project list at the moment. Please try again later!"
       );
     }
   } catch (e: any) {
