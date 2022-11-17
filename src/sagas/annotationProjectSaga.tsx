@@ -45,6 +45,9 @@ function* handleCloneProjectToAnnotation(action: {
       yield history.push(
         `/${ANNOTATION_PROJECT_DETAIL_ROUTE_NAME}/${action.payload.annotationProjectName}`
       );
+      yield toast.info(
+        `We are automatically AI-segmenting your image. You will receive an automatic email notification when finished. The segmented images will be green-marked "AI" on the annotation web page.`
+      );
     } else {
       yield put({ type: CLONE_PROJECT_TO_ANNOTATION.FAILED });
       toast.error(updateProjectInfoResponse.message);
