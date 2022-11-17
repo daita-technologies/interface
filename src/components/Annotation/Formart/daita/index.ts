@@ -215,7 +215,7 @@ export const exportAnnotation = (
   )}`;
   const link = document.createElement("a");
   link.href = jsonString;
-  link.download = `${imageName}.json`;
+  link.download = `${imageName.replace(/\.[^.]+$/, ".json")}`;
 
   link.click();
 };

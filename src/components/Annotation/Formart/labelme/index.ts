@@ -171,7 +171,8 @@ export const convert = (
 };
 export const exportAnnotation = (
   annotationImagesProperty: AnnotationImagesProperty,
-  drawObjectById: Record<string, DrawObject>
+  drawObjectById: Record<string, DrawObject>,
+  imageName: string | null
 ) => {
   const shapes: Shape[] = convert(drawObjectById);
   const { image } = annotationImagesProperty;
@@ -187,7 +188,9 @@ export const exportAnnotation = (
     )}`;
     const link = document.createElement("a");
     link.href = jsonString;
-    link.download = "data.json";
+    link.download = imageName
+      ? `${imageName.replace(/\.[^.]+$/, ".json")}`
+      : "data.json";
 
     link.click();
   };

@@ -164,19 +164,23 @@ function ControlPanel() {
   const handleExportLabelMe = () => {
     const drawObjectToExport = getDrawObjectToExport();
     if (currentAnnotationFile && drawObjectToExport) {
-      exportAnnotationLabelMe(currentAnnotationFile, drawObjectToExport);
+      exportAnnotationLabelMe(
+        currentAnnotationFile,
+        drawObjectToExport,
+        currentPreviewImageName
+      );
     }
   };
   const handleExportScaleAI = () => {
     const drawObjectToExport = getDrawObjectToExport();
     if (drawObjectToExport) {
-      exportAnnotationScaleAI(drawObjectToExport);
+      exportAnnotationScaleAI(drawObjectToExport, currentPreviewImageName);
     }
   };
   const handleExportLabelBox = () => {
     const drawObjectToExport = getDrawObjectToExport();
     if (drawObjectToExport) {
-      exportAnnotationLabelBox(drawObjectToExport);
+      exportAnnotationLabelBox(drawObjectToExport, currentPreviewImageName);
     }
   };
   const handleExportDaita = () => {
