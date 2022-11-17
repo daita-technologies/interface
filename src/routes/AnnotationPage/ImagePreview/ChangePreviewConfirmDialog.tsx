@@ -73,7 +73,7 @@ function ChangePreviewConfirmDialog({
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
+      <DialogTitle id="alert-dialog-title">NOTIFICATION</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
           <Box lineHeight={1.5}>
