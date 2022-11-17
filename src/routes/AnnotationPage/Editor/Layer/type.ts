@@ -1,4 +1,4 @@
 export interface DrawLayerProps {
-  width: number;
-  height: number;
+  paddingLeft: number;
+  paddingTop: number;
 }

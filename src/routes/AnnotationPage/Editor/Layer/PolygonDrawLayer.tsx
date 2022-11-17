@@ -7,6 +7,7 @@ import {
   CORNER_RADIUS,
   STROKE_WIDTH_LINE,
 } from "components/Annotation/Editor/const";
+import { createPolygon } from "components/Annotation/Editor/Shape/Polygon";
 import { CssStyle, PolygonSpec } from "components/Annotation/Editor/type";
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
@@ -16,17 +17,21 @@ import {
   createDrawObject,
 } from "reduxes/annotation/action";
 import {
-  selectorCurrentDrawState,
   selectorCurrentDrawType,
   selectorKeyDownInEditor,
-  selectorMouseDownOutLayerPosition,
 } from "reduxes/annotation/selector";
 import { DrawState, DrawType } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
-import { createPolygon } from "components/Annotation/Editor/Shape/Polygon";
+import { DrawLayerProps } from "./type";
+import { adjustPosition } from "./utils";
+import { FULL_PADDING_VALUE } from "routes/AnnotationPage/constants";
 
-function PolygonDrawLayer() {
+function PolygonDrawLayer({
+  drawLayerProps: { paddingLeft, paddingTop },
+}: {
+  drawLayerProps: DrawLayerProps;
+}) {
   const dispatch = useDispatch();
   const isLineStrip =
     useSelector(selectorCurrentDrawType) === DrawType.LINE_STRIP;
@@ -43,9 +48,6 @@ function PolygonDrawLayer() {
   const layer = useRef<Konva.Layer | null>(null);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const keyDownInEditor = useSelector(selectorKeyDownInEditor);
-  const mouseDownOutLayerPosition = useSelector(
-    selectorMouseDownOutLayerPosition
-  );
   const resetDraw = () => {
     setPoints([]);
     setIsFinished(false);
@@ -56,15 +58,13 @@ function PolygonDrawLayer() {
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
     if (!position) return;
-    // console.log("position", position);
-    if (position.x < 0) {
-      position.x = 0;
-    }
-    if (position.y < 0) {
-      position.y = 0;
-    }
-    // console.log("set position", position);
-    setMousePosition(position);
+    setMousePosition(
+      adjustPosition(
+        position,
+        currentAnnotationFile?.width,
+        currentAnnotationFile?.height
+      )
+    );
   };
   const handleMouseDownPoint = (e: KonvaEventObject<DragEvent>) => {
     if (mouseOverPoint) {
@@ -98,7 +98,7 @@ function PolygonDrawLayer() {
     e: KonvaEventObject<DragEvent>
   ) => {
     if (isFinished || points.length < 2) return;
-    e.target.scale({ x: 2, y: 2 });
+    e.target.scale({ x: 3, y: 3 });
     setMouseOverPoint(true);
   };
   const handleMouseOutStartPointWhenFinished = (
@@ -124,36 +124,23 @@ function PolygonDrawLayer() {
       const x = point.x - CORNER_RADIUS / 2;
       const y = point.y - CORNER_RADIUS / 2;
       let startPointAttr;
-      if (isLineStrip === true) {
-        startPointAttr =
-          index === points.length - 1
-            ? {
-                hitStrokeWidth: 12,
-                onMouseOver: handleMouseOverStartPointLineStrip,
-                onMouseOut: handleMouseOutStartPoint,
-                onMouseDown: handleMouseDownPoint,
-              }
-            : {
-                onMouseOver: handleMouseOverStartPointWhenFinished,
-                onMouseOut: handleMouseOutStartPointWhenFinished,
-              };
-      } else {
-        startPointAttr =
-          index === 0 && !isFinished
-            ? {
-                hitStrokeWidth: 12,
-                onMouseOver: handleMouseOverStartPoint,
-                onMouseOut: handleMouseOutStartPoint,
-                onMouseDown: handleMouseDownPoint,
-              }
-            : {
-                onMouseOver: handleMouseOverStartPointWhenFinished,
-                onMouseOut: handleMouseOutStartPointWhenFinished,
-              };
-      }
+      startPointAttr =
+        (isLineStrip === true && index === points.length - 1) ||
+        (isLineStrip !== true && index === 0 && !isFinished)
+          ? {
+              hitStrokeWidth: 12,
+              onMouseOver: handleMouseOverStartPointLineStrip,
+              onMouseOut: handleMouseOutStartPoint,
+              onMouseDown: handleMouseDownPoint,
+            }
+          : {
+              onMouseOver: handleMouseOverStartPointWhenFinished,
+              onMouseOut: handleMouseOutStartPointWhenFinished,
+            };
 
       return (
         <Circle
+          key={index}
           x={x}
           y={y}
           radius={CORNER_RADIUS * 1.5}
@@ -163,6 +150,7 @@ function PolygonDrawLayer() {
       );
     });
   const mousedownHandler = (e?: KonvaEventObject<MouseEvent>) => {
+    console.log("mousedownHandler");
     if (mousePosition) {
       setPoints([...points, mousePosition]);
       dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
@@ -190,16 +178,17 @@ function PolygonDrawLayer() {
   };
   const renderDummyRect = () => {
     if (currentAnnotationFile) {
-      const { width, height } = currentAnnotationFile;
-      return <Rect width={width} height={height} />;
+      return (
+        <Rect
+          x={-FULL_PADDING_VALUE}
+          y={-FULL_PADDING_VALUE}
+          width={2 * currentAnnotationFile.width}
+          height={2 * currentAnnotationFile.height}
+        />
+      );
     }
     return null;
   };
-  useEffect(() => {
-    if (mouseDownOutLayerPosition) {
-      mousedownHandler();
-    }
-  }, [mouseDownOutLayerPosition]);
   useEffect(() => {
     const flatPoints: number[] = points
       .concat(isFinished || !mousePosition ? [] : mousePosition)
@@ -214,6 +203,8 @@ function PolygonDrawLayer() {
   return (
     <Layer
       ref={layer}
+      x={paddingLeft}
+      y={paddingTop}
       onMouseMove={mousemoveHandler}
       onMouseOut={handleMouseOut}
       onMouseDown={mousedownHandler}

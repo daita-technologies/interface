@@ -10,7 +10,9 @@ import { Group, Layer, Rect, Stage, Text } from "react-konva";
 import { CircularProgress } from "@mui/material";
 import { Ellipse, Polygon, Rectangle } from "components/Annotation";
 import {
+  MAX_HEIGHT_EDITOR,
   MAX_HEIGHT_IMAGE_IN_EDITOR,
+  MAX_WIDTH_EDITOR,
   MAX_WIDTH_IMAGE_IN_EDITOR,
 } from "components/Annotation/Editor/const";
 import Konva from "konva";
@@ -29,8 +31,6 @@ import {
   redoDrawObject,
   setIsDraggingViewpor,
   setKeyDownInEditor,
-  setMouseDownOutLayerPosition,
-  setMouseUpOutLayerPosition,
   setSelectedShape,
   undoDrawObject,
 } from "reduxes/annotation/action";
@@ -54,6 +54,7 @@ import {
 } from "../constants";
 import BaseImage from "./BaseImage";
 import DrawLayer from "./Layer/DrawLayer";
+import { Vector2d } from "konva/lib/types";
 
 const TOOLTIP_WIDTH = 200;
 const TOOLTIP_HEIGHT = 40;
@@ -328,20 +329,16 @@ function Editor() {
     }
     return handleMouseDown;
   }, [currentDrawState, currentDrawType]);
-  const handleMouseDownOutLayer = (event: React.MouseEvent<HTMLElement>) => {
-    dispatch(
-      setMouseDownOutLayerPosition({
-        position: { x: event.clientX, y: event.clientY },
-      })
-    );
-  };
-  const handleMouseUpOutLayer = (event: React.MouseEvent<HTMLElement>) => {
-    dispatch(
-      setMouseUpOutLayerPosition({
-        position: { x: event.clientX, y: event.clientY },
-      })
-    );
-  };
+
+  const paddingStage = useMemo(() => {
+    if (stageProps) {
+      return {
+        paddingLeft: MAX_WIDTH_EDITOR - stageProps.width,
+        paddingTop: MAX_HEIGHT_EDITOR - stageProps.height,
+      };
+    }
+    return { paddingLeft: 0, paddingTop: 0 };
+  }, [currentAnnotationFile]);
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -357,8 +354,6 @@ function Editor() {
         onKeyDown={keyDownHandler}
         onKeyUp={keyUpHandler}
         onMouseOver={mouseOverBoundDivHandler}
-        onMouseDown={handleMouseDownOutLayer}
-        onMouseUp={handleMouseUpOutLayer}
         id="annotation-editor-bound"
         width="100%"
         height="100%"
@@ -376,19 +371,22 @@ function Editor() {
                 ref={stageRef}
                 scaleX={stageProps ? stageProps.scaleX : 1}
                 scaleY={stageProps ? stageProps.scaleY : 1}
-                width={
-                  stageProps ? stageProps.width : MAX_WIDTH_IMAGE_IN_EDITOR
-                }
-                height={
-                  stageProps ? stageProps.height : MAX_HEIGHT_IMAGE_IN_EDITOR
-                }
+                width={MAX_WIDTH_EDITOR}
+                height={MAX_HEIGHT_EDITOR}
                 onWheel={wheelHandler}
                 onClick={selectHandleMouseDown}
                 draggable={isDraggingViewport}
               >
                 <Provider store={store}>
-                  <DrawLayer />
-                  <Layer ref={layer}>
+                  <DrawLayer
+                    paddingLeft={paddingStage.paddingLeft}
+                    paddingTop={paddingStage.paddingTop}
+                  />
+                  <Layer
+                    ref={layer}
+                    x={paddingStage.paddingLeft}
+                    y={paddingStage.paddingTop}
+                  >
                     <BaseImage />
                     <Group
                       ref={group}

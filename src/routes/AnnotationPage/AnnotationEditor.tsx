@@ -1,4 +1,8 @@
 import { Box, CircularProgress } from "@mui/material";
+import {
+  MAX_HEIGHT_EDITOR,
+  MAX_WIDTH_EDITOR,
+} from "components/Annotation/Editor/const";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -58,8 +62,10 @@ const AnnotationEditor = function () {
             </Box>
             <Box
               sx={{ backgroundColor: "#101c2d" }}
-              flexBasis="70%"
-              padding="2px"
+              // flexBasis="70%"
+              width={MAX_WIDTH_EDITOR}
+              height={MAX_HEIGHT_EDITOR}
+              margin="2px"
             >
               <Editor />
             </Box>

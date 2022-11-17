@@ -18,8 +18,6 @@ import {
   SET_IS_DRAGGING_VIEW_PORT,
   SET_KEY_DOWN_IN_EDITOR,
   SET_LOCK_DRAW_OBJECT,
-  SET_MOUSE_DOWN_OUT_LAYER_POSITION,
-  SET_MOUSE_UP_OUT_LAYER_POSITION,
   SET_SELECT_SHAPE,
   SHOW_ALL_DRAW_OBJECTS_BY_AI,
   SHOW_DRAW_OBJECTS_BY_AI,
@@ -46,7 +44,6 @@ import {
   SetKeyDownPayload,
   SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
-  SetMouseOutLayerPosition,
   SetSelectShapePayload,
   ShowDrawObjectStateIdByAIPayload,
   StateHistory,
@@ -104,8 +101,6 @@ const inititalState: AnnotationReducer = {
   isDraggingViewport: false,
   drawObjectStateIdByAI: {},
   keyDownInEditor: null,
-  mouseUpOutLayerPosition: null,
-  mouseDownOutLayerPosition: null,
 };
 const updateStateHistory = (
   drawObjectById: Record<string, DrawObject>,
@@ -370,12 +365,9 @@ const annotationReducer = (
       };
     }
     case SET_DETECTED_AREA: {
-      const { detectedArea, scale } = payload as SetLockDetectedAreaPayload;
+      const { detectedArea } = payload as SetLockDetectedAreaPayload;
       const newDrawObjectStateIdByAI = { ...state.drawObjectStateIdByAI };
       if (detectedArea) {
-        const scaleX = 1 / scale.x;
-        const scaleY = 1 / scale.y;
-
         Object.keys(state.drawObjectStateIdByAI).forEach((drawObjectId) => {
           const drawObject = state.drawObjectById[drawObjectId];
           if (drawObject) {
@@ -384,10 +376,10 @@ const annotationReducer = (
               const { points } = data as PolygonSpec;
               const isInvalid = points.some(
                 (point) =>
-                  point.x < detectedArea.x * scaleX ||
-                  point.y < detectedArea.y * scaleY ||
-                  point.x > (detectedArea.x + detectedArea.width) * scaleX ||
-                  point.y > (detectedArea.y + detectedArea.height) * scaleY
+                  point.x < detectedArea.x ||
+                  point.y < detectedArea.y ||
+                  point.x > detectedArea.x + detectedArea.width ||
+                  point.y > detectedArea.y + detectedArea.height
               );
               if (!isInvalid) {
                 delete newDrawObjectStateIdByAI[drawObjectId];
@@ -460,20 +452,6 @@ const annotationReducer = (
     case SET_KEY_DOWN_IN_EDITOR: {
       const { keyDownInEditor } = payload as SetKeyDownPayload;
       return { ...state, keyDownInEditor };
-    }
-    case SET_MOUSE_UP_OUT_LAYER_POSITION: {
-      const { position } = payload as SetMouseOutLayerPosition;
-      return {
-        ...state,
-        mouseUpOutLayerPosition: position,
-      };
-    }
-    case SET_MOUSE_DOWN_OUT_LAYER_POSITION: {
-      const { position } = payload as SetMouseOutLayerPosition;
-      return {
-        ...state,
-        mouseDownOutLayerPosition: position,
-      };
     }
     case SAVE_REMOTE_NEW_CLASS_LABEL.SUCCEEDED: {
       const history = state.statehHistory;
