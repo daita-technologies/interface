@@ -150,7 +150,6 @@ function PolygonDrawLayer({
       );
     });
   const mousedownHandler = (e?: KonvaEventObject<MouseEvent>) => {
-    console.log("mousedownHandler");
     if (mousePosition) {
       setPoints([...points, mousePosition]);
       dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
