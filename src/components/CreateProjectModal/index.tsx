@@ -26,6 +26,7 @@ import {
   EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE,
   ID_TOKEN_NAME,
   MAX_DATASET_IMAGES_CREATE_PROJECT,
+  MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH,
   MIN_DATASET_IMAGES_CREATE_PROJECT,
   TOKEN_NAME,
   // MAX_ALLOW_UPLOAD_IMAGES,
@@ -312,8 +313,8 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
             {...register("description", {
               required: false,
               maxLength: {
-                value: 75,
-                message: `Your project description cannot exceed 75 characters.`,
+                value: MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH,
+                message: `Your project description cannot exceed ${MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH} characters.`,
               },
             })}
             error={!!errors.description}

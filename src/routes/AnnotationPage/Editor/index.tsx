@@ -183,16 +183,20 @@ function Editor() {
     }
   };
   const keyDownHandler = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.ctrlKey && e.shiftKey && e.key === "Z") {
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      e.shiftKey &&
+      (e.key === "Z" || e.key === "z")
+    ) {
       dispatch(redoDrawObject());
-    } else if (e.ctrlKey && e.key === "z") {
+    } else if ((e.ctrlKey || e.metaKey) && e.key === "z") {
       dispatch(undoDrawObject());
     } else if (e.key === " ") {
       setKeyDown(e.key);
       if (currentDrawState !== DrawState.ZOOMDRAGGING) {
         dispatch(changeCurrentDrawState({ drawState: DrawState.ZOOMDRAGGING }));
       }
-    } else if (e.key === "Delete") {
+    } else if (e.key === "Delete" || e.key === "Backspace") {
       if (selectedDrawObjectId) {
         dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
         if (toolTipLayer.current?.attrs.id === selectedDrawObjectId) {
