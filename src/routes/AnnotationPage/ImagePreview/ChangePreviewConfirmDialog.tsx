@@ -88,14 +88,20 @@ function ChangePreviewConfirmDialog({
           variant="contained"
           color="primary"
           endIcon={<SaveIcon />}
-          sx={{ mr: 2, backgroundColor: "#888c94c4 !important", width: 100 }}
+          sx={{ mr: 2, width: 100 }}
         >
           Save
         </LoadingButton>
         <Button onClick={handleDontSave} sx={{ mr: 2 }}>
-          Don't Save
+          <Typography color="text.primary" fontSize={14} fontWeight="medium">
+            Don't Save
+          </Typography>
         </Button>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>
+          <Typography color="text.primary" fontSize={14} fontWeight="medium">
+            Cancel
+          </Typography>
+        </Button>
       </DialogActions>
     </Dialog>
   );
