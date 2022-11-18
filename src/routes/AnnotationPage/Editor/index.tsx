@@ -7,7 +7,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Layer, Rect, Stage, Text } from "react-konva";
 
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import { Ellipse, Polygon, Rectangle } from "components/Annotation";
 import {
   MAX_HEIGHT_IMAGE_IN_EDITOR,
@@ -345,8 +345,21 @@ function Editor() {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <Box display="flex" justifyContent="center" alignSelf="center">
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+        >
           <CircularProgress size={24} />
+          <Typography
+            mt={1}
+            color="text.secondary"
+            variant="body2"
+            fontStyle="italic"
+          >
+            Fetching image and segmentation information...
+          </Typography>
         </Box>
       );
     }

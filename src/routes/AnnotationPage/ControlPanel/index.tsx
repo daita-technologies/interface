@@ -378,7 +378,7 @@ function ControlPanel() {
                 setImportType("DAITA");
               }}
             >
-              <ListItemText primary="Daita" />
+              <ListItemText primary="DAITA" />
             </ListItemButton>
           </ListItem>
         </List>
@@ -404,7 +404,7 @@ function ControlPanel() {
           </ListItem>
           <ListItem disablePadding onClick={handleExportDaita}>
             <ListItemButton>
-              <ListItemText primary="Daita" />
+              <ListItemText primary="DAITA" />
             </ListItemButton>
           </ListItem>
         </List>

@@ -1,5 +1,5 @@
 import AddIcon from "@mui/icons-material/Add";
-import { Button, CircularProgress } from "@mui/material";
+import { Button, CircularProgress, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { CSSProperties, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -54,8 +54,22 @@ function LabelAnnotation() {
   const renderList = () => {
     if (issFetchingImageData) {
       return (
-        <Box display="flex" justifyContent="center" height={640}>
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          height={640}
+        >
           <CircularProgress size={20} />
+          <Typography
+            mt={1}
+            color="text.secondary"
+            variant="body2"
+            fontStyle="italic"
+          >
+            Fetching labels information...
+          </Typography>
         </Box>
       );
     }

@@ -362,8 +362,7 @@ const UserInfoForm = function ({
         >
           <MyButton
             sx={{
-              mt: 3,
-              mb: 2,
+              mt: 2,
             }}
             fullWidth
             variant="contained"
