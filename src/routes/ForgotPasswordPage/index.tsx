@@ -149,7 +149,7 @@ const ForgotPasswordPage = function () {
       </Helmet>
       <Container
         sx={{
-          mt: 4,
+          my: 4,
           backgroundColor: "common.white",
           color: "common.black",
           pt: 2,
@@ -359,7 +359,7 @@ const ForgotPasswordPage = function () {
                     register={register}
                   />
                 )}
-                <Box textAlign="center" mt={2}>
+                <Box textAlign="center" mt={3}>
                   <MyButton
                     type="submit"
                     color="primary"

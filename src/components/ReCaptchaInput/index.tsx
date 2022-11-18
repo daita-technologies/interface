@@ -37,6 +37,7 @@ const ReCaptchaInput = function ({
             ref={recaptchaRef}
             sitekey={RECAPTCHA_SITE_KEY}
             size="invisible"
+            badge="inline"
           />
           {/* NOTE: We use invisible recaptcha is auto generate when submitted, therefore no need show required message */}
           {error && error.message !== REQUIRE_RECAPTCHA_ERROR_MESSAGE && (

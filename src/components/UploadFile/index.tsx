@@ -460,7 +460,7 @@ const UploadFile = function (props: UploadFileProps) {
               border: "1px dashed",
               borderColor: isDragActive ? "primary.main" : "text.secondary",
               borderWidth: isDragActive ? 2 : 1,
-              cursor: "pointer",
+              cursor: isDisabledUpload ? "not-allowed" : "pointer",
               borderRadius: "6px",
             }}
             display="flex"

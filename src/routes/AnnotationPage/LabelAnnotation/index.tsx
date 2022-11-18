@@ -1,5 +1,5 @@
 import AddIcon from "@mui/icons-material/Add";
-import { Button, CircularProgress } from "@mui/material";
+import { Button, CircularProgress, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { MAX_HEIGHT_EDITOR } from "components/Annotation/Editor/const";
 import { CSSProperties, useMemo } from "react";
@@ -59,8 +59,18 @@ function LabelAnnotation() {
           display="flex"
           justifyContent="center"
           height={MAX_HEIGHT_EDITOR - TITLE_HEIGHT}
+          flexDirection="column"
+          alignItems="center"
         >
           <CircularProgress size={20} />
+          <Typography
+            mt={1}
+            color="text.secondary"
+            variant="body2"
+            fontStyle="italic"
+          >
+            Fetching labels information...
+          </Typography>
         </Box>
       );
     }
