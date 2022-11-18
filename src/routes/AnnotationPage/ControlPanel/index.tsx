@@ -90,6 +90,8 @@ import {
   intToRGB,
 } from "../LabelAnnotation/ClassManageModal/useListClassView";
 
+const IS_MAC_PLATFORM = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+
 function ControlPanel() {
   const history = useHistory();
   const dispatch = useDispatch();
@@ -594,7 +596,7 @@ function ControlPanel() {
         sx={{ border: "1px dashed grey" }}
         justifyContent="space-evenly"
       >
-        <Tooltip title="Ctrl+Z">
+        <Tooltip title={`Undo (${IS_MAC_PLATFORM ? "⌘" : "Ctrl"}+Z)`}>
           <span>
             <IconButton
               onClick={handleUndoDrawObject}
@@ -604,7 +606,7 @@ function ControlPanel() {
             </IconButton>
           </span>
         </Tooltip>
-        <Tooltip title="Ctrl+Shift+Z">
+        <Tooltip title={`Redo (${IS_MAC_PLATFORM ? "⌘" : "Ctrl"}+Shift+Z)`}>
           <span>
             <IconButton
               onClick={handleRedoDrawObject}
