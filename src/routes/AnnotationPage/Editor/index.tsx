@@ -192,7 +192,7 @@ function Editor() {
       if (currentDrawState !== DrawState.ZOOMDRAGGING) {
         dispatch(changeCurrentDrawState({ drawState: DrawState.ZOOMDRAGGING }));
       }
-    } else if (e.key === "Delete") {
+    } else if (e.key === "Delete" || e.key === "Backspace") {
       if (selectedDrawObjectId) {
         dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
         if (toolTipLayer.current?.attrs.id === selectedDrawObjectId) {
