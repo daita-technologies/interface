@@ -141,7 +141,7 @@ function ImagePreview() {
             overflow: "auto",
             display: "flex",
             flexDirection: "row",
-            padding: 0,
+            py: 2,
           }}
         >
           {currentAnnotationFiles.items.map((item) => (

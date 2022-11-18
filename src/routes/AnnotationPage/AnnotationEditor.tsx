@@ -53,8 +53,8 @@ const AnnotationEditor = function () {
       currentAnnotationFiles.projectId === annotationCurrentProject.project_id
     ) {
       return (
-        <Box display="flex" sx={{ height: "100vh" }} flexDirection="column">
-          <Box display="flex" height="85vh">
+        <Box display="flex" flexDirection="column">
+          <Box display="flex">
             <Box flexBasis="10%" sx={{ overflowY: "auto", minWidth: "240px" }}>
               <Box sx={{ padding: 3 }}>
                 <ControlPanel />
@@ -77,7 +77,6 @@ const AnnotationEditor = function () {
           <Box
             display="flex"
             gap={2}
-            height={MAX_HEIGHT_EDITOR}
             sx={{ padding: 1, backgroundColor: "#2a3648" }}
           >
             <ImagePreview />
