@@ -38,6 +38,7 @@ import {
   importAnnotationScaleAI,
   importFileAnnotationDaita,
 } from "components/Annotation/Formart";
+import TooltipToggleButton from "components/TooltipToggleButton";
 import * as React from "react";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
@@ -77,9 +78,11 @@ import {
 import { selectorAnnotationCurrentProjectName } from "reduxes/annotationProject/selector";
 import {
   DRAW_ELLIPSE_SHORT_KEY,
+  DRAW_SEGMENTATION_SHORT_KEY,
   DRAW_POLYGON_SHORT_KEY,
   DRAW_RECTANGLE_SHORT_KEY,
   SELECT_SHORT_KEY,
+  DRAW_LINE_SHORT_KEY,
 } from "../constants";
 import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
 import {
@@ -162,19 +165,23 @@ function ControlPanel() {
   const handleExportLabelMe = () => {
     const drawObjectToExport = getDrawObjectToExport();
     if (currentAnnotationFile && drawObjectToExport) {
-      exportAnnotationLabelMe(currentAnnotationFile, drawObjectToExport);
+      exportAnnotationLabelMe(
+        currentAnnotationFile,
+        drawObjectToExport,
+        currentPreviewImageName
+      );
     }
   };
   const handleExportScaleAI = () => {
     const drawObjectToExport = getDrawObjectToExport();
     if (drawObjectToExport) {
-      exportAnnotationScaleAI(drawObjectToExport);
+      exportAnnotationScaleAI(drawObjectToExport, currentPreviewImageName);
     }
   };
   const handleExportLabelBox = () => {
     const drawObjectToExport = getDrawObjectToExport();
     if (drawObjectToExport) {
-      exportAnnotationLabelBox(drawObjectToExport);
+      exportAnnotationLabelBox(drawObjectToExport, currentPreviewImageName);
     }
   };
   const handleExportDaita = () => {
@@ -469,16 +476,15 @@ function ControlPanel() {
         sx={{ border: "1px dashed grey" }}
         onChange={handleSelectDrawState}
       >
-        <ToggleButton
+        <TooltipToggleButton
+          TooltipProps={{ title: `Select (${SELECT_SHORT_KEY})` }}
           value={DrawState.SELECTING}
           className="annotationBtn"
           selected={isSelected}
           aria-label="selecting"
         >
-          <Tooltip title={`Select (${SELECT_SHORT_KEY})`}>
-            <NearMeIcon />
-          </Tooltip>
-        </ToggleButton>
+          <NearMeIcon />
+        </TooltipToggleButton>
       </ToggleButtonGroup>
       <ToggleButtonGroup
         value={currentDrawType}
@@ -489,42 +495,39 @@ function ControlPanel() {
         size="large"
         sx={{ border: "1px dashed grey" }}
       >
-        <ToggleButton
+        <TooltipToggleButton
+          TooltipProps={{ title: `Rectangle (${DRAW_RECTANGLE_SHORT_KEY})` }}
           className="annotationBtn"
           value={DrawType.RECTANGLE}
           aria-label="Rectangle"
         >
-          <Tooltip title={`Rctangle (${DRAW_RECTANGLE_SHORT_KEY})`}>
-            <Crop32Icon />
-          </Tooltip>
-        </ToggleButton>
-        <ToggleButton
+          <Crop32Icon />
+        </TooltipToggleButton>
+        <TooltipToggleButton
+          TooltipProps={{ title: `Polygon (${DRAW_POLYGON_SHORT_KEY})` }}
           className="annotationBtn"
           value={DrawType.POLYGON}
           aria-label="Polygon"
         >
-          <Tooltip title={`Polygon (${DRAW_POLYGON_SHORT_KEY})`}>
-            <HexagonIcon />
-          </Tooltip>
-        </ToggleButton>
-        <ToggleButton
+          <HexagonIcon />
+        </TooltipToggleButton>
+
+        <TooltipToggleButton
+          TooltipProps={{ title: `Ellipse (${DRAW_ELLIPSE_SHORT_KEY})` }}
           className="annotationBtn"
           value={DrawType.ELLIPSE}
           aria-label="ellipse"
         >
-          <Tooltip title={`Ellipse (${DRAW_ELLIPSE_SHORT_KEY})`}>
-            <PanoramaFishEyeIcon />
-          </Tooltip>
-        </ToggleButton>
-        <ToggleButton
+          <PanoramaFishEyeIcon />
+        </TooltipToggleButton>
+        <TooltipToggleButton
+          TooltipProps={{ title: `Line (${DRAW_LINE_SHORT_KEY})` }}
           className="annotationBtn"
           value={DrawType.LINE_STRIP}
           aria-label="line"
         >
-          <Tooltip title={`Line (${DRAW_ELLIPSE_SHORT_KEY})`}>
-            <PolylineIcon />
-          </Tooltip>
-        </ToggleButton>
+          <PolylineIcon />
+        </TooltipToggleButton>
       </ToggleButtonGroup>
       <Box
         display="flex"
@@ -540,7 +543,7 @@ function ControlPanel() {
           <Tooltip
             title={
               isAIDetectAvailable
-                ? "AI Detection"
+                ? `AI Detection (${DRAW_SEGMENTATION_SHORT_KEY})`
                 : "Don't have any detected object by AI"
             }
           >
@@ -556,7 +559,14 @@ function ControlPanel() {
                 }
               >
                 <IconButton
-                  sx={{ p: 0 }}
+                  sx={{
+                    border: "2px solid !important",
+                    borderColor:
+                      currentDrawType === DrawType.DETECTED_RECTANGLE
+                        ? "#d7d7db !important"
+                        : "",
+                    borderRadius: "4px",
+                  }}
                   onClick={(e) =>
                     selectModeHandle(e, DrawType.DETECTED_RECTANGLE)
                   }

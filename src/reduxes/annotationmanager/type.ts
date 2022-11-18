@@ -44,9 +44,6 @@ export interface EditClassLabelProps {
   label: string;
   labelClassProperties: LabelClassProperties;
 }
-export interface EditClassManageModalProps {
-  className: string;
-}
 export interface FetchingFileAndAnnotaitonProps {
   filename: string;
   fileId: string;

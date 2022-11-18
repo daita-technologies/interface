@@ -11,30 +11,55 @@ import {
   changeCurrentDrawState,
   createDrawObject,
 } from "reduxes/annotation/action";
-import { selectorMouseUpOutLayerPosition } from "reduxes/annotation/selector";
 import { DrawState, DrawType } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import { FULL_PADDING_VALUE } from "routes/AnnotationPage/constants";
+import { DrawLayerProps } from "./type";
+import { adjustPosition } from "./utils";
 
-function EllipseDrawLayer() {
+function EllipseDrawLayer({
+  drawLayerProps: { paddingLeft, paddingTop },
+}: {
+  drawLayerProps: DrawLayerProps;
+}) {
   const dispatch = useDispatch();
   const [startPoint, setStartPoint] = useState<Vector2d | null>(null);
   const [endPoint, setEndPoint] = useState<Vector2d | null>(null);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
-  const mouseUpOutLayerPosition = useSelector(selectorMouseUpOutLayerPosition);
 
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
     if (!position || !startPoint) return;
-    setEndPoint({ ...position });
+    setEndPoint({
+      ...adjustPosition(
+        position,
+        currentAnnotationFile?.width,
+        currentAnnotationFile?.height
+      ),
+    });
   };
-
+  const resetDraw = () => {
+    setStartPoint(null);
+    setEndPoint(null);
+    dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+  };
   const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
     if (!position) return;
-    setStartPoint({ ...position });
-    dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
-    e.evt.preventDefault();
-    e.evt.stopPropagation();
+    const newPosition = adjustPosition(
+      position,
+      currentAnnotationFile?.width,
+      currentAnnotationFile?.height
+    );
+    if (!startPoint) {
+      setStartPoint({ ...newPosition });
+      dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
+      e.evt.preventDefault();
+      e.evt.stopPropagation();
+    } else {
+      setEndPoint(newPosition);
+      handleMouseUp();
+    }
   };
   const layer = useRef<Konva.Layer | null>(null);
   useEffect(() => {
@@ -60,25 +85,28 @@ function EllipseDrawLayer() {
         })
       );
     }
-    setStartPoint(null);
-    setEndPoint(null);
-    dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+    resetDraw();
   };
+
   const renderDummyRect = () => {
     if (currentAnnotationFile) {
-      const { width, height } = currentAnnotationFile;
-      return <Rect width={width} height={height} />;
+      return (
+        <Rect
+          x={-FULL_PADDING_VALUE}
+          y={-FULL_PADDING_VALUE}
+          width={2 * FULL_PADDING_VALUE}
+          height={2 * FULL_PADDING_VALUE}
+        />
+      );
     }
     return null;
   };
-  useEffect(() => {
-    if (mouseUpOutLayerPosition) {
-      handleMouseUp();
-    }
-  }, [mouseUpOutLayerPosition]);
+
   return (
     <Layer
       ref={layer}
+      x={paddingLeft}
+      y={paddingTop}
       onMouseMove={mousemoveHandler}
       onMouseDown={mousedownHandler}
       onMouseUp={handleMouseUp}

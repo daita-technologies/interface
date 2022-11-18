@@ -1,6 +1,7 @@
 import AddIcon from "@mui/icons-material/Add";
 import { Button, CircularProgress, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
+import { MAX_HEIGHT_EDITOR } from "components/Annotation/Editor/const";
 import { CSSProperties, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AutoSizer } from "react-virtualized";
@@ -17,6 +18,7 @@ import {
 import ClassItem from "./ClassItem";
 import ClassManageModel from "./ClassManageModal";
 
+const TITLE_HEIGHT = 70;
 function LabelAnnotation() {
   const dispatch = useDispatch();
   const drawObjectById = useSelector(selectorDrawObjectById);
@@ -50,16 +52,15 @@ function LabelAnnotation() {
     }
     return null;
   }
-
   const renderList = () => {
     if (issFetchingImageData) {
       return (
         <Box
           display="flex"
-          flexDirection="column"
           justifyContent="center"
+          height={MAX_HEIGHT_EDITOR - TITLE_HEIGHT}
+          flexDirection="column"
           alignItems="center"
-          height={640}
         >
           <CircularProgress size={20} />
           <Typography
@@ -74,7 +75,7 @@ function LabelAnnotation() {
       );
     }
     return (
-      <Box sx={{ overflowY: "auto" }} height={640}>
+      <Box sx={{ overflowY: "auto" }} height={MAX_HEIGHT_EDITOR - TITLE_HEIGHT}>
         <AutoSizer>
           {({ height, width }) => (
             <FixedSizeList
@@ -102,7 +103,12 @@ function LabelAnnotation() {
         bgcolor: "background.paper",
       }}
     >
-      <Box style={{ padding: "0px 10px" }} display="flex" gap={1}>
+      <Box
+        style={{ padding: "0px 10px" }}
+        display="flex"
+        gap={1}
+        height={TITLE_HEIGHT}
+      >
         <Box>
           <h3>List Label</h3>
         </Box>

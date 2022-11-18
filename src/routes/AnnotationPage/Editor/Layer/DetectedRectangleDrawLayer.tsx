@@ -8,77 +8,77 @@ import {
   changeCurrentDrawState,
   setDetectedArea,
 } from "reduxes/annotation/action";
-import { selectorMouseUpOutLayerPosition } from "reduxes/annotation/selector";
 import { DetectedAreaType, DrawState } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import { FULL_PADDING_VALUE } from "routes/AnnotationPage/constants";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
+import { DrawLayerProps } from "./type";
+import { adjustPosition } from "./utils";
 
-function DetectedRectangleDrawLayer() {
+function DetectedRectangleDrawLayer({
+  drawLayerProps: { paddingLeft, paddingTop },
+}: {
+  drawLayerProps: DrawLayerProps;
+}) {
   const dispatch = useDispatch();
   const refDetectedArea = useRef<Konva.Rect | null>(null);
   const [localDetectedArea, setLocalDetectedArea] =
     useState<DetectedAreaType | null>(null);
-  const mouseUpOutLayerPosition = useSelector(selectorMouseUpOutLayerPosition);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
 
   const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
-    if (position) {
-      setLocalDetectedArea({
-        x: position.x,
-        y: position.y,
-        width: 3,
-        height: 3,
-      });
-    }
+    const newPosition = adjustPosition(
+      position,
+      currentAnnotationFile?.width,
+      currentAnnotationFile?.height
+    );
+    setLocalDetectedArea({
+      x: newPosition.x,
+      y: newPosition.y,
+      width: 3,
+      height: 3,
+    });
     dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
     e.evt.preventDefault();
     e.evt.stopPropagation();
   };
-
   const updateMousePosition = (position: Vector2d) => {
     if (position && currentAnnotationFile) {
       if (localDetectedArea) {
-        let { x, y } = position;
-        if (x < 0) {
-          x = 0;
-        }
-        if (currentAnnotationFile.width && x > currentAnnotationFile.width) {
-          x = currentAnnotationFile.width;
-        }
-        if (y < 0) {
-          y = 0;
-        }
-        if (currentAnnotationFile.height && y > currentAnnotationFile.height) {
-          y = currentAnnotationFile.height;
-        }
         setLocalDetectedArea({
           ...localDetectedArea,
-          width: x - localDetectedArea.x,
-          height: y - localDetectedArea.y,
+          width: position.x - localDetectedArea.x,
+          height: position.y - localDetectedArea.y,
         });
       }
     }
   };
-  const handleMouseOut = (e: KonvaEventObject<MouseEvent>) => {
-    const position = e.currentTarget.getRelativePointerPosition();
-    updateMousePosition(position);
-  };
+
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
-    updateMousePosition(position);
+    updateMousePosition(
+      adjustPosition(
+        position,
+        currentAnnotationFile?.width,
+        currentAnnotationFile?.height
+      )
+    );
+  };
+  const resetDraw = () => {
+    console.log("reset");
+    setLocalDetectedArea(null);
+    dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
   };
   const mouseupHandler = () => {
     if (localDetectedArea && refDetectedArea.current) {
       dispatch(
         setDetectedArea({
-          detectedArea: { ...refDetectedArea.current.getClientRect() },
-          scale: refDetectedArea.current.getAbsoluteScale(),
+          detectedArea: { ...localDetectedArea },
         })
       );
     }
-    setLocalDetectedArea(null);
-    dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+    resetDraw();
   };
   const layer = useRef<Konva.Layer | null>(null);
   useEffect(() => {
@@ -86,23 +86,26 @@ function DetectedRectangleDrawLayer() {
   }, []);
   const renderDummyRect = () => {
     if (currentAnnotationFile) {
-      const { width, height } = currentAnnotationFile;
-      return <Rect width={width} height={height} />;
+      return (
+        <Rect
+          x={-FULL_PADDING_VALUE}
+          y={-FULL_PADDING_VALUE}
+          width={2 * currentAnnotationFile.width}
+          height={2 * currentAnnotationFile.height}
+        />
+      );
     }
     return null;
   };
-  useEffect(() => {
-    if (mouseUpOutLayerPosition) {
-      mouseupHandler();
-    }
-  }, [mouseUpOutLayerPosition]);
+
   return (
     <Layer
       ref={layer}
+      x={paddingLeft}
+      y={paddingTop}
       onMouseMove={mousemoveHandler}
       onMouseDown={mousedownHandler}
       onMouseUp={mouseupHandler}
-      onMouseOut={handleMouseOut}
     >
       {renderDummyRect()}
       {localDetectedArea && (

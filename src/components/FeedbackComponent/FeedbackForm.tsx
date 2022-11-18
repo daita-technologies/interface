@@ -207,7 +207,7 @@ export const FeedbackForm = function ({
             color="text.secondary"
             display="inline-block"
           >
-            File types supported: JPG, PNG, Max size: 5 MB
+            File types supported: JPG, PNG, Max size: 2 MB
           </Typography>
           <Box mt={1}>
             <UploadZoneWrapper

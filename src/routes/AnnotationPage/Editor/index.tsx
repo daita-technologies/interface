@@ -10,7 +10,9 @@ import { Group, Layer, Rect, Stage, Text } from "react-konva";
 import { CircularProgress, Typography } from "@mui/material";
 import { Ellipse, Polygon, Rectangle } from "components/Annotation";
 import {
+  MAX_HEIGHT_EDITOR,
   MAX_HEIGHT_IMAGE_IN_EDITOR,
+  MAX_WIDTH_EDITOR,
   MAX_WIDTH_IMAGE_IN_EDITOR,
 } from "components/Annotation/Editor/const";
 import Konva from "konva";
@@ -29,8 +31,6 @@ import {
   redoDrawObject,
   setIsDraggingViewpor,
   setKeyDownInEditor,
-  setMouseDownOutLayerPosition,
-  setMouseUpOutLayerPosition,
   setSelectedShape,
   undoDrawObject,
 } from "reduxes/annotation/action";
@@ -43,7 +43,10 @@ import {
   selectorZoom,
 } from "reduxes/annotation/selector";
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
-import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import {
+  selectorCurrentAnnotationFile,
+  selectorIsFetchingImageData,
+} from "reduxes/annotationmanager/selecetor";
 import {
   DRAW_ELLIPSE_SHORT_KEY,
   DRAW_LINE_SHORT_KEY,
@@ -68,6 +71,7 @@ function Editor() {
   const refTextPosition = useRef<Konva.Text | null>(null);
 
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
+  const isFetchingImageData = useSelector(selectorIsFetchingImageData);
   const drawObjectById = useSelector(selectorDrawObjectById);
   const selectedDrawObjectId = useSelector(selectorSelectedDrawObjectId);
   const currentDrawState = useSelector(selectorCurrentDrawState);
@@ -312,11 +316,11 @@ function Editor() {
     }
   }, [zoom]);
   const isLoading = useMemo(() => {
-    if (!currentAnnotationFile) {
+    if (!currentAnnotationFile || isFetchingImageData === true) {
       return true;
     }
     return currentAnnotationFile.image === null;
-  }, [currentAnnotationFile]);
+  }, [currentAnnotationFile, isFetchingImageData]);
   const handleMouseDown = (e: KonvaEventObject<MouseEvent>) => {
     dispatch(setSelectedShape({ selectedDrawObjectId: null }));
     e.evt.preventDefault();
@@ -328,20 +332,18 @@ function Editor() {
     }
     return handleMouseDown;
   }, [currentDrawState, currentDrawType]);
-  const handleMouseDownOutLayer = (event: React.MouseEvent<HTMLElement>) => {
-    dispatch(
-      setMouseDownOutLayerPosition({
-        position: { x: event.clientX, y: event.clientY },
-      })
-    );
-  };
-  const handleMouseUpOutLayer = (event: React.MouseEvent<HTMLElement>) => {
-    dispatch(
-      setMouseUpOutLayerPosition({
-        position: { x: event.clientX, y: event.clientY },
-      })
-    );
-  };
+
+  const paddingStage = useMemo(() => {
+    if (stageProps) {
+      return {
+        paddingLeft:
+          (MAX_WIDTH_EDITOR - stageProps.width) / stageProps.scaleX / 2.0,
+        paddingTop:
+          (MAX_HEIGHT_EDITOR - stageProps.height) / stageProps.scaleY / 2.0,
+      };
+    }
+    return { paddingLeft: 0, paddingTop: 0 };
+  }, [currentAnnotationFile]);
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -370,8 +372,6 @@ function Editor() {
         onKeyDown={keyDownHandler}
         onKeyUp={keyUpHandler}
         onMouseOver={mouseOverBoundDivHandler}
-        onMouseDown={handleMouseDownOutLayer}
-        onMouseUp={handleMouseUpOutLayer}
         id="annotation-editor-bound"
         width="100%"
         height="100%"
@@ -389,19 +389,22 @@ function Editor() {
                 ref={stageRef}
                 scaleX={stageProps ? stageProps.scaleX : 1}
                 scaleY={stageProps ? stageProps.scaleY : 1}
-                width={
-                  stageProps ? stageProps.width : MAX_WIDTH_IMAGE_IN_EDITOR
-                }
-                height={
-                  stageProps ? stageProps.height : MAX_HEIGHT_IMAGE_IN_EDITOR
-                }
+                width={MAX_WIDTH_EDITOR}
+                height={MAX_HEIGHT_EDITOR}
                 onWheel={wheelHandler}
                 onClick={selectHandleMouseDown}
                 draggable={isDraggingViewport}
               >
                 <Provider store={store}>
-                  <DrawLayer />
-                  <Layer ref={layer}>
+                  <DrawLayer
+                    paddingLeft={paddingStage.paddingLeft}
+                    paddingTop={paddingStage.paddingTop}
+                  />
+                  <Layer
+                    ref={layer}
+                    x={paddingStage.paddingLeft}
+                    y={paddingStage.paddingTop}
+                  >
                     <BaseImage />
                     <Group
                       ref={group}

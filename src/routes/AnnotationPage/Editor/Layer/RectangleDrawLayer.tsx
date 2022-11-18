@@ -11,42 +11,31 @@ import {
   changeCurrentDrawState,
   createDrawObject,
 } from "reduxes/annotation/action";
-import { selectorMouseUpOutLayerPosition } from "reduxes/annotation/selector";
 import { DrawState, DrawType } from "reduxes/annotation/type";
 import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import { FULL_PADDING_VALUE } from "routes/AnnotationPage/constants";
+import { DrawLayerProps } from "./type";
+import { adjustPosition } from "./utils";
 
-function RectangleDrawLayer() {
+function RectangleDrawLayer({
+  drawLayerProps: { paddingLeft, paddingTop },
+}: {
+  drawLayerProps: DrawLayerProps;
+}) {
   const dispatch = useDispatch();
   const [startPoint, setStartPoint] = useState<Vector2d | null>(null);
   const [endPoint, setEndPoint] = useState<Vector2d | null>(null);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
-  const mouseUpOutLayerPosition = useSelector(selectorMouseUpOutLayerPosition);
-
-  const updateMousePosition = (position: Vector2d) => {
-    if (!position || !startPoint) return;
-    let { x, y } = position;
-    if (x < 0) {
-      x = 0;
-    }
-    if (
-      currentAnnotationFile?.width &&
-      position.x > currentAnnotationFile?.width
-    ) {
-      x = currentAnnotationFile?.width;
-    }
-    if (y < 0) {
-      y = 0;
-    }
-    if (currentAnnotationFile?.height && y > currentAnnotationFile?.height) {
-      y = currentAnnotationFile?.height;
-    }
-    setEndPoint({ x, y });
-  };
 
   const mousedownHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
     if (!position) return;
-    setStartPoint({ ...position });
+    const newPosition = adjustPosition(
+      position,
+      currentAnnotationFile?.width,
+      currentAnnotationFile?.height
+    );
+    setStartPoint({ ...newPosition });
     dispatch(changeCurrentDrawState({ drawState: DrawState.DRAWING }));
     e.evt.preventDefault();
     e.evt.stopPropagation();
@@ -55,14 +44,17 @@ function RectangleDrawLayer() {
   useEffect(() => {
     layer.current?.moveToTop();
   }, []);
+  const resetDraw = () => {
+    setStartPoint(null);
+    setEndPoint(null);
+    dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+  };
   const handleMouseUp = () => {
     if (startPoint && endPoint) {
-      let rect;
-      if (startPoint.x < endPoint.x) {
-        rect = createRectangle(startPoint);
-      } else {
-        rect = createRectangle(endPoint);
-      }
+      const rect = createRectangle({
+        x: Math.min(startPoint.x, endPoint.x),
+        y: Math.min(startPoint.y, endPoint.y),
+      });
       const spec = rect.data as RectangleSpec;
       dispatch(
         createDrawObject({
@@ -77,43 +69,46 @@ function RectangleDrawLayer() {
         })
       );
     }
-    setStartPoint(null);
-    setEndPoint(null);
-    dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
+    resetDraw();
   };
 
-  const handleMouseOut = (e: KonvaEventObject<MouseEvent>) => {
-    const position = e.currentTarget.getRelativePointerPosition();
-    updateMousePosition(position);
-  };
   const renderDummyRect = () => {
     if (currentAnnotationFile) {
-      const { width, height } = currentAnnotationFile;
-      return <Rect width={width} height={height} />;
+      return (
+        <Rect
+          x={-FULL_PADDING_VALUE}
+          y={-FULL_PADDING_VALUE}
+          width={2 * FULL_PADDING_VALUE}
+          height={2 * FULL_PADDING_VALUE}
+        />
+      );
     }
     return null;
   };
-  useEffect(() => {
-    if (mouseUpOutLayerPosition) {
-      handleMouseUp();
-    }
-  }, [mouseUpOutLayerPosition]);
-
   const mousemoveHandler = (e: KonvaEventObject<MouseEvent>) => {
     const position = e.currentTarget.getRelativePointerPosition();
-    updateMousePosition(position);
+    setEndPoint(
+      adjustPosition(
+        position,
+        currentAnnotationFile?.width,
+        currentAnnotationFile?.height
+      )
+    );
   };
+
   return (
     <Layer
       ref={layer}
+      x={paddingLeft}
+      y={paddingTop}
       onMouseMove={mousemoveHandler}
       onMouseDown={mousedownHandler}
       onMouseUp={handleMouseUp}
-      onMouseOut={handleMouseOut}
     >
       {renderDummyRect()}
       {startPoint && endPoint && (
         <Rect
+          id="1"
           x={startPoint.x}
           y={startPoint.y}
           width={endPoint.x - startPoint.x}
