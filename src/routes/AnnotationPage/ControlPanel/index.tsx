@@ -82,6 +82,7 @@ import {
   DRAW_POLYGON_SHORT_KEY,
   DRAW_RECTANGLE_SHORT_KEY,
   SELECT_SHORT_KEY,
+  DRAW_LINE_SHORT_KEY,
 } from "../constants";
 import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
 import {
@@ -520,7 +521,7 @@ function ControlPanel() {
           <PanoramaFishEyeIcon />
         </TooltipToggleButton>
         <TooltipToggleButton
-          TooltipProps={{ title: `Line (${DRAW_ELLIPSE_SHORT_KEY})` }}
+          TooltipProps={{ title: `Line (${DRAW_LINE_SHORT_KEY})` }}
           className="annotationBtn"
           value={DrawType.LINE_STRIP}
           aria-label="line"
