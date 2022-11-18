@@ -1,4 +1,4 @@
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -80,8 +80,16 @@ const AnnotationEditor = function () {
       );
     }
     return (
-      <Box display="flex" alignItems="center" justifyContent="center" my={2}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        my={2}
+        py={12}
+      >
         <CircularProgress size={20} />
+        <Typography mt={1}>Initializing annotation editor...</Typography>
       </Box>
     );
   };
