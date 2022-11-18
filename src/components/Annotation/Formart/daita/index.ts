@@ -215,7 +215,7 @@ export const exportAnnotation = (
   )}`;
   const link = document.createElement("a");
   link.href = jsonString;
-  link.download = `${imageName.replace(/\.[^.]+$/, "-Daita")}.json`;
+  link.download = `${imageName.replace(/\.[^.]+$/, "-DAITA")}.json`;
 
   link.click();
 };
