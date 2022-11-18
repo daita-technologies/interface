@@ -1,38 +1,39 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
-import {
-  Typography,
-  Box,
-  Avatar,
-  CircularProgress,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-  ListItemText,
-  CardMedia,
-} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CategoryIcon from "@mui/icons-material/Category";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import StorageIcon from "@mui/icons-material/Storage";
-import { formatBytes, separateNumber } from "utils/general";
 import {
-  selectorIsFetchingProjects,
-  selectorListProjects,
-  selectorProjectThumbnail,
-} from "reduxes/project/selector";
-import { SET_IS_OPEN_CREATE_PROJECT_MODAL } from "reduxes/project/constants";
-import {
-  ApiListProjectsItem,
-  SetIsOpenUpdateProjectInfoPayload,
-} from "reduxes/project/type";
+  Avatar,
+  Box,
+  Button,
+  CardMedia,
+  CircularProgress,
+  IconButton,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { setShowDialogCloneProjectToAnnotation } from "reduxes/annotationProject/action";
 import {
   loadProjectThumbnailImage,
   setIsOpenDeleteProject,
   setIsOpenUpdateProjectInfo,
 } from "reduxes/project/action";
+import { SET_IS_OPEN_CREATE_PROJECT_MODAL } from "reduxes/project/constants";
+import {
+  selectorIsFetchingProjects,
+  selectorListProjects,
+  selectorProjectThumbnail,
+} from "reduxes/project/selector";
+import {
+  ApiListProjectsItem,
+  SetIsOpenUpdateProjectInfoPayload,
+} from "reduxes/project/type";
+import { formatBytes, separateNumber } from "utils/general";
 import { ProjectItemProps } from "./type";
 import UpdateProjectInfoDialog from "./UpdateProjectInfoDialog";
 
@@ -69,7 +70,16 @@ const ProjectItemMenu = React.forwardRef<
     dispatch(setIsOpenUpdateProjectInfo(isOpenUpdateProjectInfoPayload));
     event.stopPropagation();
   };
-
+  const handleCloneToAnnotationClick = () => {
+    dispatch(
+      setShowDialogCloneProjectToAnnotation({
+        dialogCloneProjectToAnnotation: {
+          isShow: true,
+          projectName,
+        },
+      })
+    );
+  };
   return (
     <>
       <IconButton className="dot-option-symbol" onClick={handleClick}>
@@ -95,6 +105,9 @@ const ProjectItemMenu = React.forwardRef<
         </MenuItem>
         <MenuItem onClick={handleEditClick}>
           <ListItemText>Edit</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleCloneToAnnotationClick}>
+          <ListItemText>Clone to Annotation</ListItemText>
         </MenuItem>
       </Menu>
     </>
@@ -301,8 +314,23 @@ const ProjectList = function () {
 
   if (isFetchingProjects === null || isFetchingProjects === true) {
     return (
-      <Box display="flex" justifyContent="center" mt={8} mb={2}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        mt={8}
+        mb={2}
+      >
         <CircularProgress size={40} />
+        <Typography
+          mt={1}
+          color="text.secondary"
+          variant="body2"
+          fontStyle="italic"
+        >
+          Fetching projects information...
+        </Typography>
       </Box>
     );
   }

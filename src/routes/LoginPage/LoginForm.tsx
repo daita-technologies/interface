@@ -25,7 +25,7 @@ import {
 } from "constants/defaultValues";
 import { useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { RootState } from "reduxes";
@@ -68,8 +68,23 @@ const LoginForm = function () {
   const isLoginAccountVerified = useSelector(
     (state: RootState) => state.authReducer.isLoginAccountVerified
   );
+
   const onSubmit: SubmitHandler<LoginFormFields> = (data) => {
     dispatch(loginAction(data));
+  };
+
+  const generateReCatpchaToken = async () => {
+    if (recaptchaRef && recaptchaRef.current) {
+      const token = await recaptchaRef.current.executeAsync();
+      setValue("captcha", token || "");
+      onSubmit(getValues());
+    }
+  };
+
+  const onInvalidSubmit: SubmitErrorHandler<LoginFormFields> = (error) => {
+    if (error.captcha && error.captcha.type === "required") {
+      generateReCatpchaToken();
+    }
   };
 
   const handleClickShowPassword = () => {
@@ -148,15 +163,11 @@ const LoginForm = function () {
           variant="square"
           src="/assets/images/logo.png"
         />
-
         <Typography sx={{ mt: 1 }} align="center" component="h1" variant="h5">
-          Welcome
-        </Typography>
-        <Typography sx={{ mt: 1, px: 2 }} align="center" variant="body2">
-          Log in to DAITA Technologies to continue to DAITA's platform.
+          👋 Sign In
         </Typography>
         <Box mt={3}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}>
             <TextField
               variant="outlined"
               required

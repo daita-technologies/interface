@@ -21,6 +21,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { RootState } from "reduxes";
 import { selectorIsDeletingImages } from "reduxes/album/selector";
+import {
+  cloneProjectToAnnotation,
+  setShowDialogCloneProjectToAnnotation,
+} from "reduxes/annotationProject/action";
 import { selectorIsDownloading } from "reduxes/download/selector";
 import { changeActiveGenerateTab } from "reduxes/generate/action";
 import { selectorActiveGenerateTabId } from "reduxes/generate/selector";
@@ -103,7 +107,6 @@ const ProjectDetail = function () {
   useEffect(() => {
     if (
       currentProjectInfo &&
-      currentProjectInfo.is_sample &&
       currentProjectInfo.gen_status === GENERATING_SAMPLE_PROJECT_STATUS
     ) {
       const timer = setTimeout(() => {
@@ -271,32 +274,51 @@ const ProjectDetail = function () {
   const renderDeleteContent = () => {
     if (currentProjectInfo) {
       return (
-        <Box mt={10} display="flex" justifyContent="flex-end">
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={() =>
-              dispatch(
-                setIsOpenDeleteProject({
-                  isOpen: true,
-                  projectId: currentProjectInfo.project_id,
-                  projectName,
-                })
-              )
-            }
-          >
-            Delete Project
-          </Button>
-        </Box>
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() =>
+            dispatch(
+              setIsOpenDeleteProject({
+                isOpen: true,
+                projectId: currentProjectInfo.project_id,
+                projectName,
+              })
+            )
+          }
+        >
+          Delete Project
+        </Button>
       );
     }
     return null;
   };
-
+  const renderCloneToAnnotationContent = () => {
+    if (currentProjectInfo) {
+      return (
+        <Button
+          variant="outlined"
+          color="warning"
+          onClick={() =>
+            dispatch(
+              setShowDialogCloneProjectToAnnotation({
+                dialogCloneProjectToAnnotation: {
+                  isShow: true,
+                  projectName,
+                },
+              })
+            )
+          }
+        >
+          Clone to Annotation
+        </Button>
+      );
+    }
+    return null;
+  };
   const renderProject = () => {
     if (
       currentProjectInfo &&
-      currentProjectInfo.is_sample &&
       currentProjectInfo.gen_status === GENERATING_SAMPLE_PROJECT_STATUS
     ) {
       return (
@@ -334,8 +356,22 @@ const ProjectDetail = function () {
           </Box>
         </Box>
         {isFetchingDetailProject === null || isFetchingDetailProject ? (
-          <Box mt={10} display="flex" justifyContent="center">
+          <Box
+            mt={10}
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+          >
             <CircularProgress size={40} />
+            <Typography
+              mt={1}
+              color="text.secondary"
+              variant="body2"
+              fontStyle="italic"
+            >
+              Fetching project information...
+            </Typography>
           </Box>
         ) : (
           renderUploadFile()
@@ -381,8 +417,10 @@ const ProjectDetail = function () {
             </TabPanel>
           </Box>
         </Box>
-
-        {renderDeleteContent()}
+        <Box mt={10} display="flex" justifyContent="flex-end" gap={2}>
+          {renderCloneToAnnotationContent()}
+          {renderDeleteContent()}
+        </Box>
       </>
     );
   };

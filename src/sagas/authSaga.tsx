@@ -1,5 +1,6 @@
 import {
   ERROR_MESSAGE_ACCOUNT_NOT_VERIFY,
+  LAST_USED_SYSTEM_STORAGE_KEY_NAME,
   LOGOUT_SOCIAL_API,
   TEMP_LOCAL_FULLNAME,
   TEMP_LOCAL_USERNAME,
@@ -77,6 +78,10 @@ function* handleLogin(action: { type: string; payload: LoginPayload }): any {
         yield setLocalStorage(
           TEMP_LOCAL_USERNAME,
           apiName || apiUsername || username
+        );
+        yield setLocalStorage(
+          LAST_USED_SYSTEM_STORAGE_KEY_NAME,
+          new Date().getTime()
         );
 
         yield put({ type: LOGIN.SUCCEEDED, payload: loginResponse.data });

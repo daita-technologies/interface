@@ -6,10 +6,14 @@ import {
   VIEW_ALBUM_PAGE_SIZE,
   uploadZipApiUrl,
   generateApiUrl,
+  ID_TOKEN_NAME,
+  createProjectSampleApiUrl,
 } from "constants/defaultValues";
+import { ApiResponse } from "constants/type";
 import { FetchImagesParams, ImageSourceType } from "reduxes/album/type";
 import { GenerateImagePayload } from "reduxes/generate/type";
 import { UpdateProjectInfoPayload } from "reduxes/project/type";
+import { getLocalStorage } from "utils/general";
 
 export interface UploadUpdateListObjectInfo {
   // NOTE: <bucket>/<identity_id>/<project_id>/<data_name>
@@ -37,6 +41,11 @@ export interface CreateSampleRequestBody {
   accessToken: string;
 }
 
+export interface CreateSampleProjectFromPrebuildRequestBody {
+  idToken: string;
+  name_id_prebuild: string;
+  number_random: string;
+}
 export interface DeleteProjectRequestBody {
   idToken: string;
   projectId: string;
@@ -52,6 +61,12 @@ export interface DeleteImagesRequestBody {
   idToken: string;
   projectId: string;
   listObjectInfo: Array<DeleteObjectInfo>;
+}
+
+export interface GetUploadTokenResponse extends ApiResponse {
+  data: {
+    token: string;
+  };
 }
 
 export const convertToUnderScoreValue = (
@@ -75,8 +90,22 @@ const projectApi = {
     accessToken,
     projectName,
     description,
-  }: CreateProjectFields) =>
-    axios.post(
+    createProjectPreBuild,
+  }: CreateProjectFields) => {
+    if (createProjectPreBuild) {
+      return axios.post(
+        `${createProjectSampleApiUrl}/projects/create_project_from_prebuild`,
+        {
+          id_token: idToken,
+          project_name: projectName,
+          project_info: description,
+          name_id_prebuild: createProjectPreBuild.nameIdPrebuild,
+          number_random: createProjectPreBuild.numberRadom,
+        },
+        { headers: getAuthHeader() }
+      );
+    }
+    return axios.post(
       `${projectApiUrl}/projects/create`,
       {
         id_token: idToken,
@@ -85,7 +114,8 @@ const projectApi = {
         project_info: description,
       },
       { headers: getAuthHeader() }
-    ),
+    );
+  },
   listProjects: ({ idToken }: { idToken: string }) =>
     axios.post(
       `${projectApiUrl}/projects/list_info`,
@@ -188,8 +218,8 @@ const projectApi = {
     processType,
     referenceImages,
     augmentParameters,
-    isNormalizeResolution,
-  }: GenerateImagePayload) => {
+  }: // isNormalizeResolution,
+  GenerateImagePayload) => {
     const payload: any = {
       id_token: idToken,
       project_id: projectId,
@@ -226,6 +256,14 @@ const projectApi = {
         task_id: taskId,
       },
     }),
+  getListPrebuildDataset: ({ idToken }: { idToken?: string }) =>
+    axios.post(
+      `${createProjectSampleApiUrl}/projects/list_prebuild_dataset`,
+      {
+        id_token: idToken || getLocalStorage(ID_TOKEN_NAME) || "",
+      },
+      { headers: getAuthHeader() }
+    ),
   deleteProject: ({
     idToken,
     projectId,
@@ -300,6 +338,24 @@ const projectApi = {
         project_name: projectName,
         type_method: typeMethod,
         file_url: fileUrl,
+      },
+      { headers: getAuthHeader() }
+    ),
+  getUploadToken: ({
+    idToken,
+    projectId,
+    projectName,
+  }: {
+    idToken?: string;
+    projectId: string;
+    projectName: string;
+  }) =>
+    axios.post(
+      `${uploadZipApiUrl}/generate/daita_upload_token`,
+      {
+        id_token: idToken || getLocalStorage(ID_TOKEN_NAME) || "",
+        project_id: projectId,
+        project_name: projectName,
       },
       { headers: getAuthHeader() }
     ),

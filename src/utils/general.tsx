@@ -5,6 +5,7 @@ import {
   AUGMENT_SOURCE,
   COMPRESS_FILE_EXTENSIONS,
   IMAGE_EXTENSIONS,
+  LAST_USED_SYSTEM_STORAGE_KEY_NAME,
   ORIGINAL_IMAGES_TAB,
   ORIGINAL_SOURCE,
   PREPROCESSING_GENERATE_IMAGES_TYPE,
@@ -74,6 +75,7 @@ export const removeListToken = () => {
   );
   removeLocalStorage(TEMP_LOCAL_USERNAME);
   removeLocalStorage(TEMP_LOCAL_FULLNAME);
+  removeLocalStorage(LAST_USED_SYSTEM_STORAGE_KEY_NAME);
 };
 
 export const objectIndexOf = (
@@ -200,17 +202,20 @@ export function readAsArrayBuffer(blob: Blob) {
 
 export const convertArrayAlbumImageToObjectKeyFileName = (
   images: Array<ImageApiFields>,
-  typeMethod: ImageSourceType
+  typeMethod: ImageSourceType,
+  isGetThumbnail: boolean = false
 ): AlbumImagesFields => {
   const albumImageObject: AlbumImagesFields = {};
   images.forEach((image: ImageApiFields) => {
-    let photoKey = image.s3_key.replace(`${S3_BUCKET_NAME}/`, "");
+    let photoKey = isGetThumbnail ? image.thumbnail : image.s3_key;
+    photoKey = photoKey.replace(`${S3_BUCKET_NAME}/`, "");
     if (photoKey.indexOf(image.filename) < 0) {
       photoKey += `/${image.filename}`;
     }
     albumImageObject[image.filename] = {
       ...image,
       url: "",
+      thumbnailUrl: "",
       photoKey,
       typeOfImage: typeMethod,
     };

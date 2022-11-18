@@ -1,7 +1,7 @@
-import { Box, IconButton, LinearProgress, Typography } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import CheckIcon from "@mui/icons-material/Check";
+import { Box, IconButton, LinearProgress, Typography } from "@mui/material";
 import { CircularProgressWithLabel, MyButton } from "components";
 import {
   ADDED_UPLOAD_FILE_STATUS,
@@ -15,16 +15,11 @@ import {
 import { formatBytes } from "utils/general";
 import { UploadFileItemProps } from "./type";
 
-const UploadFileItem = function (props: UploadFileItemProps) {
-  const {
-    file,
-    status,
-    uploadProgress,
-    onClickDelete,
-    onClickReplaceUpload,
-    error,
-    isUploading,
-  } = props;
+function UploadFileItem(props: UploadFileItemProps) {
+  const { fileName, onClickDelete, onClickReplaceUpload, isUploading, style } =
+    props;
+
+  const { file, status, error, uploadProgress } = props.handleFileType;
   const deleteButton = (
     <Box>
       <IconButton onClick={() => onClickDelete(file.name)} color="error">
@@ -97,6 +92,7 @@ const UploadFileItem = function (props: UploadFileItemProps) {
       py={2}
       borderBottom="1px solid"
       borderColor="text.secondary"
+      style={{ ...style }}
     >
       <Box>
         <Typography fontWeight="bold">{file.name}</Typography>
@@ -115,6 +111,6 @@ const UploadFileItem = function (props: UploadFileItemProps) {
       {returnStatus()}
     </Box>
   );
-};
+}
 
 export default UploadFileItem;

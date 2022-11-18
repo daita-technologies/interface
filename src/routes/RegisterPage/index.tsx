@@ -81,12 +81,10 @@ const RegisterPage = function () {
               component="h1"
               variant="h5"
             >
-              Register
+              ✍️ Sign Up
             </Typography>
-            <Typography sx={{ mt: 1, px: 2 }} align="center" variant="body2">
-              Register to DAITA Technologies to continue to DAITA's platform.
-            </Typography>
-            <Box sx={{ m: 3, py: 0, px: "14px" }}>
+
+            <Box sx={{ m: 3, mb: 0, py: 0, px: "14px" }}>
               <UserInfoForm />
             </Box>
           </Box>

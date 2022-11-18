@@ -157,8 +157,22 @@ const HealthCheckMainContent = function ({
       dataHealthCheckTaskListInfo === null
     ) {
       return (
-        <Box py={6} display="flex" justifyContent="center" alignItems="center">
+        <Box
+          py={6}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          flexDirection="column"
+        >
           <CircularProgress size={40} />
+          <Typography
+            mt={1}
+            color="text.secondary"
+            variant="body2"
+            fontStyle="italic"
+          >
+            Fetching dataset health check information...
+          </Typography>
         </Box>
       );
     }
@@ -174,7 +188,8 @@ const HealthCheckMainContent = function ({
             alignItems="center"
           >
             <Typography>
-              Dataset health check is being generated, please hang on a moment...
+              Dataset health check is being generated, please hang on a
+              moment...
             </Typography>
             <CircularProgress sx={{ mt: 4 }} />
           </Box>

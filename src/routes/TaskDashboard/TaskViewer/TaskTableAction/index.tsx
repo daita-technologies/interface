@@ -1,11 +1,12 @@
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+// import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {
   Box,
+  Button,
   CircularProgress,
-  IconButton,
-  ListItemText,
-  Menu,
-  MenuItem,
+  // IconButton,
+  // ListItemText,
+  // Menu,
+  // MenuItem,
   Typography,
 } from "@mui/material";
 import {
@@ -53,7 +54,8 @@ function TaskTableActionWithAction({
       content: (
         <Box lineHeight={1.5}>
           <Typography>
-            If you stop this service, all data already processed will be lost. Do you still want to CANCEL?
+            If you stop this service, all data already processed will be lost.
+            Do you still want to CANCEL?
           </Typography>
         </Box>
       ),
@@ -122,8 +124,34 @@ function TaskTableActionWithAction({
 
   if (menuItemCount > 0) {
     return (
-      <>
-        <IconButton className="dot-option-symbol" onClick={handleClick}>
+      <Box>
+        {getTaskStatusMergedValue(status) === RUNNING_TASK_STATUS &&
+          (process_type === PREPROCESS_TASK_PROCESS_TYPE ||
+            process_type === AUGMENT_TASK_PROCESS_TYPE) && (
+            <Button
+              onClick={handleStopActionClick}
+              disabled={isStopping}
+              variant="outlined"
+              color="error"
+            >
+              Stop
+            </Button>
+          )}
+        {process_type === DOWNLOAD_TASK_PROCESS_TYPE && (
+          <Button
+            disabled={!presign_url || isGettingDownloadLinkStatus}
+            onClick={handleClickOnDownloadAction}
+            variant="outlined"
+          >
+            <Box display="flex" alignItems="center">
+              {isGettingDownloadLinkStatus && (
+                <CircularProgress sx={{ mr: 1 }} size={16} />
+              )}
+              Download
+            </Box>
+          </Button>
+        )}
+        {/* <IconButton className="dot-option-symbol" onClick={handleClick}>
           <MoreVertIcon />
         </IconButton>
         <Menu
@@ -153,8 +181,8 @@ function TaskTableActionWithAction({
               </Box>
             </MenuItem>
           )}
-        </Menu>
-      </>
+        </Menu> */}
+      </Box>
     );
   }
 
