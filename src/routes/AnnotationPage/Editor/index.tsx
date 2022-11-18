@@ -333,8 +333,10 @@ function Editor() {
   const paddingStage = useMemo(() => {
     if (stageProps) {
       return {
-        paddingLeft: MAX_WIDTH_EDITOR - stageProps.width,
-        paddingTop: MAX_HEIGHT_EDITOR - stageProps.height,
+        paddingLeft:
+          (MAX_WIDTH_EDITOR - stageProps.width) / stageProps.scaleX / 2.0,
+        paddingTop:
+          (MAX_HEIGHT_EDITOR - stageProps.height) / stageProps.scaleY / 2.0,
       };
     }
     return { paddingLeft: 0, paddingTop: 0 };

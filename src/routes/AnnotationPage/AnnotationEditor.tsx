@@ -77,7 +77,7 @@ const AnnotationEditor = function () {
           <Box
             display="flex"
             gap={2}
-            height="15vh"
+            height={MAX_HEIGHT_EDITOR}
             sx={{ padding: 1, backgroundColor: "#2a3648" }}
           >
             <ImagePreview />

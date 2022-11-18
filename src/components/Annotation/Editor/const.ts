@@ -15,4 +15,4 @@ export const CORNER_RADIUS = 5;
 export const MAX_WIDTH_IMAGE_IN_EDITOR = 1000;
 export const MAX_HEIGHT_IMAGE_IN_EDITOR = 700;
 export const MAX_WIDTH_EDITOR = 1270;
-export const MAX_HEIGHT_EDITOR = 860;
+export const MAX_HEIGHT_EDITOR = 825;
