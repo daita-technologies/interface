@@ -61,7 +61,7 @@ export const exportAnnotation = (
   const link = document.createElement("a");
   link.href = jsonString;
   link.download = imageName
-    ? `${imageName.replace(/\.[^.]+$/, ".json")}`
+    ? `${imageName.replace(/\.[^.]+$/, "-LabelBox")}.json`
     : "data.json";
 
   link.click();
