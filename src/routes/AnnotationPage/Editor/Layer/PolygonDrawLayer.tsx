@@ -181,13 +181,14 @@ function PolygonDrawLayer({
         <Rect
           x={-FULL_PADDING_VALUE}
           y={-FULL_PADDING_VALUE}
-          width={2 * currentAnnotationFile.width}
-          height={2 * currentAnnotationFile.height}
+          width={2 * FULL_PADDING_VALUE}
+          height={2 * FULL_PADDING_VALUE}
         />
       );
     }
     return null;
   };
+
   useEffect(() => {
     const flatPoints: number[] = points
       .concat(isFinished || !mousePosition ? [] : mousePosition)

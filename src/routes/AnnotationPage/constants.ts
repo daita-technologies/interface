@@ -8,4 +8,4 @@ export const QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE =
   "If you change the preview image, all annotation already processed will be lost. Do you still want to CANCEL?";
 export const QUIT_ANNOTATION_EDITOR_PROMPT_MESSAGE =
   "If you change the preview image, all annotation already processed will be lost. Do you still want to LEAVE?";
-export const FULL_PADDING_VALUE = 1000;
+export const FULL_PADDING_VALUE = 10000;
