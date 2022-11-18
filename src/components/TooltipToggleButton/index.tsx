@@ -7,13 +7,11 @@ type TooltipToggleButtonProps = ToggleButtonProps & {
 };
 
 const TooltipToggleButton: VFC<TooltipToggleButtonProps> = forwardRef(
-  ({ TooltipProps, ...props }, ref) => {
-    return (
-      <Tooltip {...TooltipProps}>
-        <ToggleButton ref={ref} {...props} />
-      </Tooltip>
-    );
-  }
+  ({ TooltipProps, ...props }, ref) => (
+    <Tooltip {...TooltipProps}>
+      <ToggleButton ref={ref} {...props} />
+    </Tooltip>
+  )
 );
 
 export default TooltipToggleButton;
