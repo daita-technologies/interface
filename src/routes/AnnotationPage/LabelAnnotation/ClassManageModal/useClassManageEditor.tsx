@@ -34,7 +34,7 @@ function useClassManageEditor(): ClassManageDialogProps {
     selectorLabelClassPropertiesByLabelClass
   );
   const dialogClassManageModal = useSelector(selectorDialogClassManageModal);
-
+  const isHiddenAttribute = true;
   const {
     register,
     setValue,
@@ -190,10 +190,14 @@ function useClassManageEditor(): ClassManageDialogProps {
               variant="standard"
             />
           </Box>
-          <Box display="flex" flexDirection="column" gap={1}>
-            <FieldArrayAttribute control={control} register={register} />
-          </Box>
-          {renderPickColor()}
+          {!isHiddenAttribute && (
+            <>
+              <Box display="flex" flexDirection="column" gap={1}>
+                <FieldArrayAttribute control={control} register={register} />
+              </Box>
+              {renderPickColor()}
+            </>
+          )}
         </Box>
       </form>
     ),

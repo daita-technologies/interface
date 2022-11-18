@@ -1,7 +1,6 @@
 import { Box, List, ListItem, Skeleton, Typography } from "@mui/material";
 import { BeforeUnload } from "components";
-import useConfirmDialog from "hooks/useConfirmDialog";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
 import { selectorAnnotationStatehHistory } from "reduxes/annotation/selector";
@@ -11,33 +10,20 @@ import {
   selectorIdDrawObjectByImageName,
 } from "reduxes/annotationmanager/selecetor";
 import { selectorCurrentAnnotationFiles } from "reduxes/annotationProject/selector";
-import {
-  QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE,
-  QUIT_ANNOTATION_EDITOR_PROMPT_MESSAGE,
-} from "../constants";
+import { QUIT_ANNOTATION_EDITOR_PROMPT_MESSAGE } from "../constants";
+import ChangePreviewConfirmDialog from "./ChangePreviewConfirmDialog";
 import ImagePreviewBadge from "./ImagePreviewBadge";
 
 function ImagePreview() {
   const dispatch = useDispatch();
-  // const annotationManagerImages = useSelector(selectorAnnotationManagerImages);
-
   const currentPreviewImageName = useSelector(selectorCurrentPreviewImageName);
   const idDrawObjectByImageName = useSelector(selectorIdDrawObjectByImageName);
   const currentAnnotationFiles = useSelector(selectorCurrentAnnotationFiles);
   const annotationStatehHistory = useSelector(selectorAnnotationStatehHistory);
-  const { openConfirmDialog, closeConfirmDialog } = useConfirmDialog();
-
-  // useEffect(() => {
-  //   if (currentAnnotationFiles) {
-  //     currentAnnotationFiles.items.map((item) => {
-  //       // dispatch(
-  //       //   addImagesToAnnotation({
-  //       //     annotationImagesProperties: [{ image, width: 1920, height: 1208 }],
-  //       //   })
-  //       // );
-  //     });
-  //   }
-  // }, [currentAnnotationFiles]);
+  const [isOpenDiaglog, setIsOpenDiaglog] = useState<boolean>(false);
+  const [nextPreviewImageName, setNextPreviewImageName] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     if (currentAnnotationFiles) {
@@ -109,40 +95,6 @@ function ImagePreview() {
     // });
   }, []);
 
-  // const onDrop = (acceptedFiles: File[]) => {
-  //   if (acceptedFiles && acceptedFiles.length > 0) {
-  //     for (const file of acceptedFiles) {
-  //       loadImage(file).then(({ image, fileName }) => {
-  //         const property: AnnotationImagesProperty = {
-  //           image: file,
-  //           width: image.width,
-  //           height: image.height,
-  //         };
-  //         dispatch(
-  //           addImagesToAnnotation({ annotationImagesProperties: [property] })
-  //         );
-  //         if (!currentPreviewImageName) {
-  //           dispatch(changePreviewImage({ imageName: acceptedFiles[0].name }));
-  //         }
-  //       });
-  //     }
-  //   }
-  // };
-  // const dropZone = useDropzone({
-  //   onDrop,
-  //   accept: IMAGE_EXTENSIONS.join(","),
-  //   noDragEventsBubbling: true,
-  // });
-  // const { getRootProps, isDragActive, getInputProps } = dropZone;
-  // const fileThumbByImageName = useMemo(() => {
-  //   const thumbs: Record<string, string> = {};
-  //   Object.entries(annotationManagerImages).map(
-  //     ([imageName, annotationImagesProperty]) => {
-  //       thumbs[imageName] = URL.createObjectURL(annotationImagesProperty.image);
-  //     }
-  //   );
-  //   return thumbs;
-  // }, [annotationManagerImages]);
   const needConfirmChangePreviewImageDialog = useMemo(
     () =>
       annotationStatehHistory.stateHistoryItems[
@@ -168,27 +120,11 @@ function ImagePreview() {
       dispatch(requestChangePreviewImage({ imageName }));
       return;
     }
-    openConfirmDialog({
-      content: (
-        <Box lineHeight={1.5}>
-          <Typography>{QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE}</Typography>
-        </Box>
-      ),
-      negativeText: "Cancel",
-      positiveText: "Don't Save",
-      onClickNegative: () => {
-        closeConfirmDialog();
-      },
-      onClickPositive: () => {
-        dispatch(
-          resetCurrentStateDrawObject({
-            drawObjectById: idDrawObjectByImageName[imageName],
-          })
-        );
-        dispatch(requestChangePreviewImage({ imageName }));
-        closeConfirmDialog();
-      },
-    });
+    setNextPreviewImageName(imageName);
+    setIsOpenDiaglog(true);
+  };
+  const handleCloseDialog = () => {
+    setIsOpenDiaglog(false);
   };
   const renderContent = () => {
     if (!currentAnnotationFiles) {
@@ -196,22 +132,6 @@ function ImagePreview() {
     }
     return (
       <>
-        {/* <Box
-          sx={{
-            background: `url("/assets/images/upload-image.png") no-repeat center`,
-            border: "1px solid",
-            backgroundSize: 30,
-            borderRadius: 2,
-            borderWidth: 1,
-            borderColor: "text.secondary",
-            cursor: "pointer",
-          }}
-          width={200}
-          position="relative"
-          {...getRootProps()}
-        >
-          <input {...getInputProps()} />
-        </Box> */}
         <BeforeUnload
           isActive={!!needConfirmChangePreviewImageDialog}
           message={QUIT_ANNOTATION_EDITOR_PROMPT_MESSAGE}
@@ -221,7 +141,7 @@ function ImagePreview() {
             overflow: "auto",
             display: "flex",
             flexDirection: "row",
-            padding: 0,
+            py: 2,
           }}
         >
           {currentAnnotationFiles.items.map((item) => (
@@ -265,6 +185,14 @@ function ImagePreview() {
             </ListItem>
           ))}
         </List>
+        {currentPreviewImageName && nextPreviewImageName && (
+          <ChangePreviewConfirmDialog
+            isOpen={isOpenDiaglog}
+            imageName={currentPreviewImageName}
+            nextPreviewImageName={nextPreviewImageName}
+            onClose={handleCloseDialog}
+          />
+        )}
       </>
     );
   };
