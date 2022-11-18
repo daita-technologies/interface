@@ -312,8 +312,8 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
             {...register("description", {
               required: false,
               maxLength: {
-                value: 75,
-                message: `Your project description cannot exceed 75 characters.`,
+                value: 300,
+                message: `Your project description cannot exceed 300 characters.`,
               },
             })}
             error={!!errors.description}
