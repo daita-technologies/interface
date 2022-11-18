@@ -145,15 +145,13 @@ function ClassItem({ style, id }: ClassItemProps) {
   );
 
   const renderContent = () => (
-    <ListItem
-      onSelect={() => handleSelect()}
-      secondaryAction={renderSecondaryAction()}
-      sx={renderCss()}
-    >
+    <ListItem onSelect={() => handleSelect()} sx={renderCss()}>
       {renderListAvatar()}
-      <ListItemText>
+      <Box flex={1}>
         <ClassLabel drawObject={drawObject} />
-      </ListItemText>
+      </Box>
+
+      {renderSecondaryAction()}
     </ListItem>
   );
   return (
