@@ -164,6 +164,8 @@ export const CREATE_PROJECT_DATASET_TYPE_LIST: CreateProjectDatasetTypeControlTy
     },
   ];
 
+export const MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH = 300;
+
 export const MIN_DATASET_IMAGES_CREATE_PROJECT = 1;
 export const MAX_DATASET_IMAGES_CREATE_PROJECT = 1000;
 
