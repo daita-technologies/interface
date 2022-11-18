@@ -9,17 +9,17 @@ import DialogTitle from "@mui/material/DialogTitle";
 import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
-import { DrawObject } from "reduxes/annotation/type";
+import { selectorDrawObjectById } from "reduxes/annotation/selector";
 import {
   requestChangePreviewImage,
   saveAnnotationStateManager,
 } from "reduxes/annotationmanager/action";
 import { selectorIsSavingAnnotation } from "reduxes/annotationmanager/selecetor";
 import { QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE } from "../constants";
+import SaveIcon from "@mui/icons-material/Save";
 
 function ChangePreviewConfirmDialog({
   isOpen,
-  drawObjectById,
   onClose,
   imageName,
   nextPreviewImageName,
@@ -28,11 +28,12 @@ function ChangePreviewConfirmDialog({
   imageName: string;
   nextPreviewImageName: string;
   onClose: () => void;
-  drawObjectById: Record<string, DrawObject>;
 }) {
   const dispatch = useDispatch();
   const [markSavedConfirm, setMarkSavedConfirm] =
     React.useState<boolean>(false);
+  const drawObjectById = useSelector(selectorDrawObjectById);
+
   const isSavingAnnotation = useSelector(selectorIsSavingAnnotation);
   React.useEffect(() => {
     if (isSavingAnnotation === false && markSavedConfirm === true) {
@@ -76,9 +77,7 @@ function ChangePreviewConfirmDialog({
       <DialogTitle id="alert-dialog-title">NOTIFICATION</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          <Box lineHeight={1.5}>
-            <Typography>{QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE}</Typography>
-          </Box>
+          {QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE}
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ p: 4, pt: 0 }}>
@@ -88,6 +87,7 @@ function ChangePreviewConfirmDialog({
           loadingPosition="end"
           variant="contained"
           color="primary"
+          endIcon={<SaveIcon />}
           sx={{ mr: 2, backgroundColor: "#888c94c4 !important", width: 100 }}
         >
           Save

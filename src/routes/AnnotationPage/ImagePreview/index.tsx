@@ -188,7 +188,6 @@ function ImagePreview() {
         {currentPreviewImageName && nextPreviewImageName && (
           <ChangePreviewConfirmDialog
             isOpen={isOpenDiaglog}
-            drawObjectById={idDrawObjectByImageName[currentPreviewImageName]}
             imageName={currentPreviewImageName}
             nextPreviewImageName={nextPreviewImageName}
             onClose={handleCloseDialog}

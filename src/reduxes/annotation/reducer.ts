@@ -1,5 +1,5 @@
 import { PolygonSpec } from "components/Annotation/Editor/type";
-import { SAVE_REMOTE_NEW_CLASS_LABEL } from "reduxes/annotationmanager/constants";
+import { SAVE_ANNOTATION_STATE_MANAGER } from "reduxes/annotationmanager/constants";
 import { v4 as uuidv4 } from "uuid";
 import {
   ADD_DRAW_OBJECTS_BY_AI,
@@ -453,14 +453,14 @@ const annotationReducer = (
       const { keyDownInEditor } = payload as SetKeyDownPayload;
       return { ...state, keyDownInEditor };
     }
-    case SAVE_REMOTE_NEW_CLASS_LABEL.SUCCEEDED: {
+    case SAVE_ANNOTATION_STATE_MANAGER.SUCCEEDED: {
       const history = state.statehHistory;
       return {
         ...state,
         statehHistory: {
           ...history,
           savedStateHistoryId:
-            history.stateHistoryItems[history.historyStep].id,
+            history.stateHistoryItems[history.historyStep - 1].id,
         },
       };
     }

@@ -101,6 +101,7 @@ function* handleGetAnnotationFile(s3_key: string): any {
     new GetObjectCommand({
       Bucket: bucketName,
       Key: photoKey,
+      ResponseCacheControl: "no-cache",
     })
   );
   if (photoContent.Body) {

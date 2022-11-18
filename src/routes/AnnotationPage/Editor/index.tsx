@@ -43,7 +43,10 @@ import {
   selectorZoom,
 } from "reduxes/annotation/selector";
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
-import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import {
+  selectorCurrentAnnotationFile,
+  selectorIsFetchingImageData,
+} from "reduxes/annotationmanager/selecetor";
 import {
   DRAW_ELLIPSE_SHORT_KEY,
   DRAW_LINE_SHORT_KEY,
@@ -54,7 +57,6 @@ import {
 } from "../constants";
 import BaseImage from "./BaseImage";
 import DrawLayer from "./Layer/DrawLayer";
-import { Vector2d } from "konva/lib/types";
 
 const TOOLTIP_WIDTH = 200;
 const TOOLTIP_HEIGHT = 40;
@@ -69,6 +71,7 @@ function Editor() {
   const refTextPosition = useRef<Konva.Text | null>(null);
 
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
+  const isFetchingImageData = useSelector(selectorIsFetchingImageData);
   const drawObjectById = useSelector(selectorDrawObjectById);
   const selectedDrawObjectId = useSelector(selectorSelectedDrawObjectId);
   const currentDrawState = useSelector(selectorCurrentDrawState);
@@ -313,11 +316,11 @@ function Editor() {
     }
   }, [zoom]);
   const isLoading = useMemo(() => {
-    if (!currentAnnotationFile) {
+    if (!currentAnnotationFile || isFetchingImageData === true) {
       return true;
     }
     return currentAnnotationFile.image === null;
-  }, [currentAnnotationFile]);
+  }, [currentAnnotationFile, isFetchingImageData]);
   const handleMouseDown = (e: KonvaEventObject<MouseEvent>) => {
     dispatch(setSelectedShape({ selectedDrawObjectId: null }));
     e.evt.preventDefault();
