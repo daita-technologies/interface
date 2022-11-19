@@ -5,11 +5,21 @@ export interface AnnotationManagerReducer {
   idDrawObjectByImageName: Record<string, Record<string, DrawObject>>;
   images: Record<string, AnnotationImagesProperty>;
   currentPreviewImageName: string | null;
+  currentImageInEditorProps: ImageInEditorProps | null;
   labelClassPropertiesByLabelClass: Record<string, LabelClassProperties>;
   dialogClassManageModal: ClassManageModalProps;
   isFetchingImageData: boolean;
   isSavingAnnotation: boolean;
 }
+export interface ImageInEditorProps {
+  scaleX: number;
+  scaleY: number;
+  width: number;
+  height: number;
+  paddingLeft: number;
+  paddingTop: number;
+}
+
 export type ClassManageModalType = "VIEW" | "CREATE" | "EDIT";
 
 export interface ClassManageModalProps {
