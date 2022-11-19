@@ -236,3 +236,5 @@ export const MAX_SIZE_FEEDBACK_ATTACHED_FILE = 2000000;
 
 export const QUIT_FEEDBACK_ALERT_MESSAGE =
   "Your feedback content will be lost. Are you sure you want to quit?";
+
+export const MAX_DATASET_IMAGES = 800;
