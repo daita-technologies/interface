@@ -144,7 +144,7 @@ const CreateProjectDatasetTypeControl = function (
               />
             </Box>
             <Typography variant="body2" mt={2}>
-              Number of dataset images:
+              Number of images:
             </Typography>
             <Box display="flex" alignItems="center" columnGap={1} pl={1}>
               <Slider
