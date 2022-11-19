@@ -329,6 +329,8 @@ export const FeedbackFormSlack = function ({
             if (onSendFail) onSendFail();
             resolve({ action: FeedbackFormAction.NO_ACTION });
           });
+      } else {
+        resolve({ action: FeedbackFormAction.NO_ACTION });
       }
     });
 
