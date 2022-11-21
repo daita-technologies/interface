@@ -40,7 +40,7 @@
     "@mui/material": "^5.0.3",
     "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest",
     "@mui/styled-engine-sc": "^5.0.3",
-    "@mui/utils": "^5.6.1",
+    "@mui/utils": "^5.10.14",
     "@types/crypto-js": "^4.0.2",
     "@types/file-saver": "^2.0.4",
     "@types/lodash": "^4.14.177",
