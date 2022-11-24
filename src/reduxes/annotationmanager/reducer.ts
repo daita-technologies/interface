@@ -13,6 +13,7 @@ import {
   RESET_ANNOTATION_MANAGER,
   SAVE_ANNOTATION_STATE_MANAGER,
   SET_ANNOTATION_STATE_MANAGER,
+  SET_CLIENT_RECT_OF_BASE_IMAGE,
   SET_CLASS_MANAGE_MODAL,
   SET_PREVIEW_IMAGE,
 } from "./constants";
@@ -25,6 +26,7 @@ import {
   EditClassLabelProps,
   EditClassManageModalProps,
   SaveAnnotationStateManagerProps,
+  SetClientRectOfBaseImageProps,
 } from "./type";
 
 const inititalState: AnnotationManagerReducer = {
@@ -87,7 +89,7 @@ const annotationManagerReducer = (
           }
           const scaleX = newWidth / width;
           const scaleY = newHeight / height;
-          const paddingLeft = (MAX_WIDTH_EDITOR - newHeight) / scaleX / 2.0;
+          const paddingLeft = (MAX_WIDTH_EDITOR - newWidth) / scaleX / 2.0;
           const paddingTop = (MAX_HEIGHT_EDITOR - newHeight) / scaleY / 2.0;
           return {
             ...state,
@@ -98,6 +100,7 @@ const annotationManagerReducer = (
               height: newHeight,
               paddingLeft,
               paddingTop,
+              clientRectOfBaseImage: null,
             },
             isFetchingImageData: false,
           };
@@ -108,6 +111,20 @@ const annotationManagerReducer = (
         ...state,
         isFetchingImageData: false,
       };
+    }
+    case SET_CLIENT_RECT_OF_BASE_IMAGE: {
+      const { clientRectOfBaseImage } =
+        payload as SetClientRectOfBaseImageProps;
+      if (state.currentImageInEditorProps) {
+        return {
+          ...state,
+          currentImageInEditorProps: {
+            ...state.currentImageInEditorProps,
+            clientRectOfBaseImage,
+          },
+        };
+      }
+      return state;
     }
     case CHANGE_PREVIEW_IMAGE.FAILED: {
       return {

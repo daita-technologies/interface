@@ -18,6 +18,13 @@ export interface ImageInEditorProps {
   height: number;
   paddingLeft: number;
   paddingTop: number;
+  clientRectOfBaseImage: ClientRectType | null;
+}
+export interface ClientRectType {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
 }
 
 export type ClassManageModalType = "VIEW" | "CREATE" | "EDIT";
@@ -60,4 +67,7 @@ export interface FetchingFileAndAnnotaitonProps {
   categoryId: string;
   s3keyLabel: string;
   s3keyFile: string;
+}
+export interface SetClientRectOfBaseImageProps {
+  clientRectOfBaseImage: ClientRectType;
 }

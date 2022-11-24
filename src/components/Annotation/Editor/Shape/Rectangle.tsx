@@ -78,31 +78,38 @@ function RectangleComp({
       trRef.current.getLayer().batchDraw();
     }
   }, [isSelected]);
-  const [stage, setStage] = useState<Konva.Stage | null>(null);
-
   const groupDragBound = (pos: Vector2d) => {
-    if (currentImageInEditorProps) {
-      let { x, y } = pos;
-      const sw = stage ? currentImageInEditorProps.width : 0;
-      const sh = stage ? currentImageInEditorProps.height : 0;
-      if (shapeRef && shapeRef.current) {
+    let { x, y } = pos;
+    if (shapeRef && shapeRef.current && currentImageInEditorProps) {
+      const { clientRectOfBaseImage } = currentImageInEditorProps;
+      if (clientRectOfBaseImage) {
+        if (x < clientRectOfBaseImage.x) {
+          x = clientRectOfBaseImage.x;
+        }
+        if (y < clientRectOfBaseImage.y) {
+          y = clientRectOfBaseImage.y;
+        }
         const box = shapeRef.current.getClientRect();
-        const minMaxX = [-currentImageInEditorProps.paddingLeft, box.width];
-        const minMaxY = [-currentImageInEditorProps.paddingTop, box.height];
-
-        if (minMaxY[0] + y < 0) y = -1 * minMaxY[0];
-        if (minMaxX[0] + x < 0) x = -1 * minMaxX[0];
-        if (minMaxY[1] + y > sh) y = sh - minMaxY[1];
-        if (minMaxX[1] + x > sw) x = sw - minMaxX[1];
-        return { x, y };
+        if (
+          x + box.width >
+          clientRectOfBaseImage.x + clientRectOfBaseImage.width
+        ) {
+          x = clientRectOfBaseImage.x + clientRectOfBaseImage.width - box.width;
+        }
+        if (
+          y + box.height >
+          clientRectOfBaseImage.y + clientRectOfBaseImage.height
+        ) {
+          y =
+            clientRectOfBaseImage.y + clientRectOfBaseImage.height - box.height;
+        }
       }
     }
-    return { x: 0, y: 0 };
-  };
 
-  const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
-    setStage(e.target.getStage());
-    commonShapeEvent.handleDragStart(e);
+    return {
+      x,
+      y,
+    };
   };
   const handleDragEnd = (e: KonvaEventObject<DragEvent>) => {
     onChange({
@@ -157,7 +164,6 @@ function RectangleComp({
         onMouseOut={onMouseOut}
         draggable={commonShapeEvent.isLock !== true}
         onDragEnd={handleDragEnd}
-        onDragStart={handleDragStart}
         onTransformEnd={handleTransformEnd}
         strokeScaleEnabled={false}
         {...spec}
