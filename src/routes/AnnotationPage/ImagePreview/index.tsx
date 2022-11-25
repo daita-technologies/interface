@@ -1,6 +1,8 @@
-import { Box, List, ListItem, Skeleton, Typography } from "@mui/material";
+import { Box, Skeleton, Typography } from "@mui/material";
 import { BeforeUnload } from "components";
 import { useEffect, useMemo, useState } from "react";
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 import { useDispatch, useSelector } from "react-redux";
 import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
 import { selectorAnnotationStatehHistory } from "reduxes/annotation/selector";
@@ -126,6 +128,15 @@ function ImagePreview() {
   const handleCloseDialog = () => {
     setIsOpenDiaglog(false);
   };
+
+  const responsive = {
+    desktop: {
+      breakpoint: { max: 3000, min: 1024 },
+      items: 3,
+      paritialVisibilityGutter: 60,
+      slidesToSlide: 2,
+    },
+  };
   const renderContent = () => {
     if (!currentAnnotationFiles) {
       return <Skeleton variant="circular" width={40} height={40} />;
@@ -136,17 +147,23 @@ function ImagePreview() {
           isActive={!!needConfirmChangePreviewImageDialog}
           message={QUIT_ANNOTATION_EDITOR_PROMPT_MESSAGE}
         />
-        <List
+        <Box
           sx={{
-            overflow: "auto",
-            display: "flex",
-            flexDirection: "row",
-            padding: 0,
+            width: "95vw",
+            lineHeight: "10vh",
           }}
         >
-          {currentAnnotationFiles.items.map((item) => (
-            <ListItem key={item.filename}>
-              <ImagePreviewBadge filename={item.filename}>
+          <Carousel
+            partialVisbile
+            itemClass="image-item"
+            responsive={responsive}
+            deviceType="desktop"
+            swipeable={false}
+            draggable
+            // showDots
+          >
+            {currentAnnotationFiles.items.map((item) => (
+              <ImagePreviewBadge key={item.filename} filename={item.filename}>
                 <Box
                   sx={{
                     // background: `url(${fileThumbByImageName[imageName]})no-repeat center`,
@@ -182,9 +199,9 @@ function ImagePreview() {
                   </Box>
                 </Box>
               </ImagePreviewBadge>
-            </ListItem>
-          ))}
-        </List>
+            ))}
+          </Carousel>
+        </Box>
         {currentPreviewImageName && nextPreviewImageName && (
           <ChangePreviewConfirmDialog
             isOpen={isOpenDiaglog}

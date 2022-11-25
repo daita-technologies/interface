@@ -78,7 +78,9 @@ const AnnotationEditor = function () {
             display="flex"
             gap={2}
             height={MAX_HEIGHT_EDITOR}
-            sx={{ padding: 1, backgroundColor: "#2a3648" }}
+            sx={{ backgroundColor: "#2a3648" }}
+            justifyContent="center"
+            alignContent="center"
           >
             <ImagePreview />
           </Box>
