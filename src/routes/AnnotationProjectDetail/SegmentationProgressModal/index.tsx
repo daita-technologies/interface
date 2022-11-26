@@ -80,13 +80,23 @@ function SegmentationProgressModal({
 
       return (
         <Box width="100%" textAlign="center">
-          <LinearProgress
-            value={Math.ceil((finished * 100) / total)}
-            variant="determinate"
-          />
-          <Typography mt={1}>
-            {finished}/{total} images
-          </Typography>
+          <Box>
+            <Typography textAlign="left" fontSize={18}>
+              Due to internal processing, it may take a few minutes for the
+              segmentation task to complete.
+              <br />
+              You will receive an automatic email notification when finished.
+            </Typography>
+          </Box>
+          <Box mt={6}>
+            <LinearProgress
+              value={Math.ceil((finished * 100) / total)}
+              variant="determinate"
+            />
+            <Typography mt={1}>
+              {finished}/{total} images
+            </Typography>
+          </Box>
         </Box>
       );
     }
