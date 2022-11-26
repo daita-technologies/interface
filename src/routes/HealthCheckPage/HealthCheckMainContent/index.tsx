@@ -165,8 +165,13 @@ const HealthCheckMainContent = function ({
           flexDirection="column"
         >
           <CircularProgress size={40} />
-          <Typography mt={1}>
-            Fetching Dataset Health Check informations...
+          <Typography
+            mt={1}
+            color="text.secondary"
+            variant="body2"
+            fontStyle="italic"
+          >
+            Fetching dataset health check information...
           </Typography>
         </Box>
       );

@@ -84,7 +84,7 @@ const RegisterPage = function () {
               ✍️ Sign Up
             </Typography>
 
-            <Box sx={{ m: 3, py: 0, px: "14px" }}>
+            <Box sx={{ m: 3, mb: 0, py: 0, px: "14px" }}>
               <UserInfoForm />
             </Box>
           </Box>

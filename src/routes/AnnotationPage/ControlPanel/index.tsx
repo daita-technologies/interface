@@ -82,12 +82,15 @@ import {
   DRAW_POLYGON_SHORT_KEY,
   DRAW_RECTANGLE_SHORT_KEY,
   SELECT_SHORT_KEY,
+  DRAW_LINE_SHORT_KEY,
 } from "../constants";
 import { convertStrokeColorToFillColor } from "../LabelAnnotation/ClassLabel";
 import {
   hashCode,
   intToRGB,
 } from "../LabelAnnotation/ClassManageModal/useListClassView";
+
+const IS_MAC_PLATFORM = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
 
 function ControlPanel() {
   const history = useHistory();
@@ -384,7 +387,7 @@ function ControlPanel() {
                 setImportType("DAITA");
               }}
             >
-              <ListItemText primary="Daita" />
+              <ListItemText primary="DAITA" />
             </ListItemButton>
           </ListItem>
         </List>
@@ -410,7 +413,7 @@ function ControlPanel() {
           </ListItem>
           <ListItem disablePadding onClick={handleExportDaita}>
             <ListItemButton>
-              <ListItemText primary="Daita" />
+              <ListItemText primary="DAITA" />
             </ListItemButton>
           </ListItem>
         </List>
@@ -520,7 +523,7 @@ function ControlPanel() {
           <PanoramaFishEyeIcon />
         </TooltipToggleButton>
         <TooltipToggleButton
-          TooltipProps={{ title: `Line (${DRAW_ELLIPSE_SHORT_KEY})` }}
+          TooltipProps={{ title: `Line (${DRAW_LINE_SHORT_KEY})` }}
           className="annotationBtn"
           value={DrawType.LINE_STRIP}
           aria-label="line"
@@ -593,7 +596,7 @@ function ControlPanel() {
         sx={{ border: "1px dashed grey" }}
         justifyContent="space-evenly"
       >
-        <Tooltip title="Ctrl+Z">
+        <Tooltip title={`Undo (${IS_MAC_PLATFORM ? "⌘" : "Ctrl"}+Z)`}>
           <span>
             <IconButton
               onClick={handleUndoDrawObject}
@@ -603,7 +606,7 @@ function ControlPanel() {
             </IconButton>
           </span>
         </Tooltip>
-        <Tooltip title="Ctrl+Shift+Z">
+        <Tooltip title={`Redo (${IS_MAC_PLATFORM ? "⌘" : "Ctrl"}+Shift+Z)`}>
           <span>
             <IconButton
               onClick={handleRedoDrawObject}

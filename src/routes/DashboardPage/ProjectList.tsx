@@ -314,8 +314,23 @@ const ProjectList = function () {
 
   if (isFetchingProjects === null || isFetchingProjects === true) {
     return (
-      <Box display="flex" justifyContent="center" mt={8} mb={2}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        mt={8}
+        mb={2}
+      >
         <CircularProgress size={40} />
+        <Typography
+          mt={1}
+          color="text.secondary"
+          variant="body2"
+          fontStyle="italic"
+        >
+          Fetching projects information...
+        </Typography>
       </Box>
     );
   }

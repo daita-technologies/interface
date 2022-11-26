@@ -1,4 +1,4 @@
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import {
   CREDENTIAL_TOKEN_EXPIRE_NAME,
   LAST_USED_SYSTEM_STORAGE_KEY_NAME,
@@ -154,12 +154,14 @@ const CheckingApp = function ({ children }: TokenCheckingProps) {
     return (
       <Box
         display="flex"
+        flexDirection="column"
         alignItems="center"
         justifyContent="center"
         minHeight="100vh"
         minWidth="100vw"
       >
         <CircularProgress size={40} />
+        <Typography mt={1}>Checking application status...</Typography>
       </Box>
     );
   }

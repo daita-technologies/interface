@@ -108,7 +108,14 @@ function annotationProject() {
           py={6}
         >
           <CircularProgress size={50} />
-          <Typography mt={1}>Fetching project informations...</Typography>
+          <Typography
+            mt={1}
+            color="text.secondary"
+            variant="body2"
+            fontStyle="italic"
+          >
+            Fetching project information...
+          </Typography>
         </Box>
       );
     }

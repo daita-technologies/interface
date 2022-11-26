@@ -7,7 +7,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Layer, Rect, Stage, Text } from "react-konva";
 
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import { Ellipse, Polygon, Rectangle } from "components/Annotation";
 import {
   MAX_HEIGHT_EDITOR,
@@ -160,16 +160,20 @@ function Editor() {
     }
   };
   const keyDownHandler = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.ctrlKey && e.shiftKey && e.key === "Z") {
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      e.shiftKey &&
+      (e.key === "Z" || e.key === "z")
+    ) {
       dispatch(redoDrawObject());
-    } else if (e.ctrlKey && e.key === "z") {
+    } else if ((e.ctrlKey || e.metaKey) && e.key === "z") {
       dispatch(undoDrawObject());
     } else if (e.key === " ") {
       setKeyDown(e.key);
       if (currentDrawState !== DrawState.ZOOMDRAGGING) {
         dispatch(changeCurrentDrawState({ drawState: DrawState.ZOOMDRAGGING }));
       }
-    } else if (e.key === "Delete") {
+    } else if (e.key === "Delete" || e.key === "Backspace") {
       if (selectedDrawObjectId) {
         dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
         if (toolTipLayer.current?.attrs.id === selectedDrawObjectId) {
@@ -312,8 +316,21 @@ function Editor() {
   const renderContent = () => {
     if (isLoading || !currentImageInEditorProps) {
       return (
-        <Box display="flex" justifyContent="center" alignSelf="center">
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+        >
           <CircularProgress size={24} />
+          <Typography
+            mt={1}
+            color="text.secondary"
+            variant="body2"
+            fontStyle="italic"
+          >
+            Fetching image and segmentation information...
+          </Typography>
         </Box>
       );
     }
