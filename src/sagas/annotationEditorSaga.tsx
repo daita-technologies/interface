@@ -56,6 +56,12 @@ import {
 import { selectorS3 } from "reduxes/general/selector";
 import annotationProjectApi from "services/annotationProjectApi";
 import { getLocalStorage } from "utils/general";
+import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
+import { LINE_STYLE } from "components/Annotation/Editor/const";
+import {
+  hashCode,
+  intToRGB,
+} from "routes/AnnotationPage/LabelAnnotation/ClassManageModal/useListClassView";
 
 export function getKeyS3(s3Key: string) {
   const splitKey = s3Key.split("/");
@@ -278,11 +284,12 @@ function* handleSaveAnnotationStateManager(action: any): any {
   const currentAnnotationAndFileInfo: AnnotationAndFileInfoApi = yield select(
     selectorCurrentAnnotationAndFileInfo
   );
-  const s3 = yield select(selectorS3);
-  let s3keyJsonlabel = "";
   const annotationCurrentProject: AnnotationProjectInfo = yield select(
     selectorAnnotationCurrentProject
   );
+
+  const s3 = yield select(selectorS3);
+  let s3keyJsonlabel = "";
   if (
     currentAnnotationAndFileInfo.label_info &&
     currentAnnotationAndFileInfo.label_info.length > 0
@@ -302,6 +309,47 @@ function* handleSaveAnnotationStateManager(action: any): any {
       drawObjectByIdExcluceAIDetect[key] = value;
     }
   });
+  const localLabels: string[] = [];
+  Object.entries(drawObjectByIdExcluceAIDetect).map(([, value]) => {
+    const lsCategory = annotationCurrentProject?.ls_category;
+    if (lsCategory) {
+      const classInfoApi = lsCategory.ls_class.find(
+        (t) => t.class_name === value.data.label.label
+      );
+      if (!classInfoApi) {
+        localLabels.push(value.data.label.label);
+      }
+    }
+    //     if (annotationCurrentProjectName) {
+    //       savedCurrentAnnotationProjectName.current =
+    //         annotationCurrentProjectName;
+    //     }
+    // value.data.label.label
+  });
+  const saveLabelResp = yield call(
+    annotationProjectApi.addListOfClassNameToCategory,
+    {
+      idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+      categoryId: annotationCurrentProject.ls_category.category_id,
+      lsClassName: localLabels,
+    }
+  );
+  if (saveLabelResp.error === false) {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const lableName of saveLabelResp.ls_name_ok) {
+      const strokeColor = `#${intToRGB(hashCode(lableName))}`;
+      yield put(
+        addNewClassLabel({
+          labelClassProperties: {
+            label: { label: lableName, attributes: [] },
+            cssStyle: {
+              fill: convertStrokeColorToFillColor(strokeColor),
+            },
+          },
+        })
+      );
+    }
+  }
   const json = exportAnnotationToJson(drawObjectByIdExcluceAIDetect);
   const { bucketName, key } = getKeyS3(s3keyJsonlabel);
 

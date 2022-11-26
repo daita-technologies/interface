@@ -7,6 +7,7 @@ export interface AnnotationManagerReducer {
   currentPreviewImageName: string | null;
   currentImageInEditorProps: ImageInEditorProps | null;
   labelClassPropertiesByLabelClass: Record<string, LabelClassProperties>;
+  localLabelClassPropertiesByLabelClass: Record<string, LabelClassProperties>;
   dialogClassManageModal: ClassManageModalProps;
   isFetchingImageData: boolean;
   isSavingAnnotation: boolean;
