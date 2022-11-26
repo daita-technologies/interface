@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import { BeforeUnload } from "components";
 import { useEffect, useMemo, useRef, useState } from "react";
-import "react-multi-carousel/lib/styles.css";
 import { useDispatch, useSelector } from "react-redux";
 import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
 import { selectorAnnotationStatehHistory } from "reduxes/annotation/selector";
