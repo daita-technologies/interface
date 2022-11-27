@@ -11,7 +11,7 @@ export interface AnnotationProjectReducer {
   isCloningProjectToAnnotation: boolean;
   currentProjectInfo: null | AnnotationProjectInfo;
   currentProjectName: string;
-  isFetchingProjects: boolean;
+  isFetchingProjects: null | boolean;
   isFetchingDetailProject: boolean;
   currentAnnotationAndFileInfo: null | AnnotationAndFileInfoApi;
   currentAnnotationFiles: null | AnnotationFilesApi;

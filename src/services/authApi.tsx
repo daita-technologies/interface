@@ -54,7 +54,7 @@ const service = new Service(axios);
 
 service.register({
   onResponse(response: any) {
-    if (response && typeof response.data === "string") {
+    if (response && typeof response.data === "string" && response.data !== "") {
       const apiData = JSON.parse(response.data);
 
       if (

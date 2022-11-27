@@ -9,7 +9,6 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
-  addNewClassLabel,
   editClassLabel,
   saveRemoteNewClassLabel,
   setDialogClassManageModal,
@@ -24,18 +23,18 @@ import { ClassManageDialogProps } from "./type";
 
 export const convertStrokeColorToFillColor = (color: string) => {
   if (color && color.length > 1) {
-    return color + "33";
+    return `${color}33`;
   }
   return "";
 };
 
-const useClassManageEditor = function (): ClassManageDialogProps {
+function useClassManageEditor(): ClassManageDialogProps {
   const dispatch = useDispatch();
   const labelClassPropertiesByLabelClass = useSelector(
     selectorLabelClassPropertiesByLabelClass
   );
   const dialogClassManageModal = useSelector(selectorDialogClassManageModal);
-
+  const isHiddenAttribute = true;
   const {
     register,
     setValue,
@@ -71,24 +70,19 @@ const useClassManageEditor = function (): ClassManageDialogProps {
     setValue("color", newColor);
   };
 
-  const renderPickColor = () => {
-    return (
-      <Popover
-        open={openPickColor}
-        anchorEl={anchorEl}
-        onClose={handleClosePickColor}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-      >
-        <HexColorPicker
-          color={getValues("color")}
-          onChange={handleChangeColor}
-        />
-      </Popover>
-    );
-  };
+  const renderPickColor = () => (
+    <Popover
+      open={openPickColor}
+      anchorEl={anchorEl}
+      onClose={handleClosePickColor}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "left",
+      }}
+    >
+      <HexColorPicker color={getValues("color")} onChange={handleChangeColor} />
+    </Popover>
+  );
   const handleClickShowPickColor = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
@@ -156,7 +150,7 @@ const useClassManageEditor = function (): ClassManageDialogProps {
   };
   return {
     title:
-      dialogClassManageModal.classManageModalType == "EDIT"
+      dialogClassManageModal.classManageModalType === "EDIT"
         ? "Edit class"
         : "Add new class",
     content: (
@@ -196,10 +190,14 @@ const useClassManageEditor = function (): ClassManageDialogProps {
               variant="standard"
             />
           </Box>
-          <Box display="flex" flexDirection="column" gap={1}>
-            <FieldArrayAttribute control={control} register={register} />
-          </Box>
-          {renderPickColor()}
+          {!isHiddenAttribute && (
+            <>
+              <Box display="flex" flexDirection="column" gap={1}>
+                <FieldArrayAttribute control={control} register={register} />
+              </Box>
+              {renderPickColor()}
+            </>
+          )}
         </Box>
       </form>
     ),
@@ -225,5 +223,5 @@ const useClassManageEditor = function (): ClassManageDialogProps {
       </Box>
     ),
   };
-};
+}
 export default useClassManageEditor;

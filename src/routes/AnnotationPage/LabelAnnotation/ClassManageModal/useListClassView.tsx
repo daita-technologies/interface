@@ -26,9 +26,41 @@ import {
   setDialogClassManageModal,
 } from "reduxes/annotationmanager/action";
 import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
-import { getBackgroundColor } from "..";
+import { convertStrokeColorToFillColor } from "../ClassLabel";
 import { ClassManageDialogProps } from "./type";
-const useListClassView = function (): ClassManageDialogProps {
+
+export const hashCode = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i += 1) {
+    // eslint-disable-next-line no-bitwise
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return hash;
+};
+
+export const intToRGB = (i: number) => {
+  // eslint-disable-next-line no-bitwise
+  const c = (i & 0x00ffffff).toString(16).toUpperCase();
+  return "00000".substring(0, 6 - c.length) + c;
+};
+
+export const getBackgroundColor = (
+  labelClassProperties: LabelClassProperties
+) => {
+  if (labelClassProperties) {
+    if (labelClassProperties?.cssStyle?.stroke) {
+      return labelClassProperties.cssStyle.stroke;
+    }
+    if (labelClassProperties.label?.label) {
+      return convertStrokeColorToFillColor(
+        `#${intToRGB(hashCode(labelClassProperties.label.label))}`
+      );
+    }
+  }
+  return "gray";
+};
+
+function useListClassView(): ClassManageDialogProps {
   const dispatch = useDispatch();
   const labelClassPropertieusByLabelClass = useSelector(
     selectorLabelClassPropertiesByLabelClass
@@ -89,7 +121,7 @@ const useListClassView = function (): ClassManageDialogProps {
       <Box display="flex" flexDirection="column">
         {Object.entries(labelClassPropertieusByLabelClass).map(
           ([labelName, value]) => {
-            const { label, cssStyle } = value;
+            const { label } = value;
             return (
               <Accordion key={labelName} elevation={5} expanded>
                 <AccordionSummary
@@ -149,5 +181,5 @@ const useListClassView = function (): ClassManageDialogProps {
       </Box>
     ),
   };
-};
+}
 export default useListClassView;

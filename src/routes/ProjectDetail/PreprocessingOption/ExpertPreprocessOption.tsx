@@ -211,7 +211,7 @@ const ExpertPreprocessingOption = function () {
         </Typography>
         <InfoTooltip
           sx={{ ml: 1 }}
-          title="If enabled, our system selects the most appropriate reference images for the selected methods of the preprocessing run."
+          title="If you run it, our system selects the most appropriate reference images for the selected methods of the preprocessing run."
         />
       </Box>
       <Box mt={2} display="flex" gap={1}>

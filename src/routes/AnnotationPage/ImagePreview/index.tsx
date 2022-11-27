@@ -1,59 +1,43 @@
-import { Box, List, ListItem, Skeleton, Typography } from "@mui/material";
-import { loadImage } from "components/UploadFile";
-import { IMAGE_EXTENSIONS } from "constants/defaultValues";
-import { useEffect, useMemo } from "react";
-import { useDropzone } from "react-dropzone";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import {
+  Box,
+  Button,
+  List,
+  ListItem,
+  Skeleton,
+  Typography,
+} from "@mui/material";
+import { BeforeUnload } from "components";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
-import { selectorDrawObjectById } from "reduxes/annotation/selector";
+import { selectorAnnotationStatehHistory } from "reduxes/annotation/selector";
+import { requestChangePreviewImage } from "reduxes/annotationmanager/action";
 import {
-  addImagesToAnnotation,
-  changePreviewImage,
-  saveAnnotationStateManager,
-  setAnnotationStateManager,
-} from "reduxes/annotationmanager/action";
-import {
-  selectorAnnotationManagerImages,
   selectorCurrentPreviewImageName,
   selectorIdDrawObjectByImageName,
 } from "reduxes/annotationmanager/selecetor";
-import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
 import { selectorCurrentAnnotationFiles } from "reduxes/annotationProject/selector";
+import { QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE } from "../constants";
+import ChangePreviewConfirmDialog from "./ChangePreviewConfirmDialog";
+import ImagePreviewBadge from "./ImagePreviewBadge";
 
-const createFile = async (imageName: string, url: string) => {
-  let response = await fetch(url);
-  let data = await response.blob();
-  let metadata = {
-    type: "image/jpeg",
-  };
-  let file = new File([data], imageName, metadata);
-  return file;
-};
-const ImagePreview = function () {
+function ImagePreview() {
   const dispatch = useDispatch();
-  // const annotationManagerImages = useSelector(selectorAnnotationManagerImages);
-
   const currentPreviewImageName = useSelector(selectorCurrentPreviewImageName);
-  const drawObjectById = useSelector(selectorDrawObjectById);
   const idDrawObjectByImageName = useSelector(selectorIdDrawObjectByImageName);
   const currentAnnotationFiles = useSelector(selectorCurrentAnnotationFiles);
-
-  // useEffect(() => {
-  //   if (currentAnnotationFiles) {
-  //     currentAnnotationFiles.items.map((item) => {
-  //       // dispatch(
-  //       //   addImagesToAnnotation({
-  //       //     annotationImagesProperties: [{ image, width: 1920, height: 1208 }],
-  //       //   })
-  //       // );
-  //     });
-  //   }
-  // }, [currentAnnotationFiles]);
+  const annotationStatehHistory = useSelector(selectorAnnotationStatehHistory);
+  const [isOpenDiaglog, setIsOpenDiaglog] = useState<boolean>(false);
+  const [nextPreviewImageName, setNextPreviewImageName] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     if (currentAnnotationFiles) {
       dispatch(
-        changePreviewImage({
+        requestChangePreviewImage({
           imageName: currentAnnotationFiles.items[0].filename,
         })
       );
@@ -120,58 +104,47 @@ const ImagePreview = function () {
     // });
   }, []);
 
-  // const onDrop = (acceptedFiles: File[]) => {
-  //   if (acceptedFiles && acceptedFiles.length > 0) {
-  //     for (const file of acceptedFiles) {
-  //       loadImage(file).then(({ image, fileName }) => {
-  //         const property: AnnotationImagesProperty = {
-  //           image: file,
-  //           width: image.width,
-  //           height: image.height,
-  //         };
-  //         dispatch(
-  //           addImagesToAnnotation({ annotationImagesProperties: [property] })
-  //         );
-  //         if (!currentPreviewImageName) {
-  //           dispatch(changePreviewImage({ imageName: acceptedFiles[0].name }));
-  //         }
-  //       });
-  //     }
-  //   }
-  // };
-  // const dropZone = useDropzone({
-  //   onDrop,
-  //   accept: IMAGE_EXTENSIONS.join(","),
-  //   noDragEventsBubbling: true,
-  // });
-  // const { getRootProps, isDragActive, getInputProps } = dropZone;
-  // const fileThumbByImageName = useMemo(() => {
-  //   const thumbs: Record<string, string> = {};
-  //   Object.entries(annotationManagerImages).map(
-  //     ([imageName, annotationImagesProperty]) => {
-  //       thumbs[imageName] = URL.createObjectURL(annotationImagesProperty.image);
-  //     }
-  //   );
-  //   return thumbs;
-  // }, [annotationManagerImages]);
+  const needConfirmChangePreviewImageDialog = useMemo(
+    () =>
+      annotationStatehHistory.stateHistoryItems[
+        annotationStatehHistory.historyStep - 1
+      ] &&
+      annotationStatehHistory.savedStateHistoryId !==
+        annotationStatehHistory.stateHistoryItems[
+          annotationStatehHistory.historyStep - 1
+        ].id,
+    [annotationStatehHistory]
+  );
+
   const handleSelectPreview = (imageName: string) => {
     if (imageName === currentPreviewImageName) {
       return;
     }
-    if (currentPreviewImageName) {
+    if (!needConfirmChangePreviewImageDialog) {
       dispatch(
-        setAnnotationStateManager({
-          imageName: currentPreviewImageName,
-          drawObjectById,
+        resetCurrentStateDrawObject({
+          drawObjectById: idDrawObjectByImageName[imageName],
         })
       );
+      dispatch(requestChangePreviewImage({ imageName }));
+      return;
     }
-    dispatch(
-      resetCurrentStateDrawObject({
-        drawObjectById: idDrawObjectByImageName[imageName],
-      })
-    );
-    dispatch(changePreviewImage({ imageName }));
+    setNextPreviewImageName(imageName);
+    setIsOpenDiaglog(true);
+  };
+  const handleCloseDialog = () => {
+    setIsOpenDiaglog(false);
+  };
+
+  const refList = useRef<HTMLUListElement>(null);
+  // refList.current?.scroll
+  const scrollLeft = () => {
+    refList.current?.scroll({ left: refList.current.scrollLeft - 500 });
+  };
+  const scrollRight = () => {
+    if (refList.current) {
+      refList.current.scroll({ left: refList.current.scrollLeft + 500 });
+    }
   };
   const renderContent = () => {
     if (!currentAnnotationFiles) {
@@ -179,85 +152,86 @@ const ImagePreview = function () {
     }
     return (
       <>
-        {/* <Box
-          sx={{
-            background: `url("/assets/images/upload-image.png") no-repeat center`,
-            border: "1px solid",
-            backgroundSize: 30,
-            borderRadius: 2,
-            borderWidth: 1,
-            borderColor: "text.secondary",
-            cursor: "pointer",
-          }}
-          width={200}
-          position="relative"
-          {...getRootProps()}
-        >
-          <input {...getInputProps()} />
-        </Box> */}
-        <List
-          sx={{
-            maxWidth: "90%",
-            overflow: "auto",
-            display: "flex",
-            flexDirection: "row",
-            padding: 0,
-          }}
-        >
-          {currentAnnotationFiles.items.map((item) => {
-            return (
+        <BeforeUnload
+          isActive={!!needConfirmChangePreviewImageDialog}
+          message={QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE}
+        />
+        <Box display="flex">
+          <Button
+            color="primary"
+            startIcon={<ArrowBackIosIcon />}
+            onClick={scrollLeft}
+          />
+          <List
+            sx={{
+              overflow: "auto",
+              display: "flex",
+              flexDirection: "row",
+              py: 2,
+              width: "92vw",
+              lineHeight: "8vh",
+            }}
+            ref={refList}
+            id="scrollTest"
+          >
+            {currentAnnotationFiles.items.map((item) => (
               <ListItem key={item.filename}>
-                <Box
-                  sx={{
-                    // background: `url(${fileThumbByImageName[imageName]})no-repeat center`,
-                    border:
-                      item.filename === currentPreviewImageName
-                        ? "3px solid red"
-                        : "1px solid",
-                    backgroundSize: "contain",
-                    height: "100%",
-                    cursor: "pointer",
-                  }}
-                  width="250px"
-                  position="relative"
-                  onClick={() => {
-                    handleSelectPreview(item.filename);
-                  }}
-                >
+                <ImagePreviewBadge filename={item.filename}>
                   <Box
-                    display="flex"
-                    justifyContent="center"
-                    height="100%"
-                    alignItems="center"
+                    sx={{
+                      // background: `url(${fileThumbByImageName[imageName]})no-repeat center`,
+                      border:
+                        item.filename === currentPreviewImageName
+                          ? "3px solid red"
+                          : "1px solid",
+                      backgroundSize: "contain",
+                      height: 60,
+                      cursor: "pointer",
+                    }}
+                    width="250px"
+                    position="relative"
+                    onClick={() => {
+                      handleSelectPreview(item.filename);
+                    }}
                   >
-                    <Typography
-                      sx={{
-                        color: "text.primary",
-                        p: 1,
-                      }}
-                      noWrap
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      height="100%"
+                      alignItems="center"
                     >
-                      {item.filename}
-                    </Typography>
+                      <Typography
+                        sx={{
+                          color: "text.primary",
+                          p: 1,
+                        }}
+                        noWrap
+                      >
+                        {item.filename}
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
+                </ImagePreviewBadge>
               </ListItem>
-            );
-          })}
-        </List>
+            ))}
+          </List>
+          <Button
+            color="primary"
+            startIcon={<ArrowForwardIosIcon />}
+            onClick={scrollRight}
+          />
+        </Box>
+        {currentPreviewImageName && nextPreviewImageName && (
+          <ChangePreviewConfirmDialog
+            isOpen={isOpenDiaglog}
+            imageName={currentPreviewImageName}
+            nextPreviewImageName={nextPreviewImageName}
+            onClose={handleCloseDialog}
+          />
+        )}
       </>
     );
   };
-  return (
-    <Box
-      display="flex"
-      gap={2}
-      height="25vh"
-      minHeight={200}
-      sx={{ padding: "30px 30px" }}
-    >
-      {renderContent()}
-    </Box>
-  );
-};
+  return <>{renderContent()}</>;
+}
 export default ImagePreview;

@@ -99,7 +99,7 @@ export const initialRectangles: Record<string, RectangleSpec> = {
     width: 100,
     height: 100,
     id: "RETANGLE_1",
-    label: initialLabelClassPropertiesByLabelClass["house"].label,
+    label: initialLabelClassPropertiesByLabelClass.house.label,
     cssStyle: { ...LINE_STYLE },
   },
   RETANGLE_2: {
@@ -109,7 +109,7 @@ export const initialRectangles: Record<string, RectangleSpec> = {
     width: 100,
     height: 100,
     id: "RETANGLE_2",
-    label: initialLabelClassPropertiesByLabelClass["car"].label,
+    label: initialLabelClassPropertiesByLabelClass.car.label,
     cssStyle: { ...LINE_STYLE },
   },
 };
@@ -124,7 +124,7 @@ export const initialPolygons: Record<string, PolygonSpec> = {
       isFinished: true,
     },
     id: "POLYGON_1",
-    label: initialLabelClassPropertiesByLabelClass["tree"].label,
+    label: initialLabelClassPropertiesByLabelClass.tree.label,
     cssStyle: { ...LINE_STYLE },
   },
 };
@@ -141,7 +141,7 @@ export const initialLineStrips: Record<string, PolygonSpec> = {
       isLineStrip: true,
     },
     id: "LINESTRIP_1",
-    label: initialLabelClassPropertiesByLabelClass["car"].label,
+    label: initialLabelClassPropertiesByLabelClass.car.label,
     cssStyle: { ...LINE_STYLE },
   },
 };
@@ -153,7 +153,7 @@ export const initialEllipses: Record<string, EllipseSpec> = {
     y: 300,
     rotation: 0,
     id: "ELLIPSE_1",
-    label: initialLabelClassPropertiesByLabelClass["house"].label,
+    label: initialLabelClassPropertiesByLabelClass.house.label,
     cssStyle: { ...LINE_STYLE },
   },
 };

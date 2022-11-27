@@ -122,11 +122,20 @@ const InviteFriendModal = function () {
         {isFetchingInviteEmailTemplate ? (
           <Box
             display="flex"
+            flexDirection="column"
             alignItems="center"
             justifyContent="center"
             my={2}
           >
             <CircularProgress size={20} />
+            <Typography
+              mt={1}
+              color="text.secondary"
+              variant="body2"
+              fontStyle="italic"
+            >
+              Fetching email content...
+            </Typography>
           </Box>
         ) : (
           <Box

@@ -1,3 +1,6 @@
+import { createEllipse } from "components/Annotation/Editor/Shape/EllipseShape";
+import { createPolygon } from "components/Annotation/Editor/Shape/Polygon";
+import { createRectangle } from "components/Annotation/Editor/Shape/Rectangle";
 import {
   EllipseSpec,
   PolygonSpec,
@@ -5,9 +8,7 @@ import {
 } from "components/Annotation/Editor/type";
 import { loadImage } from "components/UploadFile";
 import { DrawObject, DrawType } from "reduxes/annotation/type";
-import { createEllipse } from "routes/AnnotationPage/Editor/Hook/useElipseEvent";
-import { createPolygon } from "routes/AnnotationPage/Editor/Hook/usePolygonEvent";
-import { createRectangle } from "routes/AnnotationPage/Editor/Hook/useRectangleEvent";
+
 import {
   AnnotationDaitaFormatter,
   AnnotationFormatter,
@@ -19,39 +20,16 @@ import {
   Shape,
   ShapeType,
 } from "./type";
-export const exportAnnotationToJson = (
-  drawObjectById: Record<string, DrawObject>
-) => {
-  const shapes: Shape[] = convert(drawObjectById);
-  const annotationFormatter: AnnotationDaitaFormatter = {
-    shapes,
-  };
 
-  return annotationFormatter;
-};
-export const exportAnnotation = (
-  drawObjectById: Record<string, DrawObject>,
-  imageName: string
-) => {
-  const json = exportAnnotationToJson(drawObjectById);
-  const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-    JSON.stringify(json, null, 2)
-  )}`;
-  const link = document.createElement("a");
-  link.href = jsonString;
-  link.download = `${imageName}.json`;
-
-  link.click();
-};
 const readImage = async (url: string) => {
-  let response = await fetch(url);
-  let data = await response.blob();
-  let metadata = {
+  const response = await fetch(url);
+  const data = await response.blob();
+  const metadata = {
     type: "image/png",
   };
   const split = url.split("/");
   const filename = split[split.length - 1];
-  let file = new File([data], filename, metadata);
+  const file = new File([data], filename, metadata);
   const image = await loadImage(file);
   return {
     height: image.image.height,
@@ -61,8 +39,8 @@ const readImage = async (url: string) => {
 };
 export const importFileAndAnnotationFromDaitaAI = (
   file: File
-): Promise<AnnotationImportInfo> => {
-  return new Promise<AnnotationImportInfo>((resolve) => {
+): Promise<AnnotationImportInfo> =>
+  new Promise<AnnotationImportInfo>((resolve) => {
     const reader = new FileReader();
     reader.readAsText(file);
     const drawObjectById: Record<string, DrawObject> = {};
@@ -70,11 +48,12 @@ export const importFileAndAnnotationFromDaitaAI = (
       const annotationFormatter: AnnotationFormatter = JSON.parse(
         reader.result as string
       );
-      for (const annotation of annotationFormatter.annotations) {
+      annotationFormatter.annotations.forEach((annotation) => {
         const drawObject = createPolygon({ x: 0, y: 0 });
-        const formatedPoints = annotation.coordinates.map((arr) => {
-          return { x: arr[0], y: arr[1] };
-        });
+        const formatedPoints = annotation.coordinates.map((arr) => ({
+          x: arr[0],
+          y: arr[1],
+        }));
         drawObjectById[drawObject.data.id] = {
           type: drawObject.type,
           data: {
@@ -84,17 +63,16 @@ export const importFileAndAnnotationFromDaitaAI = (
             label: { label: ID_2_LABEL_DAITA[annotation.category_id] },
           },
         };
-      }
+      });
       resolve({
         drawObjectById,
       });
     };
   });
-};
 export const importFileAndAnnotation = (
   file: File
-): Promise<FileAndAnnotationImportInfo> => {
-  return new Promise<FileAndAnnotationImportInfo>((resolve) => {
+): Promise<FileAndAnnotationImportInfo> =>
+  new Promise<FileAndAnnotationImportInfo>((resolve) => {
     const reader = new FileReader();
     reader.readAsText(file);
     const drawObjectById: Record<string, DrawObject> = {};
@@ -104,11 +82,12 @@ export const importFileAndAnnotation = (
       );
       const property = await readImage(annotationFormatter.image_path);
 
-      for (const annotation of annotationFormatter.annotations) {
+      annotationFormatter.annotations.forEach((annotation) => {
         const drawObject = createPolygon({ x: 0, y: 0 });
-        const formatedPoints = annotation.coordinates.map((arr) => {
-          return { x: arr[0], y: arr[1] };
-        });
+        const formatedPoints = annotation.coordinates.map((arr) => ({
+          x: arr[0],
+          y: arr[1],
+        }));
         drawObjectById[drawObject.data.id] = {
           type: drawObject.type,
           data: {
@@ -118,16 +97,15 @@ export const importFileAndAnnotation = (
             label: { label: ID_2_LABEL_DAITA[annotation.category_id] },
           },
         };
-      }
+      });
       resolve({
         annotationImagesProperty: property,
         drawObjectById,
       });
     };
   });
-};
-export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
-  return new Promise<AnnotationImportInfo>((resolve) => {
+export const importAnnotation = (file: File): Promise<AnnotationImportInfo> =>
+  new Promise<AnnotationImportInfo>((resolve) => {
     const reader = new FileReader();
     reader.readAsText(file);
     const drawObjectById: Record<string, DrawObject> = {};
@@ -135,7 +113,7 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
       const annotationFormatter: AnnotationDaitaFormatter = JSON.parse(
         reader.result as string
       );
-      for (const annotation of annotationFormatter.shapes) {
+      annotationFormatter.shapes.forEach((annotation) => {
         if (
           annotation.shapeType === ShapeType.POLYGON ||
           annotation.shapeType === ShapeType.LINE_STRIP
@@ -177,20 +155,19 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> => {
             } as EllipseSpec,
           };
         }
-      }
+      });
 
       resolve({
         drawObjectById,
       });
     };
   });
-};
 
 export const convert = (
   drawObjectById: Record<string, DrawObject>
 ): Shape[] => {
   const shapes: Shape[] = [];
-  for (const [key, value] of Object.entries(drawObjectById)) {
+  Object.entries(drawObjectById).forEach(([, value]) => {
     if (value.type === DrawType.POLYGON || value.type === DrawType.LINE_STRIP) {
       const { points, label } = value.data as PolygonSpec;
       shapes.push({
@@ -216,6 +193,29 @@ export const convert = (
         categoryId: LABEL_2_ID_DAITA[label.label],
       });
     }
-  }
+  });
   return shapes;
+};
+export const exportAnnotationToJson = (
+  drawObjectById: Record<string, DrawObject>
+) => {
+  const shapes: Shape[] = convert(drawObjectById);
+  const annotationFormatter: AnnotationDaitaFormatter = {
+    shapes,
+  };
+  return annotationFormatter;
+};
+export const exportAnnotation = (
+  drawObjectById: Record<string, DrawObject>,
+  imageName: string
+) => {
+  const json = exportAnnotationToJson(drawObjectById);
+  const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+    JSON.stringify(json, null, 2)
+  )}`;
+  const link = document.createElement("a");
+  link.href = jsonString;
+  link.download = `${imageName.replace(/\.[^.]+$/, "-DAITA")}.json`;
+
+  link.click();
 };

@@ -1,9 +1,6 @@
-import {
-  initialEllipses,
-  initialLineStrips,
-  initialPolygons,
-  initialRectangles,
-} from "components/Annotation/Editor/type";
+import { PolygonSpec } from "components/Annotation/Editor/type";
+import { SAVE_ANNOTATION_STATE_MANAGER } from "reduxes/annotationmanager/constants";
+import { v4 as uuidv4 } from "uuid";
 import {
   ADD_DRAW_OBJECTS_BY_AI,
   CHANGE_CURRENT_DRAW_STATE,
@@ -11,15 +8,19 @@ import {
   CHANGE_ZOOM,
   CREATE_DRAW_OBJECT,
   DELETE_DRAW_OBJECT,
+  HIDDEN_ALL_DRAW_OBJECTS_BY_AI,
+  RECOVER_PREVIOUS_DRAWSTATE,
   REDO_DRAW_OBJECT,
-  REMOVE_DRAW_OBJECTS_BY_AI,
   RESET_ANNOTATION,
   RESET_CURRENT_STATE_DRAW_OBJECT,
   SET_DETECTED_AREA,
   SET_HIDDEN_DRAW_OBJECT,
   SET_IS_DRAGGING_VIEW_PORT,
+  SET_KEY_DOWN_IN_EDITOR,
   SET_LOCK_DRAW_OBJECT,
   SET_SELECT_SHAPE,
+  SHOW_ALL_DRAW_OBJECTS_BY_AI,
+  SHOW_DRAW_OBJECTS_BY_AI,
   UNDO_DRAW_OBJECT,
   UPDATE_DRAW_OBJECT,
   UPDATE_LABEL_OF_DRAW_OBJECT,
@@ -33,23 +34,26 @@ import {
   CreateDrawObjectPayload,
   DeleteDrawObjectPayload,
   DrawObject,
+  DrawObjectByAIState,
   DrawObjectState,
   DrawState,
   DrawType,
-  RemoveDrawObjectStateIdByAIPayload,
   ResetCurrentStateDrawObjectPayload,
   SetHiddenDrawObjectPayload,
   SetIsDraggingViewportPayload,
+  SetKeyDownPayload,
   SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
   SetSelectShapePayload,
+  ShowDrawObjectStateIdByAIPayload,
   StateHistory,
+  StateHistoryItem,
   UpdateDrawObjectPayload,
   UpdateLabelOfDrawObjectPayload,
 } from "./type";
 
 const inititalState: AnnotationReducer = {
-  currentDrawType: DrawType.POLYGON,
+  currentDrawType: null,
   selectedDrawObjectId: null,
   zoom: { zoom: 1, position: { x: 0, y: 0 } },
   // drawObjectById: (() => {
@@ -85,18 +89,24 @@ const inititalState: AnnotationReducer = {
   //   return ret;
   // })(),
   drawObjectById: {},
-  currentDrawState: DrawState.FREE,
-  statehHistory: { historyStep: 0, stateHistoryItems: [] },
+  currentDrawState: DrawState.SELECTING,
+  previousDrawState: DrawState.SELECTING,
+  statehHistory: {
+    savedStateHistoryId: null,
+    historyStep: 0,
+    stateHistoryItems: [],
+  },
   drawObjectStateById: {},
   detectedArea: null,
   isDraggingViewport: false,
-  drawObjectStateIdByAI: [],
+  drawObjectStateIdByAI: {},
+  keyDownInEditor: null,
 };
 const updateStateHistory = (
   drawObjectById: Record<string, DrawObject>,
   statehHistory: StateHistory
 ) => {
-  let newStateHistory = { ...statehHistory };
+  const newStateHistory = { ...statehHistory };
   if (
     newStateHistory.historyStep >= 0 &&
     newStateHistory.historyStep < newStateHistory.stateHistoryItems.length
@@ -110,12 +120,14 @@ const updateStateHistory = (
   newStateHistory.stateHistoryItems = [
     ...newStateHistory.stateHistoryItems,
     {
+      id: uuidv4(),
       drawObjectById: structuredClone(drawObjectById),
     },
   ];
   return newStateHistory;
 };
 const annotationReducer = (
+  // eslint-disable-next-line @typescript-eslint/default-param-last
   state = inititalState,
   action: any
 ): AnnotationReducer => {
@@ -124,11 +136,15 @@ const annotationReducer = (
   switch (actionType) {
     case CHANGE_CURRENT_DRAW_TYPE: {
       const { currentDrawType } = payload as ChangeCurrentDrawTypePayload;
+      const newCurrentDrawState = currentDrawType
+        ? DrawState.FREE
+        : DrawState.SELECTING;
+
       return {
         ...state,
-        currentDrawType,
         selectedDrawObjectId: null,
-        currentDrawState: DrawState.FREE,
+        currentDrawState: newCurrentDrawState,
+        currentDrawType,
       };
     }
     case CHANGE_ZOOM: {
@@ -144,7 +160,7 @@ const annotationReducer = (
 
     case CREATE_DRAW_OBJECT: {
       const { drawObject } = payload as CreateDrawObjectPayload;
-      let newStateHistory = updateStateHistory(
+      const newStateHistory = updateStateHistory(
         state.drawObjectById,
         state.statehHistory
       );
@@ -186,6 +202,7 @@ const annotationReducer = (
         selectedDrawObjectId:
           drawState === DrawState.FREE ? null : state.selectedDrawObjectId,
         currentDrawState: drawState,
+        previousDrawState: state.currentDrawState,
       };
     }
     case SET_SELECT_SHAPE: {
@@ -199,17 +216,23 @@ const annotationReducer = (
       return {
         ...state,
         currentDrawState: DrawState.SELECTING,
+        currentDrawType: null,
         selectedDrawObjectId,
       };
     }
     case DELETE_DRAW_OBJECT: {
       const { drawObjectId } = payload as DeleteDrawObjectPayload;
-      delete state.drawObjectById[drawObjectId];
+      const newStateHistory = updateStateHistory(
+        state.drawObjectById,
+        state.statehHistory
+      );
+      const newState = { ...state };
+      delete newState.drawObjectById[drawObjectId];
       return {
-        ...state,
-        currentDrawState: DrawState.FREE,
+        ...newState,
         selectedDrawObjectId: null,
         drawObjectById: { ...state.drawObjectById },
+        statehHistory: newStateHistory,
       };
     }
     case RESET_CURRENT_STATE_DRAW_OBJECT: {
@@ -226,7 +249,7 @@ const annotationReducer = (
         ...inititalState,
         drawObjectById: { ...drawObjectById },
         drawObjectStateById,
-        drawObjectStateIdByAI: [...state.drawObjectStateIdByAI],
+        drawObjectStateIdByAI: { ...state.drawObjectStateIdByAI },
       };
     }
     case UPDATE_LABEL_OF_DRAW_OBJECT: {
@@ -249,7 +272,7 @@ const annotationReducer = (
     case UNDO_DRAW_OBJECT: {
       const { statehHistory } = state;
       if (state.statehHistory.historyStep > 0) {
-        let stateHistoryItems;
+        let stateHistoryItems: StateHistoryItem[];
         if (
           state.statehHistory.historyStep ===
           state.statehHistory.stateHistoryItems.length
@@ -257,6 +280,7 @@ const annotationReducer = (
           stateHistoryItems = [
             ...statehHistory.stateHistoryItems,
             {
+              id: uuidv4(),
               drawObjectById: structuredClone(state.drawObjectById),
             },
           ];
@@ -266,11 +290,11 @@ const annotationReducer = (
         const undoDrawObjectById =
           statehHistory.stateHistoryItems[state.statehHistory.historyStep - 1]
             .drawObjectById;
-        Object.entries(undoDrawObjectById).map(([key, value]) => {
+        Object.entries(undoDrawObjectById).forEach(([key, value]) => {
           undoDrawObjectById[key].data = {
             ...undoDrawObjectById[key].data,
-            label: state.drawObjectById[key].data.label,
-            cssStyle: state.drawObjectById[key].data.cssStyle,
+            label: value.data.label,
+            cssStyle: value.data.cssStyle,
           };
         });
         return {
@@ -282,9 +306,8 @@ const annotationReducer = (
             historyStep: statehHistory.historyStep - 1,
           },
         };
-      } else {
-        return state;
       }
+      return state;
     }
     case REDO_DRAW_OBJECT: {
       const { statehHistory } = state;
@@ -302,9 +325,8 @@ const annotationReducer = (
             historyStep: statehHistory.historyStep + 1,
           },
         };
-      } else {
-        return state;
       }
+      return state;
     }
     case SET_HIDDEN_DRAW_OBJECT: {
       const { drawObjectId, isHidden } = payload as SetHiddenDrawObjectPayload;
@@ -344,9 +366,32 @@ const annotationReducer = (
     }
     case SET_DETECTED_AREA: {
       const { detectedArea } = payload as SetLockDetectedAreaPayload;
+      const newDrawObjectStateIdByAI = { ...state.drawObjectStateIdByAI };
+      if (detectedArea) {
+        Object.keys(state.drawObjectStateIdByAI).forEach((drawObjectId) => {
+          const drawObject = state.drawObjectById[drawObjectId];
+          if (drawObject) {
+            const { type, data } = drawObject;
+            if (type === DrawType.POLYGON) {
+              const { points } = data as PolygonSpec;
+              const isInvalid = points.some(
+                (point) =>
+                  point.x < detectedArea.x ||
+                  point.y < detectedArea.y ||
+                  point.x > detectedArea.x + detectedArea.width ||
+                  point.y > detectedArea.y + detectedArea.height
+              );
+              if (!isInvalid) {
+                delete newDrawObjectStateIdByAI[drawObjectId];
+              }
+            }
+          }
+        });
+      }
       return {
         ...state,
         detectedArea,
+        drawObjectStateIdByAI: newDrawObjectStateIdByAI,
       };
     }
     case SET_IS_DRAGGING_VIEW_PORT: {
@@ -358,34 +403,66 @@ const annotationReducer = (
     }
     case ADD_DRAW_OBJECTS_BY_AI: {
       const { drawObjectStateIds } = payload as AddDrawObjectStateIdByAIPayload;
-      const newList = [...state.drawObjectStateIdByAI];
+      const newDrawObjectStateIdByAI = { ...state.drawObjectStateIdByAI };
       drawObjectStateIds.forEach((id) => {
-        if (!state.drawObjectStateIdByAI.includes(id)) {
-          newList.push(id);
+        if (!state.drawObjectStateIdByAI[id]) {
+          newDrawObjectStateIdByAI[id] = { isShow: false };
         }
       });
       return {
         ...state,
-        drawObjectStateIdByAI: newList,
+        drawObjectStateIdByAI: newDrawObjectStateIdByAI,
       };
     }
-    case REMOVE_DRAW_OBJECTS_BY_AI: {
+    case SHOW_DRAW_OBJECTS_BY_AI: {
       const { drawObjectStateIds } =
-        payload as RemoveDrawObjectStateIdByAIPayload;
-      const newList = [...state.drawObjectStateIdByAI];
+        payload as ShowDrawObjectStateIdByAIPayload;
+      const newDrawObjectStateIdByAI = { ...state.drawObjectStateIdByAI };
       drawObjectStateIds.forEach((id) => {
-        const indexOf = newList.indexOf(id);
-        if (indexOf !== -1) {
-          newList.splice(indexOf, 1);
-        }
+        delete newDrawObjectStateIdByAI[id];
       });
       return {
         ...state,
-        drawObjectStateIdByAI: newList,
+        drawObjectStateIdByAI: newDrawObjectStateIdByAI,
       };
     }
     case RESET_ANNOTATION: {
       return { ...inititalState };
+    }
+    case RECOVER_PREVIOUS_DRAWSTATE: {
+      return {
+        ...state,
+        currentDrawState: state.previousDrawState,
+      };
+    }
+    case SHOW_ALL_DRAW_OBJECTS_BY_AI: {
+      const newDrawObjectStateIdByAI: Record<string, DrawObjectByAIState> = {};
+      Object.entries(state.drawObjectStateIdByAI).forEach(([key, value]) => {
+        newDrawObjectStateIdByAI[key] = { ...value, isShow: true };
+      });
+      return { ...state, drawObjectStateIdByAI: newDrawObjectStateIdByAI };
+    }
+    case HIDDEN_ALL_DRAW_OBJECTS_BY_AI: {
+      const newDrawObjectStateIdByAI: Record<string, DrawObjectByAIState> = {};
+      Object.entries(state.drawObjectStateIdByAI).forEach(([key, value]) => {
+        newDrawObjectStateIdByAI[key] = { ...value, isShow: false };
+      });
+      return { ...state, drawObjectStateIdByAI: newDrawObjectStateIdByAI };
+    }
+    case SET_KEY_DOWN_IN_EDITOR: {
+      const { keyDownInEditor } = payload as SetKeyDownPayload;
+      return { ...state, keyDownInEditor };
+    }
+    case SAVE_ANNOTATION_STATE_MANAGER.SUCCEEDED: {
+      const history = state.statehHistory;
+      return {
+        ...state,
+        statehHistory: {
+          ...history,
+          savedStateHistoryId:
+            history.stateHistoryItems[history.historyStep - 1].id,
+        },
+      };
     }
     default:
       return state;

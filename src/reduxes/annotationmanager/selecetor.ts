@@ -20,3 +20,7 @@ export const selectorDialogClassManageModal = (state: RootState) =>
   state.annotationManagerReducer.dialogClassManageModal;
 export const selectorIsSavingAnnotation = (state: RootState) =>
   state.annotationManagerReducer.isSavingAnnotation;
+export const selectorIsFetchingImageData = (state: RootState) =>
+  state.annotationManagerReducer.isFetchingImageData;
+export const selectorCurrentImageInEditorProps = (state: RootState) =>
+  state.annotationManagerReducer.currentImageInEditorProps;

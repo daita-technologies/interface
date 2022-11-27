@@ -7,7 +7,7 @@ export type PolygonFormatter = number[][];
 export type CircleFormatter = number[][];
 export type EllipseFormatter = EllipseSpec;
 
-export type points = RectangleFormatter | PolygonFormatter | EllipseFormatter;
+export type Points = RectangleFormatter | PolygonFormatter | EllipseFormatter;
 export type ShapeType =
   | "rectangle"
   | "polygon"
@@ -16,7 +16,7 @@ export type ShapeType =
   | "line"
   | "linestrip";
 export interface Shape {
-  points: points;
+  points: Points;
   shape_type: ShapeType;
   label: string;
   group_id?: null;
@@ -38,9 +38,8 @@ const convertBase64ToLabelMeFormat = (base64: string) => {
   const formatImageData = base64.substring(indexOf + stripKey.length);
   return formatImageData;
 };
-export const convertLabelMeFormatToBase64 = (imageData: string) => {
-  return "data:image/png;base64," + imageData;
-};
+export const convertLabelMeFormatToBase64 = (imageData: string) =>
+  `data:image/png;base64,${imageData}`;
 export const createAnnotationFormatter = (
   shapes: Shape[],
   imageData: string
