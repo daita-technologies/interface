@@ -16,6 +16,15 @@ export const darkTheme = createTheme({
         },
       },
     },
+    MuiButtonBase: {
+      styleOverrides: {
+        root: {
+          "&.Mui-disabled svg": {
+            opacity: 0.3,
+          },
+        },
+      },
+    },
     MuiSvgIcon: {
       styleOverrides: {
         root: {

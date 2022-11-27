@@ -8,7 +8,10 @@ import {
   Typography,
 } from "@mui/material";
 import { MyButton } from "components";
-import { ID_TOKEN_NAME } from "constants/defaultValues";
+import {
+  ID_TOKEN_NAME,
+  MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH,
+} from "constants/defaultValues";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -109,8 +112,8 @@ const UpdateProjectInfoDialog = function () {
             {...register("description", {
               required: false,
               maxLength: {
-                value: 75,
-                message: `Your project description cannot exceed 75 characters.`,
+                value: MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH,
+                message: `Your project description cannot exceed ${MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH} characters.`,
               },
             })}
             error={!!errors.description}
@@ -133,7 +136,7 @@ const UpdateProjectInfoDialog = function () {
             color="text.secondary"
           >
             * The maximum number of characters for Project name and Description
-            is 75.
+            is {MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH}.
           </Typography>
           <Button sx={{ display: "none" }} type="submit" />
         </Box>

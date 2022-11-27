@@ -1,5 +1,4 @@
 import { DrawObject } from "reduxes/annotation/type";
-import { AnnotationImagesProperty } from "reduxes/annotationmanager/type";
 
 export type Shape = RectangleShape | PolygonShape;
 export type RectangleShape = {
@@ -47,9 +46,8 @@ export interface AnnotationFormatter {
   scale_internal_attachment: string;
   workStarted: true;
 }
-export const convertLabelMeFormatToBase64 = (imageData: string) => {
-  return "data:image/png;base64," + imageData;
-};
+export const convertLabelMeFormatToBase64 = (imageData: string) =>
+  `data:image/png;base64,${imageData}`;
 export const createAnnotationFormatter = (shapes: Shape[]) => {
   const annotationFormatter: AnnotationFormatter = {
     task_id: "a9b7c5d3e1f",

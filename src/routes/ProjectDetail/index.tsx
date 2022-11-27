@@ -356,8 +356,22 @@ const ProjectDetail = function () {
           </Box>
         </Box>
         {isFetchingDetailProject === null || isFetchingDetailProject ? (
-          <Box mt={10} display="flex" justifyContent="center">
+          <Box
+            mt={10}
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+          >
             <CircularProgress size={40} />
+            <Typography
+              mt={1}
+              color="text.secondary"
+              variant="body2"
+              fontStyle="italic"
+            >
+              Fetching project information...
+            </Typography>
           </Box>
         ) : (
           renderUploadFile()

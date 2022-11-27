@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setDialogClassManageModal } from "reduxes/annotationmanager/action";
 import { selectorDialogClassManageModal } from "reduxes/annotationmanager/selecetor";
 import useClassManageEditor from "./useClassManageEditor";
+// eslint-disable-next-line import/no-cycle
 import useListClassView from "./useListClassView";
 
 const ClassManageModel = function () {
@@ -21,12 +22,14 @@ const ClassManageModel = function () {
     dispatch(setDialogClassManageModal({ isOpen: false }));
   };
   const getClassManageDialogProps = () => {
-    if (!!dialogClassManageModal.isOpen) {
+    if (dialogClassManageModal.isOpen) {
       if (dialogClassManageModal.classManageModalType === "VIEW") {
         return listClassView;
-      } else if (dialogClassManageModal.classManageModalType === "EDIT") {
+      }
+      if (dialogClassManageModal.classManageModalType === "EDIT") {
         return classManageEditor;
-      } else if (dialogClassManageModal.classManageModalType === "CREATE") {
+      }
+      if (dialogClassManageModal.classManageModalType === "CREATE") {
         return classManageEditor;
       }
     }

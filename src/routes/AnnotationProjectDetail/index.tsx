@@ -72,7 +72,7 @@ const annotationProjectDetail = function () {
         })
       );
     };
-  }, [location, projectName]);
+  }, [projectName]);
 
   useEffect(() => {
     if (
@@ -102,15 +102,15 @@ const annotationProjectDetail = function () {
   }, [annotationCurrentProject]);
   const renderContent = () => {
     if (!annotationCurrentProject) {
-      return <></>;
+      return null;
     }
     let totalOriginalImage = 0;
     let totalPreprocessImage = 0;
-    let totalAugmentImage = 0;
+    const totalAugmentImage = 0;
 
     let totalOriginalSize = 0;
     let totalPreprocessSize = 0;
-    let totalAugmentSize = 0;
+    const totalAugmentSize = 0;
     if (annotationCurrentProject) {
       const originalSourceInfo =
         annotationCurrentProject.groups[ORIGINAL_SOURCE];
@@ -216,7 +216,7 @@ const annotationProjectDetail = function () {
     // }
   };
   const handleAnnotateProjectClick = () => {
-    history.push(`/${ANNOTATION_EDITOR_ROUTE_NAME}/${projectName}`);
+    window.open(`/${ANNOTATION_EDITOR_ROUTE_NAME}/${projectName}`, "_blank");
   };
   const renderProject = () => {
     if (
@@ -239,12 +239,21 @@ const annotationProjectDetail = function () {
       return (
         <Box
           display="flex"
+          flexDirection="column"
           justifyContent="center"
           alignItems="center"
           flex={1}
           py={6}
         >
           <CircularProgress size={20} />
+          <Typography
+            mt={1}
+            color="text.secondary"
+            variant="body2"
+            fontStyle="italic"
+          >
+            Fetching project information...
+          </Typography>
         </Box>
       );
     }
@@ -292,19 +301,17 @@ const annotationProjectDetail = function () {
     );
   };
   return (
-    <>
-      <Box mt={4} mb={10}>
-        <Typography variant="h4" component="h1">
-          {projectName}
-        </Typography>
-        <Divider sx={{ my: 1, borderWidth: 2, borderColor: "text.primary" }} />
-        {renderProject()}
-        <SegmentationProgressModal
-          isOpen={isOpenCheckSegmentationProgressModal}
-          onClose={onCloseCheckSegmentationProgressModal}
-        />
-      </Box>
-    </>
+    <Box mt={4} mb={10}>
+      <Typography variant="h4" component="h1">
+        {projectName}
+      </Typography>
+      <Divider sx={{ my: 1, borderWidth: 2, borderColor: "text.primary" }} />
+      {renderProject()}
+      <SegmentationProgressModal
+        isOpen={isOpenCheckSegmentationProgressModal}
+        onClose={onCloseCheckSegmentationProgressModal}
+      />
+    </Box>
   );
 };
 export default annotationProjectDetail;

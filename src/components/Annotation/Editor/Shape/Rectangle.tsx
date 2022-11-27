@@ -12,15 +12,34 @@ import {
   selectorDrawObjectState,
   selectorSelectedRectangle,
 } from "reduxes/annotation/selector";
-import { DrawState } from "reduxes/annotation/type";
-import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
+import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
+import { selectorCurrentImageInEditorProps } from "reduxes/annotationmanager/selecetor";
+import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { RectangleCompProps, RectangleProps, RectangleSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
-const RectangleComp = ({
+
+export const createRectangle = (position: {
+  x: number;
+  y: number;
+}): DrawObject => {
+  const id = `RECTANGLE-${Math.floor(Math.random() * 100000)}`;
+  const rect: RectangleSpec = {
+    x: position.x,
+    y: position.y,
+    width: 10,
+    height: 10,
+    id,
+    rotation: 0,
+    label: { label: id },
+    cssStyle: { ...LINE_STYLE },
+  };
+  return { type: DrawType.RECTANGLE, data: rect };
+};
+function RectangleComp({
   spec,
   onMouseOverHandler,
   onMouseOutHandler,
-}: RectangleCompProps) => {
+}: RectangleCompProps) {
   const shapeRef = React.useRef<Konva.Rect>(null);
   const trRef = React.useRef<any>(null);
   const dispatch = useDispatch();
@@ -28,16 +47,20 @@ const RectangleComp = ({
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
   const currentDrawState = useSelector(selectorCurrentDrawState);
   const drawObjectState = useSelector(selectorDrawObjectState(spec.id));
+  const currentImageInEditorProps = useSelector(
+    selectorCurrentImageInEditorProps
+  );
 
   const [strokeWidth, setStrokeWidth] = useState<number>(
     spec.cssStyle.strokeWidth
   );
 
-  const isSelected = useMemo(() => {
-    return currentRectangle != null && spec.id === currentRectangle.id;
-  }, [currentRectangle?.id]);
+  const isSelected = useMemo(
+    () => currentRectangle != null && spec.id === currentRectangle.id,
+    [currentRectangle?.id]
+  );
   useEffect(() => {
-    if (isSelected == true) {
+    if (isSelected === true) {
       shapeRef.current?.moveToTop();
     }
   }, [isSelected]);
@@ -55,29 +78,38 @@ const RectangleComp = ({
       trRef.current.getLayer().batchDraw();
     }
   }, [isSelected]);
-  const [stage, setStage] = useState<Konva.Stage | null>(null);
-
   const groupDragBound = (pos: Vector2d) => {
     let { x, y } = pos;
-    const sw = stage ? stage.width() : 0;
-    const sh = stage ? stage.height() : 0;
-    if (shapeRef && shapeRef.current) {
-      const box = shapeRef.current.getClientRect();
-      const minMaxX = [0, box.width];
-      const minMaxY = [0, box.height];
-
-      if (minMaxY[0] + y < 0) y = -1 * minMaxY[0];
-      if (minMaxX[0] + x < 0) x = -1 * minMaxX[0];
-      if (minMaxY[1] + y > sh) y = sh - minMaxY[1];
-      if (minMaxX[1] + x > sw) x = sw - minMaxX[1];
-      return { x, y };
+    if (shapeRef && shapeRef.current && currentImageInEditorProps) {
+      const { clientRectOfBaseImage } = currentImageInEditorProps;
+      if (clientRectOfBaseImage) {
+        if (x < clientRectOfBaseImage.x) {
+          x = clientRectOfBaseImage.x;
+        }
+        if (y < clientRectOfBaseImage.y) {
+          y = clientRectOfBaseImage.y;
+        }
+        const box = shapeRef.current.getClientRect();
+        if (
+          x + box.width >
+          clientRectOfBaseImage.x + clientRectOfBaseImage.width
+        ) {
+          x = clientRectOfBaseImage.x + clientRectOfBaseImage.width - box.width;
+        }
+        if (
+          y + box.height >
+          clientRectOfBaseImage.y + clientRectOfBaseImage.height
+        ) {
+          y =
+            clientRectOfBaseImage.y + clientRectOfBaseImage.height - box.height;
+        }
+      }
     }
-    return { x: 0, y: 0 };
-  };
 
-  const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
-    setStage(e.target.getStage());
-    commonShapeEvent.handleDragStart(e);
+    return {
+      x,
+      y,
+    };
   };
   const handleDragEnd = (e: KonvaEventObject<DragEvent>) => {
     onChange({
@@ -120,9 +152,8 @@ const RectangleComp = ({
     setStrokeWidth(spec.cssStyle.strokeWidth);
     onMouseOutHandler(e);
   };
-
   return (
-    <React.Fragment>
+    <>
       <Rect
         ref={shapeRef}
         dragBoundFunc={groupDragBound}
@@ -133,7 +164,6 @@ const RectangleComp = ({
         onMouseOut={onMouseOut}
         draggable={commonShapeEvent.isLock !== true}
         onDragEnd={handleDragEnd}
-        onDragStart={handleDragStart}
         onTransformEnd={handleTransformEnd}
         strokeScaleEnabled={false}
         {...spec}
@@ -149,14 +179,14 @@ const RectangleComp = ({
           anchorStrokeWidth={CIRCLE_STYLE.strokeWidth}
           anchorStroke={CIRCLE_STYLE.stroke}
           anchorSize={CORNER_RADIUS * 1.8}
-          ignoreStroke={true}
+          ignoreStroke
           boundBoxFunc={boundBoxFunc}
         />
       )}
-    </React.Fragment>
+    </>
   );
-};
-const Rectangle = function ({
+}
+function Rectangle({
   id,
   onMouseOverHandler,
   onMouseOutHandler,
@@ -171,6 +201,6 @@ const Rectangle = function ({
       />
     );
   }
-  return <></>;
-};
+  return null;
+}
 export default Rectangle;

@@ -1,5 +1,6 @@
 import CancelIcon from "@mui/icons-material/Cancel";
 import {
+  Autocomplete,
   Box,
   IconButton,
   Input,
@@ -10,7 +11,6 @@ import {
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
-import { CloneProjectToAnnotationFields } from "./type";
 
 import { MyButton } from "components";
 import {
@@ -22,12 +22,17 @@ import {
   selectorIsCloningProjectToAnnotation,
 } from "reduxes/annotationProject/selector";
 import { useEffect } from "react";
+import { selectorListProjects } from "reduxes/project/selector";
+import { MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH } from "constants/defaultValues";
+import { CloneProjectToAnnotationFields } from "./type";
 
 const CloneProjectModal = function () {
   const dispatch = useDispatch();
   const dialogCloneProjectToAnnotation = useSelector(
     selectorDialogCloneProjectToAnnotation
   );
+  const listProjects = useSelector(selectorListProjects);
+
   const {
     register,
     handleSubmit,
@@ -82,10 +87,46 @@ const CloneProjectModal = function () {
         <Typography variant="h4" component="h2">
           Clone Project To Annotation
         </Typography>
-        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-          <Typography variant="h6" component="h6">
-            {`From '${dialogCloneProjectToAnnotation.projectName}'`}
-          </Typography>
+        <Box mt={4} component="form" onSubmit={handleSubmit(onSubmit)}>
+          {dialogCloneProjectToAnnotation.projectName ? (
+            <Typography variant="h6" component="h6">
+              {`From '${dialogCloneProjectToAnnotation.projectName}'`}
+            </Typography>
+          ) : (
+            <Box mb={1}>
+              <Autocomplete
+                fullWidth
+                value={undefined}
+                disabled={isLoading}
+                options={listProjects}
+                getOptionLabel={(option) => option.project_name}
+                onChange={(_, selectedFromProject) => {
+                  if (selectedFromProject) {
+                    setValue(
+                      "fromProjectName",
+                      selectedFromProject.project_name
+                    );
+                  }
+                }}
+                renderOption={(optionProps, option) => (
+                  <li {...optionProps} key={option.project_name}>
+                    {option.project_name}
+                  </li>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    required
+                    autoFocus={
+                      dialogCloneProjectToAnnotation &&
+                      !dialogCloneProjectToAnnotation.projectName
+                    }
+                    label="From project"
+                  />
+                )}
+              />
+            </Box>
+          )}
           <Input
             {...register("fromProjectName")}
             type="hidden"
@@ -110,15 +151,20 @@ const CloneProjectModal = function () {
             label="Project name"
             placeholder="Project name"
             fullWidth
-            autoFocus
+            autoFocus={
+              !!(
+                dialogCloneProjectToAnnotation &&
+                dialogCloneProjectToAnnotation.projectName
+              )
+            }
             disabled={isLoading}
           />
           <TextField
             {...register("annotationProjectDescription", {
               required: false,
               maxLength: {
-                value: 75,
-                message: `Your project description cannot exceed 75 characters.`,
+                value: MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH,
+                message: `Your project description cannot exceed ${MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH} characters.`,
               },
             })}
             error={!!errors.annotationProjectDescription}

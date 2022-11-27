@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 
 import { modalCloseStyle, modalStyle } from "styles/generalStyle";
-import { SegmentationProgressModalProps } from "./type";
 
 import { useEffect, useMemo, useState } from "react";
 import annotationProjectApi, {
@@ -17,8 +16,9 @@ import annotationProjectApi, {
 } from "services/annotationProjectApi";
 import { useSelector } from "react-redux";
 import { selectorAnnotationCurrentProject } from "reduxes/annotationProject/selector";
+import { SegmentationProgressModalProps } from "./type";
 
-const SegmentationProgressModal = function ({
+function SegmentationProgressModal({
   isOpen,
   onClose,
 }: SegmentationProgressModalProps) {
@@ -80,13 +80,23 @@ const SegmentationProgressModal = function ({
 
       return (
         <Box width="100%" textAlign="center">
-          <LinearProgress
-            value={Math.ceil((finished * 100) / total)}
-            variant="determinate"
-          />
-          <Typography mt={1}>
-            {finished}/{total} images
-          </Typography>
+          <Box>
+            <Typography textAlign="left" fontSize={18}>
+              Due to internal processing, it may take a few minutes for the
+              segmentation task to complete.
+              <br />
+              You will receive an automatic email notification when finished.
+            </Typography>
+          </Box>
+          <Box mt={6}>
+            <LinearProgress
+              value={Math.ceil((finished * 100) / total)}
+              variant="determinate"
+            />
+            <Typography mt={1}>
+              {finished}/{total} images
+            </Typography>
+          </Box>
         </Box>
       );
     }
@@ -144,6 +154,6 @@ const SegmentationProgressModal = function ({
     );
   }
   return null;
-};
+}
 
 export default SegmentationProgressModal;
