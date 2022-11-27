@@ -12,12 +12,31 @@ import {
   selectorDrawObjectState,
   selectorSelectedEllipse,
 } from "reduxes/annotation/selector";
-import { DrawState } from "reduxes/annotation/type";
-import { CIRCLE_STYLE, CORNER_RADIUS } from "../const";
+import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
+import { selectorCurrentImageInEditorProps } from "reduxes/annotationmanager/selecetor";
+import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { EllipseCompProps, EllipseProps, EllipseSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
 
-const EllipseComp = function ({
+export const createEllipse = (position: {
+  x: number;
+  y: number;
+}): DrawObject => {
+  const id = `ELLIPSE-${Math.floor(Math.random() * 100000)}`;
+  const shape: EllipseSpec = {
+    x: position.x,
+    y: position.y,
+    radiusX: 1,
+    radiusY: 1,
+    rotation: 0,
+    id,
+    label: { label: id },
+    cssStyle: { ...LINE_STYLE },
+  };
+  return { type: DrawType.ELLIPSE, data: shape };
+};
+
+function EllipseComp({
   spec,
   onMouseOverHandler,
   onMouseOutHandler,
@@ -29,16 +48,19 @@ const EllipseComp = function ({
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
   const currentDrawState = useSelector(selectorCurrentDrawState);
   const drawObjectState = useSelector(selectorDrawObjectState(spec.id));
-
+  const currentImageInEditorProps = useSelector(
+    selectorCurrentImageInEditorProps
+  );
   const [strokeWidth, setStrokeWidth] = useState<number>(
     spec.cssStyle.strokeWidth
   );
 
-  const isSelected = useMemo(() => {
-    return currentShape != null && spec.id === currentShape.id;
-  }, [currentShape?.id]);
+  const isSelected = useMemo(
+    () => currentShape != null && spec.id === currentShape.id,
+    [currentShape?.id]
+  );
   useEffect(() => {
-    if (isSelected == true) {
+    if (isSelected === true) {
       shapeRef.current?.moveToTop();
     }
   }, [isSelected]);
@@ -56,42 +78,74 @@ const EllipseComp = function ({
       trRef.current.getLayer().batchDraw();
     }
   }, [isSelected]);
-  const [stage, setStage] = useState<Konva.Stage | null>(null);
 
   const groupDragBound = (pos: Vector2d) => {
     let { x, y } = pos;
-    const sw = stage ? stage.width() : 0;
-    const sh = stage ? stage.height() : 0;
-    if (shapeRef && shapeRef.current) {
+    if (shapeRef && shapeRef.current && currentImageInEditorProps) {
+      const { clientRectOfBaseImage } = currentImageInEditorProps;
       const box = shapeRef.current.getClientRect();
 
-      if (y - box.height / 2 < 0) y = box.height / 2;
-      if (x - box.width / 2 < 0) x = box.width / 2;
-      if (y + box.height / 2 > sh) y = sh - box.height / 2;
-      if (x + box.width / 2 > sw) x = sw - box.width / 2;
-      return { x, y };
+      if (clientRectOfBaseImage) {
+        if (x - box.width / 2 < clientRectOfBaseImage.x) {
+          x = clientRectOfBaseImage.x + box.width / 2;
+        }
+        if (y - box.height / 2 < clientRectOfBaseImage.y) {
+          y = clientRectOfBaseImage.y + box.height / 2;
+        }
+        if (
+          x + box.width >
+          clientRectOfBaseImage.x + clientRectOfBaseImage.width
+        ) {
+          x =
+            clientRectOfBaseImage.x +
+            clientRectOfBaseImage.width -
+            box.width / 2;
+        }
+        if (
+          y + box.height >
+          clientRectOfBaseImage.y + clientRectOfBaseImage.height
+        ) {
+          y =
+            clientRectOfBaseImage.y +
+            clientRectOfBaseImage.height -
+            box.height / 2;
+        }
+      }
     }
-    return { x: 0, y: 0 };
-  };
 
-  const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
-    setStage(e.target.getStage());
-    commonShapeEvent.handleDragStart(e);
+    return {
+      x,
+      y,
+    };
   };
+  // const groupDragBound = (pos: Vector2d) => {
+  //   let { x, y } = pos;
+  //   const sw = stage ? stage.width() : 0;
+  //   const sh = stage ? stage.height() : 0;
+  //   if (shapeRef && shapeRef.current) {
+  //     const box = shapeRef.current.getClientRect();
+
+  //     if (y - box.height / 2 < 0) y = box.height / 2;
+  //     if (x - box.width / 2 < 0) x = box.width / 2;
+  //     if (y + box.height / 2 > sh) y = sh - box.height / 2;
+  //     if (x + box.width / 2 > sw) x = sw - box.width / 2;
+  //     return { x, y };
+  //   }
+  //   return { x: 0, y: 0 };
+  // };
+
   const handleTransformEnd = (e: KonvaEventObject<Event>) => {
     const node = shapeRef.current;
     if (!node) return;
-
-    let radiusX = (node.width() * node.scaleX()) / 2.0;
-    let radiusY = (node.height() * node.scaleY()) / 2.0;
-
+    const radiusX = (node.width() * node.scaleX()) / 2.0;
+    const radiusY = (node.height() * node.scaleY()) / 2.0;
     onChange({
       ...spec,
       x: node.x(),
       y: node.y(),
       rotation: node.attrs.rotation,
-      radiusX: radiusX,
-      radiusY: radiusY,
+      radiusX,
+      radiusY,
     });
     node.scale({ x: 1, y: 1 });
     commonShapeEvent.handleTransformEnd(e);
@@ -122,7 +176,7 @@ const EllipseComp = function ({
   };
 
   return (
-    <React.Fragment>
+    <>
       <Ellipse
         ref={shapeRef}
         dragBoundFunc={groupDragBound}
@@ -133,7 +187,6 @@ const EllipseComp = function ({
         onMouseOut={onMouseOut}
         draggable={commonShapeEvent.isLock !== true}
         onDragEnd={handleDragEnd}
-        onDragStart={handleDragStart}
         onTransformEnd={handleTransformEnd}
         strokeScaleEnabled={false}
         {...spec}
@@ -149,14 +202,14 @@ const EllipseComp = function ({
           anchorStrokeWidth={CIRCLE_STYLE.strokeWidth}
           anchorStroke={CIRCLE_STYLE.stroke}
           anchorSize={CORNER_RADIUS * 1.8}
-          ignoreStroke={true}
+          ignoreStroke
           boundBoxFunc={boundBoxFunc}
         />
       )}
-    </React.Fragment>
+    </>
   );
-};
-const EllipseShape = function ({
+}
+function EllipseShape({
   id,
   onMouseOverHandler,
   onMouseOutHandler,
@@ -171,6 +224,6 @@ const EllipseShape = function ({
       />
     );
   }
-  return <></>;
-};
+  return null;
+}
 export default EllipseShape;

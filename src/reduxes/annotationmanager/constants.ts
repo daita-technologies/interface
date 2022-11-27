@@ -1,7 +1,7 @@
 import { asyncAction } from "utils/general";
 
 export const ADD_IMAGES = "ADD_IMAGES";
-export const CHANGE_PREVIEW_IMAGE = "CHANGE_PREVIEW_IMAGE";
+export const CHANGE_PREVIEW_IMAGE = asyncAction("CHANGE_PREVIEW_IMAGE");
 export const SET_PREVIEW_IMAGE = "SET_PREVIEW_IMAGE";
 export const SAVE_ANNOTATION_STATE_MANAGER = asyncAction(
   "SAVE_ANNOTATION_STATE_MANAGER"
@@ -16,3 +16,4 @@ export const FETCH_FILE_AND_ANNOTATION = asyncAction(
 );
 export const SAVE_REMOTE_NEW_CLASS_LABEL = asyncAction("SAVE_NEW_CLASS_LABEL");
 export const RESET_ANNOTATION_MANAGER = "RESET_ANNOTATION_MANAGER";
+export const SET_CLIENT_RECT_OF_BASE_IMAGE = "SET_CLIENT_RECT_OF_BASE_IMAGE";

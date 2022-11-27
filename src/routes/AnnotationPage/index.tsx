@@ -1,4 +1,4 @@
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -36,12 +36,14 @@ const AnnotationPage = function () {
     return (
       <Box
         display="flex"
+        flexDirection="column"
         justifyContent="center"
         alignItems="center"
         flex={1}
-        py={6}
+        py={14}
       >
         <CircularProgress size={20} />
+        <Typography mt={1}>Fetching project information...</Typography>
       </Box>
     );
   };

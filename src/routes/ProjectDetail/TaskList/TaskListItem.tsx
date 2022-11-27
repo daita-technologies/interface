@@ -149,7 +149,7 @@ const TaskListImageSourceItem = function ({
         >
           {status === RUNNING_TASK_STATUS
             ? "EXECUTING"
-            : status.replace(/_/g, " ")}
+            : status?.replace(/_/g, " ") || ""}
         </Typography>
       </Typography>
       {status !== ERROR_TASK_STATUS && status !== FINISH_ERROR_TASK_STATUS && (
@@ -209,7 +209,7 @@ const TaskListUploadItem = function ({ taskInfo }: TaskListUploadItemProps) {
         >
           {status === RUNNING_TASK_STATUS
             ? "EXECUTING"
-            : status.replace(/_/g, " ")}
+            : status?.replace(/_/g, " ") || ""}
         </Typography>
       </Typography>
       {status !== ERROR_TASK_STATUS && status !== FINISH_ERROR_TASK_STATUS && (

@@ -26,17 +26,21 @@ export interface DrawObject {
 }
 export interface AnnotationReducer {
   currentDrawState: DrawState;
-  currentDrawType: DrawType;
+  previousDrawState: DrawState;
+  currentDrawType: DrawType | null;
   selectedDrawObjectId: string | null;
   zoom: ZoomProps;
   drawObjectById: Record<string, DrawObject>;
   drawObjectStateById: Record<string, DrawObjectState>;
-  drawObjectStateIdByAI: string[];
+  drawObjectStateIdByAI: Record<string, DrawObjectByAIState>;
   statehHistory: StateHistory;
   detectedArea: DetectedAreaType | null;
   isDraggingViewport: boolean;
+  keyDownInEditor: string | null;
 }
-
+export interface DrawObjectByAIState {
+  isShow: boolean;
+}
 export interface DetectedAreaType {
   x: number;
   y: number;
@@ -48,10 +52,12 @@ export interface DrawObjectState {
   isHidden?: boolean;
 }
 export interface StateHistory {
+  savedStateHistoryId: string | null;
   historyStep: number;
   stateHistoryItems: StateHistoryItem[];
 }
 export interface StateHistoryItem {
+  id: string;
   drawObjectById: Record<string, DrawObject>;
 }
 export interface ControlPanelProp {
@@ -60,7 +66,7 @@ export interface ControlPanelProp {
   onResetScale: () => void;
 }
 export interface ChangeCurrentDrawTypePayload {
-  currentDrawType: DrawType;
+  currentDrawType: DrawType | null;
 }
 export interface ZoomProps {
   zoom: number;
@@ -112,6 +118,13 @@ export interface SetIsDraggingViewportPayload {
 export interface AddDrawObjectStateIdByAIPayload {
   drawObjectStateIds: string[];
 }
-export interface RemoveDrawObjectStateIdByAIPayload {
+export interface ShowDrawObjectStateIdByAIPayload {
   drawObjectStateIds: string[];
+}
+
+export interface SetKeyDownPayload {
+  keyDownInEditor: string | null;
+}
+export interface SetMouseOutLayerPosition {
+  position: Vector2d | null;
 }

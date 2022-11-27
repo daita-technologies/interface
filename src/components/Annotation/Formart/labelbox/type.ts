@@ -18,9 +18,8 @@ export interface AnnotationFormatter {
   "External ID": string;
 }
 
-export const convertLabelMeFormatToBase64 = (imageData: string) => {
-  return "data:image/png;base64," + imageData;
-};
+export const convertLabelMeFormatToBase64 = (imageData: string) =>
+  `data:image/png;base64,${imageData}`;
 export const createAnnotationFormatter = (labelBox: LabelLabelBox) => {
   const annotationFormatter: AnnotationFormatter = {
     ID: "a9b7c5d3e1f",

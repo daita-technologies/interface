@@ -7,27 +7,11 @@ import {
   Point,
 } from "./type";
 
-export const exportAnnotation = (
-  drawObjectById: Record<string, DrawObject>
-) => {
-  const shapes: LabelLabelBox = convert(drawObjectById);
-  const annotationFormatter: AnnotationFormatter =
-    createAnnotationFormatter(shapes);
-  const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-    JSON.stringify(annotationFormatter, null, 2)
-  )}`;
-  const link = document.createElement("a");
-  link.href = jsonString;
-  link.download = "data.json";
-
-  link.click();
-};
-
 export const convert = (
   drawObjectById: Record<string, DrawObject>
 ): LabelLabelBox => {
   const shape: LabelLabelBox = {};
-  for (const [key, value] of Object.entries(drawObjectById)) {
+  Object.entries(drawObjectById).forEach(([, value]) => {
     if (value.type === DrawType.RECTANGLE) {
       const { x, y, width, height, label } = value.data as RectangleSpec;
       const points: Point[] = [
@@ -61,6 +45,24 @@ export const convert = (
         shape[label.label] = [{ geometry: points }];
       }
     }
-  }
+  });
   return shape;
+};
+export const exportAnnotation = (
+  drawObjectById: Record<string, DrawObject>,
+  imageName: string | null
+) => {
+  const shapes: LabelLabelBox = convert(drawObjectById);
+  const annotationFormatter: AnnotationFormatter =
+    createAnnotationFormatter(shapes);
+  const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+    JSON.stringify(annotationFormatter, null, 2)
+  )}`;
+  const link = document.createElement("a");
+  link.href = jsonString;
+  link.download = imageName
+    ? `${imageName.replace(/\.[^.]+$/, "-LabelBox")}.json`
+    : "data.json";
+
+  link.click();
 };

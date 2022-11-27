@@ -18,8 +18,11 @@ import {
   CloneProjectToAnnotationProps,
 } from "reduxes/annotationProject/type";
 import history from "routerHistory";
-import { hashCode, intToRGB } from "routes/AnnotationPage/LabelAnnotation";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
+import {
+  hashCode,
+  intToRGB,
+} from "routes/AnnotationPage/LabelAnnotation/ClassManageModal/useListClassView";
 import annotationProjectApi from "services/annotationProjectApi";
 
 function* handleCloneProjectToAnnotation(action: {
@@ -41,6 +44,9 @@ function* handleCloneProjectToAnnotation(action: {
 
       yield history.push(
         `/${ANNOTATION_PROJECT_DETAIL_ROUTE_NAME}/${action.payload.annotationProjectName}`
+      );
+      yield toast.info(
+        `We are automatically AI-segmenting your images. You will receive an automatic email notification when finished. The segmented images will be green-marked "AI" on the annotation web page.`
       );
     } else {
       yield put({ type: CLONE_PROJECT_TO_ANNOTATION.FAILED });
@@ -70,7 +76,8 @@ function* handleFetchListProjects(action: any): any {
         type: FETCH_LIST_ANNOTATION_PROJECTS.FAILED,
       });
       toast.error(
-        fetchListProjectsResponse.message || "Can't fetch list projects."
+        fetchListProjectsResponse.message ||
+          "Can't fetch project list at the moment. Please try again later!"
       );
     }
   } catch (e: any) {
@@ -170,8 +177,9 @@ function* handleFetchDetailProject(action: any): any {
         },
       });
       if (annotationProjectInfo.ls_category?.ls_class) {
+        // eslint-disable-next-line no-restricted-syntax
         for (const classLabel of annotationProjectInfo.ls_category.ls_class) {
-          const strokeColor = "#" + intToRGB(hashCode(classLabel.class_name));
+          const strokeColor = `#${intToRGB(hashCode(classLabel.class_name))}`;
           yield put(
             addNewClassLabel({
               labelClassProperties: {

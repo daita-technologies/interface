@@ -38,7 +38,10 @@ import {
   DATASET_HEALTH_CHECK_ROUTE_NAME,
   MY_TASKS_ROUTE_NAME,
 } from "constants/routeName";
-import { fetchListAnnotationProjects } from "reduxes/annotationProject/action";
+import {
+  fetchListAnnotationProjects,
+  setShowDialogCloneProjectToAnnotation,
+} from "reduxes/annotationProject/action";
 import { selectorAnnotationCurrentProjectName } from "reduxes/annotationProject/selector";
 import { LOG_OUT } from "reduxes/auth/constants";
 import { setIsOpenInviteFriend } from "reduxes/invite/action";
@@ -231,12 +234,17 @@ const NavAnnotationProjectItem = function (props: NavProjectItemProps) {
     );
   };
 
-  const handleClickCreateNewProject = () => {
-    dispatch({
-      type: SET_IS_OPEN_CREATE_PROJECT_MODAL,
-      payload: { isOpen: true },
-    });
+  const handleClickCreateFromProject = () => {
+    dispatch(
+      setShowDialogCloneProjectToAnnotation({
+        dialogCloneProjectToAnnotation: {
+          isShow: true,
+          projectName: "",
+        },
+      })
+    );
   };
+
   return (
     <Box p={1} onClick={onClick}>
       <NavRow
@@ -251,9 +259,9 @@ const NavAnnotationProjectItem = function (props: NavProjectItemProps) {
         <Collapse in={isOpenCollapse}>
           <List sx={{ pl: 4, maxHeight: 40 * 5, overflowY: "auto" }}>
             <NavRow
-              name="Create New Project"
+              name="Clone From Project"
               Icon={AddBoxIcon}
-              triggerToggleCollapse={handleClickCreateNewProject}
+              triggerToggleCollapse={handleClickCreateFromProject}
               isSubNav
             />
             {renderListProjects()}
@@ -367,13 +375,13 @@ const Sidebar = function () {
             />
             <NavItem
               name="Annotation Dashboard"
-              Icon={CommentBankIcon}
+              Icon={DashboardIcon}
               to={`/${ANNOTATION_PROJECT_ROUTE_NAME}`}
             />
 
             <NavAnnotationProjectItem
               name="My Annotation Project"
-              Icon={CommentBankIcon}
+              Icon={AssignmentIcon}
               subNav={annotationListProjects}
             />
             <NavItem

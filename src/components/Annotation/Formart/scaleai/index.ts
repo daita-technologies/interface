@@ -1,7 +1,7 @@
+import { createPolygon } from "components/Annotation/Editor/Shape/Polygon";
+import { createRectangle } from "components/Annotation/Editor/Shape/Rectangle";
 import { PolygonSpec, RectangleSpec } from "components/Annotation/Editor/type";
 import { DrawObject, DrawType } from "reduxes/annotation/type";
-import { createPolygon } from "routes/AnnotationPage/Editor/Hook/usePolygonEvent";
-import { createRectangle } from "routes/AnnotationPage/Editor/Hook/useRectangleEvent";
 import {
   AnnotationFormatter,
   createAnnotationFormatter,
@@ -11,27 +11,11 @@ import {
   Shape,
 } from "./type";
 
-export const exportAnnotation = (
-  drawObjectById: Record<string, DrawObject>
-) => {
-  const shapes: Shape[] = convert(drawObjectById);
-  const annotationFormatter: AnnotationFormatter =
-    createAnnotationFormatter(shapes);
-  const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-    JSON.stringify(annotationFormatter, null, 2)
-  )}`;
-  const link = document.createElement("a");
-  link.href = jsonString;
-  link.download = "data.json";
-
-  link.click();
-};
-
 export const convert = (
   drawObjectById: Record<string, DrawObject>
 ): Shape[] => {
   const shapes: Shape[] = [];
-  for (const [key, value] of Object.entries(drawObjectById)) {
+  Object.entries(drawObjectById).forEach(([, value]) => {
     if (value.type === DrawType.RECTANGLE) {
       const { id, x, y, width, height, label } = value.data as RectangleSpec;
       const shape: RectangleShape = {
@@ -54,14 +38,14 @@ export const convert = (
       };
       shapes.push(shape);
     }
-  }
+  });
   return shapes;
 };
 
 export const importAnnotation = (
   file: File
-): Promise<ScaleAIAnnotationImportInfo> => {
-  return new Promise<ScaleAIAnnotationImportInfo>((resolve) => {
+): Promise<ScaleAIAnnotationImportInfo> =>
+  new Promise<ScaleAIAnnotationImportInfo>((resolve) => {
     const reader = new FileReader();
     reader.readAsText(file);
     const drawObjectById: Record<string, DrawObject> = {};
@@ -69,7 +53,7 @@ export const importAnnotation = (
       const annotationFormatter: AnnotationFormatter = JSON.parse(
         reader.result as string
       );
-      for (const shape of annotationFormatter.response.annotations) {
+      annotationFormatter.response.annotations.forEach((shape) => {
         if (shape.type === "box") {
           const drawObject = createRectangle({ x: 0, y: 0 });
 
@@ -96,8 +80,25 @@ export const importAnnotation = (
             },
           };
         }
-      }
+      });
       resolve({ drawObjectById });
     };
   });
+export const exportAnnotation = (
+  drawObjectById: Record<string, DrawObject>,
+  imageName: string | null
+) => {
+  const shapes: Shape[] = convert(drawObjectById);
+  const annotationFormatter: AnnotationFormatter =
+    createAnnotationFormatter(shapes);
+  const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+    JSON.stringify(annotationFormatter, null, 2)
+  )}`;
+  const link = document.createElement("a");
+  link.href = jsonString;
+  link.download = imageName
+    ? `${imageName.replace(/\.[^.]+$/, "-ScaleAI")}.json`
+    : "data.json";
+
+  link.click();
 };
