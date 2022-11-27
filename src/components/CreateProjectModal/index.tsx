@@ -25,6 +25,7 @@ import {
   EMPTY_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE,
   EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE,
   ID_TOKEN_NAME,
+  MAX_DATASET_IMAGES,
   MAX_DATASET_IMAGES_CREATE_PROJECT,
   MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH,
   MIN_DATASET_IMAGES_CREATE_PROJECT,
@@ -123,7 +124,11 @@ const CreateProjectDatasetTypeControl = function (
                   if (selectedPrebuildDataset) {
                     setPrebuildDataset(selectedPrebuildDataset);
                     setNumberOfDatasetImages(
-                      selectedPrebuildDataset.totalImage
+                      selectedPrebuildDataset?.totalImage &&
+                        selectedPrebuildDataset.totalImage > MAX_DATASET_IMAGES
+                        ? MAX_DATASET_IMAGES
+                        : selectedPrebuildDataset?.totalImage ||
+                            MIN_DATASET_IMAGES_CREATE_PROJECT
                     );
                   }
                 }}
@@ -139,7 +144,7 @@ const CreateProjectDatasetTypeControl = function (
               />
             </Box>
             <Typography variant="body2" mt={2}>
-              Number of dataset images:
+              Number of images:
             </Typography>
             <Box display="flex" alignItems="center" columnGap={1} pl={1}>
               <Slider
@@ -150,8 +155,11 @@ const CreateProjectDatasetTypeControl = function (
                 onChange={onChangeNumberOfDatasetImagesSlider}
                 min={MIN_DATASET_IMAGES_CREATE_PROJECT}
                 max={
-                  prebuildDataset?.totalImage ||
-                  MIN_DATASET_IMAGES_CREATE_PROJECT
+                  prebuildDataset?.totalImage &&
+                  prebuildDataset.totalImage > MAX_DATASET_IMAGES
+                    ? MAX_DATASET_IMAGES
+                    : prebuildDataset?.totalImage ||
+                      MIN_DATASET_IMAGES_CREATE_PROJECT
                 }
                 disabled={isCreatingProject}
               />
@@ -163,8 +171,11 @@ const CreateProjectDatasetTypeControl = function (
                 inputProps={{
                   min: MIN_DATASET_IMAGES_CREATE_PROJECT,
                   max:
-                    prebuildDataset?.totalImage ||
-                    MIN_DATASET_IMAGES_CREATE_PROJECT,
+                    prebuildDataset?.totalImage &&
+                    prebuildDataset.totalImage > MAX_DATASET_IMAGES
+                      ? MAX_DATASET_IMAGES
+                      : prebuildDataset?.totalImage ||
+                        MIN_DATASET_IMAGES_CREATE_PROJECT,
                   type: "number",
                   "aria-labelledby": "input-number-of-dataset-images-slider",
                 }}
