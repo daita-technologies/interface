@@ -66,7 +66,6 @@ function DetectedRectangleDrawLayer({
     );
   };
   const resetDraw = () => {
-    console.log("reset");
     setLocalDetectedArea(null);
     dispatch(changeCurrentDrawState({ drawState: DrawState.FREE }));
   };
