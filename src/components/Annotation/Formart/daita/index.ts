@@ -6,14 +6,12 @@ import {
   PolygonSpec,
   RectangleSpec,
 } from "components/Annotation/Editor/type";
-import { loadImage } from "components/UploadFile";
 import { DrawObject, DrawType } from "reduxes/annotation/type";
 
 import {
   AnnotationDaitaFormatter,
   AnnotationFormatter,
   AnnotationImportInfo,
-  FileAndAnnotationImportInfo,
   ID_2_LABEL_DAITA,
   LABEL_2_ID_DAITA,
   PolygonShape,
@@ -21,22 +19,6 @@ import {
   ShapeType,
 } from "./type";
 
-const readImage = async (url: string) => {
-  const response = await fetch(url);
-  const data = await response.blob();
-  const metadata = {
-    type: "image/png",
-  };
-  const split = url.split("/");
-  const filename = split[split.length - 1];
-  const file = new File([data], filename, metadata);
-  const image = await loadImage(file);
-  return {
-    height: image.image.height,
-    width: image.image.width,
-    image: file,
-  };
-};
 export const importFileAndAnnotationFromDaitaAI = (
   file: File
 ): Promise<AnnotationImportInfo> =>
@@ -69,41 +51,44 @@ export const importFileAndAnnotationFromDaitaAI = (
       });
     };
   });
-export const importFileAndAnnotation = (
-  file: File
-): Promise<FileAndAnnotationImportInfo> =>
-  new Promise<FileAndAnnotationImportInfo>((resolve) => {
-    const reader = new FileReader();
-    reader.readAsText(file);
-    const drawObjectById: Record<string, DrawObject> = {};
-    reader.onloadend = async () => {
-      const annotationFormatter: AnnotationFormatter = JSON.parse(
-        reader.result as string
-      );
-      const property = await readImage(annotationFormatter.image_path);
+// export const importFileAndAnnotation = (
+//   file: File
+// ): Promise<FileAndAnnotationImportInfo> =>
+//   new Promise<FileAndAnnotationImportInfo>((resolve) => {
+//     const reader = new FileReader();
+//     reader.readAsText(file);
+//     const drawObjectById: Record<string, DrawObject> = {};
+//     reader.onloadend = async () => {
+//       const annotationFormatter: AnnotationFormatter = JSON.parse(
+//         reader.result as string
+//       );
+//       let property = null;
+//       if (annotationFormatter.image_path) {
+//         property = await readImage(annotationFormatter.image_path);
+//       }
 
-      annotationFormatter.annotations.forEach((annotation) => {
-        const drawObject = createPolygon({ x: 0, y: 0 });
-        const formatedPoints = annotation.coordinates.map((arr) => ({
-          x: arr[0],
-          y: arr[1],
-        }));
-        drawObjectById[drawObject.data.id] = {
-          type: drawObject.type,
-          data: {
-            ...drawObject.data,
-            points: formatedPoints,
-            polygonState: { isFinished: true },
-            label: { label: ID_2_LABEL_DAITA[annotation.category_id] },
-          },
-        };
-      });
-      resolve({
-        annotationImagesProperty: property,
-        drawObjectById,
-      });
-    };
-  });
+//       annotationFormatter.annotations.forEach((annotation) => {
+//         const drawObject = createPolygon({ x: 0, y: 0 });
+//         const formatedPoints = annotation.coordinates.map((arr) => ({
+//           x: arr[0],
+//           y: arr[1],
+//         }));
+//         drawObjectById[drawObject.data.id] = {
+//           type: drawObject.type,
+//           data: {
+//             ...drawObject.data,
+//             points: formatedPoints,
+//             polygonState: { isFinished: true },
+//             label: { label: ID_2_LABEL_DAITA[annotation.category_id] },
+//           },
+//         };
+//       });
+//       resolve({
+//         annotationImagesProperty: property,
+//         drawObjectById,
+//       });
+//     };
+//   });
 export const importAnnotation = (file: File): Promise<AnnotationImportInfo> =>
   new Promise<AnnotationImportInfo>((resolve) => {
     const reader = new FileReader();
@@ -200,10 +185,10 @@ export const exportAnnotationToJson = (
   drawObjectById: Record<string, DrawObject>
 ) => {
   const shapes: Shape[] = convert(drawObjectById);
-  const annotationFormatter: AnnotationDaitaFormatter = {
+  const annotationDaitaFormatter: AnnotationDaitaFormatter = {
     shapes,
   };
-  return annotationFormatter;
+  return annotationDaitaFormatter;
 };
 export const exportAnnotation = (
   drawObjectById: Record<string, DrawObject>,

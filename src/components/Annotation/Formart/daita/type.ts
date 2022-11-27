@@ -36,7 +36,7 @@ export interface AnnotationFormatter {
   annotations: Annotation[];
 }
 export interface FileAndAnnotationImportInfo {
-  annotationImagesProperty: AnnotationImagesProperty;
+  annotationImagesProperty: AnnotationImagesProperty | null;
   drawObjectById: Record<string, DrawObject>;
 }
 export interface AnnotationImportInfo {
