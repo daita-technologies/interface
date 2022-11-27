@@ -166,6 +166,8 @@ function RectangleComp({
         onDragEnd={handleDragEnd}
         onTransformEnd={handleTransformEnd}
         strokeScaleEnabled={false}
+        onMouseEnter={commonShapeEvent.handleMouseEnter}
+        onMouseLeave={commonShapeEvent.handleMouseLeave}
         {...spec}
         {...spec.cssStyle}
         strokeWidth={strokeWidth}
