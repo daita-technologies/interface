@@ -23,6 +23,7 @@ import {
 } from "reduxes/annotationProject/selector";
 import { useEffect } from "react";
 import { selectorListProjects } from "reduxes/project/selector";
+import { MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH } from "constants/defaultValues";
 import { CloneProjectToAnnotationFields } from "./type";
 
 const CloneProjectModal = function () {
@@ -162,8 +163,8 @@ const CloneProjectModal = function () {
             {...register("annotationProjectDescription", {
               required: false,
               maxLength: {
-                value: 75,
-                message: `Your project description cannot exceed 75 characters.`,
+                value: MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH,
+                message: `Your project description cannot exceed ${MAX_PROJECT_DESCRIPTION_CHARACTER_LENGTH} characters.`,
               },
             })}
             error={!!errors.annotationProjectDescription}

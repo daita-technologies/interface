@@ -101,6 +101,7 @@ function* handleGetAnnotationFile(s3_key: string): any {
     new GetObjectCommand({
       Bucket: bucketName,
       Key: photoKey,
+      ResponseCacheControl: "no-cache",
     })
   );
   if (photoContent.Body) {
@@ -242,7 +243,7 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
       yield put(addImagesToAnnotation({ annotationImagesProperties: [image] }));
       yield put(requestChangePreviewImageSuccess());
     } else {
-      toast.error("Fail to get image data");
+      toast.error("Failed to get image data.");
       yield put(requestChangePreviewImageFail());
     }
   } catch (e: any) {
@@ -266,7 +267,7 @@ function* handleAddNewClassLabel(action: any): any {
   );
   if (saveLabelResp.error === false) {
     yield put(addNewClassLabel(action.payload));
-    toast.success("Add new class success");
+    toast.success("New class was successfully added.");
   } else {
     toast.error(saveLabelResp.message);
   }
@@ -325,7 +326,7 @@ function* handleSaveAnnotationStateManager(action: any): any {
   });
   if (saveLabelResponse.error !== true) {
     yield put({ type: SAVE_ANNOTATION_STATE_MANAGER.SUCCEEDED });
-    toast.success("Save annotation success");
+    toast.success("Annotation data is successfully saved.");
   } else {
     yield put({ type: SAVE_ANNOTATION_STATE_MANAGER.FAILED });
     toast.error(saveLabelResponse.message);

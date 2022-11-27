@@ -49,7 +49,8 @@ export const convert = (
   return shape;
 };
 export const exportAnnotation = (
-  drawObjectById: Record<string, DrawObject>
+  drawObjectById: Record<string, DrawObject>,
+  imageName: string | null
 ) => {
   const shapes: LabelLabelBox = convert(drawObjectById);
   const annotationFormatter: AnnotationFormatter =
@@ -59,7 +60,9 @@ export const exportAnnotation = (
   )}`;
   const link = document.createElement("a");
   link.href = jsonString;
-  link.download = "data.json";
+  link.download = imageName
+    ? `${imageName.replace(/\.[^.]+$/, "-LabelBox")}.json`
+    : "data.json";
 
   link.click();
 };

@@ -1,4 +1,9 @@
-import { initialLabelClassPropertiesByLabelClass } from "components/Annotation/Editor/type";
+import {
+  MAX_HEIGHT_EDITOR,
+  MAX_HEIGHT_IMAGE_IN_EDITOR,
+  MAX_WIDTH_EDITOR,
+  MAX_WIDTH_IMAGE_IN_EDITOR,
+} from "components/Annotation/Editor/const";
 import {
   ADD_IMAGES,
   ADD_NEW_CLASS_LABEL,
@@ -8,6 +13,7 @@ import {
   RESET_ANNOTATION_MANAGER,
   SAVE_ANNOTATION_STATE_MANAGER,
   SET_ANNOTATION_STATE_MANAGER,
+  SET_CLIENT_RECT_OF_BASE_IMAGE,
   SET_CLASS_MANAGE_MODAL,
   SET_PREVIEW_IMAGE,
 } from "./constants";
@@ -20,12 +26,14 @@ import {
   EditClassLabelProps,
   EditClassManageModalProps,
   SaveAnnotationStateManagerProps,
+  SetClientRectOfBaseImageProps,
 } from "./type";
 
 const inititalState: AnnotationManagerReducer = {
   idDrawObjectByImageName: {},
   images: {},
   currentPreviewImageName: null,
+  currentImageInEditorProps: null,
   labelClassPropertiesByLabelClass: {}, // initialLabelClassPropertiesByLabelClass,
   dialogClassManageModal: {
     isOpen: false,
@@ -62,10 +70,61 @@ const annotationManagerReducer = (
       };
     }
     case CHANGE_PREVIEW_IMAGE.SUCCEEDED: {
+      if (state.currentPreviewImageName) {
+        const image = state.images[state.currentPreviewImageName];
+        if (image) {
+          const { height, width } = image;
+          const widthRatio = MAX_WIDTH_IMAGE_IN_EDITOR / width;
+          const heightRatio = MAX_HEIGHT_IMAGE_IN_EDITOR / height;
+          let newWidth = width;
+          let newHeight = height;
+          if (widthRatio < 1 || heightRatio < 1) {
+            if (widthRatio < heightRatio) {
+              newWidth = MAX_WIDTH_IMAGE_IN_EDITOR;
+              newHeight *= widthRatio;
+            } else {
+              newHeight = MAX_HEIGHT_IMAGE_IN_EDITOR;
+              newWidth *= heightRatio;
+            }
+          }
+          const scaleX = newWidth / width;
+          const scaleY = newHeight / height;
+          const paddingLeft = (MAX_WIDTH_EDITOR - newWidth) / scaleX / 2.0;
+          const paddingTop = (MAX_HEIGHT_EDITOR - newHeight) / scaleY / 2.0;
+          return {
+            ...state,
+            currentImageInEditorProps: {
+              scaleX,
+              scaleY,
+              width: newWidth,
+              height: newHeight,
+              paddingLeft,
+              paddingTop,
+              clientRectOfBaseImage: null,
+            },
+            isFetchingImageData: false,
+          };
+        }
+      }
+
       return {
         ...state,
         isFetchingImageData: false,
       };
+    }
+    case SET_CLIENT_RECT_OF_BASE_IMAGE: {
+      const { clientRectOfBaseImage } =
+        payload as SetClientRectOfBaseImageProps;
+      if (state.currentImageInEditorProps) {
+        return {
+          ...state,
+          currentImageInEditorProps: {
+            ...state.currentImageInEditorProps,
+            clientRectOfBaseImage,
+          },
+        };
+      }
+      return state;
     }
     case CHANGE_PREVIEW_IMAGE.FAILED: {
       return {

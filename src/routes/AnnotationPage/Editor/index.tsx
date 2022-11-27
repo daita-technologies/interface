@@ -7,11 +7,11 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Layer, Rect, Stage, Text } from "react-konva";
 
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import { Ellipse, Polygon, Rectangle } from "components/Annotation";
 import {
-  MAX_HEIGHT_IMAGE_IN_EDITOR,
-  MAX_WIDTH_IMAGE_IN_EDITOR,
+  MAX_HEIGHT_EDITOR,
+  MAX_WIDTH_EDITOR,
 } from "components/Annotation/Editor/const";
 import Konva from "konva";
 import {
@@ -29,8 +29,6 @@ import {
   redoDrawObject,
   setIsDraggingViewpor,
   setKeyDownInEditor,
-  setMouseDownOutLayerPosition,
-  setMouseUpOutLayerPosition,
   setSelectedShape,
   undoDrawObject,
 } from "reduxes/annotation/action";
@@ -43,7 +41,11 @@ import {
   selectorZoom,
 } from "reduxes/annotation/selector";
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
-import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import {
+  selectorCurrentAnnotationFile,
+  selectorCurrentImageInEditorProps,
+  selectorIsFetchingImageData,
+} from "reduxes/annotationmanager/selecetor";
 import {
   DRAW_ELLIPSE_SHORT_KEY,
   DRAW_LINE_SHORT_KEY,
@@ -68,6 +70,7 @@ function Editor() {
   const refTextPosition = useRef<Konva.Text | null>(null);
 
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
+  const isFetchingImageData = useSelector(selectorIsFetchingImageData);
   const drawObjectById = useSelector(selectorDrawObjectById);
   const selectedDrawObjectId = useSelector(selectorSelectedDrawObjectId);
   const currentDrawState = useSelector(selectorCurrentDrawState);
@@ -79,31 +82,9 @@ function Editor() {
   const toolTipLayer = useRef<Konva.Layer>(null);
   const toolTip = useRef<Konva.Text>(null);
   const toolTipRect = useRef<Konva.Rect>(null);
-  const stageProps = useMemo(() => {
-    if (currentAnnotationFile) {
-      const { height, width } = currentAnnotationFile;
-      const widthRatio = MAX_WIDTH_IMAGE_IN_EDITOR / width;
-      const heightRatio = MAX_HEIGHT_IMAGE_IN_EDITOR / height;
-      let newWidth = width;
-      let newHeight = height;
-      if (widthRatio < 1 || heightRatio < 1) {
-        if (widthRatio < heightRatio) {
-          newWidth = MAX_WIDTH_IMAGE_IN_EDITOR;
-          newHeight *= widthRatio;
-        } else {
-          newHeight = MAX_HEIGHT_IMAGE_IN_EDITOR;
-          newWidth *= heightRatio;
-        }
-      }
-      return {
-        scaleX: newWidth / width,
-        scaleY: newHeight / height,
-        height: newHeight,
-        width: newWidth,
-      };
-    }
-    return null;
-  }, [currentAnnotationFile]);
+  const currentImageInEditorProps = useSelector(
+    selectorCurrentImageInEditorProps
+  );
 
   const drawObjects = useMemo(() => {
     const rectanglesById: Record<string, DrawObject> = {};
@@ -179,16 +160,20 @@ function Editor() {
     }
   };
   const keyDownHandler = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.ctrlKey && e.shiftKey && e.key === "Z") {
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      e.shiftKey &&
+      (e.key === "Z" || e.key === "z")
+    ) {
       dispatch(redoDrawObject());
-    } else if (e.ctrlKey && e.key === "z") {
+    } else if ((e.ctrlKey || e.metaKey) && e.key === "z") {
       dispatch(undoDrawObject());
     } else if (e.key === " ") {
       setKeyDown(e.key);
       if (currentDrawState !== DrawState.ZOOMDRAGGING) {
         dispatch(changeCurrentDrawState({ drawState: DrawState.ZOOMDRAGGING }));
       }
-    } else if (e.key === "Delete") {
+    } else if (e.key === "Delete" || e.key === "Backspace") {
       if (selectedDrawObjectId) {
         dispatch(deleteDrawObject({ drawObjectId: selectedDrawObjectId }));
         if (toolTipLayer.current?.attrs.id === selectedDrawObjectId) {
@@ -312,11 +297,11 @@ function Editor() {
     }
   }, [zoom]);
   const isLoading = useMemo(() => {
-    if (!currentAnnotationFile) {
+    if (!currentAnnotationFile || isFetchingImageData === true) {
       return true;
     }
     return currentAnnotationFile.image === null;
-  }, [currentAnnotationFile]);
+  }, [currentAnnotationFile, isFetchingImageData]);
   const handleMouseDown = (e: KonvaEventObject<MouseEvent>) => {
     dispatch(setSelectedShape({ selectedDrawObjectId: null }));
     e.evt.preventDefault();
@@ -328,25 +313,24 @@ function Editor() {
     }
     return handleMouseDown;
   }, [currentDrawState, currentDrawType]);
-  const handleMouseDownOutLayer = (event: React.MouseEvent<HTMLElement>) => {
-    dispatch(
-      setMouseDownOutLayerPosition({
-        position: { x: event.clientX, y: event.clientY },
-      })
-    );
-  };
-  const handleMouseUpOutLayer = (event: React.MouseEvent<HTMLElement>) => {
-    dispatch(
-      setMouseUpOutLayerPosition({
-        position: { x: event.clientX, y: event.clientY },
-      })
-    );
-  };
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoading || !currentImageInEditorProps) {
       return (
-        <Box display="flex" justifyContent="center" alignSelf="center">
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+        >
           <CircularProgress size={24} />
+          <Typography
+            mt={1}
+            color="text.secondary"
+            variant="body2"
+            fontStyle="italic"
+          >
+            Fetching image and segmentation information...
+          </Typography>
         </Box>
       );
     }
@@ -357,8 +341,6 @@ function Editor() {
         onKeyDown={keyDownHandler}
         onKeyUp={keyUpHandler}
         onMouseOver={mouseOverBoundDivHandler}
-        onMouseDown={handleMouseDownOutLayer}
-        onMouseUp={handleMouseUpOutLayer}
         id="annotation-editor-bound"
         width="100%"
         height="100%"
@@ -374,21 +356,24 @@ function Editor() {
             {({ store }) => (
               <Stage
                 ref={stageRef}
-                scaleX={stageProps ? stageProps.scaleX : 1}
-                scaleY={stageProps ? stageProps.scaleY : 1}
-                width={
-                  stageProps ? stageProps.width : MAX_WIDTH_IMAGE_IN_EDITOR
-                }
-                height={
-                  stageProps ? stageProps.height : MAX_HEIGHT_IMAGE_IN_EDITOR
-                }
+                scaleX={currentImageInEditorProps.scaleX}
+                scaleY={currentImageInEditorProps.scaleY}
+                width={MAX_WIDTH_EDITOR}
+                height={MAX_HEIGHT_EDITOR}
                 onWheel={wheelHandler}
                 onClick={selectHandleMouseDown}
                 draggable={isDraggingViewport}
               >
                 <Provider store={store}>
-                  <DrawLayer />
-                  <Layer ref={layer}>
+                  <DrawLayer
+                    paddingLeft={currentImageInEditorProps.paddingLeft}
+                    paddingTop={currentImageInEditorProps.paddingTop}
+                  />
+                  <Layer
+                    ref={layer}
+                    x={currentImageInEditorProps.paddingLeft}
+                    y={currentImageInEditorProps.paddingTop}
+                  >
                     <BaseImage />
                     <Group
                       ref={group}
@@ -429,8 +414,16 @@ function Editor() {
                   <Layer
                     ref={toolTipLayer}
                     visible={false}
-                    scaleX={stageProps ? 1 / stageProps.scaleX : 1}
-                    scaleY={stageProps ? 1 / stageProps.scaleY : 1}
+                    scaleX={
+                      currentImageInEditorProps
+                        ? 1 / currentImageInEditorProps.scaleX
+                        : 1
+                    }
+                    scaleY={
+                      currentImageInEditorProps
+                        ? 1 / currentImageInEditorProps.scaleY
+                        : 1
+                    }
                   >
                     <Rect
                       ref={toolTipRect}

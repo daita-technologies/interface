@@ -1,4 +1,8 @@
-import { Box, CircularProgress } from "@mui/material";
+import {
+  MAX_HEIGHT_EDITOR,
+  MAX_WIDTH_EDITOR,
+} from "components/Annotation/Editor/const";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { ID_TOKEN_NAME } from "constants/defaultValues";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -49,8 +53,8 @@ const AnnotationEditor = function () {
       currentAnnotationFiles.projectId === annotationCurrentProject.project_id
     ) {
       return (
-        <Box display="flex" sx={{ height: "100vh" }} flexDirection="column">
-          <Box display="flex" height="85vh">
+        <Box display="flex" flexDirection="column">
+          <Box display="flex">
             <Box flexBasis="10%" sx={{ overflowY: "auto", minWidth: "240px" }}>
               <Box sx={{ padding: 3 }}>
                 <ControlPanel />
@@ -58,8 +62,10 @@ const AnnotationEditor = function () {
             </Box>
             <Box
               sx={{ backgroundColor: "#101c2d" }}
-              flexBasis="70%"
-              padding="2px"
+              // flexBasis="70%"
+              width={MAX_WIDTH_EDITOR}
+              height={MAX_HEIGHT_EDITOR}
+              margin="2px"
             >
               <Editor />
             </Box>
@@ -71,8 +77,9 @@ const AnnotationEditor = function () {
           <Box
             display="flex"
             gap={2}
-            height="15vh"
-            sx={{ padding: 1, backgroundColor: "#2a3648" }}
+            sx={{ backgroundColor: "#2a3648" }}
+            justifyContent="center"
+            alignContent="center"
           >
             <ImagePreview />
           </Box>
@@ -80,8 +87,16 @@ const AnnotationEditor = function () {
       );
     }
     return (
-      <Box display="flex" alignItems="center" justifyContent="center" my={2}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        my={2}
+        py={12}
+      >
         <CircularProgress size={20} />
+        <Typography mt={1}>Initializing annotation editor...</Typography>
       </Box>
     );
   };

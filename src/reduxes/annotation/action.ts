@@ -15,8 +15,6 @@ import {
   SET_IS_DRAGGING_VIEW_PORT,
   SET_KEY_DOWN_IN_EDITOR,
   SET_LOCK_DRAW_OBJECT,
-  SET_MOUSE_DOWN_OUT_LAYER_POSITION,
-  SET_MOUSE_UP_OUT_LAYER_POSITION,
   SET_SELECT_SHAPE,
   SHOW_ALL_DRAW_OBJECTS_BY_AI,
   SHOW_DRAW_OBJECTS_BY_AI,
@@ -37,7 +35,6 @@ import {
   SetKeyDownPayload,
   SetLockDetectedAreaPayload,
   SetLockDrawObecjtPayload,
-  SetMouseOutLayerPosition,
   SetSelectShapePayload,
   ShowDrawObjectStateIdByAIPayload,
   UpdateDrawObjectPayload,
@@ -139,17 +136,5 @@ export const hiddenAllDrawObjectStateIdByAI = () => ({
 });
 export const setKeyDownInEditor = (payload: SetKeyDownPayload) => ({
   type: SET_KEY_DOWN_IN_EDITOR,
-  payload,
-});
-export const setMouseUpOutLayerPosition = (
-  payload: SetMouseOutLayerPosition
-) => ({
-  type: SET_MOUSE_UP_OUT_LAYER_POSITION,
-  payload,
-});
-export const setMouseDownOutLayerPosition = (
-  payload: SetMouseOutLayerPosition
-) => ({
-  type: SET_MOUSE_DOWN_OUT_LAYER_POSITION,
   payload,
 });
