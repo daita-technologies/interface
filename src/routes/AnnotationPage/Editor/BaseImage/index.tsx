@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Image } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { setClientRectOfBaseImage } from "reduxes/annotationmanager/action";
-import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selector";
 
 export default function BaseImage() {
   const dispatch = useDispatch();

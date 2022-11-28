@@ -21,7 +21,7 @@ import {
   selectorKeyDownInEditor,
 } from "reduxes/annotation/selector";
 import { DrawState, DrawType } from "reduxes/annotation/type";
-import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selector";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
 import { DrawLayerProps } from "./type";
 import { adjustPosition } from "./utils";

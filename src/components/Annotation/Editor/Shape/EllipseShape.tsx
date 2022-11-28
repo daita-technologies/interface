@@ -6,15 +6,14 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Ellipse, Transformer } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDrawObject } from "reduxes/annotation/action";
-import
-  {
-    selectorCurrentDrawState,
-    selectorDrawObject,
-    selectorDrawObjectState,
-    selectorSelectedEllipse
-  } from "reduxes/annotation/selector";
+import {
+  selectorCurrentDrawState,
+  selectorDrawObject,
+  selectorDrawObjectState,
+  selectorSelectedEllipse,
+} from "reduxes/annotation/selector";
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
-import { selectorCurrentImageInEditorProps } from "reduxes/annotationmanager/selecetor";
+import { selectorCurrentImageInEditorProps } from "reduxes/annotationmanager/selector";
 import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { EllipseCompProps, EllipseProps, EllipseSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";

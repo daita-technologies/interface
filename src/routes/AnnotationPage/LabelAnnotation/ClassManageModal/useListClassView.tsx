@@ -25,7 +25,7 @@ import {
   openEditDialogClassManageModal,
   setDialogClassManageModal,
 } from "reduxes/annotationmanager/action";
-import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
+import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selector";
 import { convertStrokeColorToFillColor } from "../ClassLabel";
 import { ClassManageDialogProps } from "./type";
 

@@ -13,7 +13,7 @@ import {
   selectorSelectedRectangle,
 } from "reduxes/annotation/selector";
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
-import { selectorCurrentImageInEditorProps } from "reduxes/annotationmanager/selecetor";
+import { selectorCurrentImageInEditorProps } from "reduxes/annotationmanager/selector";
 import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { RectangleCompProps, RectangleProps, RectangleSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";

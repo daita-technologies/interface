@@ -43,7 +43,7 @@ import {
   requestChangePreviewImageSuccess,
   setAnnotationStateManager,
 } from "reduxes/annotationmanager/action";
-import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
+import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selector";
 import {
   AnnotationImagesProperty,
   SaveAnnotationStateManagerProps,

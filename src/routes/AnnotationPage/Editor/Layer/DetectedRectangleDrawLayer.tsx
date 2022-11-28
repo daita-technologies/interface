@@ -9,7 +9,7 @@ import {
   setDetectedArea,
 } from "reduxes/annotation/action";
 import { DetectedAreaType, DrawState } from "reduxes/annotation/type";
-import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selector";
 import { FULL_PADDING_VALUE } from "routes/AnnotationPage/constants";
 import { convertStrokeColorToFillColor } from "routes/AnnotationPage/LabelAnnotation/ClassLabel";
 import { DrawLayerProps } from "./type";

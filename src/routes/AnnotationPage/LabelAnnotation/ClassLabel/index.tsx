@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateLabelOfDrawObject } from "reduxes/annotation/action";
 import { setDialogClassManageModal } from "reduxes/annotationmanager/action";
-import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
+import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selector";
 import { ClassLabelProps } from "./type";
 
 const filter = createFilterOptions<LabelClassPropertiesOptionType>();

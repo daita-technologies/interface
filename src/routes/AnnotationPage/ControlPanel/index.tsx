@@ -76,7 +76,7 @@ import {
   selectorCurrentPreviewImageName,
   selectorIsSavingAnnotation,
   selectorLabelClassPropertiesByLabelClass,
-} from "reduxes/annotationmanager/selecetor";
+} from "reduxes/annotationmanager/selector";
 import {
   selectorAnnotationCurrentProject,
   selectorAnnotationCurrentProjectName,
