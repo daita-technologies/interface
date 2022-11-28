@@ -455,14 +455,17 @@ const annotationReducer = (
     }
     case SAVE_ANNOTATION_STATE_MANAGER.SUCCEEDED: {
       const history = state.statehHistory;
-      return {
-        ...state,
-        statehHistory: {
-          ...history,
-          savedStateHistoryId:
-            history.stateHistoryItems[history.historyStep - 1].id,
-        },
-      };
+      if (history.stateHistoryItems[history.historyStep - 1]) {
+        return {
+          ...state,
+          statehHistory: {
+            ...history,
+            savedStateHistoryId:
+              history.stateHistoryItems[history.historyStep - 1].id,
+          },
+        };
+      }
+      return state;
     }
     default:
       return state;

@@ -319,6 +319,9 @@ function* handleCheckFilesToUpload(action: {
 }): any {
   const { idToken, projectName, projectId, listFileName } = action.payload;
   try {
+    if (listFileName.length === 0) {
+      return;
+    }
     yield put(
       updateFilesAnnotationProject({
         fileNames: listFileName,

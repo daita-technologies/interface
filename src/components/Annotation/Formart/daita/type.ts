@@ -20,7 +20,7 @@ export enum ShapeType {
 export interface Shape {
   shapeSpec: ShapeSpec;
   shapeType: ShapeType;
-  categoryId: number;
+  categoryId: string;
 }
 export type RectangleShape = Pick<
   RectangleSpec,

@@ -9,6 +9,7 @@ import {
   selectorAnnotationCurrentProject,
   selectorCurrentAnnotationAndFileInfo,
   selectorCurrentAnnotationFiles,
+  selectorLsCategory,
 } from "reduxes/annotationProject/selector";
 
 import { GetObjectCommand } from "@aws-sdk/client-s3";
@@ -52,6 +53,7 @@ import {
   AnnotationAndFileInfoApi,
   AnnotationFilesApi,
   AnnotationProjectInfo,
+  CategoryInfoApi,
 } from "reduxes/annotationProject/type";
 import { selectorS3 } from "reduxes/general/selector";
 import annotationProjectApi from "services/annotationProjectApi";
@@ -62,6 +64,7 @@ import {
   hashCode,
   intToRGB,
 } from "routes/AnnotationPage/LabelAnnotation/ClassManageModal/useListClassView";
+import { addNewListClassInfo } from "reduxes/annotationProject/action";
 
 export function getKeyS3(s3Key: string) {
   const splitKey = s3Key.split("/");
@@ -147,12 +150,12 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
   const annotationCurrentProject: AnnotationProjectInfo = yield select(
     selectorAnnotationCurrentProject
   );
-
+  const lsCategory = annotationCurrentProject.ls_category;
   const fetchDetailProjectResponse = yield call(
     annotationProjectApi.annotationAndFileInfo,
     {
       idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-      categoryId: annotationCurrentProject.ls_category.category_id,
+      categoryId: lsCategory.category_id,
       filename: action.payload.imageName,
       projectId: annotationCurrentProject.project_id,
     }
@@ -180,11 +183,18 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
     //   selectorAnnotationCurrentProject
     // );
     let annotation: ResetCurrentStateDrawObjectPayload = { drawObjectById: {} };
+    const idToLabelStr: Record<string, string> = {};
+    lsCategory.ls_class.forEach((t) => {
+      idToLabelStr[t.class_id] = t.class_name;
+    });
     if (label_info && label_info) {
       const labelFile = yield handleGetAnnotationFile(
         label_info.s3key_jsonlabel
       );
-      const annotationTmp = yield importAnnotationDaita(labelFile);
+      const annotationTmp = yield importAnnotationDaita(
+        labelFile,
+        idToLabelStr
+      );
 
       if (annotationTmp) {
         annotation = annotationTmp;
@@ -194,7 +204,7 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
       selectorLabelClassPropertiesByLabelClass
     );
     const { drawObjectById } = annotation;
-    Object.entries(drawObjectById).map(([key, value]) => {
+    Object.entries(drawObjectById).forEach(([key, value]) => {
       drawObjectById[key] = updateDrawObject(
         value,
         labelClassPropertiesByLabelClass
@@ -214,7 +224,7 @@ function* handleFetchAnnotationAndFileInfo(action: any): any {
         yield importFileAndAnnotationFromDaitaAI(labelFile);
       if (annotationDaitaAITmp) {
         const drawObjectByIdFromDaitaAI = annotationDaitaAITmp.drawObjectById;
-        Object.entries(drawObjectByIdFromDaitaAI).map(([key, value]) => {
+        Object.entries(drawObjectByIdFromDaitaAI).forEach(([key, value]) => {
           drawObjectById[key] = updateDrawObject(
             value,
             labelClassPropertiesByLabelClass
@@ -279,105 +289,131 @@ function* handleAddNewClassLabel(action: any): any {
   }
 }
 function* handleSaveAnnotationStateManager(action: any): any {
-  const { imageName, drawObjectById } =
-    action.payload as SaveAnnotationStateManagerProps;
-  const currentAnnotationAndFileInfo: AnnotationAndFileInfoApi = yield select(
-    selectorCurrentAnnotationAndFileInfo
-  );
-  const annotationCurrentProject: AnnotationProjectInfo = yield select(
-    selectorAnnotationCurrentProject
-  );
+  try {
+    const { imageName, drawObjectById } =
+      action.payload as SaveAnnotationStateManagerProps;
+    const currentAnnotationAndFileInfo: AnnotationAndFileInfoApi = yield select(
+      selectorCurrentAnnotationAndFileInfo
+    );
+    const annotationCurrentProject: AnnotationProjectInfo = yield select(
+      selectorAnnotationCurrentProject
+    );
 
-  const s3 = yield select(selectorS3);
-  let s3keyJsonlabel = "";
-  if (
-    currentAnnotationAndFileInfo.label_info &&
-    currentAnnotationAndFileInfo.label_info.length > 0
-  ) {
-    s3keyJsonlabel = currentAnnotationAndFileInfo.label_info[0].s3key_jsonlabel;
-  } else {
-    const splitKey = imageName.split(".");
-    splitKey.splice(splitKey.length - 1, 1);
-    const filename = `${splitKey.join("")}.json`;
-    s3keyJsonlabel = `${annotationCurrentProject.s3_label}/${filename}`;
-  }
-  const drawObjectStateIdByAI: Record<string, DrawObjectByAIState> =
-    yield select(selectorDrawObjectStateIdByAI);
-  const drawObjectByIdExcluceAIDetect: Record<string, DrawObject> = {};
-  Object.entries(drawObjectById).forEach(([key, value]) => {
-    if (!drawObjectStateIdByAI[key]) {
-      drawObjectByIdExcluceAIDetect[key] = value;
+    const s3 = yield select(selectorS3);
+    let s3keyJsonlabel = "";
+    if (
+      currentAnnotationAndFileInfo.label_info &&
+      currentAnnotationAndFileInfo.label_info.length > 0
+    ) {
+      s3keyJsonlabel =
+        currentAnnotationAndFileInfo.label_info[0].s3key_jsonlabel;
+    } else {
+      const splitKey = imageName.split(".");
+      splitKey.splice(splitKey.length - 1, 1);
+      const filename = `${splitKey.join("")}.json`;
+      s3keyJsonlabel = `${annotationCurrentProject.s3_label}/${filename}`;
     }
-  });
-  const localLabels: string[] = [];
-  Object.entries(drawObjectByIdExcluceAIDetect).map(([, value]) => {
-    const lsCategory = annotationCurrentProject?.ls_category;
-    if (lsCategory) {
-      const classInfoApi = lsCategory.ls_class.find(
-        (t) => t.class_name === value.data.label.label
-      );
-      if (!classInfoApi) {
-        localLabels.push(value.data.label.label);
+
+    const drawObjectStateIdByAI: Record<string, DrawObjectByAIState> =
+      yield select(selectorDrawObjectStateIdByAI);
+    const drawObjectByIdExcluceAIDetect: Record<string, DrawObject> = {};
+    Object.entries(drawObjectById).forEach(([key, value]) => {
+      if (!drawObjectStateIdByAI[key]) {
+        if (value.data.label.label) {
+          drawObjectByIdExcluceAIDetect[key] = value;
+        }
+      }
+    });
+    const localLabels: string[] = [];
+    Object.entries(drawObjectByIdExcluceAIDetect).forEach(([, value]) => {
+      const lsCategory = annotationCurrentProject?.ls_category;
+      if (lsCategory) {
+        const classInfoApi = lsCategory.ls_class.find(
+          (t) => t.class_name === value.data.label.label
+        );
+        if (!classInfoApi) {
+          localLabels.push(value.data.label.label);
+        }
+      }
+      //     if (annotationCurrentProjectName) {
+      //       savedCurrentAnnotationProjectName.current =
+      //         annotationCurrentProjectName;
+      //     }
+      // value.data.label.label
+    });
+    const saveLabelResp = yield call(
+      annotationProjectApi.addListOfClassNameToCategory,
+      {
+        idToken: getLocalStorage(ID_TOKEN_NAME) || "",
+        categoryId: annotationCurrentProject.ls_category.category_id,
+        lsClassName: localLabels,
+      }
+    );
+    const lsCategory: CategoryInfoApi = yield select(selectorLsCategory);
+    if (saveLabelResp.error === false) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const label of saveLabelResp.data.ls_name_ok) {
+        const [name, id] = label;
+
+        const strokeColor = `#${intToRGB(hashCode(name))}`;
+        lsCategory.ls_class.push({
+          class_id: id,
+          class_name: name,
+        });
+        yield put(
+          addNewListClassInfo({
+            lsClass: [{ class_id: name, class_name: id }],
+          })
+        );
+        yield put(
+          addNewClassLabel({
+            labelClassProperties: {
+              label: { label: name, attributes: [] },
+              cssStyle: {
+                fill: convertStrokeColorToFillColor(strokeColor),
+              },
+            },
+          })
+        );
       }
     }
-    //     if (annotationCurrentProjectName) {
-    //       savedCurrentAnnotationProjectName.current =
-    //         annotationCurrentProjectName;
-    //     }
-    // value.data.label.label
-  });
-  const saveLabelResp = yield call(
-    annotationProjectApi.addListOfClassNameToCategory,
-    {
+    const labelStrToId: Record<string, string> = {};
+    lsCategory.ls_class.forEach((t) => {
+      labelStrToId[t.class_name] = t.class_id;
+    });
+    const json = exportAnnotationToJson(
+      drawObjectByIdExcluceAIDetect,
+      labelStrToId
+    );
+    const { bucketName, key } = getKeyS3(s3keyJsonlabel);
+    const uploadParams = {
+      Bucket: bucketName,
+      Key: key,
+      Body: Buffer.from(JSON.stringify(json)),
+    };
+
+    const parallelUploads3 = new Upload({
+      client: s3,
+      queueSize: 1,
+      params: uploadParams,
+    });
+    yield parallelUploads3.done();
+    const saveLabelResponse = yield call(annotationProjectApi.saveLabel, {
       idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-      categoryId: annotationCurrentProject.ls_category.category_id,
-      lsClassName: localLabels,
+      fileId: currentAnnotationAndFileInfo.file_info.file_id,
+      dictS3Key: {
+        [annotationCurrentProject.ls_category.category_id]: s3keyJsonlabel,
+      },
+    });
+    if (saveLabelResponse.error !== true) {
+      yield put({ type: SAVE_ANNOTATION_STATE_MANAGER.SUCCEEDED });
+      toast.success("Annotation data is successfully saved.");
+    } else {
+      yield put({ type: SAVE_ANNOTATION_STATE_MANAGER.FAILED });
+      toast.error(saveLabelResponse.message);
     }
-  );
-  if (saveLabelResp.error === false) {
-    // eslint-disable-next-line no-restricted-syntax
-    for (const lableName of saveLabelResp.ls_name_ok) {
-      const strokeColor = `#${intToRGB(hashCode(lableName))}`;
-      yield put(
-        addNewClassLabel({
-          labelClassProperties: {
-            label: { label: lableName, attributes: [] },
-            cssStyle: {
-              fill: convertStrokeColorToFillColor(strokeColor),
-            },
-          },
-        })
-      );
-    }
-  }
-  const json = exportAnnotationToJson(drawObjectByIdExcluceAIDetect);
-  const { bucketName, key } = getKeyS3(s3keyJsonlabel);
-
-  const uploadParams = {
-    Bucket: bucketName,
-    Key: key,
-    Body: Buffer.from(JSON.stringify(json)),
-  };
-
-  const parallelUploads3 = new Upload({
-    client: s3,
-    queueSize: 1,
-    params: uploadParams,
-  });
-  yield parallelUploads3.done();
-  const saveLabelResponse = yield call(annotationProjectApi.saveLabel, {
-    idToken: getLocalStorage(ID_TOKEN_NAME) || "",
-    fileId: currentAnnotationAndFileInfo.file_info.file_id,
-    dictS3Key: {
-      [annotationCurrentProject.ls_category.category_id]: s3keyJsonlabel,
-    },
-  });
-  if (saveLabelResponse.error !== true) {
-    yield put({ type: SAVE_ANNOTATION_STATE_MANAGER.SUCCEEDED });
-    toast.success("Annotation data is successfully saved.");
-  } else {
-    yield put({ type: SAVE_ANNOTATION_STATE_MANAGER.FAILED });
-    toast.error(saveLabelResponse.message);
+  } catch (e: any) {
+    console.log(e);
   }
 }
 function* annotationEditorSaga() {

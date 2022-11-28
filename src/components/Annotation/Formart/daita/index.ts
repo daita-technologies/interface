@@ -13,7 +13,6 @@ import {
   AnnotationFormatter,
   AnnotationImportInfo,
   ID_2_LABEL_DAITA,
-  LABEL_2_ID_DAITA,
   PolygonShape,
   Shape,
   ShapeType,
@@ -89,7 +88,10 @@ export const importFileAndAnnotationFromDaitaAI = (
 //       });
 //     };
 //   });
-export const importAnnotation = (file: File): Promise<AnnotationImportInfo> =>
+export const importAnnotation = (
+  file: File,
+  idToLabelStr: Record<string, string>
+): Promise<AnnotationImportInfo> =>
   new Promise<AnnotationImportInfo>((resolve) => {
     const reader = new FileReader();
     reader.readAsText(file);
@@ -114,7 +116,7 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> =>
                 isFinished: true,
                 isLineStrip: annotation.shapeType === ShapeType.LINE_STRIP,
               },
-              label: { label: ID_2_LABEL_DAITA[annotation.categoryId] },
+              label: { label: idToLabelStr[annotation.categoryId] },
             } as PolygonSpec,
           };
         } else if (annotation.shapeType === ShapeType.RECTANGLE) {
@@ -125,7 +127,7 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> =>
             data: {
               ...drawObject.data,
               ...spec,
-              label: { label: ID_2_LABEL_DAITA[annotation.categoryId] },
+              label: { label: idToLabelStr[annotation.categoryId] },
             } as RectangleSpec,
           };
         } else if (annotation.shapeType === ShapeType.ELLIPSE) {
@@ -136,7 +138,7 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> =>
             data: {
               ...drawObject.data,
               ...spec,
-              label: { label: ID_2_LABEL_DAITA[annotation.categoryId] },
+              label: { label: idToLabelStr[annotation.categoryId] },
             } as EllipseSpec,
           };
         }
@@ -149,7 +151,8 @@ export const importAnnotation = (file: File): Promise<AnnotationImportInfo> =>
   });
 
 export const convert = (
-  drawObjectById: Record<string, DrawObject>
+  drawObjectById: Record<string, DrawObject>,
+  labelStrToId: Record<string, string>
 ): Shape[] => {
   const shapes: Shape[] = [];
   Object.entries(drawObjectById).forEach(([, value]) => {
@@ -161,30 +164,31 @@ export const convert = (
           value.type === DrawType.POLYGON
             ? ShapeType.POLYGON
             : ShapeType.LINE_STRIP,
-        categoryId: LABEL_2_ID_DAITA[label.label],
+        categoryId: labelStrToId[label.label],
       });
     } else if (value.type === DrawType.RECTANGLE) {
       const { width, height, x, y, label } = value.data as RectangleSpec;
       shapes.push({
         shapeSpec: { width, height, x, y },
         shapeType: ShapeType.RECTANGLE,
-        categoryId: LABEL_2_ID_DAITA[label.label],
+        categoryId: labelStrToId[label.label],
       });
     } else if (value.type === DrawType.ELLIPSE) {
       const { x, y, radiusX, radiusY, label } = value.data as EllipseSpec;
       shapes.push({
         shapeSpec: { x, y, radiusX, radiusY },
         shapeType: ShapeType.ELLIPSE,
-        categoryId: LABEL_2_ID_DAITA[label.label],
+        categoryId: labelStrToId[label.label],
       });
     }
   });
   return shapes;
 };
 export const exportAnnotationToJson = (
-  drawObjectById: Record<string, DrawObject>
+  drawObjectById: Record<string, DrawObject>,
+  labelStrToId: Record<string, string>
 ) => {
-  const shapes: Shape[] = convert(drawObjectById);
+  const shapes: Shape[] = convert(drawObjectById, labelStrToId);
   const annotationDaitaFormatter: AnnotationDaitaFormatter = {
     shapes,
   };
@@ -192,9 +196,10 @@ export const exportAnnotationToJson = (
 };
 export const exportAnnotation = (
   drawObjectById: Record<string, DrawObject>,
-  imageName: string
+  imageName: string,
+  labelStrToId: Record<string, string>
 ) => {
-  const json = exportAnnotationToJson(drawObjectById);
+  const json = exportAnnotationToJson(drawObjectById, labelStrToId);
   const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
     JSON.stringify(json, null, 2)
   )}`;

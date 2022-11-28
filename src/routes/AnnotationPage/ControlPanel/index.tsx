@@ -80,6 +80,7 @@ import {
 import {
   selectorAnnotationCurrentProject,
   selectorAnnotationCurrentProjectName,
+  selectorLsCategory,
 } from "reduxes/annotationProject/selector";
 import {
   DRAW_ELLIPSE_SHORT_KEY,
@@ -116,6 +117,8 @@ function ControlPanel() {
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const isSavingAnnotation = useSelector(selectorIsSavingAnnotation);
   const drawObjectStateIdByAI = useSelector(selectorDrawObjectStateIdByAI);
+  const lsCategory = useSelector(selectorLsCategory);
+
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
   );
@@ -194,12 +197,32 @@ function ControlPanel() {
       exportAnnotationLabelBox(drawObjectToExport, currentPreviewImageName);
     }
   };
+  const labelStrToId = React.useMemo(() => {
+    const tmpLabelStrToId: Record<string, string> = {};
+    if (lsCategory) {
+      lsCategory.ls_class.forEach((t) => {
+        tmpLabelStrToId[t.class_name] = t.class_id;
+      });
+    }
+    return tmpLabelStrToId;
+  }, [lsCategory]);
+  const idToLabelStr = React.useMemo(() => {
+    const tmpIdToLabelStr: Record<string, string> = {};
+    if (lsCategory) {
+      lsCategory.ls_class.forEach((t) => {
+        tmpIdToLabelStr[t.class_id] = t.class_name;
+      });
+    }
+    return tmpIdToLabelStr;
+  }, [lsCategory]);
   const handleExportDaita = () => {
     const drawObjectToExport = getDrawObjectToExport();
+
     if (drawObjectToExport) {
       exportAnnotationDaita(
         drawObjectToExport,
-        currentPreviewImageName || "imagename"
+        currentPreviewImageName || "imagename",
+        labelStrToId
       );
     }
   };
@@ -273,7 +296,7 @@ function ControlPanel() {
   };
   const importDaita = async (acceptedFile: File) => {
     const { drawObjectById: importDrawObjectById } =
-      await importAnnotationDaita(acceptedFile);
+      await importAnnotationDaita(acceptedFile, idToLabelStr);
 
     Object.entries(importDrawObjectById).forEach(([key, value]) => {
       importDrawObjectById[key] = updateDrawObject(value);
