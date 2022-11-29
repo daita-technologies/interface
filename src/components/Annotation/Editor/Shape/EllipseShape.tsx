@@ -13,7 +13,7 @@ import {
   selectorSelectedEllipse,
 } from "reduxes/annotation/selector";
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
-import { selectorCurrentImageInEditorProps } from "reduxes/annotationmanager/selecetor";
+import { selectorCurrentImageInEditorProps } from "reduxes/annotationmanager/selector";
 import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { EllipseCompProps, EllipseProps, EllipseSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
@@ -193,6 +193,8 @@ function EllipseComp({
         {...spec.cssStyle}
         strokeWidth={strokeWidth}
         visible={drawObjectState ? !drawObjectState.isHidden : true}
+        onMouseEnter={commonShapeEvent.handleMouseEnter}
+        onMouseLeave={commonShapeEvent.handleMouseLeave}
       />
       {isSelected && commonShapeEvent.isLock !== true && (
         <Transformer

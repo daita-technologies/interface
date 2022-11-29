@@ -45,7 +45,7 @@ import {
   selectorCurrentAnnotationFile,
   selectorCurrentImageInEditorProps,
   selectorIsFetchingImageData,
-} from "reduxes/annotationmanager/selecetor";
+} from "reduxes/annotationmanager/selector";
 import {
   DRAW_ELLIPSE_SHORT_KEY,
   DRAW_LINE_SHORT_KEY,

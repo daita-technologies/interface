@@ -16,6 +16,7 @@ import {
   SET_CLIENT_RECT_OF_BASE_IMAGE,
   SET_CLASS_MANAGE_MODAL,
   SET_PREVIEW_IMAGE,
+  ADD_NEW_CLASS_LABEL_LOCAL,
 } from "./constants";
 import {
   AddImageToAnnotationProps,
@@ -35,6 +36,7 @@ const inititalState: AnnotationManagerReducer = {
   currentPreviewImageName: null,
   currentImageInEditorProps: null,
   labelClassPropertiesByLabelClass: {}, // initialLabelClassPropertiesByLabelClass,
+  localLabelClassPropertiesByLabelClass: {},
   dialogClassManageModal: {
     isOpen: false,
   },
@@ -169,6 +171,26 @@ const annotationManagerReducer = (
         ...state,
         labelClassPropertiesByLabelClass: {
           ...state.labelClassPropertiesByLabelClass,
+          [labelClassProperties.label.label]: {
+            ...labelClassProperties,
+            label: { ...labelClassProperties.label },
+          },
+        },
+      };
+    }
+    case ADD_NEW_CLASS_LABEL_LOCAL: {
+      const { labelClassProperties } = payload as AddNewClassLabelProps;
+      return {
+        ...state,
+        labelClassPropertiesByLabelClass: {
+          ...state.labelClassPropertiesByLabelClass,
+          [labelClassProperties.label.label]: {
+            ...labelClassProperties,
+            label: { ...labelClassProperties.label },
+          },
+        },
+        localLabelClassPropertiesByLabelClass: {
+          ...state.localLabelClassPropertiesByLabelClass,
           [labelClassProperties.label.label]: {
             ...labelClassProperties,
             label: { ...labelClassProperties.label },

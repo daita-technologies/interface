@@ -12,6 +12,7 @@ import {
   SET_CLIENT_RECT_OF_BASE_IMAGE,
   SET_CLASS_MANAGE_MODAL,
   SET_PREVIEW_IMAGE,
+  ADD_NEW_CLASS_LABEL_LOCAL,
 } from "./constants";
 import {
   AddImageToAnnotationProps,
@@ -59,6 +60,10 @@ export const setAnnotationStateManager = (
 });
 export const addNewClassLabel = (payload: AddNewClassLabelProps) => ({
   type: ADD_NEW_CLASS_LABEL,
+  payload,
+});
+export const addNewClassLabelLocal = (payload: AddNewClassLabelProps) => ({
+  type: ADD_NEW_CLASS_LABEL_LOCAL,
   payload,
 });
 export const saveRemoteNewClassLabel = (payload: AddNewClassLabelProps) => ({

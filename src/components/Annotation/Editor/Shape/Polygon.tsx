@@ -391,6 +391,8 @@ function PolygonComp({
       onMouseDown={mousedownHandler}
       onClick={commonShapeEvent.handleCick}
       visible={isVisible}
+      onMouseEnter={commonShapeEvent.handleMouseEnter}
+      onMouseLeave={commonShapeEvent.handleMouseLeave}
     >
       <Line
         points={flattenedPoints}

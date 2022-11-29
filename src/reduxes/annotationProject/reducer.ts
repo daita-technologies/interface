@@ -5,6 +5,7 @@ import {
 } from "reduxes/project/type";
 import { objectIndexOf } from "utils/general";
 import {
+  ADD_NEW_LIST_CLASS_INFO,
   CLONE_PROJECT_TO_ANNOTATION,
   DELETE_ANNOTATION_PROJECT,
   FETCH_ANNOTATION_AND_FILE_INFO,
@@ -18,6 +19,7 @@ import {
   UPDATE_STATISTIC_PROJECT,
 } from "./constants";
 import {
+  AddNewListClassInfoProps,
   AnnotationFilesApi,
   AnnotationProjectReducer,
   SetAnnotationFilesProps,
@@ -294,6 +296,32 @@ const annotationProjectReducer = (
         return {
           ...state,
           currentProjectInfo,
+        };
+      }
+      return state;
+    }
+    case ADD_NEW_LIST_CLASS_INFO: {
+      const { lsClass } = payload as AddNewListClassInfoProps;
+      if (state.currentProjectInfo) {
+        const lsCategory = state.currentProjectInfo.ls_category;
+        const newLsClass = lsCategory ? [...lsCategory.ls_class] : [];
+        lsClass.forEach((clzz) => {
+          const findClass = newLsClass.find(
+            (t) => t.class_id === clzz.class_id
+          );
+          if (!findClass) {
+            newLsClass.push(clzz);
+          }
+        });
+        return {
+          ...state,
+          currentProjectInfo: {
+            ...state.currentProjectInfo,
+            ls_category: {
+              ...lsCategory,
+              ls_class: newLsClass,
+            },
+          },
         };
       }
       return state;

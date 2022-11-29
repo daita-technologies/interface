@@ -73,7 +73,24 @@ const useCommonShapeEvent = ({
       e.cancelBubble = true;
     }
   };
-
+  const handleMouseEnter = (e: KonvaEventObject<MouseEvent>) => {
+    const stage = e.target?.getStage();
+    if (stage) {
+      const container = stage.container();
+      if (currentDrawState === DrawState.SELECTING) {
+        container.style.cursor = "move";
+      } else {
+        container.style.cursor = "default";
+      }
+    }
+  };
+  const handleMouseLeave = (e: KonvaEventObject<MouseEvent>) => {
+    const stage = e.target?.getStage();
+    if (stage) {
+      const container = stage.container();
+      container.style.cursor = "default";
+    }
+  };
   return {
     handleDragEnd,
     handleDragStart,
@@ -81,6 +98,8 @@ const useCommonShapeEvent = ({
     handleTransformStart,
     handleTransformEnd,
     handleSelect,
+    handleMouseEnter,
+    handleMouseLeave,
     isLock,
   };
 };

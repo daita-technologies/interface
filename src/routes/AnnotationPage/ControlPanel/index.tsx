@@ -25,7 +25,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { CssStyle } from "components/Annotation/Editor/type";
 import { getFitScaleEditor } from "components/Annotation/Editor/utils";
@@ -34,10 +33,12 @@ import {
   exportAnnotationLabelBox,
   exportAnnotationLabelMe,
   exportAnnotationScaleAI,
+  importAnnotationDaita,
+  importAnnotationLabelBox,
   importAnnotationLabelMe,
   importAnnotationScaleAI,
-  importFileAnnotationDaita,
 } from "components/Annotation/Formart";
+import { importFileAndAnnotationFromDaitaAI } from "components/Annotation/Formart/daita";
 import TooltipToggleButton from "components/TooltipToggleButton";
 import * as React from "react";
 import { useDropzone } from "react-dropzone";
@@ -65,6 +66,7 @@ import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
 import {
   addImagesToAnnotation,
   addNewClassLabel,
+  addNewClassLabelLocal,
   saveAnnotationStateManager,
   setAnnotationStateManager,
   setPreviewImage,
@@ -74,13 +76,17 @@ import {
   selectorCurrentPreviewImageName,
   selectorIsSavingAnnotation,
   selectorLabelClassPropertiesByLabelClass,
-} from "reduxes/annotationmanager/selecetor";
-import { selectorAnnotationCurrentProjectName } from "reduxes/annotationProject/selector";
+} from "reduxes/annotationmanager/selector";
+import {
+  selectorAnnotationCurrentProject,
+  selectorAnnotationCurrentProjectName,
+  selectorLsCategory,
+} from "reduxes/annotationProject/selector";
 import {
   DRAW_ELLIPSE_SHORT_KEY,
-  DRAW_SEGMENTATION_SHORT_KEY,
   DRAW_POLYGON_SHORT_KEY,
   DRAW_RECTANGLE_SHORT_KEY,
+  DRAW_SEGMENTATION_SHORT_KEY,
   SELECT_SHORT_KEY,
   DRAW_LINE_SHORT_KEY,
 } from "../constants";
@@ -103,11 +109,16 @@ function ControlPanel() {
   const annotationCurrentProjectName = useSelector(
     selectorAnnotationCurrentProjectName
   );
+  const annotationCurrentProject = useSelector(
+    selectorAnnotationCurrentProject
+  );
   const savedCurrentAnnotationProjectName = React.useRef<string>("");
   const currentPreviewImageName = useSelector(selectorCurrentPreviewImageName);
   const currentAnnotationFile = useSelector(selectorCurrentAnnotationFile);
   const isSavingAnnotation = useSelector(selectorIsSavingAnnotation);
   const drawObjectStateIdByAI = useSelector(selectorDrawObjectStateIdByAI);
+  const lsCategory = useSelector(selectorLsCategory);
+
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
   );
@@ -186,12 +197,32 @@ function ControlPanel() {
       exportAnnotationLabelBox(drawObjectToExport, currentPreviewImageName);
     }
   };
+  const labelStrToId = React.useMemo(() => {
+    const tmpLabelStrToId: Record<string, string> = {};
+    if (lsCategory) {
+      lsCategory.ls_class.forEach((t) => {
+        tmpLabelStrToId[t.class_name] = t.class_id;
+      });
+    }
+    return tmpLabelStrToId;
+  }, [lsCategory]);
+  const idToLabelStr = React.useMemo(() => {
+    const tmpIdToLabelStr: Record<string, string> = {};
+    if (lsCategory) {
+      lsCategory.ls_class.forEach((t) => {
+        tmpIdToLabelStr[t.class_id] = t.class_name;
+      });
+    }
+    return tmpIdToLabelStr;
+  }, [lsCategory]);
   const handleExportDaita = () => {
     const drawObjectToExport = getDrawObjectToExport();
+
     if (drawObjectToExport) {
       exportAnnotationDaita(
         drawObjectToExport,
-        currentPreviewImageName || "imagename"
+        currentPreviewImageName || "imagename",
+        labelStrToId
       );
     }
   };
@@ -209,7 +240,15 @@ function ControlPanel() {
           stroke: strokeColor,
         } as CssStyle,
       };
-      dispatch(addNewClassLabel({ labelClassProperties: classLabel }));
+      const lsCategory = annotationCurrentProject?.ls_category;
+      if (lsCategory) {
+        const classInfoApi = lsCategory.ls_class.find(
+          (t) => t.class_name === label
+        );
+        if (!classInfoApi) {
+          dispatch(addNewClassLabelLocal({ labelClassProperties: classLabel }));
+        }
+      }
     }
 
     const css = drawObjectRet.data.cssStyle;
@@ -256,33 +295,43 @@ function ControlPanel() {
     );
   };
   const importDaita = async (acceptedFile: File) => {
-    const { annotationImagesProperty, drawObjectById: importDrawObjectById } =
-      await importFileAnnotationDaita(acceptedFile);
+    const { drawObjectById: importDrawObjectById } =
+      await importAnnotationDaita(acceptedFile, idToLabelStr);
+
+    Object.entries(importDrawObjectById).forEach(([key, value]) => {
+      importDrawObjectById[key] = updateDrawObject(value);
+      dispatch(
+        createDrawObject({
+          drawObject: importDrawObjectById[key],
+        })
+      );
+    });
+
     Object.entries(importDrawObjectById).forEach(([key, value]) => {
       importDrawObjectById[key] = updateDrawObject(value);
     });
-    dispatch(
-      addImagesToAnnotation({
-        annotationImagesProperties: [annotationImagesProperty],
-      })
-    );
-    dispatch(
-      setAnnotationStateManager({
-        imageName: annotationImagesProperty.image.name,
-        drawObjectById: importDrawObjectById,
-      })
-    );
+    // dispatch(
+    //   addImagesToAnnotation({
+    //     annotationImagesProperties: [annotationImagesProperty],
+    //   })
+    // );
+    // dispatch(
+    //   setAnnotationStateManager({
+    //     imageName: annotationImagesProperty.image.name,
+    //     drawObjectById: importDrawObjectById,
+    //   })
+    // );
 
-    dispatch(
-      resetCurrentStateDrawObject({
-        drawObjectById: importDrawObjectById,
-      })
-    );
-    dispatch(
-      setPreviewImage({
-        imageName: annotationImagesProperty.image.name,
-      })
-    );
+    // dispatch(
+    //   resetCurrentStateDrawObject({
+    //     drawObjectById: importDrawObjectById,
+    //   })
+    // );
+    // dispatch(
+    //   setPreviewImage({
+    //     imageName: annotationImagesProperty.image.name,
+    //   })
+    // );
   };
   const importScaleAI = async (acceptedFile: File) => {
     const { drawObjectById: importDrawObjectById } =
@@ -292,6 +341,19 @@ function ControlPanel() {
     //     drawObjectById: drawObjectById,
     //   })
     // );
+    Object.entries(importDrawObjectById).forEach(([key, value]) => {
+      importDrawObjectById[key] = updateDrawObject(value);
+      dispatch(
+        createDrawObject({
+          drawObject: importDrawObjectById[key],
+        })
+      );
+    });
+  };
+  const importLabelBox = async (acceptedFile: File) => {
+    const { drawObjectById: importDrawObjectById } =
+      await importAnnotationLabelBox(acceptedFile);
+
     Object.entries(importDrawObjectById).forEach(([key, value]) => {
       importDrawObjectById[key] = updateDrawObject(value);
       dispatch(
@@ -311,6 +373,8 @@ function ControlPanel() {
           importScaleAI(acceptedFile);
         } else if (snapImportType === "DAITA") {
           importDaita(acceptedFile);
+        } else if (snapImportType === "LABEL_BOX") {
+          importLabelBox(acceptedFile);
         }
       });
     }

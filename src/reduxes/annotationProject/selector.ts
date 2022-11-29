@@ -21,3 +21,5 @@ export const selectorDeleteAnnotationProjectConfirmDialogInfo = (
 ) => state.annotationProjectReducer.deleteConfirmDialogInfo;
 export const selectorIsFetchingListAnnotationProject = (state: RootState) =>
   state.annotationProjectReducer.isFetchingProjects;
+export const selectorLsCategory = (state: RootState) =>
+  state.annotationProjectReducer.currentProjectInfo?.ls_category;

@@ -20,7 +20,7 @@ export enum ShapeType {
 export interface Shape {
   shapeSpec: ShapeSpec;
   shapeType: ShapeType;
-  categoryId: number;
+  categoryId: string;
 }
 export type RectangleShape = Pick<
   RectangleSpec,
@@ -36,7 +36,7 @@ export interface AnnotationFormatter {
   annotations: Annotation[];
 }
 export interface FileAndAnnotationImportInfo {
-  annotationImagesProperty: AnnotationImagesProperty;
+  annotationImagesProperty: AnnotationImagesProperty | null;
   drawObjectById: Record<string, DrawObject>;
 }
 export interface AnnotationImportInfo {

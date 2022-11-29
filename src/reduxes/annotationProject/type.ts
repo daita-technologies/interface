@@ -134,3 +134,7 @@ export interface DeleteAnnotationProjectProps {
 export interface SetAnnotationFilesProps {
   annotationAndFileInfoApi: AnnotationAndFileInfoApi | null;
 }
+
+export interface AddNewListClassInfoProps {
+  lsClass: ClassInfoApi[];
+}

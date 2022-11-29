@@ -14,7 +14,7 @@ import {
   requestChangePreviewImage,
   saveAnnotationStateManager,
 } from "reduxes/annotationmanager/action";
-import { selectorIsSavingAnnotation } from "reduxes/annotationmanager/selecetor";
+import { selectorIsSavingAnnotation } from "reduxes/annotationmanager/selector";
 import { QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE } from "../constants";
 import SaveIcon from "@mui/icons-material/Save";
 

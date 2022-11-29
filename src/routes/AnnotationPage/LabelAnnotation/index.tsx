@@ -14,7 +14,7 @@ import { setDialogClassManageModal } from "reduxes/annotationmanager/action";
 import {
   selectorDialogClassManageModal,
   selectorIsFetchingImageData,
-} from "reduxes/annotationmanager/selecetor";
+} from "reduxes/annotationmanager/selector";
 import ClassItem from "./ClassItem";
 import ClassManageModel from "./ClassManageModal";
 

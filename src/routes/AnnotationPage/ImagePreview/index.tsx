@@ -17,7 +17,7 @@ import { requestChangePreviewImage } from "reduxes/annotationmanager/action";
 import {
   selectorCurrentPreviewImageName,
   selectorIdDrawObjectByImageName,
-} from "reduxes/annotationmanager/selecetor";
+} from "reduxes/annotationmanager/selector";
 import { selectorCurrentAnnotationFiles } from "reduxes/annotationProject/selector";
 import { QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE } from "../constants";
 import ChangePreviewConfirmDialog from "./ChangePreviewConfirmDialog";

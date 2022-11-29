@@ -16,7 +16,7 @@ import {
 import {
   selectorDialogClassManageModal,
   selectorLabelClassPropertiesByLabelClass,
-} from "reduxes/annotationmanager/selecetor";
+} from "reduxes/annotationmanager/selector";
 import { LabelForm } from "../ClassLabel/type";
 import FieldArrayAttribute from "./FieldArrayAttribute";
 import { ClassManageDialogProps } from "./type";

@@ -12,7 +12,7 @@ import {
   createDrawObject,
 } from "reduxes/annotation/action";
 import { DrawState, DrawType } from "reduxes/annotation/type";
-import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selecetor";
+import { selectorCurrentAnnotationFile } from "reduxes/annotationmanager/selector";
 import { FULL_PADDING_VALUE } from "routes/AnnotationPage/constants";
 import { DrawLayerProps } from "./type";
 import { adjustPosition } from "./utils";
