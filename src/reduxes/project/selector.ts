@@ -196,6 +196,9 @@ export const selectorCurrentTaskListInfo = (state: RootState) =>
 export const selectorIsCreatingSampleProject = (state: RootState) =>
   state.projectReducer.isCreatingSampleProject;
 
+export const selectorIsCreateProjectFailed = (state: RootState) =>
+  state.projectReducer.isCreateProjectFailed;
+
 export const selectorDeleteConfirmDialogInfo = (state: RootState) =>
   state.projectReducer.deleteConfirmDialogInfo;
 

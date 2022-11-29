@@ -42,6 +42,7 @@ import { projectApi } from "services";
 
 import { CreateProjectDatasetValueType } from "constants/type";
 
+import { selectorIsCreateProjectFailed } from "reduxes/project/selector";
 import {
   CreateProjectFields,
   CreateProjectModalProps,
@@ -253,6 +254,14 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
     setNumberOfDatasetImages(1);
   };
 
+  const isCreateProjectFailed = useSelector(selectorIsCreateProjectFailed);
+
+  useEffect(() => {
+    if (isCreateProjectFailed === false) {
+      resetFormData();
+    }
+  }, [isCreateProjectFailed]);
+
   const onSubmitCreateProject = (fields: CreateProjectFields) => {
     if (
       datasetProjectType === EXISTING_DATASET_CREATE_PROJECT_DATASET_TYPE_VALUE
@@ -269,7 +278,6 @@ const CreateProjectModal = function (props: CreateProjectModalProps) {
     }
 
     dispatch({ type: CREATE_PROJECT.REQUESTED, payload: fields });
-    resetFormData();
   };
 
   const onCloseModal = () => {

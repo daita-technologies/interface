@@ -192,6 +192,7 @@ export interface ProjectReducerState {
   isCreatingSampleProject: boolean;
   isOpenCreateProjectModal: boolean;
   isCreatingProject: boolean;
+  isCreateProjectFailed: boolean | null;
   isFetchingProjects: boolean | null;
   isFetchingDetailProject: boolean | null;
   isFetchingProjectTaskList: boolean | null;
