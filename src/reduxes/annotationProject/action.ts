@@ -3,6 +3,7 @@ import {
   UpdateProjectStatisticPayload,
 } from "reduxes/project/type";
 import {
+  ADD_NEW_LIST_CLASS_INFO,
   CLONE_PROJECT_TO_ANNOTATION,
   DELETE_ANNOTATION_PROJECT,
   FETCH_ANNOTATION_AND_FILE_INFO,
@@ -16,6 +17,7 @@ import {
   UPDATE_STATISTIC_PROJECT,
 } from "./constants";
 import {
+  AddNewListClassInfoProps,
   CloneProjectToAnnotationProps,
   DeleteAnnotationProjectProps,
   FetchAnnotationAndFileInfoProps,
@@ -91,5 +93,10 @@ export const updateCurrentAnnotationProjectStatistic = (
   payload: UpdateProjectStatisticPayload
 ) => ({
   type: UPDATE_STATISTIC_PROJECT,
+  payload,
+});
+
+export const addNewListClassInfo = (payload: AddNewListClassInfoProps) => ({
+  type: ADD_NEW_LIST_CLASS_INFO,
   payload,
 });

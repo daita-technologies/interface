@@ -28,7 +28,7 @@ import {
   selectorSelectedDrawObjectId,
 } from "reduxes/annotation/selector";
 import { DrawType } from "reduxes/annotation/type";
-import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selecetor";
+import { selectorLabelClassPropertiesByLabelClass } from "reduxes/annotationmanager/selector";
 import ClassLabel from "./ClassLabel";
 import { getBackgroundColor } from "./ClassManageModal/useListClassView";
 import { ClassItemProps } from "./type";

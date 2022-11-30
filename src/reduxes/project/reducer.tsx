@@ -48,6 +48,7 @@ const inititalState: ProjectReducerState = {
   isCreatingSampleProject: false,
   isOpenCreateProjectModal: false,
   isCreatingProject: false,
+  isCreateProjectFailed: null,
   isFetchingProjects: null,
   isFetchingProjectTaskList: null,
   listProjects: [],
@@ -76,18 +77,23 @@ const projectReducer = (
     case SET_IS_OPEN_CREATE_PROJECT_MODAL:
       return { ...state, isOpenCreateProjectModal: payload.isOpen };
     case CREATE_PROJECT.REQUESTED:
-      return { ...state, isCreatingProject: true };
+      return { ...state, isCreatingProject: true, isCreateProjectFailed: null };
     case CREATE_PROJECT.SUCCEEDED: {
       const newListProject: Array<any> = [...state.listProjects];
       newListProject.unshift(payload.createdProject);
       return {
         ...state,
         isCreatingProject: false,
+        isCreateProjectFailed: false,
         listProjects: newListProject,
       };
     }
     case CREATE_PROJECT.FAILED:
-      return { ...state, isCreatingProject: false };
+      return {
+        ...state,
+        isCreatingProject: false,
+        isCreateProjectFailed: true,
+      };
     case FETCH_LIST_PROJECTS.REQUESTED: {
       const { notShowLoading } = payload;
       return { ...state, isFetchingProjects: !notShowLoading };

@@ -9,8 +9,10 @@ import {
   SAVE_ANNOTATION_STATE_MANAGER,
   SAVE_REMOTE_NEW_CLASS_LABEL,
   SET_ANNOTATION_STATE_MANAGER,
+  SET_CLIENT_RECT_OF_BASE_IMAGE,
   SET_CLASS_MANAGE_MODAL,
   SET_PREVIEW_IMAGE,
+  ADD_NEW_CLASS_LABEL_LOCAL,
 } from "./constants";
 import {
   AddImageToAnnotationProps,
@@ -21,6 +23,7 @@ import {
   EditClassManageModalProps,
   FetchingFileAndAnnotaitonProps,
   SaveAnnotationStateManagerProps,
+  SetClientRectOfBaseImageProps,
 } from "./type";
 
 export const addImagesToAnnotation = (payload: AddImageToAnnotationProps) => ({
@@ -59,6 +62,10 @@ export const addNewClassLabel = (payload: AddNewClassLabelProps) => ({
   type: ADD_NEW_CLASS_LABEL,
   payload,
 });
+export const addNewClassLabelLocal = (payload: AddNewClassLabelProps) => ({
+  type: ADD_NEW_CLASS_LABEL_LOCAL,
+  payload,
+});
 export const saveRemoteNewClassLabel = (payload: AddNewClassLabelProps) => ({
   type: SAVE_REMOTE_NEW_CLASS_LABEL.REQUESTED,
   payload,
@@ -85,4 +92,10 @@ export const fetchingFileAndAnnotaiton = (
 });
 export const resetAnnotationManager = () => ({
   type: RESET_ANNOTATION_MANAGER,
+});
+export const setClientRectOfBaseImage = (
+  payload: SetClientRectOfBaseImageProps
+) => ({
+  type: SET_CLIENT_RECT_OF_BASE_IMAGE,
+  payload,
 });

@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { setDialogClassManageModal } from "reduxes/annotationmanager/action";
-import { selectorDialogClassManageModal } from "reduxes/annotationmanager/selecetor";
+import { selectorDialogClassManageModal } from "reduxes/annotationmanager/selector";
 import useClassManageEditor from "./useClassManageEditor";
 // eslint-disable-next-line import/no-cycle
 import useListClassView from "./useListClassView";

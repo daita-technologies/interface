@@ -14,6 +14,7 @@ import {
 } from "reduxes/annotationProject/action";
 import {
   selectorAnnotationCurrentProject,
+  selectorAnnotationCurrentProjectName,
   selectorCurrentAnnotationFiles,
 } from "reduxes/annotationProject/selector";
 import { getLocalStorage } from "utils/general";
@@ -28,6 +29,9 @@ const AnnotationEditor = function () {
     selectorAnnotationCurrentProject
   );
   const currentAnnotationFiles = useSelector(selectorCurrentAnnotationFiles);
+  const annotationCurrentProjectName = useSelector(
+    selectorAnnotationCurrentProjectName
+  );
 
   useEffect(() => {
     if (annotationCurrentProject) {
@@ -44,7 +48,7 @@ const AnnotationEditor = function () {
       dispatch(resetAnnotationManager());
       dispatch(resetAnnotation());
     };
-  }, [annotationCurrentProject]);
+  }, [annotationCurrentProjectName]);
 
   const renderContent = () => {
     if (
@@ -77,7 +81,9 @@ const AnnotationEditor = function () {
           <Box
             display="flex"
             gap={2}
-            sx={{ padding: 1, backgroundColor: "#2a3648" }}
+            sx={{ backgroundColor: "#2a3648" }}
+            justifyContent="center"
+            alignContent="center"
           >
             <ImagePreview />
           </Box>

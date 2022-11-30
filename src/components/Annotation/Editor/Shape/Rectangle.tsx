@@ -13,6 +13,7 @@ import {
   selectorSelectedRectangle,
 } from "reduxes/annotation/selector";
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
+import { selectorCurrentImageInEditorProps } from "reduxes/annotationmanager/selector";
 import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { RectangleCompProps, RectangleProps, RectangleSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
@@ -46,6 +47,9 @@ function RectangleComp({
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
   const currentDrawState = useSelector(selectorCurrentDrawState);
   const drawObjectState = useSelector(selectorDrawObjectState(spec.id));
+  const currentImageInEditorProps = useSelector(
+    selectorCurrentImageInEditorProps
+  );
 
   const [strokeWidth, setStrokeWidth] = useState<number>(
     spec.cssStyle.strokeWidth
@@ -74,29 +78,38 @@ function RectangleComp({
       trRef.current.getLayer().batchDraw();
     }
   }, [isSelected]);
-  const [stage, setStage] = useState<Konva.Stage | null>(null);
-
   const groupDragBound = (pos: Vector2d) => {
     let { x, y } = pos;
-    const sw = stage ? stage.width() : 0;
-    const sh = stage ? stage.height() : 0;
-    if (shapeRef && shapeRef.current) {
-      const box = shapeRef.current.getClientRect();
-      const minMaxX = [0, box.width];
-      const minMaxY = [0, box.height];
-
-      if (minMaxY[0] + y < 0) y = -1 * minMaxY[0];
-      if (minMaxX[0] + x < 0) x = -1 * minMaxX[0];
-      if (minMaxY[1] + y > sh) y = sh - minMaxY[1];
-      if (minMaxX[1] + x > sw) x = sw - minMaxX[1];
-      return { x, y };
+    if (shapeRef && shapeRef.current && currentImageInEditorProps) {
+      const { clientRectOfBaseImage } = currentImageInEditorProps;
+      if (clientRectOfBaseImage) {
+        if (x < clientRectOfBaseImage.x) {
+          x = clientRectOfBaseImage.x;
+        }
+        if (y < clientRectOfBaseImage.y) {
+          y = clientRectOfBaseImage.y;
+        }
+        const box = shapeRef.current.getClientRect();
+        if (
+          x + box.width >
+          clientRectOfBaseImage.x + clientRectOfBaseImage.width
+        ) {
+          x = clientRectOfBaseImage.x + clientRectOfBaseImage.width - box.width;
+        }
+        if (
+          y + box.height >
+          clientRectOfBaseImage.y + clientRectOfBaseImage.height
+        ) {
+          y =
+            clientRectOfBaseImage.y + clientRectOfBaseImage.height - box.height;
+        }
+      }
     }
-    return { x: 0, y: 0 };
-  };
 
-  const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
-    setStage(e.target.getStage());
-    commonShapeEvent.handleDragStart(e);
+    return {
+      x,
+      y,
+    };
   };
   const handleDragEnd = (e: KonvaEventObject<DragEvent>) => {
     onChange({
@@ -139,7 +152,6 @@ function RectangleComp({
     setStrokeWidth(spec.cssStyle.strokeWidth);
     onMouseOutHandler(e);
   };
-
   return (
     <>
       <Rect
@@ -152,9 +164,10 @@ function RectangleComp({
         onMouseOut={onMouseOut}
         draggable={commonShapeEvent.isLock !== true}
         onDragEnd={handleDragEnd}
-        onDragStart={handleDragStart}
         onTransformEnd={handleTransformEnd}
         strokeScaleEnabled={false}
+        onMouseEnter={commonShapeEvent.handleMouseEnter}
+        onMouseLeave={commonShapeEvent.handleMouseLeave}
         {...spec}
         {...spec.cssStyle}
         strokeWidth={strokeWidth}

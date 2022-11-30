@@ -8,6 +8,7 @@ import {
   IMAGE_EXTENSIONS,
   LIMIT_IMAGE_HEIGHT,
   LIMIT_IMAGE_WIDTH,
+  LIMIT_UPLOAD_IMAGE_SIZE,
   MAX_ALLOW_UPLOAD_IMAGES,
   MAX_ALLOW_UPLOAD_IMAGES_AT_THE_SAME_TIME,
 } from "constants/defaultValues";
@@ -61,7 +62,7 @@ import {
   selectorUploadFiles,
   selectorUploadingFileCount,
 } from "reduxes/upload/selector";
-import { getLocalStorage, isImageFile } from "utils/general";
+import { formatBytes, getLocalStorage, isImageFile } from "utils/general";
 import { LoadImageResult, MousePosition, UploadFileProps } from "./type";
 import UploadFileItem from "./UploadFileItem";
 import UploadFromMenu from "./UploadFromMenu";
@@ -371,6 +372,16 @@ const UploadFile = function (props: UploadFileProps) {
       >
         The number of images that can be uploaded is limited to{" "}
         {MAX_ALLOW_UPLOAD_IMAGES}.
+      </Typography>
+      <Typography
+        sx={{ mt: 1 }}
+        textAlign="center"
+        variant="body2"
+        color="text.secondary"
+      >
+        {`The maximum size of each image is ${formatBytes(
+          LIMIT_UPLOAD_IMAGE_SIZE
+        )}.`}
       </Typography>
     </Box>
   );

@@ -218,20 +218,24 @@ const annotationProjectDetail = function () {
   const handleAnnotateProjectClick = () => {
     window.open(`/${ANNOTATION_EDITOR_ROUTE_NAME}/${projectName}`, "_blank");
   };
-  const renderProject = () => {
-    if (
-      annotationCurrentProject &&
-      annotationCurrentProject.gen_status === GENERATING_SAMPLE_PROJECT_STATUS
-    ) {
-      return (
-        <Box mt={4}>
-          <Typography sx={{ mb: 2 }}>
-            The project is being built, please come back in a few minutes...
-          </Typography>
-          <LinearProgress />
-        </Box>
+
+  const onClickGoToProjectDashboard = () => {
+    history.push("/annotation/projects");
+  };
+
+  const handleClickDeleteProject = () => {
+    if (annotationCurrentProject) {
+      dispatch(
+        setIsOpenDeleteProject({
+          isOpen: true,
+          projectId: annotationCurrentProject.project_id,
+          projectName: annotationCurrentProject.project_name,
+        })
       );
     }
+  };
+
+  const renderProject = () => {
     if (
       isFetchingDetailAnnotationProject === null ||
       isFetchingDetailAnnotationProject === true
@@ -257,49 +261,71 @@ const annotationProjectDetail = function () {
         </Box>
       );
     }
-    const handleClickDeleteProject = () => {
-      if (annotationCurrentProject) {
-        dispatch(
-          setIsOpenDeleteProject({
-            isOpen: true,
-            projectId: annotationCurrentProject.project_id,
-            projectName: annotationCurrentProject.project_name,
-          })
+
+    if (annotationCurrentProject) {
+      if (
+        annotationCurrentProject.gen_status === GENERATING_SAMPLE_PROJECT_STATUS
+      ) {
+        return (
+          <Box mt={4}>
+            <Typography sx={{ mb: 2 }}>
+              The project is being built, please come back in a few minutes...
+            </Typography>
+            <LinearProgress />
+          </Box>
         );
       }
-    };
+
+      return (
+        <Box>
+          <Box mt={2} p={2} display="flex" borderRadius={2} flex={1}>
+            {renderContent()}
+          </Box>
+          <Box mt={1} px={2}>
+            <Button
+              variant="outlined"
+              onClick={onOpenCheckSegmentationProgressModal}
+            >
+              Check Segmentation Progress
+            </Button>
+          </Box>
+          <Box mt={10} display="flex" justifyContent="flex-end" gap={2}>
+            <Button
+              variant="outlined"
+              color="success"
+              onClick={handleAnnotateProjectClick}
+            >
+              Annotate Project
+            </Button>
+            <LoadingButton
+              variant="outlined"
+              color="error"
+              onClick={handleClickDeleteProject}
+            >
+              Delete Project
+            </LoadingButton>
+          </Box>
+        </Box>
+      );
+    }
+
     return (
-      <Box>
-        <Box mt={2} p={2} display="flex" borderRadius={2} flex={1}>
-          {renderContent()}
-        </Box>
-        <Box mt={1} px={2}>
-          <Button
-            variant="outlined"
-            onClick={onOpenCheckSegmentationProgressModal}
-          >
-            Check Segmentation Progress
-          </Button>
-        </Box>
-        <Box mt={10} display="flex" justifyContent="flex-end" gap={2}>
-          <Button
-            variant="outlined"
-            color="success"
-            onClick={handleAnnotateProjectClick}
-          >
-            Annotate Project
-          </Button>
-          <LoadingButton
-            variant="outlined"
-            color="error"
-            onClick={handleClickDeleteProject}
-          >
-            Delete Project
-          </LoadingButton>
-        </Box>
+      <Box
+        mt={14}
+        mb={10}
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Typography mb={2}>Project does not exist.</Typography>
+        <Button variant="outlined" onClick={onClickGoToProjectDashboard}>
+          Go to Project Dashboard
+        </Button>
       </Box>
     );
   };
+
   return (
     <Box mt={4} mb={10}>
       <Typography variant="h4" component="h1">

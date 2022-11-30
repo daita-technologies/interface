@@ -5,11 +5,29 @@ export interface AnnotationManagerReducer {
   idDrawObjectByImageName: Record<string, Record<string, DrawObject>>;
   images: Record<string, AnnotationImagesProperty>;
   currentPreviewImageName: string | null;
+  currentImageInEditorProps: ImageInEditorProps | null;
   labelClassPropertiesByLabelClass: Record<string, LabelClassProperties>;
+  localLabelClassPropertiesByLabelClass: Record<string, LabelClassProperties>;
   dialogClassManageModal: ClassManageModalProps;
   isFetchingImageData: boolean;
   isSavingAnnotation: boolean;
 }
+export interface ImageInEditorProps {
+  scaleX: number;
+  scaleY: number;
+  width: number;
+  height: number;
+  paddingLeft: number;
+  paddingTop: number;
+  clientRectOfBaseImage: ClientRectType | null;
+}
+export interface ClientRectType {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+}
+
 export type ClassManageModalType = "VIEW" | "CREATE" | "EDIT";
 
 export interface ClassManageModalProps {
@@ -50,4 +68,7 @@ export interface FetchingFileAndAnnotaitonProps {
   categoryId: string;
   s3keyLabel: string;
   s3keyFile: string;
+}
+export interface SetClientRectOfBaseImageProps {
+  clientRectOfBaseImage: ClientRectType;
 }

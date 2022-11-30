@@ -1,6 +1,15 @@
-import { Box, List, ListItem, Skeleton, Typography } from "@mui/material";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import {
+  Box,
+  Button,
+  List,
+  ListItem,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import { BeforeUnload } from "components";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { resetCurrentStateDrawObject } from "reduxes/annotation/action";
 import { selectorAnnotationStatehHistory } from "reduxes/annotation/selector";
@@ -8,7 +17,7 @@ import { requestChangePreviewImage } from "reduxes/annotationmanager/action";
 import {
   selectorCurrentPreviewImageName,
   selectorIdDrawObjectByImageName,
-} from "reduxes/annotationmanager/selecetor";
+} from "reduxes/annotationmanager/selector";
 import { selectorCurrentAnnotationFiles } from "reduxes/annotationProject/selector";
 import { QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE } from "../constants";
 import ChangePreviewConfirmDialog from "./ChangePreviewConfirmDialog";
@@ -126,6 +135,17 @@ function ImagePreview() {
   const handleCloseDialog = () => {
     setIsOpenDiaglog(false);
   };
+
+  const refList = useRef<HTMLUListElement>(null);
+  // refList.current?.scroll
+  const scrollLeft = () => {
+    refList.current?.scroll({ left: refList.current.scrollLeft - 500 });
+  };
+  const scrollRight = () => {
+    if (refList.current) {
+      refList.current.scroll({ left: refList.current.scrollLeft + 500 });
+    }
+  };
   const renderContent = () => {
     if (!currentAnnotationFiles) {
       return <Skeleton variant="circular" width={40} height={40} />;
@@ -136,55 +156,71 @@ function ImagePreview() {
           isActive={!!needConfirmChangePreviewImageDialog}
           message={QUIT_ANNOTATION_EDITOR_ALERT_MESSAGE}
         />
-        <List
-          sx={{
-            overflow: "auto",
-            display: "flex",
-            flexDirection: "row",
-            py: 2,
-          }}
-        >
-          {currentAnnotationFiles.items.map((item) => (
-            <ListItem key={item.filename}>
-              <ImagePreviewBadge filename={item.filename}>
-                <Box
-                  sx={{
-                    // background: `url(${fileThumbByImageName[imageName]})no-repeat center`,
-                    border:
-                      item.filename === currentPreviewImageName
-                        ? "3px solid red"
-                        : "1px solid",
-                    backgroundSize: "contain",
-                    height: 60,
-                    cursor: "pointer",
-                  }}
-                  width="250px"
-                  position="relative"
-                  onClick={() => {
-                    handleSelectPreview(item.filename);
-                  }}
-                >
+        <Box display="flex">
+          <Button
+            color="primary"
+            startIcon={<ArrowBackIosIcon />}
+            onClick={scrollLeft}
+          />
+          <List
+            sx={{
+              overflow: "auto",
+              display: "flex",
+              flexDirection: "row",
+              py: 2,
+              width: "92vw",
+              lineHeight: "8vh",
+            }}
+            ref={refList}
+            id="scrollTest"
+          >
+            {currentAnnotationFiles.items.map((item) => (
+              <ListItem key={item.filename}>
+                <ImagePreviewBadge filename={item.filename}>
                   <Box
-                    display="flex"
-                    justifyContent="center"
-                    height="100%"
-                    alignItems="center"
+                    sx={{
+                      // background: `url(${fileThumbByImageName[imageName]})no-repeat center`,
+                      border:
+                        item.filename === currentPreviewImageName
+                          ? "3px solid red"
+                          : "1px solid",
+                      backgroundSize: "contain",
+                      height: 60,
+                      cursor: "pointer",
+                    }}
+                    width="250px"
+                    position="relative"
+                    onClick={() => {
+                      handleSelectPreview(item.filename);
+                    }}
                   >
-                    <Typography
-                      sx={{
-                        color: "text.primary",
-                        p: 1,
-                      }}
-                      noWrap
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      height="100%"
+                      alignItems="center"
                     >
-                      {item.filename}
-                    </Typography>
+                      <Typography
+                        sx={{
+                          color: "text.primary",
+                          p: 1,
+                        }}
+                        noWrap
+                      >
+                        {item.filename}
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
-              </ImagePreviewBadge>
-            </ListItem>
-          ))}
-        </List>
+                </ImagePreviewBadge>
+              </ListItem>
+            ))}
+          </List>
+          <Button
+            color="primary"
+            startIcon={<ArrowForwardIosIcon />}
+            onClick={scrollRight}
+          />
+        </Box>
         {currentPreviewImageName && nextPreviewImageName && (
           <ChangePreviewConfirmDialog
             isOpen={isOpenDiaglog}

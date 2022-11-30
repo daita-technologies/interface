@@ -13,6 +13,7 @@ import {
   selectorSelectedEllipse,
 } from "reduxes/annotation/selector";
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
+import { selectorCurrentImageInEditorProps } from "reduxes/annotationmanager/selector";
 import { CIRCLE_STYLE, CORNER_RADIUS, LINE_STYLE } from "../const";
 import { EllipseCompProps, EllipseProps, EllipseSpec } from "../type";
 import useCommonShapeEvent from "../useCommonShapeEvent";
@@ -47,7 +48,9 @@ function EllipseComp({
   const commonShapeEvent = useCommonShapeEvent({ drawObject: spec });
   const currentDrawState = useSelector(selectorCurrentDrawState);
   const drawObjectState = useSelector(selectorDrawObjectState(spec.id));
-
+  const currentImageInEditorProps = useSelector(
+    selectorCurrentImageInEditorProps
+  );
   const [strokeWidth, setStrokeWidth] = useState<number>(
     spec.cssStyle.strokeWidth
   );
@@ -75,28 +78,62 @@ function EllipseComp({
       trRef.current.getLayer().batchDraw();
     }
   }, [isSelected]);
-  const [stage, setStage] = useState<Konva.Stage | null>(null);
 
   const groupDragBound = (pos: Vector2d) => {
     let { x, y } = pos;
-    const sw = stage ? stage.width() : 0;
-    const sh = stage ? stage.height() : 0;
-    if (shapeRef && shapeRef.current) {
+    if (shapeRef && shapeRef.current && currentImageInEditorProps) {
+      const { clientRectOfBaseImage } = currentImageInEditorProps;
       const box = shapeRef.current.getClientRect();
 
-      if (y - box.height / 2 < 0) y = box.height / 2;
-      if (x - box.width / 2 < 0) x = box.width / 2;
-      if (y + box.height / 2 > sh) y = sh - box.height / 2;
-      if (x + box.width / 2 > sw) x = sw - box.width / 2;
-      return { x, y };
+      if (clientRectOfBaseImage) {
+        if (x - box.width / 2 < clientRectOfBaseImage.x) {
+          x = clientRectOfBaseImage.x + box.width / 2;
+        }
+        if (y - box.height / 2 < clientRectOfBaseImage.y) {
+          y = clientRectOfBaseImage.y + box.height / 2;
+        }
+        if (
+          x + box.width >
+          clientRectOfBaseImage.x + clientRectOfBaseImage.width
+        ) {
+          x =
+            clientRectOfBaseImage.x +
+            clientRectOfBaseImage.width -
+            box.width / 2;
+        }
+        if (
+          y + box.height >
+          clientRectOfBaseImage.y + clientRectOfBaseImage.height
+        ) {
+          y =
+            clientRectOfBaseImage.y +
+            clientRectOfBaseImage.height -
+            box.height / 2;
+        }
+      }
     }
-    return { x: 0, y: 0 };
-  };
 
-  const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
-    setStage(e.target.getStage());
-    commonShapeEvent.handleDragStart(e);
+    return {
+      x,
+      y,
+    };
   };
+  // const groupDragBound = (pos: Vector2d) => {
+  //   let { x, y } = pos;
+  //   const sw = stage ? stage.width() : 0;
+  //   const sh = stage ? stage.height() : 0;
+  //   if (shapeRef && shapeRef.current) {
+  //     const box = shapeRef.current.getClientRect();
+
+  //     if (y - box.height / 2 < 0) y = box.height / 2;
+  //     if (x - box.width / 2 < 0) x = box.width / 2;
+  //     if (y + box.height / 2 > sh) y = sh - box.height / 2;
+  //     if (x + box.width / 2 > sw) x = sw - box.width / 2;
+  //     return { x, y };
+  //   }
+  //   return { x: 0, y: 0 };
+  // };
+
   const handleTransformEnd = (e: KonvaEventObject<Event>) => {
     const node = shapeRef.current;
     if (!node) return;
@@ -150,13 +187,14 @@ function EllipseComp({
         onMouseOut={onMouseOut}
         draggable={commonShapeEvent.isLock !== true}
         onDragEnd={handleDragEnd}
-        onDragStart={handleDragStart}
         onTransformEnd={handleTransformEnd}
         strokeScaleEnabled={false}
         {...spec}
         {...spec.cssStyle}
         strokeWidth={strokeWidth}
         visible={drawObjectState ? !drawObjectState.isHidden : true}
+        onMouseEnter={commonShapeEvent.handleMouseEnter}
+        onMouseLeave={commonShapeEvent.handleMouseLeave}
       />
       {isSelected && commonShapeEvent.isLock !== true && (
         <Transformer

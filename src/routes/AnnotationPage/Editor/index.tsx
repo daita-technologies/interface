@@ -11,9 +11,7 @@ import { CircularProgress, Typography } from "@mui/material";
 import { Ellipse, Polygon, Rectangle } from "components/Annotation";
 import {
   MAX_HEIGHT_EDITOR,
-  MAX_HEIGHT_IMAGE_IN_EDITOR,
   MAX_WIDTH_EDITOR,
-  MAX_WIDTH_IMAGE_IN_EDITOR,
 } from "components/Annotation/Editor/const";
 import Konva from "konva";
 import {
@@ -45,8 +43,9 @@ import {
 import { DrawObject, DrawState, DrawType } from "reduxes/annotation/type";
 import {
   selectorCurrentAnnotationFile,
+  selectorCurrentImageInEditorProps,
   selectorIsFetchingImageData,
-} from "reduxes/annotationmanager/selecetor";
+} from "reduxes/annotationmanager/selector";
 import {
   DRAW_ELLIPSE_SHORT_KEY,
   DRAW_LINE_SHORT_KEY,
@@ -83,31 +82,9 @@ function Editor() {
   const toolTipLayer = useRef<Konva.Layer>(null);
   const toolTip = useRef<Konva.Text>(null);
   const toolTipRect = useRef<Konva.Rect>(null);
-  const stageProps = useMemo(() => {
-    if (currentAnnotationFile) {
-      const { height, width } = currentAnnotationFile;
-      const widthRatio = MAX_WIDTH_IMAGE_IN_EDITOR / width;
-      const heightRatio = MAX_HEIGHT_IMAGE_IN_EDITOR / height;
-      let newWidth = width;
-      let newHeight = height;
-      if (widthRatio < 1 || heightRatio < 1) {
-        if (widthRatio < heightRatio) {
-          newWidth = MAX_WIDTH_IMAGE_IN_EDITOR;
-          newHeight *= widthRatio;
-        } else {
-          newHeight = MAX_HEIGHT_IMAGE_IN_EDITOR;
-          newWidth *= heightRatio;
-        }
-      }
-      return {
-        scaleX: newWidth / width,
-        scaleY: newHeight / height,
-        height: newHeight,
-        width: newWidth,
-      };
-    }
-    return null;
-  }, [currentAnnotationFile]);
+  const currentImageInEditorProps = useSelector(
+    selectorCurrentImageInEditorProps
+  );
 
   const drawObjects = useMemo(() => {
     const rectanglesById: Record<string, DrawObject> = {};
@@ -336,20 +313,8 @@ function Editor() {
     }
     return handleMouseDown;
   }, [currentDrawState, currentDrawType]);
-
-  const paddingStage = useMemo(() => {
-    if (stageProps) {
-      return {
-        paddingLeft:
-          (MAX_WIDTH_EDITOR - stageProps.width) / stageProps.scaleX / 2.0,
-        paddingTop:
-          (MAX_HEIGHT_EDITOR - stageProps.height) / stageProps.scaleY / 2.0,
-      };
-    }
-    return { paddingLeft: 0, paddingTop: 0 };
-  }, [currentAnnotationFile]);
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoading || !currentImageInEditorProps) {
       return (
         <Box
           display="flex"
@@ -391,8 +356,8 @@ function Editor() {
             {({ store }) => (
               <Stage
                 ref={stageRef}
-                scaleX={stageProps ? stageProps.scaleX : 1}
-                scaleY={stageProps ? stageProps.scaleY : 1}
+                scaleX={currentImageInEditorProps.scaleX}
+                scaleY={currentImageInEditorProps.scaleY}
                 width={MAX_WIDTH_EDITOR}
                 height={MAX_HEIGHT_EDITOR}
                 onWheel={wheelHandler}
@@ -401,13 +366,13 @@ function Editor() {
               >
                 <Provider store={store}>
                   <DrawLayer
-                    paddingLeft={paddingStage.paddingLeft}
-                    paddingTop={paddingStage.paddingTop}
+                    paddingLeft={currentImageInEditorProps.paddingLeft}
+                    paddingTop={currentImageInEditorProps.paddingTop}
                   />
                   <Layer
                     ref={layer}
-                    x={paddingStage.paddingLeft}
-                    y={paddingStage.paddingTop}
+                    x={currentImageInEditorProps.paddingLeft}
+                    y={currentImageInEditorProps.paddingTop}
                   >
                     <BaseImage />
                     <Group
@@ -449,8 +414,16 @@ function Editor() {
                   <Layer
                     ref={toolTipLayer}
                     visible={false}
-                    scaleX={stageProps ? 1 / stageProps.scaleX : 1}
-                    scaleY={stageProps ? 1 / stageProps.scaleY : 1}
+                    scaleX={
+                      currentImageInEditorProps
+                        ? 1 / currentImageInEditorProps.scaleX
+                        : 1
+                    }
+                    scaleY={
+                      currentImageInEditorProps
+                        ? 1 / currentImageInEditorProps.scaleY
+                        : 1
+                    }
                   >
                     <Rect
                       ref={toolTipRect}

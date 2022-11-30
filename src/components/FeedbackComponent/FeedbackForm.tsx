@@ -173,7 +173,7 @@ export const FeedbackForm = function ({
         onSubmit={handleSubmit(onSubmitFeedback)}
       >
         <Typography variant="caption" fontSize={15} fontWeight="bold">
-          Tell us details
+          Tell us the details
         </Typography>
         <TextField
           required
@@ -199,7 +199,7 @@ export const FeedbackForm = function ({
         />
         <Box mt={1}>
           <Typography variant="caption" fontSize={15} fontWeight="bold">
-            Send us screenshot
+            Send us your screenshot(s)
           </Typography>
           <Typography
             variant="body2"
@@ -207,7 +207,7 @@ export const FeedbackForm = function ({
             color="text.secondary"
             display="inline-block"
           >
-            File types supported: JPG, PNG, Max size: 2 MB
+            File types supported: JPG, PNG; Max. size: 2 MB
           </Typography>
           <Box mt={1}>
             <UploadZoneWrapper
