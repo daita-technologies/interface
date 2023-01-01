@@ -16,7 +16,7 @@ const Footer = function () {
         >
           <Box>
             <Typography>
-              © 2022-2023 DAITA Technologies. All Rights Reserved.
+              © 2022–2023 DAITA Technologies. All Rights Reserved.
             </Typography>
           </Box>
           <Box>
