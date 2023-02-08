@@ -126,7 +126,12 @@ const UserInfoForm = function ({
     if (recaptchaRef && recaptchaRef.current) {
       const token = await recaptchaRef.current.executeAsync();
       setValue("captcha", token || "");
-      onSubmit(getValues());
+      if (
+        !errors ||
+        (errors && Object.keys(errors).length <= 1 && errors.captcha)
+      ) {
+        onSubmit(getValues());
+      }
     }
   };
 
